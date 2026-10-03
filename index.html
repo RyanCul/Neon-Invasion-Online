@@ -1323,7 +1323,7 @@ function pollPad(dt){
   const rt=(driving<0||hel)&&V(7)>0.35;
   if(rt!==padRT){padRT=rt;mouseDown=rt;if(rt)mousePressed=0.15;}
   if(edge(2)){if(canInteract())interact();else startReload();}
-  if(edge(3))quickSwap();
+  if(edge(3)&&!garageActive())goBase();
   aiming=driving<0&&V(6)>0.35;
   if(edge(4))cycleW(-1);
   if(edge(5))cycleW(1);

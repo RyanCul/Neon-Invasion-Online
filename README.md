@@ -48,7 +48,7 @@ Warship (r9, flying shooter), Queen (r11, 3-orb volleys), Titan (r13, mini-boss)
 ## Weapons, armory & upgrades
 11 laser guns, every one with **5 upgrades** (MK I → MK VI: more damage, bigger mags, brighter laser). Buy and upgrade from the **ARMORY** list menu (Up/Down or Q to choose, E / X to buy or upgrade, B closes). The Forge still upgrades your current gun. "Refill all ammo" is in the armory too.
 New guns: **LONGSHOT** (slow, long-range sniper – hold right-click / LT to scope), **ARC GATLING** (hold fire to charge, then it sprays), **NEON STARS** (thrown shuriken), **INFERNO** (flamethrower, sets aliens on fire), **TOXIC SPRAYER** (gas canister, poison cloud), **BRASS KNUCKLES** (close range, no ammo).
-Switching: keys 1-9, 0, - · mouse wheel · LB/RB · **F (or pad Y) = quick-swap to your previous weapon**. Right-click / LT = aim. On a pad, X = interact (or reload if nothing nearby); D-pad up = go to base.
+Switching: keys 1-9, 0, - · mouse wheel · LB/RB · **F = quick-swap to your previous weapon; on a pad LB/RB (the bumpers) cycle weapons**. Right-click / LT = aim. On a pad, X = interact (or reload if nothing nearby); Y or D-pad up = go to base.
 
 ## Helicopter
 Garage item #8, **$30,000**. WASD fly, mouse aims, Space up, C/Shift down, click / RT fires miniguns. Land (below ~3 height) to exit. Pad: LS move, RS aim, A up, B down, RT fire.
