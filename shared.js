@@ -21,6 +21,22 @@ const WPN=[
   {id:3,name:'VIOLET RAIL',kind:'PURPLE PIERCING RAIL',color:0xa56bff,dmg:170,rate:1.2, mag:8,  res:56, cost:2500,pellets:1,spread:0.0,  pierce:4,reload:1.8,auto:false},
   {id:4,name:'LIME STORM',kind:'GREEN LASER MINIGUN', color:0x3cff9e,dmg:24, rate:11,  mag:90, res:450,cost:3500,pellets:1,spread:0.03, pierce:1,reload:2.4,auto:true}
 ];
+/* ---- levels & gun skins (profile is stored in the player's browser) ---- */
+const MAXLV=50;
+const xpNeed=L=>400+120*(L-1);          // XP needed to go from level L to L+1
+const SKINS=[
+  {id:0, name:'NEON STOCK', lvl:1,  col:null,      body:null},
+  {id:1, name:'CHROME',     lvl:2,  col:0xdfefff,   body:0xa9b4c4},
+  {id:2, name:'GOLD RUSH',  lvl:5,  col:0xffd23c,   body:0xb8902a},
+  {id:3, name:'GLACIER',    lvl:8,  col:0x8ff3ff,   body:0x4aa3c8},
+  {id:4, name:'MAGMA',      lvl:12, col:0xff4a1c,   body:0x5a1a0c},
+  {id:5, name:'TOXIC',      lvl:16, col:0xb6ff1c,   body:0x2d5a10},
+  {id:6, name:'GALAXY',     lvl:20, col:0xc58cff,   body:0x2a1060},
+  {id:7, name:'RAINBOW',    lvl:25, col:'rainbow',  body:0x333344},
+  {id:8, name:'VOID',       lvl:30, col:0xffffff,   body:0x050008},
+  {id:9, name:'DIAMOND',    lvl:40, col:0xe8ffff,   body:0xcfefff},
+  {id:10,name:'NEON GOD',   lvl:50, col:'rainbow',  body:'rainbow'}
+];
 const DMG_MULT=[1,1.6,2.4,3.6];
 const MAG_MULT=[1,1.25,1.5,2];
 const UP_COST=[1500,3000,6000];          // cost to reach level 1,2,3
@@ -288,14 +304,28 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      wo:[0,-1,-1,-1,-1],w:0,jet:false,jfl:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:[0,-1,-1,-1,-1],w:0,lv:1,sk:0,jet:false,jfl:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){this.state='rest';this.timer=6;this.round=0;}
     return p;
   }
+  setProfile(id,lv,sk){
+    const p=this.players.get(id);if(!p)return;
+    p.lv=clamp(lv|0,1,MAXLV);sk=sk|0;p.sk=(sk>=0&&sk<SKINS.length)?sk:0;
+  }
+  /* rounds this player survived while in the game (for the leaderboard) */
+  credit(p){
+    const done=this.state==='rest'?this.round:this.round-1;
+    return Math.max(0,done-(p.joinRound-1));
+  }
+  report(list){
+    if(!this.onRecord)return;
+    try{this.onRecord(list.map(p=>({name:p.name,rounds:this.credit(p),kills:p.kills,lv:p.lv})));}catch(e){console.error('record error',e);}
+  }
   removePlayer(id){
     const p=this.players.get(id);if(!p)return;
+    if(this.round>=1&&this.state!=='over')this.report([p]);
     if(p.car>=0){const c=this.cars.find(c=>c.id===p.car);if(c)c.drv=-1;}
     this.players.delete(id);this.flows.delete(id);
     if(!this.players.size){this.state='lobby';}
@@ -338,6 +368,7 @@ class Game{
         p.car=-1;break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
+      case 'prof':this.setProfile(id,m.lv,m.sk);break;
     }
   }
 
@@ -378,7 +409,7 @@ class Game{
         this.damageAlien(a,dmg*(n>1?0.8:1),p,ox+dd[0]*h[0],oy+dd[1]*h[0],oz+dd[2]*h[0]);
       }
     }
-    this.push('shot',p.id,m.w,lvl,r2(ox),r2(oy),r2(oz),r2(d[0]),r2(d[1]),r2(d[2]),m.s|0);
+    this.push('shot',p.id,m.w,lvl,r2(ox),r2(oy),r2(oz),r2(d[0]),r2(d[1]),r2(d[2]),m.s|0,p.sk|0);
   }
 
   onBuy(p,m){
@@ -624,6 +655,7 @@ class Game{
         this.state='over';this.timer=14;
         this.best=Math.max(this.best,this.round);
         this.push('over',this.round);
+        this.report(plist);
       }
     }
 
@@ -830,7 +862,7 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),st:p.st,m:p.money,k:p.kills,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
+        hp:Math.round(p.hp),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0)})),
@@ -840,7 +872,7 @@ class Game{
   }
 }
 
-const API={EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={MAXLV,xpNeed,SKINS,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,SEED,WORLD,B,LOOT,HOUSES,JET_COST,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);
