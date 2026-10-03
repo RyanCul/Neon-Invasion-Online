@@ -1,7 +1,7 @@
 {
   "name": "neon-shores-invasion",
   "version": "1.0.0",
-  "description": "Neon Shores: Invasion - co-op alien waves FPS in a neon 80s city",
+  "description": "Neon Invasion - co-op alien waves FPS in a neon 80s city",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": { "ws": "^8.18.0" },

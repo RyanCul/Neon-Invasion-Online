@@ -1,4 +1,4 @@
-/* NEON SHORES: INVASION - multiplayer server
+/* NEON INVASION - multiplayer server
    Run:  npm install   then   node server.js
    Serves the game files AND hosts the WebSocket rooms on the same port. */
 const http=require('http'),fs=require('fs'),path=require('path');
@@ -147,6 +147,6 @@ setInterval(()=>{
 },33);
 
 server.listen(PORT,()=>{
-  console.log(`NEON SHORES: INVASION server on http://localhost:${PORT}`);
+  console.log(`NEON INVASION server on http://localhost:${PORT}`);
   console.log('Open that address in your browser. Friends on your network can use http://<your-ip>:'+PORT);
 });

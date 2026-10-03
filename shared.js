@@ -62,7 +62,8 @@ const AT=[
   {name:'MEDIC',  hp:90,  sp:6,   r:1.4, cy:1.5, dmg:0,  money:120, fly:false,support:true},
   {name:'WARSHIP',hp:190, sp:9,   r:2.4, cy:0,   dmg:16, money:160, fly:true,ranged:true},
   {name:'QUEEN',  hp:300, sp:4.8, r:2.0, cy:2.0, dmg:15, money:180, fly:false,ranged:true},
-  {name:'TITAN',  hp:1600,sp:4.4, r:3.8, cy:3.8, dmg:52, money:500, fly:false,stomp:12}
+  {name:'TITAN',  hp:1600,sp:4.4, r:3.8, cy:3.8, dmg:52, money:500, fly:false,stomp:12},
+  {name:'GODZILLA',hp:60000,sp:3.6,r:15, cy:22,  dmg:95, money:20000,fly:false,ranged:true,boss:true,giant:true,stomp:42}
 ];
 
 /* ---------------- world ---------------- */
@@ -381,6 +382,7 @@ class Game{
     if(Math.hypot(ox-p.x,oz-p.z)>9)return;
     let def,dmg,lvl=0,col;
     if(m.w===-1){
+      return;   // cars are ram-only now
       if(p.car<0)return;
       const c=this.cars.find(c=>c.id===p.car);if(!c)return;
       const cd=CARS[c.t];
@@ -399,7 +401,7 @@ class Game{
       const hits=[];
       for(const a of this.aliens){
         const t=raySphere(ox,oy,oz,dd[0],dd[1],dd[2],a.x,a.y+a.cy,a.z,a.r+0.3);
-        if(t>=0&&t<wt)hits.push([t,a]);
+        if(t>=0&&(t<wt||AT[a.t].giant))hits.push([t,a]);
       }
       hits.sort((a,b)=>a[0]-b[0]);
       let n=0;
@@ -479,6 +481,7 @@ class Game{
     this.round++;
     const mul=this.online?1.5:1;     // online rooms get 1.5x aliens
     let total=Math.round((5+this.round*2.4)*mul);
+    const giant=this.round%50===0;
     const boss=this.round%5===0;
     if(boss)total=Math.round(total*0.5);
     const q=[];
@@ -489,7 +492,8 @@ class Game{
       for(const e of pool){r-=e[2];if(r<=0){t=e[0];break;}}
       q.push(t);
     }
-    if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
+    if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
+    else if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
     for(const p of this.players.values()){   // everyone who fell comes back at the start of the round
       if(p.st!=='alive'){
         p.st='alive';p.hp=100;p.rvProg=0;this.spawnPos(p);
@@ -498,7 +502,7 @@ class Game{
       }
     }
     this.nested=false;this.queue=q;this.state='fight';this.spawnT=1.5;this.loot.fill(true);
-    this.push('round',this.round,boss?1:0);
+    this.push('round',this.round,giant?2:(boss?1:0));
   }
   endRound(){
     this.state='rest';this.timer=this.round%5===0?12:9;
@@ -521,7 +525,7 @@ class Game{
     const tg=pl[Math.floor(this.rand()*pl.length)];
     let x=0,z=0,ok=false;
     for(let i=0;i<25&&!ok;i++){
-      const a=this.rand()*Math.PI*2,d=(t===4?90:70)+this.rand()*70;
+      const a=this.rand()*Math.PI*2,d=(t===12?150:t===4?90:70)+this.rand()*70;
       x=tg.x+Math.cos(a)*d;z=tg.z+Math.sin(a)*d;
       if(x<BOUNDS.x0||x>BOUNDS.x1||z<BOUNDS.z0||z>BOUNDS.z1-30)continue;
       if(!def.fly&&BLOCK[cellOf(x,z)])continue;
@@ -533,6 +537,7 @@ class Game{
     const np=Math.max(1,this.players.size);
     let hp=def.hp*this.hpMul();
     if(t===4)hp=2200*(1+0.5*(this.round/5-1))*(1+0.5*(np-1));
+    if(t===12)hp=60000*(1+0.5*(this.round/50-1))*(1+0.5*(np-1));
     const sp=def.sp*(1+Math.min(0.55,0.028*this.round))*(0.9+this.rand()*0.25);
     this.aliens.push({id:this.nid++,t,x,y:def.fly?9+this.rand()*6:0,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
       dmg:def.dmg*(1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0});
@@ -598,12 +603,13 @@ class Game{
     if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.car=-1;this.push('down',p.id);}
   }
   fireOrb(a,tx,ty,tz,spread,speed,dmg){
-    const ox=a.x,oy=a.y+a.cy+(a.t===4?1.5:0.4),oz=a.z;
+    let ox=a.x,oy=a.y+a.cy+(a.t===4?1.5:0.4),oz=a.z;
+    if(a.t===12){const hl=Math.hypot(tx-a.x,tz-a.z)||1;ox+=(tx-a.x)/hl*13;oz+=(tz-a.z)/hl*13;oy=a.y+30;}
     let dx=tx-ox,dy=ty-oy,dz=tz-oz;const l=Math.hypot(dx,dy,dz)||1;
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:a.t===4?1:0});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12)?1:0});
   }
 
   /* ---- main tick ---- */
@@ -719,13 +725,13 @@ class Game{
       }else{
         let want=1;
         if(def.ranged||def.support){
-          const keep=30;
+          const keep=a.t===12?4:30;
           if(a.los&&dist<keep+8)want=dist<keep-10?-0.6:0;
         }
         if(want!==0){
           let dirx=dx/dist,dirz=dz/dist;
           if(!(a.los&&dist<45)||want<0){
-            const f=this.flows.get(a.tgt);
+            const f=def.giant?null:this.flows.get(a.tgt);
             if(f&&want>0){const s=flowStep(f,a.x,a.z);if(s){const sx=s[0]-a.x,sz=s[1]-a.z,sl=Math.hypot(sx,sz)||1;dirx=sx/sl;dirz=sz/sl;}}
             else if(want<0){dirx=-dirx;dirz=-dirz;}
           }
@@ -736,7 +742,7 @@ class Game{
         }
         a.vx+=(mx*speed-a.vx)*Math.min(1,dt*6);a.vz+=(mz*speed-a.vz)*Math.min(1,dt*6);
         a.x+=a.vx*dt;a.z+=a.vz*dt;
-        pushOut(a,Math.min(a.r,1.8));
+        if(!def.giant)pushOut(a,Math.min(a.r,1.8));
       }
       a.x=clamp(a.x,BOUNDS.x0,BOUNDS.x1);a.z=clamp(a.z,BOUNDS.z0,BOUNDS.z1);
 
@@ -756,7 +762,13 @@ class Game{
         let seen=a.los;
         if(def.fly){const d3=Math.hypot(dx,a.y+0.5-ty,dz)||1;seen=rayWorld(a.x,a.y+0.5,a.z,dx/d3,(ty-a.y-0.5)/d3,dz/d3,d3)>=d3-0.5;}
         if(seen){
-          if(a.t===4){
+          if(a.t===12){
+            a.cd=2.8;
+            for(let i=-3;i<=3;i++){
+              const ang=Math.atan2(dx,dz)+i*0.13;
+              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,46,26*(1+0.03*this.round));
+            }
+          }else if(a.t===4){
             a.cd=3.0;
             for(let i=-2;i<=2;i++){
               const ang=Math.atan2(dx,dz)+i*0.16;
@@ -781,7 +793,7 @@ class Game{
         a.stomp-=dt;
         const R=def.stomp;
         if(a.stomp<=0&&dist<R){a.stomp=6;this.push('stomp',r2(a.x),r2(a.z));
-          for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5)this.hurt(p,a.t===4?35:30);}}
+          for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5)this.hurt(p,a.t===12?70:a.t===4?35:30);}}
       }
       if(def.support){ // medic heals nearby aliens
         a.healT=(a.healT===undefined?2:a.healT)-dt;
@@ -802,8 +814,8 @@ class Game{
         if(d2<mind*mind&&d2>1e-6){
           const d=Math.sqrt(d2),push=(mind-d)*0.5;
           const nx=dx/d*push,nz=dz/d*push;
-          if(a.t!==4){a.x-=nx;a.z-=nz;}
-          if(b.t!==4){b.x+=nx;b.z+=nz;}
+          if(a.t!==4&&a.t!==12){a.x-=nx;a.z-=nz;}
+          if(b.t!==4&&b.t!==12){b.x+=nx;b.z+=nz;}
         }
       }
     }
@@ -836,14 +848,14 @@ class Game{
       if(!p){c.drv=-1;continue;}
       if(p.st!=='alive'){c.drv=-1;p.car=-1;continue;}
       // run over
-      if(Math.abs(c.sp)>10){
+      if(Math.abs(c.sp)>7){
         for(const a of this.aliens){
           if(a.hp<=0||a.rt>0)continue;
           if(Math.hypot(a.x-c.x,a.z-c.z)<a.r+2.4&&a.y<5){
-            a.rt=0.45;
-            const big=a.t>=3;
-            this.damageAlien(a,Math.abs(c.sp)*(big?2.5:5)*(1+0.3*CARS[c.t].id),p,a.x,a.y+a.cy,a.z);
-            c.hp-=big?6:1.5;
+            const df=AT[a.t],huge=!!df.giant,big=df.r>2.5;
+            a.rt=huge?0.7:0.45;
+            this.damageAlien(a,Math.abs(c.sp)*(huge?9:big?4:8)*(1+0.3*CARS[c.t].id),p,a.x,a.y+a.cy,a.z);
+            c.hp-=huge?35:big?10:3;
             this.push('thud',r2(a.x),r2(a.z));
           }
         }

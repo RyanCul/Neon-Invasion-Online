@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Neon Shores: Invasion</title>
+<title>Neon Invasion</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#0a0418;font-family:'Trebuchet MS',system-ui,sans-serif;color:#fff;user-select:none}
@@ -163,11 +163,11 @@ body.playing #radio{display:block}
 <div id="lock">CLICK TO PLAY</div>
 
 <div id="menu">
-  <h1>NEON SHORES</h1>
-  <h2>I N V A S I O N</h2>
+  <h1>NEON INVASION</h1>
+  <h2>A L I E N &nbsp; W A V E S</h2>
   <p>Aliens are landing in the neon city. Survive wave after wave with your friends.</p>
-  <p>Earn cash for every kill, buy laser guns, upgrade them at the Neon Forge, and buy armed cars at the Garage.</p>
-  <p style="color:#ff9ee0">A boss alien arrives every 5 rounds. How far can your crew get?</p>
+  <p>Earn cash for every kill, buy laser guns, upgrade them at the Neon Forge, and buy cars at the Garage and run the aliens over.</p>
+  <p style="color:#ff9ee0">A boss alien arrives every 5 rounds - and every 50 rounds, a GODZILLA ALIEN as big as a building. How far can your crew get?</p>
   <div class="box">
     <div id="nameLab">TYPE YOUR NAME - IT SHOWS ON THE LEADERBOARD</div>
     <input id="name" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false"><br>
@@ -440,13 +440,13 @@ function updateFx(dt){
 }
 
 /* ================= models ================= */
-const ACOL=[0x3cff9e,0xa56bff,0x25f4ff,0xff9a3c,0xff2fa0, 0xff4a3c,0xffe63c,0x7a8fb8,0xd8ffe8,0xff2040,0x6a2bd0,0xff3030];
-const ASCALE=[0.85,0.85,1,1.5,2.8, 0.8,0.85,1.15,0.9,1.5,1.3,2.2];
+const ACOL=[0x3cff9e,0xa56bff,0x25f4ff,0xff9a3c,0xff2fa0, 0xff4a3c,0xffe63c,0x7a8fb8,0xd8ffe8,0xff2040,0x6a2bd0,0xff3030,0x2fd86a];
+const ASCALE=[0.85,0.85,1,1.5,2.8, 0.8,0.85,1.15,0.9,1.5,1.3,2.2,10.5];
 function makeAlien(t){
   const g=new THREE.Group(),col=ACOL[t];
   const body=new THREE.MeshLambertMaterial({color:col,emissive:col,emissiveIntensity:0.35});
   const dark=new THREE.MeshLambertMaterial({color:0x1a0b33});
-  const eye=new THREE.MeshBasicMaterial({color:t===4||t===11?0xffffff:0xfff3b0});
+  const eye=new THREE.MeshBasicMaterial({color:t===4||t===11||t===12?0xffffff:0xfff3b0});
   const o={g,legs:[],arms:[],t,ring:null,fly:false,pulse:null};
   if(t===2||t===9){
     o.fly=true;const s=t===9?1.6:1;g.scale.setScalar(s);
@@ -474,6 +474,14 @@ function makeAlien(t){
     const tip=new THREE.Mesh(new THREE.SphereGeometry(0.14,6,4),eye);tip.position.set(sx*0.3,4.5,0);hum.add(tip);}}
   if(t===3||t===4||t===10||t===11){for(let k=0;k<5;k++){const sp=new THREE.Mesh(new THREE.ConeGeometry(0.16,0.6,5),eye);const a=(k-2)*0.45;sp.position.set(Math.sin(a)*0.55,3.75+Math.cos(a)*0.2,0);sp.rotation.z=-a;hum.add(sp);}}
   if(t===4||t===11){const orb=new THREE.Mesh(new THREE.SphereGeometry(0.5,8,6),new THREE.MeshBasicMaterial({color:t===4?0xffffff:0xff5030}));orb.position.set(0,1.95,0.6);hum.add(orb);}
+  if(t===12){ // GODZILLA ALIEN: tail, dorsal plates, glowing mouth
+    const gm=new THREE.MeshBasicMaterial({color:0xff7a1a}),pm=new THREE.MeshLambertMaterial({color:0x1d9a4a,emissive:0x1d9a4a,emissiveIntensity:0.3});
+    const tail=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.9,3.6),body);tail.position.set(0,1.1,-2.0);tail.rotation.x=-0.25;hum.add(tail);
+    const tip=new THREE.Mesh(new THREE.ConeGeometry(0.45,1.8,5),body);tip.rotation.x=-Math.PI/2-0.25;tip.position.set(0,0.75,-4.5);hum.add(tip);
+    for(let k=0;k<7;k++){const pl=new THREE.Mesh(new THREE.ConeGeometry(0.34-k*0.02,0.9,4),pm);pl.position.set(0,3.55-k*0.22,-0.1-k*0.32);pl.rotation.x=-0.5;hum.add(pl);}
+    const mouth=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.14,0.2),gm);mouth.position.set(0,2.95,0.62);hum.add(mouth);
+    const chest=new THREE.Mesh(new THREE.SphereGeometry(0.4,8,6),gm);chest.position.set(0,1.95,0.7);hum.add(chest);o.pulse=chest;
+  }
   if(t===6){ // bomber: glowing pack on its back
     const pk=new THREE.Mesh(new THREE.SphereGeometry(0.7,8,6),new THREE.MeshBasicMaterial({color:0xff2040}));pk.position.set(0,2.0,-0.85);hum.add(pk);o.pulse=pk;
     const pk2=new THREE.Mesh(new THREE.SphereGeometry(0.45,8,6),new THREE.MeshBasicMaterial({color:0xfff3b0}));pk2.position.set(0,2.0,-0.85);hum.add(pk2);
@@ -823,7 +831,7 @@ function handleEvent(e){
     burst(e[1],e[2],e[3],col,big?60:24,big?26:16,big?1.6:1);burst(e[1],e[2],e[3],0xffffff,10,12,0.8);
     big?sfx.boom():sfx.kill();
   }else if(k==='round'){
-    toast(e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
+    toast(e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
     if(!nManual){nTarget=e[1]>=6?1:0;}
   }else if(k==='clear'){
     toast('ROUND CLEARED','CATCH YOUR BREATH - SPEND YOUR CASH');
@@ -904,6 +912,7 @@ addEventListener('mousemove',e=>{
 let padPrev=[],padRT=false;
 const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<5;i++){w=(w+dir+5)%5;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
+const padK={};function setK(c,v){if(padK[c]!==v){padK[c]=v;keys[c]=v;}}
 function pollPad(dt){
   const gp=(navigator.getGamepads?[...navigator.getGamepads()]:[]).find(g=>g&&g.connected&&g.mapping==='standard')||(navigator.getGamepads?[...navigator.getGamepads()].find(g=>g&&g.connected):null);
   if(!gp){if(pad.on){pad.on=false;pad.x=pad.z=0;keys.Space=keys.KeyC=keys.KeyE=keys.ShiftLeft=false;if(padRT){padRT=false;mouseDown=false;}}return;}
@@ -916,15 +925,18 @@ function pollPad(dt){
   if(lockerOpen){ if(edge(1)||edge(9))closeLocker(); padPrev=gp.buttons.map(b=>b.pressed);return; }
   if(any&&!locked&&!(S&&gameOverShown))$('lock').style.display='none';
   pad.x=lx;pad.z=-ly;
+  if(driving>=0){ // driving: hold RT/A to accelerate, LT/B to brake/reverse, steer with the left stick
+    pad.z=Math.max(V(7),B(0)?1:0)-Math.max(V(6),B(1)?1:0);
+  }
   const fast=1+0.0*dt;
-  if(driving>=0){ if(ry)cs.pitch=clamp(cs.pitch-ry*dt*1.6,-0.25,0.6); }
+  if(driving>=0){ /* no aiming in cars */ }
   else{ me.yaw-=rx*dt*3.0*fast; me.pitch=clamp(me.pitch-ry*dt*2.3,-1.5,1.5); }
-  keys.Space=B(0);keys.KeyC=B(1);keys.KeyE=B(2);keys.ShiftLeft=B(10);
-  const rt=V(7)>0.35;
+  setK('Space',driving<0&&B(0));setK('KeyC',driving<0&&B(1));setK('KeyE',B(2));setK('ShiftLeft',B(10));
+  const rt=driving<0&&V(7)>0.35;
   if(rt!==padRT){padRT=rt;mouseDown=rt;if(rt)mousePressed=0.15;}
   if(edge(2))interact();
   if(edge(3))goBase();
-  if(edge(6))startReload();
+  if(edge(6)&&driving<0)startReload();
   if(edge(4))cycleW(-1);
   if(edge(5))cycleW(1);
   if(edge(12))goBase();
@@ -1080,7 +1092,7 @@ function alienHitT(ox,oy,oz,d,maxT){
 function tryFire(dt){
   fireCd-=dt;mousePressed-=dt;
   if(dead||!myP||myP.st!=='alive')return;
-  if(driving>=0){carCd-=dt;if(mouseDown&&carCd<=0)fireCar();return;}
+  if(driving>=0)return;   // cars are ram-only
   if(reloadT>0){reloadT-=dt;if(reloadT<=0){const a=ammo[curW],need=magSize(curW)-a.mag,take=Math.min(need,a.res);a.mag+=take;a.res-=take;}return;}
   const w=WPN[curW],a=ammo[curW];
   if(fireCd>0)return;
@@ -1146,7 +1158,7 @@ function drawMini(){
   for(const s of STATIONS)mg.fillRect(tx(s.x)-3,tz(s.z)-3,6,6);
   for(const o of lootObjs){if(!o.on)continue;mg.fillStyle=o.l.t?'#c58cff':'#fff3b0';mg.fillRect(tx(o.l.x)-1.5,tz(o.l.z)-1.5,3,3);}
   for(const [id,c] of carsM){mg.fillStyle='#ff2fa0';mg.fillRect(tx(c.x)-3,tz(c.z)-2,6,4);}
-  for(const o of aliensM.values()){mg.fillStyle=o.t===4?'#ff2fa0':'#3cff3c';const r=o.t===4?5:AT[o.t].r>2.5?3.5:2.4;mg.beginPath();mg.arc(tx(o.x),tz(o.z),r,0,6.3);mg.fill();}
+  for(const o of aliensM.values()){mg.fillStyle=o.t===12?'#ff7a1a':o.t===4?'#ff2fa0':'#3cff3c';const r=o.t===12?11:o.t===4?5:AT[o.t].r>2.5?3.5:2.4;mg.beginPath();mg.arc(tx(o.x),tz(o.z),r,0,6.3);mg.fill();}
   for(const r of remotes.values()){if(!r.p)continue;mg.fillStyle='#'+r.p.c.toString(16).padStart(6,'0');mg.beginPath();mg.arc(tx(r.x||r.tx),tz(r.z||r.tz),3.5,0,6.3);mg.fill();}
   // green arrows toward dormant alien nests that are off the minimap
   const nestSeen=[];
@@ -1195,7 +1207,8 @@ function updateHUD(dt){
   else if(r.s==='over')st='';
   $('status').textContent=st;
   // boss
-  let boss=null;for(const o of aliensM.values())if(o.t===4)boss=o;
+  let boss=null;for(const o of aliensM.values())if(o.t===12)boss=o;if(!boss)for(const o of aliensM.values())if(o.t===4)boss=o;
+  $('boss').firstChild.nodeValue=boss&&boss.t===12?'GODZILLA ALIEN':'BOSS ALIEN';
   $('boss').style.display=boss?'block':'none';if(boss)$('boss').querySelector('i').style.width=boss.hp+'%';
   // ammo
   if(driving>=0){$('ammo').innerHTML='<small class="wn" style="color:#'+CARS[carsM.get(driving)?carsM.get(driving).t:0].color.toString(16).padStart(6,'0')+'">'+(carsM.get(driving)?CARS[carsM.get(driving).t].name:'')+'</small>LASERS<small>CLICK TO FIRE</small>';}
@@ -1223,7 +1236,7 @@ function updateHUD(dt){
         else{no=myP.m<UP_COST[lv];txt='[E] UPGRADE '+WPN[w].name+' TO MK '+['II','III','IV'][lv]+' $'+UP_COST[lv]+'<small>+damage, bigger magazine, brighter laser</small>';}}
       else{const t=stSel%4;
         if(t===3){no=myP.jo||myP.m<NI.JET_COST;txt=myP.jo?'JETPACK OWNED<small>[Q] NEXT ITEM</small>':'[E] BUY JETPACK $'+NI.JET_COST+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels  -  [Q] NEXT ITEM</small>';}
-        else{const cd=CARS[t];no=myP.m<cd.cost;txt='[E] BUY '+cd.name+' $'+cd.cost+'<small>armor '+cd.hp+' - laser dmg '+cd.dmg+' - top speed '+cd.maxS+'  -  [Q] NEXT ITEM</small>';}}
+        else{const cd=CARS[t];no=myP.m<cd.cost;txt='[E] BUY '+cd.name+' $'+cd.cost+'<small>armor '+cd.hp+' - top speed '+cd.maxS+' - RAM aliens to kill them (no guns)  -  [Q] NEXT ITEM</small>';}}
     }
   }
   pr.style.display=txt?'block':'none';pr.innerHTML=txt;pr.classList.toggle('no',no);
