@@ -44,3 +44,20 @@ Warship (r9, flying shooter), Queen (r11, 3-orb volleys), Titan (r13, mini-boss)
 - **Alien sounds**: each alien type has its own growl/screech/buzz, panned left/right and getting louder as it closes in, plus a heartbeat when several are on top of you and ground-shaking footsteps from the Godzilla alien.
 - **Garage menu controls**: Up/Down arrow keys or the left stick (also D-pad up/down) pick an item, E or X buys it, B closes the menu (press E/X to reopen). The segway and motorcycle now show your character riding them, in your colour.
 - **Aliens in view**: when an alien comes into sight (on screen with a clear line, not behind a building) you hear a "contact" sting plus its own voice, a low tension drone plays while any are visible, and a CONTACT warning flashes (bosses and the Godzilla alien get a bigger horn and their own warning).
+
+## Weapons, armory & upgrades
+11 laser guns, every one with **5 upgrades** (MK I → MK VI: more damage, bigger mags, brighter laser). Buy and upgrade from the **ARMORY** list menu (Up/Down or Q to choose, E / X to buy or upgrade, B closes). The Forge still upgrades your current gun. "Refill all ammo" is in the armory too.
+New guns: **LONGSHOT** (slow, long-range sniper – hold right-click / LT to scope), **ARC GATLING** (hold fire to charge, then it sprays), **NEON STARS** (thrown shuriken), **INFERNO** (flamethrower, sets aliens on fire), **TOXIC SPRAYER** (gas canister, poison cloud), **BRASS KNUCKLES** (close range, no ammo).
+Switching: keys 1-9, 0, - · mouse wheel · LB/RB · **F (or pad Y) = quick-swap to your previous weapon**. Right-click / LT = aim. On a pad, X = interact (or reload if nothing nearby); D-pad up = go to base.
+
+## Helicopter
+Garage item #8, **$30,000**. WASD fly, mouse aims, Space up, C/Shift down, click / RT fires miniguns. Land (below ~3 height) to exit. Pad: LS move, RS aim, A up, B down, RT fire.
+
+## New aliens
+- **KNIFER** (from round 8): faster than the red one.
+- **HOUND** alien-dog (from round 11): very fast, bites, comes in packs of 3.
+- **THE STALKER** (rounds 6, 10, 14, …): hides inside a building; check the minimap and hunt him down. Wakes up when you get close, then chases fast.
+- **ROOFTOP SNIPER** (from round 16): stays on roofs; a red aim beam warns you before every shot – break line of sight.
+
+## Death
+When your crew is overrun you see the summary, then return to the **main menu** (button / Enter / pad A, or automatically after 9 s).
