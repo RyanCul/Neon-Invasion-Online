@@ -55,6 +55,9 @@ body.playing.foot #xhair{display:block}
 .gl{display:flex;justify-content:space-between;gap:24px;padding:2px 12px;color:#d6c8ff;opacity:.8;letter-spacing:1px}
 .gl.sel{background:rgba(37,244,255,.28);color:#fff;border-left:3px solid #25f4ff;opacity:1}
 .gl.bad span:last-child{color:#ff7a90}
+#contact{position:fixed;left:50%;top:22%;transform:translateX(-50%);font-size:18px;font-weight:bold;letter-spacing:6px;color:#ff4a6a;text-shadow:0 0 10px #ff1040;opacity:0;pointer-events:none;transition:opacity .25s;z-index:6}
+#contact.show{opacity:1;animation:blink .35s 3}
+#contact.big{font-size:26px;color:#ff9a3c;text-shadow:0 0 14px #ff3c00}
 #prompt.no{color:#ff7a90;text-shadow:0 0 8px #ff2040}
 #revbar{position:fixed;left:50%;top:68%;transform:translateX(-50%);width:200px;height:10px;border:2px solid #3cff9e;display:none}
 #revbar i{display:block;height:100%;width:0;background:#3cff9e}
@@ -166,6 +169,7 @@ body.playing #radio{display:block}
 <div id="radio"><span style="color:#fff3b0">NEON FM 98.6</span> &middot; Too Soon &mdash; Diamond Ace</div>
 <div id="down"><h1 id="downT">YOU'RE DOWN</h1><p id="downP"></p></div>
 <div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
+<div id="contact"></div>
 <div id="lock">CLICK TO PLAY</div>
 
 <div id="menu">
@@ -519,6 +523,22 @@ function makeCar(type,skId){
   const bx=(w,hh,d,color,x,y,z,basic)=>bm(w,hh,d,basic?new THREE.MeshBasicMaterial({color}):new THREE.MeshLambertMaterial({color}),x,y,z);
   const wheel=(r,w,x,y,z)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,w,12),tire);m.rotation.z=Math.PI/2;m.position.set(x,y,z);root.add(m);return m;};
   const deco=sk.deco;
+  /* a rider (tinted with the driver's colour) sits on the open vehicles */
+  const suit=new THREE.MeshLambertMaterial({color:0xff2fa0,emissive:0xff2fa0,emissiveIntensity:0.35}),skin=new THREE.MeshLambertMaterial({color:0xf1c9a5}),visor=new THREE.MeshBasicMaterial({color:0x9ffcff});
+  const rider=new THREE.Group();rider.visible=false;
+  const rb_=(w,hh,d,mat,x,y,z,rx)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,hh,d),mat);m.position.set(x,y,z);if(rx)m.rotation.x=rx;rider.add(m);return m;};
+  const rhead=(x,y,z)=>{const hd=new THREE.Mesh(new THREE.SphereGeometry(0.3,10,8),suit);hd.position.set(x,y,z);rider.add(hd);
+    const vs=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.12,0.12),visor);vs.position.set(x,y+0.02,z+0.24);rider.add(vs);};
+  if(cd.kind==='segway'){
+    for(const sx of[-1,1]){rb_(0.22,0.85,0.26,dark,sx*0.26,1.3,-0.1);rb_(0.15,0.15,0.62,suit,sx*0.36,2.15,0.18);}
+    rb_(0.6,0.75,0.36,suit,0,2.0,-0.1);rhead(0,2.62,-0.08);
+    root.add(rider);g.userData.rider=rider;
+  }else if(cd.kind==='moto'){
+    for(const sx of[-1,1]){rb_(0.2,0.8,0.28,dark,sx*0.38,1.15,-0.35,0.9);rb_(0.15,0.15,0.9,suit,sx*0.42,1.78,0.5,0.15);}
+    rb_(0.6,0.8,0.36,suit,0,1.85,-0.65,0.6);rhead(0,2.38,-0.25);
+    root.add(rider);g.userData.rider=rider;
+  }
+  g.userData.suit=suit;
   if(cd.kind==='segway'){
     wheel(0.5,0.28,-0.62,0.5,0);wheel(0.5,0.28,0.62,0.5,0);
     bm(1.5,0.16,1.0,bodyMat,0,0.78,0);bm(1.6,0.05,1.05,trimMat,0,0.67,0);
@@ -697,8 +717,62 @@ function alienVoice(t,v,pan,d){
   }
 }
 let proxT=0,heartT=0,gzStep=0,gzRoar=4;
+/* ---- "aliens in view": a sting + the alien's own voice when one comes into sight, a tension drone while any are visible, and a CONTACT warning ---- */
+const _fr=new THREE.Frustum(),_pm=new THREE.Matrix4(),_sp=new THREE.Sphere(),_cv=new THREE.Vector3();
+let seenCheckT=0,seenCount=0,tens=null,contactT=0;
+function tensionDrone(level){
+  const a=actx();if(!a)return;
+  if(!tens){
+    const g=a.createGain();g.gain.value=0;
+    const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=260;
+    const o1=a.createOscillator(),o2=a.createOscillator(),lfo=a.createOscillator(),lg=a.createGain();
+    o1.type='sawtooth';o1.frequency.value=55;o2.type='sawtooth';o2.frequency.value=58.5;
+    lfo.frequency.value=1.7;lg.gain.value=0.012;lfo.connect(lg);lg.connect(g.gain);
+    o1.connect(f);o2.connect(f);f.connect(g);g.connect(a.destination);
+    o1.start();o2.start();lfo.start();tens={g};
+  }
+  tens.g.gain.setTargetAtTime(sfxOn?level:0,a.currentTime,0.35);
+}
+function spotSting(o,d,pan,boss){
+  const vol=Math.max(0.5,1-d/160);
+  alienVoice(o.t===12?4:o.t,vol,pan,d);                                   // its own voice, right when you see it
+  pvoice(520,980,0.16,'square',0.07,pan,2600);                            // "contact" blip
+  setTimeout(()=>pvoice(980,520,0.14,'square',0.05,pan,2600),130);
+  if(boss){pvoice(110,55,1.1,'sawtooth',0.3,0,500);pnoise(0.7,0.22,400,0);pvoice(220,110,0.9,'square',0.08,0,600);}
+}
+function checkSights(dt){
+  seenCheckT-=dt;if(seenCheckT>0)return;seenCheckT=0.2;
+  camera.updateMatrixWorld(true);
+  _pm.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);_fr.setFromProjectionMatrix(_pm);
+  const cx=camera.position.x,cy=camera.position.y,cz=camera.position.z,yaw=camera.rotation.y,rx=Math.cos(yaw),rz=-Math.sin(yaw);
+  let count=0,newAlien=null,newD=1e9;
+  for(const o of aliensM.values()){
+    const def=AT[o.t],dx=o.x-cx,dz=o.z-cz,d=Math.hypot(dx,dz);
+    let vis=false;
+    if(!o.dorm&&d<(def.giant?600:130)){
+      _cv.set(o.x,o.y+def.cy,o.z);_sp.set(_cv,def.r);
+      if(_fr.intersectsSphere(_sp)){
+        if(def.giant)vis=true;
+        else{const ey=o.y+def.cy-cy,dl=Math.hypot(dx,ey,dz)||1;vis=NI.rayWorld(cx,cy,cz,dx/dl,ey/dl,dz/dl,dl)>=dl-1.2;}
+      }
+    }
+    if(vis){count++;o.unseenT=0;if(!o.seen){o.seen=true;if(d<newD){newD=d;newAlien=o;}}}
+    else if(o.seen){o.unseenT=(o.unseenT||0)+0.2;if(o.unseenT>1.5)o.seen=false;}   // must be out of sight 1.5s to be "spotted" again
+  }
+  seenCount=count;
+  tensionDrone(Math.min(0.045,0.01+count*0.006)*(count?1:0));
+  if(newAlien&&started&&myP&&myP.st!=='dead'){
+    const dx=newAlien.x-cx,dz=newAlien.z-cz,d=Math.hypot(dx,dz),pan=(dx*rx+dz*rz)/Math.max(d,1);
+    const big=newAlien.t===4||newAlien.t===12;
+    spotSting(newAlien,d,pan,big);
+    const el=$('contact');el.textContent=big?(newAlien.t===12?'⚠ GODZILLA ALIEN IN SIGHT':'⚠ BOSS IN SIGHT'):'⚠ CONTACT';
+    el.className=big?'big show':'show';contactT=big?2.2:1.0;
+  }
+}
 function proxAudio(dt){
-  if(!started||!myP||myP.st==='dead'||!sfxOn)return;
+  if(!started||!myP||myP.st==='dead'||!sfxOn){if(tens&&ac)tensionDrone(0);return;}
+  checkSights(dt);
+  if(contactT>0){contactT-=dt;if(contactT<=0)$('contact').className='';}
   const px=driving>=0?cs.x:me.x,pz=driving>=0?cs.z:me.z,yaw=camera.rotation.y;
   const rx=Math.cos(yaw),rz=-Math.sin(yaw);
   let close=0,played=0,gz=null;
@@ -707,13 +781,13 @@ function proxAudio(dt){
     const dx=o.x-px,dz=o.z-pz,d=Math.hypot(dx,dz),R=VOICE_R[o.t]||40;
     if(d<14)close++;
     if(o.t===12){gz=o;continue;}
-    if(d>R)continue;
+    if(d>R*(o.seen?1.25:1))continue;
     o.sndT=(o.sndT===undefined?Math.random()*1.5:o.sndT)-dt;
     if(o.sndT>0||played>=3)continue;
-    const near=1-d/R,v=Math.pow(near,1.4);
+    const near=Math.max(0.05,1-d/R),v=Math.pow(near,1.4);
     const pan=(dx*rx+dz*rz)/Math.max(d,1);
     alienVoice(o.t,v,pan,d);played++;
-    o.sndT=(o.t===6?0.14+near*0:1.1+Math.random()*2.4)*(0.45+0.9*(d/R));
+    o.sndT=(o.t===6?0.14+near*0:1.1+Math.random()*2.4)*(0.45+0.9*(d/R))*(o.seen?0.7:1);
     if(o.t===6)o.sndT=0.12+0.9*(d/R);          // bombers beep faster as they close in
   }
   // Godzilla: footsteps you feel through the ground, plus a roar
@@ -1039,6 +1113,10 @@ addEventListener('keydown',e=>{
   if(lockerOpen){if(e.code==='KeyK'||e.code==='Escape')closeLocker();return;}
   keys[e.code]=true;
   if(e.code==='Space'||e.code==='Tab')e.preventDefault();
+  if(garageActive()){
+    if(e.code==='ArrowUp'||e.code==='ArrowDown'){e.preventDefault();garageMove(e.code==='ArrowUp'?-1:1);return;}
+    if(e.code==='KeyB'||e.code==='Backspace'){garageClosed=true;return;}
+  }
   if(e.repeat)return;
   if(e.code==='KeyE')interact();
   else if(e.code==='KeyQ')stSel++;
@@ -1080,6 +1158,14 @@ function pollPad(dt){
   if(lockerOpen){ if(edge(1)||edge(9))closeLocker(); padPrev=gp.buttons.map(b=>b.pressed);return; }
   if(any&&!locked&&!(S&&gameOverShown))$('lock').style.display='none';
   pad.x=lx;pad.z=-ly;
+  if(garageActive()){   // garage menu is open: stick up/down picks an item, X buys, B closes
+    pad.z=0;
+    navT-=dt;
+    if(Math.abs(ly)>0.6){if(navT<=0){garageMove(ly<0?-1:1);navT=navHeld?0.2:0.4;navHeld=true;}}else{navT=0;navHeld=false;}
+    if(edge(12))garageMove(-1);
+    if(edge(13))garageMove(1);
+    if(edge(1))garageClosed=true;
+  }
   if(driving>=0){ // driving: hold RT/A to accelerate, LT/B to brake/reverse, steer with the left stick
     pad.z=Math.max(V(7),B(0)?1:0)-Math.max(V(6),B(1)?1:0);
   }
@@ -1094,10 +1180,10 @@ function pollPad(dt){
   if(edge(6)&&driving<0)startReload();
   if(edge(4))cycleW(-1);
   if(edge(5))cycleW(1);
-  if(edge(12))goBase();
+  if(edge(12)&&!garageActive())goBase();
   if(edge(14))stSel++;
   if(edge(15))hoodCam=!hoodCam;
-  if(edge(13)||edge(9))openLocker();
+  if((edge(13)&&!garageActive())||edge(9))openLocker();
   padPrev=gp.buttons.map(b=>b.pressed);
 }
 addEventListener('gamepadconnected',e=>{if(started)toast('CONTROLLER CONNECTED','LS move - RS look - RT fire - A jump');});
@@ -1144,6 +1230,14 @@ function nearDown(){
   for(const [id,r] of remotes){if(r.p&&r.p.st==='down'&&Math.hypot(r.tx-me.x,r.tz-me.z)<5)return r;}
   return null;
 }
+let garageClosed=false,navT=0,navHeld=false;
+function garageActive(){
+  if(!myP||driving>=0||myP.st!=='alive'||garageClosed)return false;
+  const st=nearStation();
+  if(!st||st.k!=='garage')return false;
+  const car=nearCar();return !(car!==null&&carsM.get(car)&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5);
+}
+function garageMove(d){const n=NI.GARAGE_ITEMS.length;stSel=((stSel%n)+n+d+n)%n;}
 function interact(){
   if(!myP||dead)return;
   if(driving>=0){send({t:'exit'});return;}
@@ -1154,7 +1248,8 @@ function interact(){
     if(st.k==='armory'){const w=stSel%5;const own=myP.wo[w]>=0;const cost=own?AMMO_COST(w):WPN[w].cost;
       if(myP.m<cost){sfx.no();return;}send({t:'buy',k:'wpn',id:w});}
     else if(st.k==='forge'){const w=curW,lv=myP.wo[w];if(lv>=3||myP.m<UP_COST[lv]){sfx.no();return;}send({t:'buy',k:'upg',id:w});}
-    else if(st.k==='garage'){const it=NI.GARAGE_ITEMS[stSel%NI.GARAGE_ITEMS.length];
+    else if(st.k==='garage'){if(garageClosed){garageClosed=false;return;}
+      const it=NI.GARAGE_ITEMS[stSel%NI.GARAGE_ITEMS.length];
       if(it.k==='jet'){if(myP.jo||myP.m<NI.JET_COST){sfx.no();return;}send({t:'buy',k:'jet'});}
       else{if(myP.m<CARS[it.id].cost){sfx.no();return;}send({t:'buy',k:'car',id:it.id});}}
   }
@@ -1388,6 +1483,7 @@ function updateHUD(dt){
   // prompt
   const pr=$('prompt');let txt='',no=false;
   let st_garage_open=false;
+  {const s0=nearStation();if(!s0||s0.k!=='garage')garageClosed=false;}
   if(driving>=0)txt='[E] EXIT<small>W/S gas &amp; brake - A/D steer - SHIFT handbrake - V camera  |  PAD: hold RT/A gas, LT/B brake, left stick steer</small>';
   else if(myP.st==='alive'){
     const car=nearCar(),st=nearStation();
@@ -1399,6 +1495,7 @@ function updateHUD(dt){
       else if(st.k==='forge'){const w=curW,lv=myP.wo[w];
         if(lv>=3)txt='MAX LEVEL<small>'+WPN[w].name+' is fully upgraded</small>';
         else{no=myP.m<UP_COST[lv];txt='[E] UPGRADE '+WPN[w].name+' TO MK '+['II','III','IV'][lv]+' $'+UP_COST[lv]+'<small>+damage, bigger magazine, brighter laser</small>';}}
+      else if(garageClosed){txt='[E] OPEN GARAGE<small>vehicles &amp; jetpack</small>';}
       else{
         st_garage_open=true;
         const items=NI.GARAGE_ITEMS,n=items.length,gi=((stSel%n)+n)%n;let rows='';
@@ -1408,13 +1505,13 @@ function updateHUD(dt){
         });
         const it=items[gi],jet=it.k==='jet';
         if(jet){no=myP.jo||myP.m<NI.JET_COST;
-          txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels  -  [Q] NEXT ITEM</small>';}
+          txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels  -  UP/DOWN choose  -  B close</small>';}
         else{const cd=CARS[it.id];no=myP.m<cd.cost;
-          txt='GARAGE<div class="glist">'+rows+'</div>[E] BUY '+cd.name+' $'+cd.cost.toLocaleString()+'<small>armor '+cd.hp+' - top speed '+Math.round(cd.maxS*2.2)+' mph - ram damage x'+cd.ram+' - no guns, run aliens over  -  [Q] NEXT ITEM</small>';}
+          txt='GARAGE<div class="glist">'+rows+'</div>[E] BUY '+cd.name+' $'+cd.cost.toLocaleString()+'<small>armor '+cd.hp+' - top speed '+Math.round(cd.maxS*2.2)+' mph - ram damage x'+cd.ram+' - no guns, run aliens over  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';}
       }
     }
   }
-  pr.style.top=(st_garage_open?'24%':'60%');pr.style.display=txt?'block':'none';pr.innerHTML=txt;pr.classList.toggle('no',no);
+  pr.style.top=(st_garage_open?'24%':(driving>=0?'80%':'60%'));pr.style.display=txt?'block':'none';pr.innerHTML=txt;pr.classList.toggle('no',no);
   // downed / dead
   const dw=$('down');
   if(myP.st==='down'){dw.style.display='flex';$('downT').textContent="YOU'RE DOWN";$('downP').textContent='BLEEDING OUT '+Math.ceil(myP.bl)+'s - A TEAMMATE CAN REVIVE YOU'+(myP.rp>0?' ('+Math.round(myP.rp/3*100)+'%)':'');}
@@ -1501,6 +1598,12 @@ function frame(now){
     const ud=c.mesh.userData;
     for(const [m,l] of ud.rb)m.color.setHSL((elapsed*0.35+id*0.1)%1,0.95,l);
     if(ud.hover)ud.root.position.y=0.8+Math.sin(elapsed*2.2+id)*0.12;
+    if(ud.rider){
+      const dp=c.drv>=0?(c.drv===myId?myP:(remotes.get(c.drv)||{}).p):null;
+      ud.rider.visible=!!dp&&!(id===driving&&hoodCam);
+      if(dp&&dp.c!==undefined){ud.suit.color.setHex(dp.c);ud.suit.emissive.setHex(dp.c);}
+    }
+    ud.root.rotation.z+=(((id===driving&&ud.rider)?-steerS*Math.min(1,Math.abs(cs.sp)/8)*0.28:0)-ud.root.rotation.z)*Math.min(1,dt*8);
     if(id===driving){c.mesh.position.set(cs.x,0,cs.z);c.mesh.rotation.y=cs.h;continue;}
     c.x+=(c.tx-c.x)*k;c.z+=(c.tz-c.z)*k;let dh=c.th-c.h;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;c.h+=dh*k;
     c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;
