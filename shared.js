@@ -44,9 +44,28 @@ const JET_COST=2500;
 const AMMO_COST=w=>Math.max(250,Math.round(WPN[w].cost/2/50)*50);
 
 const CARS=[
-  {id:0,name:'FLAMINGO COUPE',color:0xff3d9a,cost:1500,hp:250,maxS:42,dmg:26,rate:8, twin:false,body:1.0},
-  {id:1,name:'CYAN MUSCLE',   color:0x25f4ff,cost:3500,hp:500,maxS:47,dmg:40,rate:9, twin:true, body:1.12},
-  {id:2,name:'SUNSET HYPER',  color:0xffc83c,cost:6000,hp:850,maxS:58,dmg:62,rate:11,twin:true, body:1.2}
+  {id:0,name:'NEON SEGWAY',     kind:'segway',color:0x9dff3c,cost:500,  hp:90,  maxS:13,acc:2.6,turn:3.4,rad:1.1,ram:1.5,body:1.0, cdist:7, chgt:3.4,eye:2.0},
+  {id:1,name:'DRIFT MOTORCYCLE',kind:'moto',  color:0xff9a3c,cost:1000, hp:160, maxS:22,acc:2.2,turn:2.9,rad:1.2,ram:1.5,body:1.0, cdist:8, chgt:3.7,eye:2.2},
+  {id:2,name:'FLAMINGO COUPE',  kind:'car',   color:0xff3d9a,cost:1500, hp:250, maxS:25,acc:1.5,turn:2.1,rad:2.3,ram:1.6,body:1.0, cdist:11,chgt:4.6,eye:2.4},
+  {id:3,name:'CYAN MUSCLE',     kind:'car',   color:0x25f4ff,cost:3500, hp:500, maxS:29,acc:1.5,turn:2.0,rad:2.4,ram:1.9,body:1.12,cdist:11,chgt:4.8,eye:2.5},
+  {id:4,name:'SUNSET HYPER',    kind:'car',   color:0xffc83c,cost:6000, hp:850, maxS:33,acc:1.7,turn:2.0,rad:2.4,ram:2.2,body:1.2, cdist:12,chgt:5.0,eye:2.6},
+  {id:5,name:'MONSTER TRUCK',   kind:'truck', color:0x7a3cff,cost:9000, hp:1500,maxS:24,acc:1.1,turn:1.5,rad:3.4,ram:3.4,body:1.5, cdist:15,chgt:6.6,eye:4.0},
+  {id:6,name:'VOID HOVERCAR',   kind:'hover', color:0xb03cff,cost:14000,hp:1100,maxS:38,acc:1.9,turn:2.3,rad:2.6,ram:2.6,body:1.2, cdist:12,chgt:5.0,eye:2.6}
+];
+/* everything sold at the garage, cheapest first (the jetpack sits between the coupe and the muscle car) */
+const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6}];
+/* car paint & designs unlocked by level */
+const CSKINS=[
+  {id:0,name:'FACTORY',    lvl:1, body:null,     trim:null,     deco:'none'},
+  {id:1,name:'ICE STRIPE', lvl:3, body:0xf2f7ff,  trim:0x25f4ff, deco:'stripe'},
+  {id:2,name:'CRIMSON GT', lvl:6, body:0xd0142c,  trim:0xffd23c, deco:'spoiler'},
+  {id:3,name:'MIDNIGHT',   lvl:10,body:0x15152e,  trim:0xff2fa0, deco:'underglow'},
+  {id:4,name:'LIME RACER', lvl:14,body:0x7aff3c,  trim:0x111111, deco:'stripe2'},
+  {id:5,name:'GOLD RUSH',  lvl:18,body:0xffc83c,  trim:0xffffff, deco:'spoiler'},
+  {id:6,name:'FLAME',      lvl:22,body:0xff5a1a,  trim:0xffe23c, deco:'flames'},
+  {id:7,name:'GALAXY WING',lvl:28,body:0x3a1a8a,  trim:0x25f4ff, deco:'wings'},
+  {id:8,name:'RAINBOW',    lvl:35,body:'rainbow',trim:0xffffff, deco:'underglow'},
+  {id:9,name:'NEON GOD',   lvl:45,body:'rainbow',trim:'rainbow',deco:'wings'}
 ];
 
 /* alien types: 0 grunt 1 spitter 2 drone 3 brute 4 boss */
@@ -305,15 +324,16 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:[0,-1,-1,-1,-1],w:0,lv:1,sk:0,jet:false,jfl:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:[0,-1,-1,-1,-1],w:0,lv:1,sk:0,jet:false,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){this.state='rest';this.timer=6;this.round=0;}
     return p;
   }
-  setProfile(id,lv,sk){
+  setProfile(id,lv,sk,ck){
     const p=this.players.get(id);if(!p)return;
     p.lv=clamp(lv|0,1,MAXLV);sk=sk|0;p.sk=(sk>=0&&sk<SKINS.length)?sk:0;
+    ck=ck|0;p.ck=(ck>=0&&ck<CSKINS.length&&CSKINS[ck].lvl<=p.lv)?ck:0;
   }
   /* rounds this player survived while in the game (for the leaderboard) */
   credit(p){
@@ -346,7 +366,7 @@ class Game{
         p.yaw=+m.yaw||0;p.pitch=+m.pitch||0;p.w=m.w|0;p.jfl=m.jt?1:0;
         if(p.car>=0){
           const c=this.cars.find(c=>c.id===p.car);
-          if(c&&m.car){c.x=clamp(+m.car.x,BOUNDS.x0,BOUNDS.x1);c.z=clamp(+m.car.z,BOUNDS.z0,BOUNDS.z1);c.h=+m.car.h||0;c.sp=+m.car.sp||0;}
+          if(c&&m.car){c.x=clamp(+m.car.x,BOUNDS.x0,BOUNDS.x1);c.z=clamp(+m.car.z,BOUNDS.z0,BOUNDS.z1);c.h=+m.car.h||0;c.sp=clamp(+m.car.sp||0,-20,CARS[c.t].maxS*1.15);}
           if(c){p.x=c.x;p.z=c.z;p.y=EYE;}
         }else if(p.st==='alive'||p.st==='down'){
           p.x=clamp(x,BOUNDS.x0,BOUNDS.x1);p.z=clamp(z,BOUNDS.z0,BOUNDS.z1);p.y=clamp(y,0,120);
@@ -369,7 +389,7 @@ class Game{
         p.car=-1;break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
-      case 'prof':this.setProfile(id,m.lv,m.sk);break;
+      case 'prof':this.setProfile(id,m.lv,m.sk,m.ck);break;
     }
   }
 
@@ -442,7 +462,7 @@ class Game{
       let z=sp.z,tries=0;
       while(this.cars.some(c=>Math.hypot(c.x-sp.x,c.z-z)<7)&&tries++<6)z+=7;
       p.money-=CARS[t].cost;
-      const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,sp:0};
+      const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,sp:0,k:p.ck|0};
       c.h=0;
       this.cars.push(c);this.push('bought',p.id,c.id);
     }
@@ -848,13 +868,14 @@ class Game{
       if(!p){c.drv=-1;continue;}
       if(p.st!=='alive'){c.drv=-1;p.car=-1;continue;}
       // run over
-      if(Math.abs(c.sp)>7){
+      const cdef=CARS[c.t];
+      if(Math.abs(c.sp)>5){
         for(const a of this.aliens){
           if(a.hp<=0||a.rt>0)continue;
-          if(Math.hypot(a.x-c.x,a.z-c.z)<a.r+2.4&&a.y<5){
+          if(Math.hypot(a.x-c.x,a.z-c.z)<a.r+cdef.rad+0.1&&a.y<5){
             const df=AT[a.t],huge=!!df.giant,big=df.r>2.5;
             a.rt=huge?0.7:0.45;
-            this.damageAlien(a,Math.abs(c.sp)*(huge?9:big?4:8)*(1+0.3*CARS[c.t].id),p,a.x,a.y+a.cy,a.z);
+            this.damageAlien(a,Math.abs(c.sp)*(huge?9:big?4:8)*cdef.ram,p,a.x,a.y+a.cy,a.z);
             c.hp-=huge?35:big?10:3;
             this.push('thud',r2(a.x),r2(a.z));
           }
@@ -877,14 +898,14 @@ class Game{
         hp:Math.round(p.hp),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
-      c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0)})),
+      c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0),k:c.k|0})),
       lo:this.loot.map(v=>v?1:0).join(''),
       ev
     };
   }
 }
 
-const API={MAXLV,xpNeed,SKINS,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,SEED,WORLD,B,LOOT,HOUSES,JET_COST,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);
