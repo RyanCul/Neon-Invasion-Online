@@ -1299,7 +1299,7 @@ addEventListener('mousemove',e=>{
 });
 /* ---------- controller (Gamepad API, standard mapping) ----------
    Left stick move/steer | Right stick look | RT fire | LT reload/refuel | A jump/jet up | B hover
-   X use/revive | Y = E (use) | LB/RB weapon | L3 sprint | D-pad: up=base, left=shop, right=car cam, down=skins | Start=skins */
+   X use/revive | Y use / back to base | LB/RB weapon | L3 sprint | D-pad: up=base, left=shop, right=car cam, down=skins | Start=skins */
 let padPrev=[],padRT=false;
 const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<NW;i++){w=(w+dir+NW)%NW;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
@@ -1337,7 +1337,7 @@ function pollPad(dt){
   const rt=(driving<0||hel)&&V(7)>0.35;
   if(rt!==padRT){padRT=rt;mouseDown=rt;if(rt)mousePressed=0.15;}
   if(edge(2)){if(canInteract())interact();else startReload();}
-  if(edge(3))interact();   // Y is always the same as the E key
+  if(edge(3)){if(canInteract()||driving>=0||garageActive())interact();else goBase();}   // Y = E when there is something to use, otherwise back to the starting area
   aiming=driving<0&&V(6)>0.35;
   if(edge(4))cycleW(-1);
   if(edge(5))cycleW(1);

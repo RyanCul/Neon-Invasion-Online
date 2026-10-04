@@ -577,7 +577,7 @@ class Game{
     const tg=pl[Math.floor(this.rand()*pl.length)];
     let x=0,z=0,ok=false;
     for(let i=0;i<25&&!ok;i++){
-      const a=this.rand()*Math.PI*2,d=(t===12?150:t===4?90:70)+this.rand()*70;
+      const a=this.rand()*Math.PI*2,d=Math.max(30,((t===12?150:t===4?90:70)+this.rand()*70)*Math.min(1,0.36+0.08*this.round));   // early rounds spawn closer
       x=tg.x+Math.cos(a)*d;z=tg.z+Math.sin(a)*d;
       if(x<BOUNDS.x0||x>BOUNDS.x1||z<BOUNDS.z0||z>BOUNDS.z1-30)continue;
       if(!def.fly&&BLOCK[cellOf(x,z)])continue;
@@ -744,7 +744,7 @@ class Game{
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
-        this.spawnT=Math.max(0.3,1.0-this.round*0.03);
+        this.spawnT=Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
       if(!this.queue.length&&!this.aliens.length)this.endRound();
       else if(plist.every(p=>p.st!=='alive')){
