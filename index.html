@@ -1453,7 +1453,7 @@ function handleEvent(e){
     else if(t==='ammo')lootMsg('ammo','AMMO REFILLED','ALL WEAPONS');
     else lootMsg('med','HEALTH PACK','FULLY HEALED');}}
   else if(k==='ammoall'){if(e[1]===myId){for(let w=0;w<NW;w++)if(myP.wo[w]>=0)fillAmmo(w);}}
-  else if(k==='gotjet'){if(e[1]===myId){sfx.buy();toast('JETPACK','HOLD SPACE TO FLY - C TO HOVER - R REFUELS');jetFuel=10;}}
+  else if(k==='gotjet'){if(e[1]===myId){sfx.buy();toast('JETPACK','HOLD SPACE TO FLY - C TO HOVER - R REFUELS ON THE GROUND');jetFuel=10;}}
   else if(k==='reset'){
     gameXP=0;lastK=0;joinRound=1;$('overXP').innerHTML='';$('overLB').innerHTML='';
     curW=0;reloadT=0;fireCd=0;jetFuel=10;
@@ -1768,7 +1768,7 @@ function quickSwap(){if(!myP||driving>=0)return;if(lastW!==curW&&myP.wo[lastW]>=
 function startReload(){
   if(driving>=0||!myP||dead)return;
   if(WPN[curW].melee)return;
-  if(myP.jo&&jetFuel<9.9){jetFuel=10;sfx.buy();}
+  if(myP.jo&&jetFuel<9.9&&onGround){jetFuel=10;sfx.buy();}
   const a=ammo[curW];if(reloadT>0||a.res<=0||a.mag>=magSize(curW))return;
   reloadT=WPN[curW].reload*(hasPk(2)?0.6:1);sfx.reload();
 }
@@ -2245,7 +2245,7 @@ function updateHUD(dt){
         });
         const it=items[gi],jet=it.k==='jet';
         if(jet){no=myP.jo||myP.m<NI.JET_COST;
-          txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels  -  UP/DOWN choose  -  B close</small>';}
+          txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels on the ground  -  UP/DOWN choose  -  B close</small>';}
         else{const cd=CARS[it.id],ow=(myP.oc>>it.id)&1;no=!ow&&myP.m<cd.cost;
           txt='GARAGE<div class="glist">'+rows+'</div>'+(ow?'[E] SPAWN '+cd.name+' (FREE)':'[E] BUY '+cd.name+' $'+cd.cost.toLocaleString())+'<small>armor '+cd.hp+' - top speed '+Math.round(cd.maxS*2.2)+' mph - ram damage x'+cd.ram+' - no guns, run aliens over  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';}
       }
