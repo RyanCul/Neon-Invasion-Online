@@ -42,8 +42,6 @@ body.playing .hud{display:block}
 #wslots{right:22px;bottom:190px;font-size:12px;text-align:right;letter-spacing:1px}
 #mm{position:fixed;right:20px;bottom:20px;width:180px;height:180px;border:2px solid #25f4ff;box-shadow:0 0 14px #25f4ff,inset 0 0 14px rgba(37,244,255,.35);background:#1a0b33;pointer-events:none;display:none}
 body.playing #mm{display:block}
-#mmleg{position:fixed;right:20px;bottom:206px;width:184px;display:none;flex-direction:column;align-items:flex-end;font:bold 9px 'Trebuchet MS',sans-serif;text-shadow:0 0 4px #000,0 0 4px #000;pointer-events:none}
-body.playing #mmleg{display:flex}
 #xhair{position:fixed;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;display:none}
 body.playing.foot #xhair{display:block}
 #xhair:before,#xhair:after{content:'';position:absolute;background:#fff;box-shadow:0 0 6px #25f4ff}
@@ -174,11 +172,10 @@ body.playing #radio{display:block}
 <div id="feed"></div>
 <div id="lootstack"></div>
 <div class="hud" id="jet"><span>JETPACK</span><div class="jb"><i></i></div></div>
-<div id="mmleg"><span style="color:#3cff3c">GREEN ARROW = ALIEN NEST</span><span style="color:#ff9ee0">PINK = ENTER</span><span style="color:#c58cff">PURPLE = RARE LOOT</span></div>
 <canvas id="mm" width="180" height="180"></canvas>
 <div id="prompt"></div><div id="revbar"><i></i></div>
 <div id="toast"></div>
-<div id="hint">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; CLICK fire &middot; <b>CONTROLLER OK</b> (RT fire, A jump, X use, LB/RB weapons) &middot; K skins &middot; R reload / refuel &middot; C hover &middot; 1-9 / 0 / - / WHEEL weapons &middot; F quick-swap &middot; RIGHT-CLICK aim &middot; G fullscreen &middot; E use &middot; Q cycle shop &middot; V car cam &middot; N day/night &middot; M radio &middot; P graphics</div>
+<div id="hint">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; CLICK fire &middot; <b>CONTROLLER OK</b> (RT fire, A jump, X use, LB/RB weapons) &middot; K skins &middot; R reload / refuel &middot; C hover &middot; 1-9 / 0 / - / WHEEL weapons &middot; F quick-swap &middot; RIGHT-CLICK aim &middot; G / pad BACK fullscreen on-off &middot; E use &middot; Q cycle shop &middot; V car cam &middot; N day/night &middot; M radio &middot; P graphics</div>
 <div id="radio"><span style="color:#fff3b0">NEON FM 98.6</span> &middot; Too Soon &mdash; Diamond Ace</div>
 <div id="down"><h1 id="downT">YOU'RE DOWN</h1><p id="downP"></p></div>
 <div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
@@ -744,12 +741,17 @@ const VM=[];
 /* ================= audio ================= */
 let ac=null,sfxOn=true;
 function actx(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return ac;}
+let _bus=null;
+function sfxBus(a){
+  if(!_bus){const g=a.createGain();g.gain.value=2.6;const c=a.createDynamicsCompressor();c.threshold.value=-14;c.ratio.value=6;g.connect(c);c.connect(a.destination);_bus=g;}
+  return _bus;
+}
 function tone(f0,f1,dur,type,vol){
   const a=actx();if(!a||!sfxOn)return;
   const o=a.createOscillator(),g=a.createGain(),t=a.currentTime;
   o.type=type||'sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+dur);
   g.gain.setValueAtTime(vol||0.1,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
-  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+dur+0.02);
+  o.connect(g);g.connect(sfxBus(a));o.start(t);o.stop(t+dur+0.02);
 }
 function noise(dur,vol,lp){
   const a=actx();if(!a||!sfxOn)return;
@@ -757,7 +759,7 @@ function noise(dur,vol,lp){
   for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();
   s.buffer=buf;f.type='lowpass';f.frequency.value=lp||900;g.gain.value=vol||0.2;
-  s.connect(f);f.connect(g);g.connect(a.destination);s.start();
+  s.connect(f);f.connect(g);g.connect(sfxBus(a));s.start();
 }
 function sfxShot(w,vol){
   vol=vol||1;
@@ -794,7 +796,7 @@ function pvoice(f0,f1,dur,type,vol,pan,lp){
   g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
   let out=g;o.connect(g);
   if(lp){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=lp;g.connect(f);out=f;}
-  if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));out.connect(p);p.connect(a.destination);}else out.connect(a.destination);
+  if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));out.connect(p);p.connect(sfxBus(a));}else out.connect(sfxBus(a));
   o.start(t);o.stop(t+dur+0.02);
 }
 function pnoise(dur,vol,lp,pan){
@@ -804,7 +806,7 @@ function pnoise(dur,vol,lp,pan){
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();
   s.buffer=buf;f.type='lowpass';f.frequency.value=lp||900;g.gain.value=vol;
   s.connect(f);f.connect(g);
-  if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));g.connect(p);p.connect(a.destination);}else g.connect(a.destination);
+  if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));g.connect(p);p.connect(sfxBus(a));}else g.connect(sfxBus(a));
   s.start();
 }
 const VOICE_R=[34,34,40,70,110,36,30,44,30,60,60,95,300,34,38,1,40];   // hearing range per alien type
@@ -840,7 +842,7 @@ function tensionDrone(level){
     const o1=a.createOscillator(),o2=a.createOscillator(),lfo=a.createOscillator(),lg=a.createGain();
     o1.type='sawtooth';o1.frequency.value=55;o2.type='sawtooth';o2.frequency.value=58.5;
     lfo.frequency.value=1.7;lg.gain.value=0.012;lfo.connect(lg);lg.connect(g.gain);
-    o1.connect(f);o2.connect(f);f.connect(g);g.connect(a.destination);
+    o1.connect(f);o2.connect(f);f.connect(g);g.connect(sfxBus(a));
     o1.start();o2.start();lfo.start();tens={g};
   }
   tens.g.gain.setTargetAtTime(sfxOn?level:0,a.currentTime,0.35);
@@ -923,7 +925,7 @@ function proxAudio(dt){
   // danger heartbeat when several are on top of you
   if(close>=2){heartT-=dt;if(heartT<=0){heartT=Math.max(0.45,0.9-close*0.08);const v=Math.min(0.2,0.07+close*0.02);pvoice(75,40,0.18,'sine',v,0);setTimeout(()=>pvoice(65,38,0.16,'sine',v*0.8,0),160);}}
 }
-const song=new Audio('song.mp3');song.loop=true;song.volume=0.4;song.preload='auto';
+const song=new Audio('song.mp3');song.loop=true;song.volume=0.2;song.preload='auto';
 let radioOn=true;
 function startSong(){if(radioOn){const p=song.play();if(p&&p.catch)p.catch(()=>{});}}
 /* music on the title screen: try right away; browsers block sound until the first click/key/touch, so retry on that */
@@ -1250,6 +1252,7 @@ function toast(t,sub){const el=$('toast');el.innerHTML=t+(sub?'<small>'+sub+'</s
 
 /* ---------- input ---------- */
 function toggleFS(){
+  setTimeout(()=>{const b=document.getElementById('bFS');if(b)b.textContent=(document.fullscreenElement||document.webkitFullscreenElement)?'EXIT FULLSCREEN':'FULLSCREEN';},300);
   try{
     if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}
     else{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}
@@ -1341,6 +1344,7 @@ function pollPad(dt){
   if(edge(12)&&!garageActive())goBase();
   if(edge(14))menuMove(1);
   if(edge(15))hoodCam=!hoodCam;
+  if(edge(8))toggleFS();
   if((edge(13)&&!garageActive())||edge(9))openLocker();
   padPrev=gp.buttons.map(b=>b.pressed);
 }
@@ -1582,7 +1586,7 @@ function updateProj(dt){
 function chargeSnd(){
   const a=actx();if(!a||!sfxOn)return;
   if(charge>0.02){
-    if(!chgOsc){const o=a.createOscillator(),g=a.createGain();o.type='sawtooth';g.gain.value=0;o.connect(g);g.connect(a.destination);o.start();chgOsc={o,g};}
+    if(!chgOsc){const o=a.createOscillator(),g=a.createGain();o.type='sawtooth';g.gain.value=0;o.connect(g);g.connect(sfxBus(a));o.start();chgOsc={o,g};}
     chgOsc.o.frequency.setTargetAtTime(80+charge*300,a.currentTime,0.05);chgOsc.g.gain.setTargetAtTime(0.02+charge*0.05,a.currentTime,0.05);
   }else if(chgOsc){const c=chgOsc;chgOsc=null;c.g.gain.setTargetAtTime(0,a.currentTime,0.05);setTimeout(()=>{try{c.o.stop();}catch(e){}},300);}
 }
