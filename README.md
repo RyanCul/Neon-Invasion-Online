@@ -61,3 +61,6 @@ Garage item #8, **$30,000**. WASD fly, mouse aims, Space up, C/Shift down, click
 
 ## Death
 When your crew is overrun you see the summary, then return to the **main menu** (button / Enter / pad A, or automatically after 9 s).
+
+## Fullscreen
+Press **G** any time, or use the FULLSCREEN button on the main menu.

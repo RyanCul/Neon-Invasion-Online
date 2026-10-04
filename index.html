@@ -42,6 +42,8 @@ body.playing .hud{display:block}
 #wslots{right:22px;bottom:190px;font-size:12px;text-align:right;letter-spacing:1px}
 #mm{position:fixed;right:20px;bottom:20px;width:180px;height:180px;border:2px solid #25f4ff;box-shadow:0 0 14px #25f4ff,inset 0 0 14px rgba(37,244,255,.35);background:#1a0b33;pointer-events:none;display:none}
 body.playing #mm{display:block}
+#mmleg{position:fixed;right:20px;bottom:206px;width:184px;display:none;flex-direction:column;align-items:flex-end;font:bold 9px 'Trebuchet MS',sans-serif;text-shadow:0 0 4px #000,0 0 4px #000;pointer-events:none}
+body.playing #mmleg{display:flex}
 #xhair{position:fixed;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;display:none}
 body.playing.foot #xhair{display:block}
 #xhair:before,#xhair:after{content:'';position:absolute;background:#fff;box-shadow:0 0 6px #25f4ff}
@@ -172,10 +174,11 @@ body.playing #radio{display:block}
 <div id="feed"></div>
 <div id="lootstack"></div>
 <div class="hud" id="jet"><span>JETPACK</span><div class="jb"><i></i></div></div>
+<div id="mmleg"><span style="color:#3cff3c">GREEN ARROW = ALIEN NEST</span><span style="color:#ff9ee0">PINK = ENTER</span><span style="color:#c58cff">PURPLE = RARE LOOT</span></div>
 <canvas id="mm" width="180" height="180"></canvas>
 <div id="prompt"></div><div id="revbar"><i></i></div>
 <div id="toast"></div>
-<div id="hint">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; CLICK fire &middot; <b>CONTROLLER OK</b> (RT fire, A jump, X use, LB/RB weapons) &middot; K skins &middot; R reload / refuel &middot; C hover &middot; 1-9 / 0 / - / WHEEL weapons &middot; F quick-swap &middot; RIGHT-CLICK aim &middot; E use &middot; Q cycle shop &middot; V car cam &middot; N day/night &middot; M radio &middot; P graphics</div>
+<div id="hint">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; CLICK fire &middot; <b>CONTROLLER OK</b> (RT fire, A jump, X use, LB/RB weapons) &middot; K skins &middot; R reload / refuel &middot; C hover &middot; 1-9 / 0 / - / WHEEL weapons &middot; F quick-swap &middot; RIGHT-CLICK aim &middot; G fullscreen &middot; E use &middot; Q cycle shop &middot; V car cam &middot; N day/night &middot; M radio &middot; P graphics</div>
 <div id="radio"><span style="color:#fff3b0">NEON FM 98.6</span> &middot; Too Soon &mdash; Diamond Ace</div>
 <div id="down"><h1 id="downT">YOU'RE DOWN</h1><p id="downP"></p></div>
 <div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
@@ -197,7 +200,7 @@ body.playing #radio{display:block}
     <div style="margin-top:8px;color:#9ffcff;letter-spacing:3px;font-size:13px">ONLINE CO-OP (up to 8 players)</div>
     <input id="room_in" maxlength="6" placeholder="ROOM CODE (blank = new)"><br>
     <input id="url" placeholder="server address"><br>
-    <button class="c" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button>
+    <button class="c" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button> <button class="c sm" id="bFS">FULLSCREEN</button>
     <div id="msg"></div>
   </div>
   <div class="keys">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; MOUSE aim &middot; CLICK fire &middot; R reload<br>E buy / enter car / revive (hold) &middot; Q cycle shop item &middot; 1-5 switch weapon &middot; V car camera</div>
@@ -1246,6 +1249,13 @@ function lootMsg(kind,title,sub){const f=$('lootstack'),d=document.createElement
 function toast(t,sub){const el=$('toast');el.innerHTML=t+(sub?'<small>'+sub+'</small>':'');el.classList.add('show');toastT=2.6;}
 
 /* ---------- input ---------- */
+function toggleFS(){
+  try{
+    if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}
+    else{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}
+  }catch(e){}
+}
+$('bFS').onclick=toggleFS;
 addEventListener('keydown',e=>{
   if(!started)return;
   if(e.target&&e.target.tagName==='INPUT')return;
@@ -1266,6 +1276,7 @@ addEventListener('keydown',e=>{
   else if(e.code==='KeyN'){nManual=true;nTarget=nTarget?0:1;}
   else if(e.code==='KeyM'){radioOn=!radioOn;$('radio').classList.toggle('off',!radioOn);if(radioOn)startSong();else song.pause();}
   else if(e.code==='KeyP'){retro=!retro;applyRes();}
+  else if(e.code==='KeyG')toggleFS();
   else if(e.code==='Enter'&&S&&S.rd.s==='over')returnToMenu();
   else if(e.code==='KeyF')quickSwap();
   else if(e.code.startsWith('Digit')){const d=+e.code.slice(5);const n=d===0?9:d-1;if(n>=0&&n<NW)selectWeapon(n);}
@@ -1697,7 +1708,6 @@ function drawMini(){
     mg.fillStyle='#ff2fa0';mg.strokeStyle='#fff3b0';mg.lineWidth=1.5;
     mg.beginPath();mg.moveTo(5,0);mg.lineTo(-4,-4);mg.lineTo(-4,4);mg.closePath();mg.fill();mg.stroke();mg.restore();
   }
-  mg.font='bold 9px Trebuchet MS';mg.fillStyle='#ff9ee0';mg.fillText('PINK = ENTER',4,170);mg.fillStyle='#c58cff';mg.fillText('PURPLE = RARE LOOT',4,179);mg.fillStyle='#3cff3c';mg.fillText('GREEN ARROW = ALIEN NEST',4,161);
   mg.save();mg.translate(90,90);mg.rotate(-me.yaw);mg.fillStyle='#fff';mg.beginPath();mg.moveTo(0,-6);mg.lineTo(4,5);mg.lineTo(-4,5);mg.closePath();mg.fill();mg.restore();
 }
 let hudT=0;

@@ -16,7 +16,7 @@ const PLAYER_COLORS=[0xff2fa0,0x25f4ff,0xfff3b0,0xa56bff,0x3cff9e,0xff9a3c,0xfff
 /* weapons: colored laser guns */
 const WPN=[
   {id:0,name:'FLAMINGO',  kind:'PINK LASER PISTOL',   color:0xff2fa0,dmg:30, rate:4.6, mag:12, res:120,cost:0,   pellets:1,spread:0.004,pierce:1,reload:1.1,auto:false},
-  {id:1,name:'AQUA-9',    kind:'CYAN LASER SMG',      color:0x25f4ff,dmg:17, rate:13,  mag:40, res:280,cost:1000,pellets:1,spread:0.02, pierce:1,reload:1.4,auto:true},
+  {id:1,name:'AQUA-9',    kind:'CYAN LASER SMG',      color:0x25f4ff,dmg:17, rate:13,  mag:24, res:120,cost:3200,pellets:1,spread:0.02, pierce:1,reload:1.4,auto:true},
   {id:2,name:'SUNSET',    kind:'ORANGE LASER SHOTGUN',color:0xff9a3c,dmg:20, rate:1.5, mag:6,  res:54, cost:1500,pellets:8,spread:0.07, pierce:1,reload:2.0,auto:false},
   {id:3,name:'VIOLET RAIL',kind:'PURPLE PIERCING RAIL',color:0xa56bff,dmg:170,rate:1.2, mag:8,  res:56, cost:2500,pellets:1,spread:0.0,  pierce:4,reload:1.8,auto:false},
   {id:4,name:'LIME STORM',kind:'GREEN LASER MINIGUN', color:0x3cff9e,dmg:24, rate:11,  mag:90, res:450,cost:3500,pellets:1,spread:0.03, pierce:1,reload:2.4,auto:true},
