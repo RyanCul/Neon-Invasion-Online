@@ -121,3 +121,7 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 **Driving**: mouse / right stick orbits the camera around the car (it re-centers after ~1.5s, and gun cars shoot where the camera points). Steering is stronger and the car drifts a little through hard turns at speed, with tyre smoke and squeal; SHIFT is a handbrake drift.
 
 **Latest**: the menu is one centered column under the title (level bar + Locker, name, Play Solo, co-op, then Leaderboard / Settings / How to Play). The bottom controls strip is gone: press TAB (or the MENU button / controller START) for the pause menu, which has Resume, Controls, Settings and Quit. In co-op the same menu opens but the game keeps running (your character just stands still while it is open). Minimap is bigger. The crash-site UFO is now a flat saucer with round invisible steps, so you can climb onto it.
+
+### Latest: tilted UFO + free car respawns
+- The crashed UFO lies tilted on its side again. Its top is a real sloped surface (`SAUC` in shared.js): walk up the low side and stand on it; you can pass under the raised side.
+- Cars bought at the garage are yours until you die: re-select them in the garage menu (shown as "OWNED - FREE") to spawn another for $0. Ownership resets on death and on a new game.

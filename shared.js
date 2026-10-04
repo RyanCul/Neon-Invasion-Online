@@ -188,7 +188,7 @@ function genWorld(seed){
   for(let i=0;i<slabs.length;i++)slabs[i].b1=i+1<slabs.length?slabs[i+1].b0:B.length;
   for(const b of B)b.dist=distAt(b.x,b.z);
   /* ---- themed landmark blocks: some ordinary blocks become places worth exploring ---- */
-  const r4=mulberry32((seed|0)+7),themes=[];
+  const r4=mulberry32((seed|0)+7),themes=[],sauc=[];
   const dbox=(x,z,w,d,h,c,extra)=>add(x,z,w,d,h,Object.assign({k:'deco',c,part:1,sign:-1},extra));
   const NEON6=[0xff2fa0,0x25f4ff,0xa56bff,0xff9a3c,0x3cff9e,0xffe63c];
   {
@@ -254,8 +254,11 @@ function genWorld(seed){
     for(const sl of slabs){if(!sl.park)continue;const kind=pk[pi++%pk.length];sl.theme=kind;themes.push({k:kind,cx:sl.cx,cz:sl.cz});
       if(kind==='stage'){dbox(sl.cx,sl.cz-8,20,11,1.2,0x2b2145,{em:1,c2:1});dbox(sl.cx,sl.cz-13,20,1.4,8,0xff2fa0,{em:1});loot.push({x:sl.cx,y:1.2+1.7,z:sl.cz-8,t:1});}
       if(kind==='ufo'){   // crashed saucer: three stacked tiers you can climb (1.4 per step)
-        for(const [R,hh] of [[10.8,1.4],[9,2.8],[3.8,4.2]])dbox(sl.cx,sl.cz,2*R,2*R,hh,0x9aa3b8,{hid:1,circ:R});   // invisible ROUND steps matching the saucer model
-        loot.push({x:sl.cx,y:4.2+1.7,z:sl.cz,t:1});loot.push({x:sl.cx+14,y:1.3,z:sl.cz-12,t:0});
+        {   // the saucer lies tilted on its side (same angles as the model in the client): a sloped, walkable top surface
+          const th=0.4,ph=0.15,ny=Math.cos(th)*Math.cos(ph),yc=3.2;
+          sauc.push({x:sl.cx,z:sl.cz,R:9.5,sx:Math.tan(th)/Math.cos(ph),sz:-Math.tan(ph),base:yc+1.2/ny,thick:2.4/ny});
+        }
+        loot.push({x:sl.cx,y:3.2+1.2/(Math.cos(0.4)*Math.cos(0.15))+1.7,z:sl.cz,t:1});loot.push({x:sl.cx+14,y:1.3,z:sl.cz-12,t:0});
       }
       if(kind==='pond')loot.push({x:sl.cx+17,y:1.3,z:sl.cz+17,t:0});
     }
@@ -273,11 +276,11 @@ function genWorld(seed){
   loot.forEach((l,i)=>l.id=i);
   // jump pads on street intersections: they launch you up to the rooftops
   const pads=[[88,0],[-88,88],[176,-88],[-176,-176],[0,176],[-264,88],[264,176]].filter(p=>!B.some(b=>p[0]>b.x0-5&&p[0]<b.x1+5&&p[1]>b.z0-5&&p[1]<b.z1+5)).map(p=>({x:p[0],z:p[1]}));
-  return {B,slabs,houses,loot,pads,themes};
+  return {B,slabs,houses,loot,pads,themes,sauc};
 }
 const SEED=1986;
 const WORLD=genWorld(SEED);
-const B=WORLD.B,LOOT=WORLD.loot,HOUSES=WORLD.houses,PADS=WORLD.pads;
+const SAUC=WORLD.sauc,B=WORLD.B,LOOT=WORLD.loot,HOUSES=WORLD.houses,PADS=WORLD.pads;
 
 /* shops live at intersection corners (always an empty strip of sidewalk) */
 const STATIONS=[];
@@ -313,6 +316,13 @@ function pushOut(p,r,fy){
       }
     }
   }
+  for(const u of SAUC){   // tilted saucer: solid body, but you can walk up its slope or under its raised side
+    const dx=p.x-u.x,dz=p.z-u.z,d=Math.hypot(dx,dz);
+    if(d>=u.R+r)continue;
+    const T=u.base+u.sx*dx+u.sz*dz;
+    if(fy+EYE<=T-u.thick||fy+0.6>=T)continue;
+    if(d>1e-6){p.x=u.x+dx/d*(u.R+r);p.z=u.z+dz/d*(u.R+r);}else p.x=u.x+u.R+r;
+  }
 }
 /* height of the floor/roof under (x,z) that a body at feet height fy can stand on */
 function groundAt(x,z,fy,r){
@@ -325,6 +335,7 @@ function groundAt(x,z,fy,r){
     const t=topOf(b);
     if(t<=fy+0.6&&t>g)g=t;
   }
+  for(const u of SAUC){const dx=x-u.x,dz=z-u.z;if(Math.hypot(dx,dz)>u.R)continue;const T=u.base+u.sx*dx+u.sz*dz;if(T<=fy+0.6&&T>g)g=T;}
   return g;
 }
 /* lowest ceiling above a head at feet height fy */
@@ -451,7 +462,7 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
@@ -607,12 +618,13 @@ class Game{
     }else if(m.k==='car'){
       const g=near('garage');if(!g)return;
       const t=m.id|0;if(!CARS[t])return;
-      if(p.money<CARS[t].cost)return;
+      const owned=(p.oc>>t)&1;
+      if(!owned&&p.money<CARS[t].cost)return;
       if(this.cars.length>=8)return;
       const sp=GARAGE_SPAWNS[g.c];
       let z=sp.z,tries=0;
       while(this.cars.some(c=>Math.hypot(c.x-sp.x,c.z-z)<7)&&tries++<6)z+=7;
-      p.money-=CARS[t].cost;
+      if(!owned){p.money-=CARS[t].cost;p.oc|=1<<t;}
       const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,sp:0,k:p.ck|0};
       c.h=0;
       this.cars.push(c);this.push('bought',p.id,c.id);
@@ -712,7 +724,7 @@ class Game{
   resetGame(){
     this.aliens.length=0;this.orbs.length=0;this.cars.length=0;this.queue.length=0;this.clouds.length=0;
     for(const p of this.players.values()){
-      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
+      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.oc=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
     this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
   }
@@ -876,7 +888,7 @@ class Game{
         }
         p.rvProg=reviving?p.rvProg+dt*(plist.some(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&q.perks[1])?2:1):Math.max(0,p.rvProg-dt*2);
         if(p.rvProg>=3){p.st='alive';p.hp=55;p.rvProg=0;p.lastHit=this.time;this.push('revived',p.id);}
-        else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';this.push('died',p.id);}
+        else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';p.oc=0;this.push('died',p.id);}
       }
     }
 
@@ -1195,7 +1207,7 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),

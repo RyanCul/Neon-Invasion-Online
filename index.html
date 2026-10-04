@@ -490,11 +490,11 @@ const ferris=[];
       w.rotation.x=-Math.PI/2;w.position.set(t.cx,0.5,t.cz);scene.add(w);
       const is=new THREE.Mesh(new THREE.CylinderGeometry(3,3.6,0.6,10),new THREE.MeshLambertMaterial({color:0x3c9a5a}));is.position.set(t.cx,0.6,t.cz);scene.add(is);
     }
-    if(t.k==='ufo'){   // crashed saucer (flat on the ground so you can stand on it; the invisible round steps match this shape)
-      const g=new THREE.Group();g.position.set(t.cx,0,t.cz);
-      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.8,22),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));dsk.position.y=1.6;g.add(dsk);
-      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.5}));dome.position.y=3.0;g.add(dome);
-      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.6,0.4,6,28),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;ring.position.y=1.5;g.add(ring);
+    if(t.k==='ufo'){   // crashed saucer lying tilted on its side (the walkable slope in shared.js uses the same angles)
+      const g=new THREE.Group();g.position.set(t.cx,3.2,t.cz);g.rotation.z=0.4;g.rotation.x=0.15;
+      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.4,18),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));g.add(dsk);
+      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.6}));dome.position.y=1.2;g.add(dome);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.4,6,24),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;g.add(ring);
       scene.add(g);
     }
     if(t.k==='plaza'){
@@ -1831,7 +1831,7 @@ function interact(){
     else if(st.k==='garage'){if(garageClosed){garageClosed=false;return;}
       const it=NI.GARAGE_ITEMS[stSel%NI.GARAGE_ITEMS.length];
       if(it.k==='jet'){if(myP.jo||myP.m<NI.JET_COST){sfx.no();return;}send({t:'buy',k:'jet'});}
-      else{if(myP.m<CARS[it.id].cost){sfx.no();return;}send({t:'buy',k:'car',id:it.id});}}
+      else{if(!((myP.oc>>it.id)&1)&&myP.m<CARS[it.id].cost){sfx.no();return;}send({t:'buy',k:'car',id:it.id});}}
   }
 }
 function enterCarLocal(id){
@@ -2240,14 +2240,14 @@ function updateHUD(dt){
         st_garage_open=true;
         const items=NI.GARAGE_ITEMS,n=items.length,gi=((stSel%n)+n)%n;let rows='';
         items.forEach((it,i)=>{
-          const jet=it.k==='jet',nm=jet?'JETPACK':CARS[it.id].name,cost=jet?NI.JET_COST:CARS[it.id].cost,own=jet&&myP.jo;
-          rows+='<div class="gl'+(i===gi?' sel':'')+((own||myP.m<cost)?' bad':'')+'"><span>'+nm+'</span><span>'+(own?'OWNED':'$'+cost.toLocaleString())+'</span></div>';
+          const jet=it.k==='jet',nm=jet?'JETPACK':CARS[it.id].name,cost=jet?NI.JET_COST:CARS[it.id].cost,own=jet?myP.jo:((myP.oc>>it.id)&1);
+          rows+='<div class="gl'+(i===gi?' sel':'')+((jet?own:(!own&&myP.m<cost))?' bad':'')+'"><span>'+nm+'</span><span>'+(own?(jet?'OWNED':'OWNED - FREE'):'$'+cost.toLocaleString())+'</span></div>';
         });
         const it=items[gi],jet=it.k==='jet';
         if(jet){no=myP.jo||myP.m<NI.JET_COST;
           txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels  -  UP/DOWN choose  -  B close</small>';}
-        else{const cd=CARS[it.id];no=myP.m<cd.cost;
-          txt='GARAGE<div class="glist">'+rows+'</div>[E] BUY '+cd.name+' $'+cd.cost.toLocaleString()+'<small>armor '+cd.hp+' - top speed '+Math.round(cd.maxS*2.2)+' mph - ram damage x'+cd.ram+' - no guns, run aliens over  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';}
+        else{const cd=CARS[it.id],ow=(myP.oc>>it.id)&1;no=!ow&&myP.m<cd.cost;
+          txt='GARAGE<div class="glist">'+rows+'</div>'+(ow?'[E] SPAWN '+cd.name+' (FREE)':'[E] BUY '+cd.name+' $'+cd.cost.toLocaleString())+'<small>armor '+cd.hp+' - top speed '+Math.round(cd.maxS*2.2)+' mph - ram damage x'+cd.ram+' - no guns, run aliens over  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';}
       }
     }
   }
