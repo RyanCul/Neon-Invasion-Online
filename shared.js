@@ -254,7 +254,7 @@ function genWorld(seed){
     for(const sl of slabs){if(!sl.park)continue;const kind=pk[pi++%pk.length];sl.theme=kind;themes.push({k:kind,cx:sl.cx,cz:sl.cz});
       if(kind==='stage'){dbox(sl.cx,sl.cz-8,20,11,1.2,0x2b2145,{em:1,c2:1});dbox(sl.cx,sl.cz-13,20,1.4,8,0xff2fa0,{em:1});loot.push({x:sl.cx,y:1.2+1.7,z:sl.cz-8,t:1});}
       if(kind==='ufo'){   // crashed saucer: three stacked tiers you can climb (1.4 per step)
-        dbox(sl.cx,sl.cz,21,21,1.4,0x9aa3b8,{hid:1});dbox(sl.cx,sl.cz,14,14,2.8,0x8a93ab,{hid:1});dbox(sl.cx,sl.cz,8,8,4.2,0x3cd0b0,{hid:1});   // invisible steps under the saucer model
+        for(const [R,hh] of [[10.8,1.4],[9,2.8],[3.8,4.2]])dbox(sl.cx,sl.cz,2*R,2*R,hh,0x9aa3b8,{hid:1,circ:R});   // invisible ROUND steps matching the saucer model
         loot.push({x:sl.cx,y:4.2+1.7,z:sl.cz,t:1});loot.push({x:sl.cx+14,y:1.3,z:sl.cz-12,t:0});
       }
       if(kind==='pond')loot.push({x:sl.cx+17,y:1.3,z:sl.cz+17,t:0});
@@ -302,6 +302,7 @@ function pushOut(p,r,fy){
     if(p.x<b.x0-r||p.x>b.x1+r||p.z<b.z0-r||p.z>b.z1+r)continue;
     if(b.y0!==undefined&&fy+EYE+0.1<=b.y0)continue;
     if(topOf(b)<=fy+0.6)continue;
+    if(b.circ){const dx=p.x-b.x,dz=p.z-b.z,d=Math.hypot(dx,dz),Rr=b.circ+r;if(d<Rr){if(d>1e-6){p.x=b.x+dx/d*Rr;p.z=b.z+dz/d*Rr;}else p.x=b.x+Rr;}continue;}
     const cx=clamp(p.x,b.x0,b.x1),cz=clamp(p.z,b.z0,b.z1);
     const dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
     if(d2<r*r){
@@ -320,6 +321,7 @@ function groundAt(x,z,fy,r){
     const b=B[i];
     if(x<b.x0-r||x>b.x1+r||z<b.z0-r||z>b.z1+r)continue;
     if(b.y0!==undefined&&fy+EYE+0.1<=b.y0)continue;
+    if(b.circ&&Math.hypot(x-b.x,z-b.z)>b.circ+r)continue;
     const t=topOf(b);
     if(t<=fy+0.6&&t>g)g=t;
   }

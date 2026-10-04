@@ -40,7 +40,7 @@ body.playing .hud{display:block}
 #ammo .wn{font-size:15px}
 #ammo .rl{font-size:14px;color:#fff3b0;text-shadow:0 0 8px #ff9a3c;animation:blink .6s infinite}
 #wslots{right:22px;bottom:190px;font-size:12px;text-align:right;letter-spacing:1px}
-#mm{position:fixed;right:20px;bottom:20px;width:180px;height:180px;border:2px solid #25f4ff;box-shadow:0 0 14px #25f4ff,inset 0 0 14px rgba(37,244,255,.35);background:#1a0b33;pointer-events:none;display:none}
+#mm{position:fixed;right:20px;bottom:20px;width:240px;height:240px;border:2px solid #25f4ff;box-shadow:0 0 14px #25f4ff,inset 0 0 14px rgba(37,244,255,.35);background:#1a0b33;pointer-events:none;display:none}
 body.playing #mm{display:block}
 #xhair{position:fixed;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;display:none}
 body.playing.foot #xhair{display:block}
@@ -125,7 +125,7 @@ body.playing #radio{display:block}
 #over h1{margin:0;font-size:clamp(40px,9vw,110px);font-style:italic;letter-spacing:5px;color:#ff4060;text-shadow:0 0 14px #ff2040,0 0 36px #ff2040}
 #over p{margin:12px 0 0;font-size:clamp(14px,2vw,24px);letter-spacing:3px;color:#ffe6f6;text-shadow:0 0 8px #ff2fa0}
 #pauseB{position:fixed;right:12px;top:12px;z-index:5;display:none;font:inherit;font-size:13px;letter-spacing:2px;padding:6px 12px;background:rgba(20,0,40,.7);color:#fff3b0;border:2px solid #25f4ff;cursor:pointer}
-body.solo #pauseB{display:block}
+body.playing #pauseB{display:block}
 #pauseO{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:11;background:rgba(10,0,25,.8)}
 #pauseO h1{margin:0 0 8px;font-size:56px;letter-spacing:8px;color:#ff2fa0;text-shadow:0 0 18px #ff2fa0;font-style:italic}
 #pauseO button{font:inherit;font-size:18px;letter-spacing:3px;width:260px;padding:10px;background:#ff2fa0;color:#fff;border:2px solid #fff;cursor:pointer}
@@ -134,17 +134,18 @@ body.solo #pauseB{display:block}
 #menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;background:radial-gradient(ellipse at center,rgba(20,0,40,.35),rgba(10,0,25,.85));text-align:center;z-index:8;overflow:auto;padding:16px}
 #menu h1{margin:0;font-size:clamp(40px,9vw,112px);font-style:italic;letter-spacing:6px;line-height:1;background:linear-gradient(to bottom,#fff3b0 0%,#ff9a3c 35%,#ff2fa0 70%,#a56bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,47,160,.8))}
 #menu h2{margin:8px 0 18px;font-size:clamp(13px,2.2vw,24px);letter-spacing:10px;color:#9ffcff;text-shadow:0 0 10px #25f4ff;font-weight:normal}
-#menu h2.sub{font-size:clamp(13px,1.9vw,24px);letter-spacing:4px;margin:14px 0 8px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
-#menu h1{margin-top:0;font-size:clamp(32px,min(6.4vw,calc((100vw - 520px)/10.5)),120px)}
+#menu h2.sub{font-size:clamp(13px,1.9vw,24px);letter-spacing:4px;margin:6px 0 4px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
+#menu h1{margin-top:0;font-size:clamp(32px,min(6.4vw,11vh,calc((100vw - 520px)/10.5)),120px)}
 #menu{justify-content:flex-start;padding-top:10px}
 #topbtns{position:fixed;right:18px;top:16px;display:flex;gap:8px;z-index:9}
 #menu button.tb{width:clamp(96px,9vw,126px);height:40px;margin:0;padding:0;font-size:clamp(10px,1vw,13px);font-style:normal;letter-spacing:1px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
 #nameLab{font-size:18px;letter-spacing:6px;color:#9ffcff;margin-bottom:2px}
-#menu input#name,#menu input#room_in{font-size:17px;padding:11px 8px;width:min(300px,80vw)}
-#menu button.big{font-size:clamp(20px,2.6vw,28px);letter-spacing:2px;white-space:nowrap;padding:16px 10px;margin:10px 6px;width:min(420px,86vw)}
+#menu input#name,#menu input#room_in{font-size:17px;padding:8px 8px;width:min(300px,80vw)}
+#menu button.big{font-size:clamp(20px,2.6vw,28px);letter-spacing:2px;white-space:nowrap;padding:clamp(10px,2vh,16px) 10px;margin:6px 6px;width:min(420px,86vw)}
 #menu #lvbox{position:fixed;left:18px;top:16px;width:clamp(170px,19vw,320px);margin:0;text-align:left;z-index:9;font-size:clamp(13px,1.3vw,17px)}
-#menu #lvbox .xb{height:30px;border-width:3px;margin:6px 0}
-#menu button.sm#bLocker{margin:4px 0 0;width:150px;font-size:13px}
+#menu #lvbox .xb{height:28px;border-width:3px;margin:4px 0}
+#menu #nameLab{font-size:16px;letter-spacing:6px}
+#menu button.sm#bLocker{margin:2px 0 6px;width:150px;font-size:13px}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
 #howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
@@ -161,7 +162,7 @@ body.solo #pauseB{display:block}
 #menu button{font:inherit;font-size:18px;font-weight:bold;letter-spacing:3px;font-style:italic;padding:11px 26px;margin:6px;cursor:pointer;color:#fff;background:linear-gradient(#ff2fa0,#a5207a);border:2px solid #ffb3d9;box-shadow:0 0 14px #ff2fa0}
 #menu button.c{background:linear-gradient(#25c4d0,#16707a);border-color:#9ffcff;box-shadow:0 0 14px #25f4ff}
 #menu button:hover{filter:brightness(1.2)}
-#menu .box{margin-top:12px;padding:10px 16px;border:1px solid rgba(165,107,255,.6);background:rgba(20,5,45,.6);max-width:700px}
+#menu .box{margin-top:6px;padding:8px 16px;border:1px solid rgba(165,107,255,.6);background:rgba(20,5,45,.6);max-width:700px}
 #menu .keys{font-size:12px;color:#d6b8ff;margin-top:12px;line-height:1.7}
 #msg{color:#ff7a90;min-height:20px;font-size:14px}
 #lvl{left:22px;top:56px;font-size:13px;color:#e3c8ff;text-shadow:0 0 6px #a56bff}
@@ -233,7 +234,7 @@ body.solo #pauseB{display:block}
 <canvas id="mm" width="180" height="180"></canvas>
 <div id="prompt"></div><div id="revbar"><i></i></div>
 <div id="toast"></div>
-<div id="hint">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; CLICK fire &middot; <b>CONTROLLER OK</b> (RT fire, A jump, X use, LB/RB weapons) &middot; K skins &middot; R reload / refuel &middot; C hover &middot; 1-9 / 0 / - / WHEEL weapons &middot; F quick-swap &middot; RIGHT-CLICK aim &middot; G / pad BACK fullscreen on-off &middot; E use &middot; Q cycle shop &middot; V car cam &middot; N day/night &middot; M radio &middot; P graphics</div>
+
 <div id="radio"><span style="color:#fff3b0">NEON FM 98.6</span> &middot; Too Soon &mdash; Diamond Ace</div>
 <div id="down"><h1 id="downT">YOU'RE DOWN</h1><p id="downP"></p></div>
 <div id="lobby"><h1>WAITING ROOM</h1><div id="lbCode"></div><div id="lbSub">Tell your friends this room code</div><div id="lbPlayers"></div><button id="lbStart">START GAME</button><div id="lbHint"></div></div>
@@ -243,8 +244,8 @@ body.solo #pauseB{display:block}
 <div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M music &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="bFS">FULLSCREEN</button> <button id="setClose">CLOSE (O / ESC)</button></div></div></div>
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
 <div id="lock">CLICK TO PLAY</div>
-<button id="pauseB">II PAUSE (TAB)</button>
-<div id="pauseO"><h1>PAUSED</h1><button id="pResume">RESUME</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
+<button id="pauseB">II MENU (TAB)</button>
+<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
   <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><button class="c sm" id="bLocker">LOCKER</button><div id="lvnote"></div></div>
@@ -270,7 +271,7 @@ body.solo #pauseB{display:block}
       <tr><td>MOUSE</td><td>aim / look</td></tr><tr><td>LEFT CLICK</td><td>fire</td></tr><tr><td>RIGHT CLICK</td><td>aim down sights</td></tr>
       <tr><td>R</td><td>reload</td></tr><tr><td>E</td><td>use: buy, enter car, revive a friend (hold)</td></tr>
       <tr><td>Q</td><td>change shop item</td></tr><tr><td>1-9 / WHEEL / F</td><td>switch weapon / quick swap</td></tr>
-      <tr><td>K</td><td>skins locker</td></tr><tr><td>TAB</td><td>pause (solo)</td></tr>
+      <tr><td>K</td><td>skins locker</td></tr><tr><td>TAB</td><td>pause menu (the game keeps going in co-op)</td></tr>
       <tr><td>O / G / M / N</td><td>settings / fullscreen / music / day-night</td></tr>
     </table>
     <h3>DRIVING</h3><table>
@@ -285,7 +286,7 @@ body.solo #pauseB{display:block}
       <tr><td>X</td><td>use / reload</td></tr><tr><td>Y</td><td>use, or back to the starting area</td></tr>
       <tr><td>LB / RB</td><td>switch weapon</td></tr><tr><td>L3</td><td>sprint (handbrake while driving)</td></tr>
       <tr><td>D-PAD UP / DOWN</td><td>back to base / skins locker</td></tr><tr><td>D-PAD RIGHT</td><td>hood camera</td></tr>
-      <tr><td>START</td><td>pause (solo)</td></tr><tr><td>BACK</td><td>fullscreen</td></tr>
+      <tr><td>START</td><td>pause menu (co-op keeps running)</td></tr><tr><td>BACK</td><td>fullscreen</td></tr>
     </table></div>
   </div>
   <div style="text-align:center"><button id="howClose">CLOSE</button></div></div></div>
@@ -489,11 +490,11 @@ const ferris=[];
       w.rotation.x=-Math.PI/2;w.position.set(t.cx,0.5,t.cz);scene.add(w);
       const is=new THREE.Mesh(new THREE.CylinderGeometry(3,3.6,0.6,10),new THREE.MeshLambertMaterial({color:0x3c9a5a}));is.position.set(t.cx,0.6,t.cz);scene.add(is);
     }
-    if(t.k==='ufo'){
-      const g=new THREE.Group();g.position.set(t.cx,3.2,t.cz);g.rotation.z=0.4;g.rotation.x=0.15;
-      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.4,18),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));g.add(dsk);
-      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.6}));dome.position.y=1.2;g.add(dome);
-      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.4,6,24),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;g.add(ring);
+    if(t.k==='ufo'){   // crashed saucer (flat on the ground so you can stand on it; the invisible round steps match this shape)
+      const g=new THREE.Group();g.position.set(t.cx,0,t.cz);
+      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.8,22),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));dsk.position.y=1.6;g.add(dsk);
+      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.5}));dome.position.y=3.0;g.add(dome);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.6,0.4,6,28),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;ring.position.y=1.5;g.add(ring);
       scene.add(g);
     }
     if(t.k==='plaza'){
@@ -1497,12 +1498,14 @@ const SET_ROWS=[['music','MUSIC VOLUME','range',0,100],['sfx','SOUND EFFECTS VOL
 })();
 let userPause=false;
 function setPause(v){
-  if(mode!=='solo'||!started||!S||S.rd.s==='over')v=false;
+  if((mode!=='solo'&&mode!=='online')||!started||!S||S.rd.s==='over')v=false;
   userPause=v;$('pauseO').style.display=v?'flex':'none';
+  $('pTitle').textContent=mode==='solo'?'PAUSED':'MENU';$('pNote').style.display=(v&&mode==='online')?'block':'none';
+  if(v){for(const k in keys)keys[k]=false;mouseDown=false;aiming=false;}
   if(v){try{document.exitPointerLock();}catch(e){}$('lock').style.display='none';}else if(started)requestLock();
 }
 $('pauseB').onclick=()=>setPause(true);$('pResume').onclick=()=>setPause(false);
-$('pSet').onclick=()=>toggleSettings(true);$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
+$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
 function toggleSettings(force){
   const s=$('settings'),open=s.style.display==='flex',want=force===undefined?!open:force;
   s.style.display=want?'flex':'none';
@@ -1512,7 +1515,7 @@ $('setClose').onclick=()=>toggleSettings(false);
 addEventListener('keydown',e=>{
   const t=document.activeElement&&document.activeElement.tagName;
   if(e.code==='KeyO'&&t!=='INPUT')toggleSettings();
-  if((e.code==='Tab'||e.code==='Pause')&&t!=='INPUT'){e.preventDefault();if(started&&mode==='solo')setPause(!userPause);return;}
+  if((e.code==='Tab'||e.code==='Pause')&&t!=='INPUT'){e.preventDefault();if(started)setPause(!userPause);return;}
   else if(e.code==='Escape'&&$('settings').style.display==='flex')toggleSettings(false);
 });
 applySet();
@@ -1645,6 +1648,7 @@ $('bFS').onclick=toggleFS;
 addEventListener('keydown',e=>{
   if(!started)return;
   if(e.target&&e.target.tagName==='INPUT')return;
+  if(userPause)return;   // menu open (the game may still be running in co-op): ignore game keys
   if(lockerOpen){if(e.code==='KeyK'||e.code==='Escape')closeLocker();return;}
   keys[e.code]=true;
   if(e.code==='Space'||e.code==='Tab')e.preventDefault();
@@ -1672,7 +1676,7 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('contextmenu',e=>{if(started)e.preventDefault();});
-addEventListener('mousedown',e=>{if(!started)return;if(myP&&myP.st==='dead'&&e.button===0&&locked)specCycle(1);if(e.button===2){aiming=true;return;}if(!locked&&mode==='solo'&&wasLocked){}if(e.button===0){mouseDown=true;mousePressed=0.15;}});
+addEventListener('mousedown',e=>{if(!started||userPause)return;if(myP&&myP.st==='dead'&&e.button===0&&locked)specCycle(1);if(e.button===2){aiming=true;return;}if(!locked&&mode==='solo'&&wasLocked){}if(e.button===0){mouseDown=true;mousePressed=0.15;}});
 addEventListener('mouseup',e=>{if(e.button===0)mouseDown=false;if(e.button===2)aiming=false;});
 addEventListener('mousemove',e=>{
   if(!locked)return;
@@ -1735,7 +1739,7 @@ function pollPad(dt){
   if(edge(14))menuMove(1);
   if(edge(15))hoodCam=!hoodCam;
   if(edge(8))toggleFS();
-  if(edge(9)&&mode==='solo'){setPause(!userPause);}else if((edge(13)&&!garageActive())||edge(9))openLocker();
+  if(edge(9)&&(mode==='solo'||mode==='online')){setPause(!userPause);}else if((edge(13)&&!garageActive())||edge(9))openLocker();
   padPrev=gp.buttons.map(b=>b.pressed);
 }
 addEventListener('gamepadconnected',e=>{if(started)toast('CONTROLLER CONNECTED','LS move - RS look - RT fire - A jump');});
@@ -2066,7 +2070,7 @@ const mmOff=document.createElement('canvas');mmOff.width=MMW;mmOff.height=MMH;
   g.fillStyle='#e0b878';g.fillRect(0,HALF+14-MMZ0,MMW,100);
   g.fillStyle='#3a2a63';
   const mmCol=b=>{let c=b.k==='deco'?b.c:palOf(b);const R=c>>16&255,G=c>>8&255,Bl=c&255;if(G>R+12&&G>Bl+12)c=0xb9a1ff;return c;};
-  for(const b of B){g.fillStyle='#'+mmCol(b).toString(16).padStart(6,'0');g.globalAlpha=0.55;g.fillRect(b.x0-MMX0,b.z0-MMZ0,b.w,b.d);}
+  for(const b of B){if(b.hid)continue;g.fillStyle='#'+mmCol(b).toString(16).padStart(6,'0');g.globalAlpha=0.55;g.fillRect(b.x0-MMX0,b.z0-MMZ0,b.w,b.d);}
   g.globalAlpha=1;
   for(const hs of NI.HOUSES){
     g.fillStyle='rgba(255,47,160,0.75)';g.fillRect(hs.x-hs.S/2-MMX0,hs.z-hs.S/2-MMZ0,hs.S,hs.S);
