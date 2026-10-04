@@ -165,6 +165,46 @@ function genWorld(seed){
     corners.forEach((c,i)=>{if(i===skip)return;const r=R(c[0],c[1]);loot.push({x:cx+r[0],y:1.3,z:cz+r[1],t:0});});
     const rr=R(0,-13);loot.push({x:cx+rr[0],y:1.3,z:cz+rr[1],t:1});
     if(houses.length%3===0)loot.push({x:cx,y:H+0.6+0.9,z:cz,t:1,roof:1});
+    /* ---- interior dressing: every kind of place gets its own furniture; every other building also has a second floor ---- */
+    const hs0=houses[houses.length-1],hi=houses.length-1;
+    const zones=[[-7,7,6,16],[11,15.6,2,15.6],[-4.2,4.2,-4.2,4.2],[-13,-7,7,13],[-2,2,-15,-11],[-12,-2,-9.3,-6.7],[7.7,10.3,-5.2,3.2],[-16,-13.6,2.2,5.8],[10,14,-14,-10],[-14,-10,-14,-10],[-14,-10,10,14]];
+    const free=(lx,lz,w,d)=>!zones.some(z=>lx+w/2>z[0]&&lx-w/2<z[1]&&lz+d/2>z[2]&&lz-d/2<z[3]);
+    const prop=(lx,lz,w,d,hh,neonI,flat)=>{if(!flat&&!free(lx,lz,w,d))return;if(Math.abs(lx)+w/2>15||Math.abs(lz)+d/2>15)return;part(lx,lz,w,d,hh,{k:'prop',neon:neonI,nomm:1});};
+    const nm=hs0.name;
+    if(nm==='ARCADE'){
+      [-12.5,-9,-5.5,5.5,9,12.5].forEach((x,i)=>prop(x,-14,2.2,1.6,3.2,i%5));
+      prop(-4,4,2,3,2.4,1);prop(4,4,2,3,2.4,2);prop(9,9,2,3,2.4,4);
+    }else if(nm==='NEON CLUB'){
+      prop(0,-14.3,8,1.4,2.4,1);prop(-12.5,-14,2.2,2.2,4.4,0);prop(12.5,-14,2.2,2.2,4.4,0);
+      [[-8,2],[8,2],[-8,-2],[8,-2]].forEach(p=>prop(p[0],p[1],5,3.5,0.3,(p[0]<0)?0:2,true));
+      for(let i=0;i<5;i++)prop(-12.5+i*1.9,9,0.9,0.9,1.2,3);
+    }else if(nm==='VIDEO RENTAL'){
+      prop(-12.5,-1,1.2,8,3.2,2);prop(-3,-14.2,8,1.2,3.4,2);prop(4,-8,1.2,8,2.8,1);prop(8.5,-13,4,1.2,3.2,1);prop(12.5,-6,1.2,5,2.6,4);
+    }else if(nm==='DINER'){
+      for(const z of[-12,-6,0])prop(-13,z,2.4,4,1.6,0);
+      for(const z of[-12,-6])prop(13,z,2.4,4,1.6,0);
+      prop(-8,-3,2.2,2.2,1.1,3);prop(-8,3,2.2,2.2,1.1,3);prop(8,-12,2.2,2.2,1.1,3);prop(13,-13.5,1.6,1.6,3.2,4);
+    }else if(nm==='ROLLER RINK'){
+      prop(0,-1,20,18,0.25,0,true);prop(0,-1,8,8,0.35,1,true);prop(0,-14.3,6,1.4,2.6,2);
+      for(const x of[-13.5,13.5])prop(x,8,1.2,6,1.0,3);
+    }else if(nm==='HOTEL LOBBY'){
+      prop(-6,-14,8,1.6,1.7,3);prop(6,-14,8,1.6,1.7,3);prop(-12.5,-2,2.4,6,1.4,2);prop(-8,-1,1.6,1.6,7,0);prop(8,-1,1.6,1.6,7,0);prop(0,-8,6,3,1.0,2);
+    }else if(nm==='TIKI BAR'){
+      prop(-9,-14,10,1.8,1.7,3);prop(11,-14,6,1.8,1.7,3);
+      for(let i=0;i<6;i++)prop(-13+i*2.2,-11.6,0.8,0.8,1.1,3);
+      prop(-13.5,-3,1.4,1.4,5,3);prop(13.5,-3,1.4,1.4,5,3);prop(0,-8,2.6,2.6,1.1,4);prop(-7,0,2,2,1.1,4);
+    }else if(nm==='RECORD SHOP'){
+      for(const z of[-11,-5])prop(-9,z,1.4,5,1.1,1);
+      prop(9,-12,3,3,3.2,0);prop(-3,-14.2,6,1.2,3.4,2);prop(6,-14.2,4,1.2,3.4,2);prop(-13,3,1.4,5,1.1,1);
+    }
+    if(hi%2===0){   // second floor over the back half, reached by a staircase along the east wall
+      const SH=5.2,ST=10;
+      part(0,-6.35,S-2*t,17.7,SH,{k:'roof',y0:4.6,nomm:1});
+      for(let i=1;i<=ST;i++)part(13.4,14.5-1.2*(i-0.5),3.2,1.2,0.52*i,{k:'deco',c:i%2?0xff2fa0:0x25f4ff,em:1,nomm:1});
+      const R2=(lx,lz)=>{const q=k===0?[lx,lz]:k===1?[-lz,lx]:k===2?[-lx,-lz]:[lz,-lx];return[cx+q[0],cz+q[1]];};
+      let a=R2(-8,-8);loot.push({x:a[0],y:SH+1.3,z:a[1],t:1});a=R2(8,-11);loot.push({x:a[0],y:SH+1.3,z:a[1],t:0});a=R2(-10,-1);loot.push({x:a[0],y:SH+1.3,z:a[1],t:0});
+      hs0.fl=1;
+    }
   }
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){
     const cx=(i-3.5)*P,cz=(j-3.5)*P;
@@ -262,6 +302,16 @@ function genWorld(seed){
       }
       if(kind==='pond')loot.push({x:sl.cx+17,y:1.3,z:sl.cz+17,t:0});
     }
+  }
+  /* MARINA on the beach: boardwalk, piers and docked boats (stand on the decks; yacht roof has loot) */
+  {const mx=190,mz=392;themes.push({k:'marina',cx:mx,cz:mz});
+    dbox(mx,mz-8,70,3.2,0.7,0x8a5a2a,{nomm:1});                                       // boardwalk along the shore
+    for(const px of[-24,-8,8,24])dbox(mx+px,mz+3,2.6,18,0.7,0x8a5a2a,{nomm:1});        // four piers
+    const BC=[0xffffff,0xff2fa0,0x25f4ff,0xffc83c];
+    [[-16,0],[0,6],[16,0]].forEach(([bx,bz],i)=>{                                      // boats between the piers
+      dbox(mx+bx,mz+bz+2,5.4,12,1.4,BC[i%4],{em:1,nomm:1});dbox(mx+bx,mz+bz,3.4,4.6,3.6,0xe8e8f4,{nomm:1});dbox(mx+bx,mz+bz+5,0.5,0.5,9,0xffffff,{nomm:1});
+    });
+    loot.push({x:mx+0,y:3.6+1.7,z:mz+6,t:1});loot.push({x:mx-30,y:0.7+1.3,z:mz-8,t:0});loot.push({x:mx+30,y:0.7+1.3,z:mz-8,t:0});
   }
   for(let k=B.length-1;k>=0;k--)if(B[k].dead)B.splice(k,1);
   // rooftop caches on some tall towers (need a jetpack)
@@ -680,6 +730,10 @@ class Game{
     const def=AT[a.t];
     const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1);
     p.money+=Math.round(mk);p.kills++;
+    for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash
+      if(q===p||q.st!=='alive')continue;
+      if(Math.hypot(q.x-a.x,q.z-a.z)<60)q.money+=Math.round(mk*0.25);
+    }
     if(a.mut===1){   // volatile mutant: blows up when it dies
       this.push('blast',r2(a.x),r2(a.y+1),r2(a.z));
       for(const q of this.players.values()){if(q.st!=='alive')continue;const t=this.targetPos(q),d=Math.hypot(t.x-a.x,t.z-a.z);if(d<9&&q.y-EYE<6)this.hurt(q,(25+this.round)*(1-d/12),a.x,a.z);}
@@ -692,7 +746,7 @@ class Game{
   hpMul(){const r=this.round;return r<=10?1+0.15*(r-1):(1+0.15*9)*Math.pow(1.08,r-10);}
   startRound(){
     this.round++;
-    const mul=this.online?1.5:1;     // online rooms get 1.5x aliens
+    const npl=Math.max(1,this.players.size),mul=1+0.55*(npl-1);     // bigger crews face bigger waves: 1.0x solo, 1.55x for 2, 2.65x for 4, 3.75x for 6
     let total=Math.round((5+this.round*2.4)*mul);
     const giant=this.round%20===0,ultimate=this.round%50===0,shark=this.round%13===0;
     const boss=this.round%5===0;
@@ -784,7 +838,7 @@ class Game{
       }
     }
     const np=Math.max(1,this.players.size);
-    let hp=def.hp*this.hpMul();
+    let hp=def.hp*this.hpMul()*(1+0.1*(np-1));   // +10% alien health per extra player
     if(t===4)hp=2200*(1+0.5*(this.round/5-1))*(1+0.5*(np-1));
     if(t===18)hp=2600*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
     if(t===17)hp=150000*(1+0.5*(this.round/50-1))*(1+0.5*(np-1));
@@ -950,10 +1004,12 @@ class Game{
     }
 
     for(const p of plist){
-      if(p.st!=='alive'||p.car>=0)continue;
+      if(p.st!=='alive')continue;
+      const dc=p.car>=0?this.cars.find(c=>c.id===p.car):null;
       for(let i=0;i<LOOT.length;i++){
         if(!this.loot[i])continue;const l=LOOT[i];
-        if(Math.abs(l.x-p.x)<2.3&&Math.abs(l.z-p.z)<2.3&&Math.abs((p.y-EYE)-(l.y-0.9))<2.4){this.loot[i]=false;this.pickLoot(p,l);}
+        if(dc){if(Math.abs(l.x-dc.x)<3.6&&Math.abs(l.z-dc.z)<3.6&&Math.abs((dc.y||0)+1-(l.y-0.9))<3.2){this.loot[i]=false;this.pickLoot(p,l);}}   // grab loot while driving
+        else if(Math.abs(l.x-p.x)<2.3&&Math.abs(l.z-p.z)<2.3&&Math.abs((p.y-EYE)-(l.y-0.9))<2.4){this.loot[i]=false;this.pickLoot(p,l);}
       }
     }
 
@@ -966,7 +1022,7 @@ class Game{
       if(this.timer<=0)this.resetGame();
     }else if(this.state==='fight'){
       this.spawnT-=dt;
-      const cap=Math.min(40,22+5*(plist.length-1));
+      const cap=Math.min(48,22+6*(plist.length-1));
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
