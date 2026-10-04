@@ -125,3 +125,7 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 ### Latest: tilted UFO + free car respawns
 - The crashed UFO lies tilted on its side again. Its top is a real sloped surface (`SAUC` in shared.js): walk up the low side and stand on it; you can pass under the raised side.
 - Cars bought at the garage are yours until you die: re-select them in the garage menu (shown as "OWNED - FREE") to spawn another for $0. Ownership resets on death and on a new game.
+
+### Latest: jetpack tank upgrades + taller buildings
+- The jetpack now starts with 4s of fuel. A garage entry "JETPACK FUEL +2s" upgrades it three times ($1,500 / $3,000 / $5,000) up to 10s. Resets on death/new game.
+- Enterable buildings are now 20-23 tall (were 11-13).

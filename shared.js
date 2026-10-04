@@ -69,7 +69,7 @@ const mhp=p=>100+(p.perks?50*HP_TIERS.filter(i=>p.perks[i]).length:0);
 const UPCOST=(w,lv)=>Math.round(UP_COST[lv]*(WPN[w].upm||1)/50)*50;
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
 const AMMO_ALL=p=>200+100*p.wo.filter((v,i)=>v>=0&&!WPN[i].melee).length;
-const JET_COST=2500;
+const JET_COST=2500,JET_UP=[1500,3000,5000],jetMax=l=>4+2*(l|0);
 const AMMO_COST=w=>Math.max(250,Math.round(WPN[w].cost/2/50)*50);
 
 const CARS=[
@@ -83,7 +83,7 @@ const CARS=[
   {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:30000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9}
 ];
 /* everything sold at the garage, cheapest first (the jetpack sits between the coupe and the muscle car) */
-const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6},{k:'car',id:7}];
+const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'jetup'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6},{k:'car',id:7}];
 /* car paint & designs unlocked by level */
 const CSKINS=[
   {id:0,name:'FACTORY',    lvl:1, body:null,     trim:null,     deco:'none'},
@@ -141,7 +141,7 @@ function genWorld(seed){
   const NAMES=['ARCADE','NEON CLUB','VIDEO RENTAL','DINER','ROLLER RINK','HOTEL LOBBY','TIKI BAR','RECORD SHOP'];
   /* an enterable building: 4 walls with a door gap, a roof, two counters, loot inside */
   function addHouse(cx,cz){
-    const S=34,t=1.6,H=11+Math.floor(rand()*3),gap=11,k=Math.floor(rand()*4);
+    const S=34,t=1.6,H=20+Math.floor(rand()*4),gap=11,k=Math.floor(rand()*4);
     const tex=Math.floor(rand()*4),pal=Math.floor(rand()*8),neon=Math.floor(rand()*5);
     const R=(lx,lz)=>k===0?[lx,lz]:k===1?[-lz,lx]:k===2?[-lx,-lz]:[lz,-lx];
     const part=(lx,lz,w,d,h,extra)=>{
@@ -462,7 +462,7 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
@@ -614,7 +614,10 @@ class Game{
       if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);
     }else if(m.k==='jet'){
       if(!near('garage')||p.jet||p.money<JET_COST)return;
-      p.money-=JET_COST;p.jet=true;this.push('gotjet',p.id);
+      p.money-=JET_COST;p.jet=true;p.jl=0;this.push('gotjet',p.id);
+    }else if(m.k==='jetup'){
+      if(!near('garage')||!p.jet||(p.jl|0)>=JET_UP.length||p.money<JET_UP[p.jl|0])return;
+      p.money-=JET_UP[p.jl|0];p.jl=(p.jl|0)+1;this.push('gotjet',p.id);
     }else if(m.k==='car'){
       const g=near('garage');if(!g)return;
       const t=m.id|0;if(!CARS[t])return;
@@ -724,7 +727,7 @@ class Game{
   resetGame(){
     this.aliens.length=0;this.orbs.length=0;this.cars.length=0;this.queue.length=0;this.clouds.length=0;
     for(const p of this.players.values()){
-      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.oc=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
+      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
     this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
   }
@@ -1207,7 +1210,7 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
@@ -1219,6 +1222,6 @@ class Game{
 }
 
 const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
-  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
+  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);

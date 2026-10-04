@@ -1453,10 +1453,10 @@ function handleEvent(e){
     else if(t==='ammo')lootMsg('ammo','AMMO REFILLED','ALL WEAPONS');
     else lootMsg('med','HEALTH PACK','FULLY HEALED');}}
   else if(k==='ammoall'){if(e[1]===myId){for(let w=0;w<NW;w++)if(myP.wo[w]>=0)fillAmmo(w);}}
-  else if(k==='gotjet'){if(e[1]===myId){sfx.buy();toast('JETPACK','HOLD SPACE TO FLY - C TO HOVER - R REFUELS ON THE GROUND');jetFuel=10;}}
+  else if(k==='gotjet'){if(e[1]===myId){sfx.buy();toast('JETPACK','HOLD SPACE TO FLY - C TO HOVER - R REFUELS ON THE GROUND');setTimeout(()=>{if(myP)jetFuel=NI.jetMax(myP.jl);},400);}}
   else if(k==='reset'){
     gameXP=0;lastK=0;joinRound=1;$('overXP').innerHTML='';$('overLB').innerHTML='';
-    curW=0;reloadT=0;fireCd=0;jetFuel=10;
+    curW=0;reloadT=0;fireCd=0;jetFuel=4;
     for(let w=0;w<NW;w++){ammo[w].mag=0;ammo[w].res=0;}lastW=0;charge=0;aiming=false;
     fillAmmo(0);stSel=0;
     toast('NEW GAME','BACK TO YOUR FLAMINGO PISTOL');
@@ -1768,7 +1768,7 @@ function quickSwap(){if(!myP||driving>=0)return;if(lastW!==curW&&myP.wo[lastW]>=
 function startReload(){
   if(driving>=0||!myP||dead)return;
   if(WPN[curW].melee)return;
-  if(myP.jo&&jetFuel<9.9&&onGround){jetFuel=10;sfx.buy();}
+  if(myP.jo&&jetFuel<NI.jetMax(myP.jl)-0.1&&onGround){jetFuel=NI.jetMax(myP.jl);sfx.buy();}
   const a=ammo[curW];if(reloadT>0||a.res<=0||a.mag>=magSize(curW))return;
   reloadT=WPN[curW].reload*(hasPk(2)?0.6:1);sfx.reload();
 }
@@ -1830,7 +1830,8 @@ function interact(){
     else if(st.k==='forge'){const w=curW,lv=myP.wo[w];if(lv>=NI.MAXUP||myP.m<NI.UPCOST(w,lv)){sfx.no();return;}send({t:'buy',k:'upg',id:w});}
     else if(st.k==='garage'){if(garageClosed){garageClosed=false;return;}
       const it=NI.GARAGE_ITEMS[stSel%NI.GARAGE_ITEMS.length];
-      if(it.k==='jet'){if(myP.jo||myP.m<NI.JET_COST){sfx.no();return;}send({t:'buy',k:'jet'});}
+      if(it.k==='jetup'){const l=myP.jl|0;if(!myP.jo||l>=NI.JET_UP.length||myP.m<NI.JET_UP[l]){sfx.no();return;}send({t:'buy',k:'jetup'});}
+      else if(it.k==='jet'){if(myP.jo||myP.m<NI.JET_COST){sfx.no();return;}send({t:'buy',k:'jet'});}
       else{if(!((myP.oc>>it.id)&1)&&myP.m<CARS[it.id].cost){sfx.no();return;}send({t:'buy',k:'car',id:it.id});}}
   }
 }
@@ -1847,7 +1848,7 @@ function exitCarLocal(destroyed){
 }
 
 /* ---------- on-foot movement ---------- */
-let padCd=0,onGround=true,jetFuel=10,jetFx=0,jetSnd=0,jetting=false;
+let padCd=0,onGround=true,jetFuel=4,jetFx=0,jetSnd=0,jetting=false;
 function updateFoot(dt){
   const down=myP&&myP.st==='down';
   const ix=clamp((keys.KeyD?1:0)-(keys.KeyA?1:0)+pad.x,-1,1),iz=clamp((keys.KeyW?1:0)-(keys.KeyS?1:0)+pad.z,-1,1);
@@ -2094,7 +2095,7 @@ function drawMini(){
       const pr=0.5+0.5*Math.sin(elapsed*5);let X=tx(o.x),Z=tz(o.z);
       const ddx=X-90,ddz=Z-90,dd=Math.hypot(ddx,ddz);
       if(dd>78){const an=Math.atan2(ddz,ddx);mg.save();mg.translate(90+Math.cos(an)*80,90+Math.sin(an)*80);mg.rotate(an);
-        mg.fillStyle=o.hide?'#ffe600':'#ff1030';mg.strokeStyle='#fff';mg.lineWidth=1.5;mg.beginPath();mg.moveTo(7,0);mg.lineTo(-5,-6);mg.lineTo(-5,6);mg.closePath();mg.fill();mg.stroke();mg.restore();continue;}
+        mg.fillStyle=SET.cb?'#ffd400':'#3cff3c';mg.strokeStyle='#fff';mg.lineWidth=1.5;const sc=1.3+pr*0.3;mg.scale(sc,sc);mg.beginPath();mg.moveTo(7,0);mg.lineTo(-5,-6);mg.lineTo(-5,6);mg.closePath();mg.fill();mg.stroke();mg.restore();continue;}
       mg.fillStyle=o.hide?(SET.cb?'#ffffff':'#ffe600'):(SET.cb?'#ff00ff':'#ff1030');mg.strokeStyle='#ffffff';mg.lineWidth=2;mg.beginPath();mg.arc(X,Z,6+pr*3,0,6.3);mg.fill();mg.stroke();
       mg.fillStyle=o.hide?'#000':'#fff';mg.font='bold 10px sans-serif';mg.fillText('\u2620',X-5,Z+3.5);continue;}
     if(o.t===15){   // rooftop sniper: orange crosshair
@@ -2178,7 +2179,7 @@ function updateHUD(dt){
     $('scope').style.display=(aiming&&WPN[curW].scope&&driving<0&&myP.st==='alive')?'block':'none';
     const cw=WPN[curW];$('chg').style.display=(cw.charge&&driving<0&&charge>0.01)?'block':'none';$('chg').firstChild.style.width=(charge*100)+'%';
   }
-  $('jet').style.display=(myP.jo&&driving<0)?'block':'none';$('jet').querySelector('i').style.width=(jetFuel/10*100)+'%';
+  $('jet').style.display=(myP.jo&&driving<0)?'block':'none';$('jet').querySelector('i').style.width=(jetFuel/NI.jetMax(myP.jl)*100)+'%';
   $('base').style.display=(canBase()&&Math.hypot(me.x-BASE.x,me.z-BASE.z)>10)?'block':'none';
   // revive bar
   $('revbar').style.display='none';
@@ -2240,12 +2241,16 @@ function updateHUD(dt){
         st_garage_open=true;
         const items=NI.GARAGE_ITEMS,n=items.length,gi=((stSel%n)+n)%n;let rows='';
         items.forEach((it,i)=>{
+          if(it.k==='jetup'){const l=myP.jl|0,mx=l>=NI.JET_UP.length,bad=!myP.jo||mx||myP.m<NI.JET_UP[l];
+            rows+='<div class="gl'+(i===gi?' sel':'')+(bad?' bad':'')+'"><span>JETPACK FUEL +2s</span><span>'+(mx?'MAXED':'$'+NI.JET_UP[l].toLocaleString())+'</span></div>';return;}
           const jet=it.k==='jet',nm=jet?'JETPACK':CARS[it.id].name,cost=jet?NI.JET_COST:CARS[it.id].cost,own=jet?myP.jo:((myP.oc>>it.id)&1);
           rows+='<div class="gl'+(i===gi?' sel':'')+((jet?own:(!own&&myP.m<cost))?' bad':'')+'"><span>'+nm+'</span><span>'+(own?(jet?'OWNED':'OWNED - FREE'):'$'+cost.toLocaleString())+'</span></div>';
         });
         const it=items[gi],jet=it.k==='jet';
-        if(jet){no=myP.jo||myP.m<NI.JET_COST;
-          txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 10 seconds of fuel - R refuels on the ground  -  UP/DOWN choose  -  B close</small>';}
+        if(it.k==='jetup'){const l=myP.jl|0,mx=l>=NI.JET_UP.length;no=!myP.jo||mx||myP.m<NI.JET_UP[l];
+          txt='GARAGE<div class="glist">'+rows+'</div>'+(!myP.jo?'BUY THE JETPACK FIRST':mx?'JETPACK FUEL MAXED':'[E] UPGRADE FUEL TANK $'+NI.JET_UP[l].toLocaleString())+'<small>fuel: '+NI.jetMax(l)+'s'+(mx?'':' -> '+NI.jetMax(l+1)+'s')+'  -  UP/DOWN choose  -  B close</small>';}
+        else if(jet){no=myP.jo||myP.m<NI.JET_COST;
+          txt='GARAGE<div class="glist">'+rows+'</div>'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'<small>hold SPACE to fly, C to hover - 4 seconds of fuel to start, upgradeable - R refuels on the ground  -  UP/DOWN choose  -  B close</small>';}
         else{const cd=CARS[it.id],ow=(myP.oc>>it.id)&1;no=!ow&&myP.m<cd.cost;
           txt='GARAGE<div class="glist">'+rows+'</div>'+(ow?'[E] SPAWN '+cd.name+' (FREE)':'[E] BUY '+cd.name+' $'+cd.cost.toLocaleString())+'<small>armor '+cd.hp+' - top speed '+Math.round(cd.maxS*2.2)+' mph - ram damage x'+cd.ram+' - no guns, run aliens over  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';}
       }
