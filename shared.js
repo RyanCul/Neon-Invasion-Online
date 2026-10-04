@@ -48,6 +48,17 @@ const MAXUP=5;                            // every weapon has 5 upgrades (MK II 
 const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3];
 const UP_COST=[1500,3000,5500,9000,14000];   // cost to reach upgrade 1..5 (scaled per weapon by upm)
+const PERKS=[
+  {id:0,name:'NEON TANK',  cost:2500,desc:'+50 max health'},
+  {id:1,name:'QUICK REVIVE',cost:1500,desc:'revive teammates twice as fast'},
+  {id:2,name:'FAST HANDS', cost:3000,desc:'reload 40% faster'},
+  {id:3,name:'SPRINTER',   cost:2000,desc:'run 18% faster'},
+  {id:4,name:'DEAD EYE',   cost:4000,desc:'headshots / weak spots do 60% more'},
+  {id:5,name:'CASH MAGNET',cost:3500,desc:'+25% cash from kills'},
+  {id:6,name:'KEVLAR',     cost:5000,desc:'take 25% less damage'},
+  {id:7,name:'DOUBLE TAP', cost:5000,desc:'+20% weapon damage'}
+];
+const mhp=p=>100+(p.perks&&p.perks[0]?50:0);
 const UPCOST=(w,lv)=>Math.round(UP_COST[lv]*(WPN[w].upm||1)/50)*50;
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
 const AMMO_ALL=p=>200+100*p.wo.filter((v,i)=>v>=0&&!WPN[i].melee).length;
@@ -99,7 +110,8 @@ const AT=[
   {name:'STALKER',hp:900, sp:4.6,r:1.9, cy:2.0, dmg:46, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
   {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
-  {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:52,summon:true}
+  {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:52,summon:true},
+  {name:'ALIEN SHARK',hp:2600,sp:15,r:3.0,cy:1.8,dmg:30,money:6000,fly:false,beach:true,loner:true}
 ];
 
 /* ---------------- world ---------------- */
@@ -133,8 +145,9 @@ function genWorld(seed){
     part(0,0,S,S,H+0.6,{k:'roof',y0:H});
     part(-7,-8,10,2.2,1.0,{k:'prop'});
     part(9,-1,2.2,8,1.0,{k:'prop'});
+    part(-14.8,4,2.0,3.2,3.2,{k:'prop',vend:1});   // vending machine: heal for $250
     const dl=R(0,S/2+2);
-    houses.push({x:cx,z:cz,S,H,k,name:NAMES[Math.floor(rand()*NAMES.length)],neon,pal,tex,dx:cx+dl[0],dz:cz+dl[1]});
+    const vp=R(-12.8,4);houses.push({x:cx,z:cz,S,H,k,name:NAMES[Math.floor(rand()*NAMES.length)],neon,pal,tex,dx:cx+dl[0],dz:cz+dl[1],vx:cx+vp[0],vz:cz+vp[1]});
     const corners=[[-12,-12],[12,-12],[-12,12],[12,12]],skip=Math.floor(rand()*4);
     corners.forEach((c,i)=>{if(i===skip)return;const r=R(c[0],c[1]);loot.push({x:cx+r[0],y:1.3,z:cz+r[1],t:0});});
     const rr=R(0,-13);loot.push({x:cx+rr[0],y:1.3,z:cz+rr[1],t:1});
@@ -145,7 +158,7 @@ function genWorld(seed){
     const park=rand()<0.14;
     slabs.push({cx,cz,park});
     if(park)continue;
-    if(rand()<0.2){addHouse(cx,cz);continue;}
+    if(rand()<0.36){addHouse(cx,cz);continue;}
     const boost=1+0.7*(1-Math.hypot(i-3.5,j-3.5)/5);
     const low=j>=6;
     const hh=()=>low?(9+rand()*13):((10+rand()*42)*boost);
@@ -164,12 +177,18 @@ function genWorld(seed){
   for(const b of B){if(b.part||b.h<26||nroof>=11)continue;if(r3()<0.2){loot.push({x:b.x,y:b.h+0.8+0.9,z:b.z,t:1,roof:1});nroof++;}}
   // beach caches
   [-150,0,150].forEach(x=>loot.push({x,y:0.9,z:HALF+40,t:1,beach:1}));
+  // three secret NEON TAPES: one on the far beach, one on the tallest roof, one inside a building
+  loot.push({x:-300,y:0.9,z:HALF+56,t:2});
+  {let tb=null;for(const b of B){if(b.part)continue;if(!tb||b.h>tb.h)tb=b;}if(tb)loot.push({x:tb.x,y:tb.h+0.8+0.9,z:tb.z,t:2,roof:1});}
+  {const hs=houses[Math.min(4,houses.length-1)];if(hs)loot.push({x:hs.x,y:1.3,z:hs.z+3,t:2});}
   loot.forEach((l,i)=>l.id=i);
-  return {B,slabs,houses,loot};
+  // jump pads on street intersections: they launch you up to the rooftops
+  const pads=[[88,0],[-88,88],[176,-88],[-176,-176],[0,176],[-264,88],[264,176]].filter(p=>!B.some(b=>p[0]>b.x0-5&&p[0]<b.x1+5&&p[1]>b.z0-5&&p[1]<b.z1+5)).map(p=>({x:p[0],z:p[1]}));
+  return {B,slabs,houses,loot,pads};
 }
 const SEED=1986;
 const WORLD=genWorld(SEED);
-const B=WORLD.B,LOOT=WORLD.loot,HOUSES=WORLD.houses;
+const B=WORLD.B,LOOT=WORLD.loot,HOUSES=WORLD.houses,PADS=WORLD.pads;
 
 /* shops live at intersection corners (always an empty strip of sidewalk) */
 const STATIONS=[];
@@ -333,7 +352,7 @@ class Game{
     this.round=0;this.state='lobby';this.timer=0;this.queue=[];this.spawnT=0;
     this.time=0;this.snapT=0;this.flows=new Map();this.flowT=0;
     this.rnd=mulberry32((Math.random()*1e9)|0);
-    this.overStats=null;this.best=0;this.loot=LOOT.map(()=>true);
+    this.overStats=null;this.best=0;this.loot=LOOT.map(()=>true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts=[];this.wxT=0;
   }
   rand(){return this.rnd();}
   addPlayer(id,name){
@@ -341,7 +360,7 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),w:0,lv:1,sk:0,jet:false,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
@@ -437,7 +456,7 @@ class Game{
       const w=m.w|0;if(!WPN[w]||p.wo[w]<0)return;
       def=WPN[w];lvl=p.wo[w];
       if(this.time<p.fireT)return;p.fireT=this.time+0.8/def.rate;
-      dmg=def.dmg*DMG_MULT[lvl];col=def.color;
+      dmg=def.dmg*DMG_MULT[lvl]*(p.perks[7]?1.2:1);col=def.color;
     }
     const range=def.range||260;
     const shotEv=()=>this.push('shot',p.id,m.w,lvl,r2(ox),r2(oy),r2(oz),r2(d[0]),r2(d[1]),r2(d[2]),m.s|0,p.sk|0);
@@ -484,6 +503,13 @@ class Game{
       const w=m.id|0;if(!WPN[w]||p.wo[w]<0||p.wo[w]>=MAXUP)return;
       const c=UPCOST(w,p.wo[w]);if(p.money<c)return;
       p.money-=c;p.wo[w]++;this.push('upg',p.id,w,p.wo[w]);
+    }else if(m.k==='perk'){
+      if(!near('armory'))return;
+      const id=m.id|0,pk=PERKS[id];if(!pk||p.perks[id]||p.money<pk.cost)return;
+      p.money-=pk.cost;p.perks[id]=true;if(id===0)p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);
+    }else if(m.k==='vend'){
+      const h=HOUSES.find(h=>Math.hypot(h.vx-p.x,h.vz-p.z)<4);if(!h)return;
+      if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);
     }else if(m.k==='jet'){
       if(!near('garage')||p.jet||p.money<JET_COST)return;
       p.money-=JET_COST;p.jet=true;this.push('gotjet',p.id);
@@ -503,31 +529,43 @@ class Game{
   }
 
   pickLoot(p,l){
+    if(l.t===2){
+      this.tapeTaken[l.id]=1;this.tapes++;this.push('tape',p.id,this.tapes);
+      if(this.tapes>=3){for(const q of this.players.values()){q.money+=25000;q.hp=mhp(q);}this.push('tapesall');}
+      return;
+    }
     const r=this.rand();
     if(l.t===1){
       const cash=Math.round((400+this.round*40)*(0.8+0.5*this.rand()));
-      p.money+=cash;p.hp=100;
+      p.money+=cash;p.hp=mhp(p);
       this.push('loot',p.id,'rare',cash,l.id);this.push('ammoall',p.id);
     }else if(r<0.55){
       const cash=Math.round((100+this.round*18)*(0.8+0.6*this.rand()));
       p.money+=cash;this.push('loot',p.id,'cash',cash,l.id);
     }else if(r<0.8){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);}
-    else{p.hp=100;this.push('loot',p.id,'med',0,l.id);}
+    else{p.hp=mhp(p);this.push('loot',p.id,'med',0,l.id);}
   }
   damageAlien(a,dmg,p,x,y,z){
     if(a.hp<=0)return;
     if(a.dorm){for(const o of this.aliens)if(o.dorm&&Math.hypot(o.x-a.x,o.z-a.z)<30)o.dorm=false;}
     if(a.hide){a.hide=false;this.push('stalk',a.id);}
     if(AT[a.t].stalker)a.enr=1;
+    let crit=0;
+    if(y!==undefined){const df=AT[a.t];if(y>a.y+a.cy+df.r*(df.giant?0.12:0.4)){crit=1;dmg*=(df.giant?2.5:2)*(p.perks&&p.perks[4]?1.6:1);}}
     a.hp-=dmg;
     p.money+=10;
     let killed=0;
     if(a.hp<=0){killed=1;this.killAlien(a,p);}
-    this.push('hit',p.id,r2(x),r2(y),r2(z),killed,Math.round(dmg));
+    this.push('hit',p.id,r2(x),r2(y),r2(z),killed,Math.round(dmg),crit);
   }
   killAlien(a,p){
     const def=AT[a.t];
-    p.money+=def.money+(a.far?Math.round(def.money*0.5):0);p.kills++;
+    const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1);
+    p.money+=Math.round(mk);p.kills++;
+    if(a.mut===1){   // volatile mutant: blows up when it dies
+      this.push('blast',r2(a.x),r2(a.y+1),r2(a.z));
+      for(const q of this.players.values()){if(q.st!=='alive')continue;const t=this.targetPos(q),d=Math.hypot(t.x-a.x,t.z-a.z);if(d<9&&q.y-EYE<6)this.hurt(q,(25+this.round)*(1-d/12));}
+    }
     this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id);
   }
 
@@ -537,7 +575,7 @@ class Game{
     this.round++;
     const mul=this.online?1.5:1;     // online rooms get 1.5x aliens
     let total=Math.round((5+this.round*2.4)*mul);
-    const giant=this.round%20===0,ultimate=this.round%50===0;
+    const giant=this.round%20===0,ultimate=this.round%50===0,shark=this.round%13===0;
     const boss=this.round%5===0;
     if(boss)total=Math.round(total*0.5);
     const q=[];
@@ -551,21 +589,25 @@ class Game{
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
+    if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
     if(ultimate){q.unshift(17);}
     if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
     else if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
     for(const p of this.players.values()){   // everyone who fell comes back at the start of the round
       if(p.st!=='alive'){
-        p.st='alive';p.hp=100;p.rvProg=0;this.spawnPos(p);
+        p.st='alive';p.hp=mhp(p);p.rvProg=0;this.spawnPos(p);
         if(p.money<500)p.money=500;
         this.push('revived',p.id);
       }
     }
-    this.nested=false;this.queue=q;this.state='fight';this.spawnT=1.5;this.loot.fill(true);
+    this.nested=false;this.queue=q;this.state='fight';this.spawnT=1.5;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
+    this.weather=0;
+    if(this.round>=9&&this.rand()<0.45){this.weather=1+Math.floor(this.rand()*3);this.wxT=0;this.push('weather',this.weather);}
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
   }
   endRound(){
     this.state='rest';this.timer=this.round%5===0?12:9;
+    if(this.weather){this.weather=0;this.bolts.length=0;this.push('weather',0);}
     for(const p of this.players.values()){
       if(p.st==='alive')p.money+=50*this.round;
     }
@@ -574,9 +616,9 @@ class Game{
   resetGame(){
     this.aliens.length=0;this.orbs.length=0;this.cars.length=0;this.queue.length=0;this.clouds.length=0;
     for(const p of this.players.values()){
-      p.wo=newWo();p.w=0;p.jet=false;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
+      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
-    this.loot.fill(true);this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
+    this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
   }
 
   spawnAlien(t,fx,fz){
@@ -601,6 +643,7 @@ class Game{
       for(let i=0;i<30;i++){const tx=hs.x+(this.rand()-0.5)*hs.S*0.55,tz=hs.z+(this.rand()-0.5)*hs.S*0.55;if(!inBuilding(tx,tz,1)){hx=tx;hz=tz;break;}}
       x=hx;z=hz;
     }
+    if(t===18){x=(this.rand()-0.5)*260;z=HALF+40;}
     if(t===15){   // perch on a rooftop
       const roofs=B.filter(b=>b.k===undefined&&topOf(b)>=14&&(b.x1-b.x0)>=8&&(b.z1-b.z0)>=8);
       if(roofs.length){
@@ -614,14 +657,21 @@ class Game{
     const np=Math.max(1,this.players.size);
     let hp=def.hp*this.hpMul();
     if(t===4)hp=2200*(1+0.5*(this.round/5-1))*(1+0.5*(np-1));
+    if(t===18)hp=2600*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
     if(t===17)hp=150000*(1+0.5*(this.round/50-1))*(1+0.5*(np-1));
     if(t===12)hp=60000*(1+0.5*(this.round/20-1))*(1+0.5*(np-1));
     const sp=def.sp*(1+Math.min(0.55,0.028*this.round))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
       dmg:def.dmg*(1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
     if(t===14){al.hide=true;al.stT=0;}
+    if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
+      al.mut=1+Math.floor(this.rand()*3);
+      if(al.mut===2){al.hp*=2.6;al.mhp=al.hp;al.sp*=0.85;}
+      else if(al.mut===3){al.sp*=1.5;al.hp*=0.8;al.mhp=al.hp;}
+    }
     this.aliens.push(al);
     if(t===14)this.push('stalker',al.id,r2(x),r2(z));
+    if(t===18)this.push('shark',al.id,r2(x),r2(z));
     if(t===15)this.push('sniper',al.id,r2(x),r2(z));
   }
 
@@ -697,6 +747,7 @@ class Game{
         return;
       }
     }
+    if(p.perks&&p.perks[6])dmg*=0.75;
     p.hp-=dmg;p.lastHit=this.time;
     this.push('hurt',p.id,Math.round(dmg));
     if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.car=-1;this.push('down',p.id);}
@@ -720,14 +771,14 @@ class Game{
 
     // player upkeep
     for(const p of plist){
-      if(p.st==='alive'&&p.hp<100&&this.time-p.lastHit>5)p.hp=Math.min(100,p.hp+28*dt);
+      if(p.st==='alive'&&p.hp<mhp(p)&&this.time-p.lastHit>5)p.hp=Math.min(mhp(p),p.hp+28*dt);
       if(p.st==='down'){
         if(this.state!=='rest')p.bleed-=dt;
         let reviving=false;
         for(const q of plist){
           if(q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&this.time-q.rvT<0.35&&Math.hypot(q.x-p.x,q.z-p.z)<5)reviving=true;
         }
-        p.rvProg=reviving?p.rvProg+dt:Math.max(0,p.rvProg-dt*2);
+        p.rvProg=reviving?p.rvProg+dt*(plist.some(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&q.perks[1])?2:1):Math.max(0,p.rvProg-dt*2);
         if(p.rvProg>=3){p.st='alive';p.hp=55;p.rvProg=0;p.lastHit=this.time;this.push('revived',p.id);}
         else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';this.push('died',p.id);}
       }
@@ -821,7 +872,20 @@ class Game{
       }
       let mx=0,mz=0,speed=a.sp;
       if(def.stalker)speed=(a.enr||dist<16)?a.sp*2.0:a.sp;
-      if(def.fly){
+      if(def.beach){   // the shark prowls the sand and lunges at anyone who comes onto the beach
+        const onBeach=tp.z>HALF+6&&!tp.car;
+        let gx,gz,sp2;
+        if(onBeach&&dist<110){gx=tp.x;gz=tp.z;sp2=speed;}
+        else{
+          if(a.px===undefined||Math.abs(a.x-a.px)<8)a.px=(this.rand()-0.5)*280;
+          gx=a.px;gz=HALF+38;sp2=speed*0.35;
+        }
+        const gl=Math.hypot(gx-a.x,gz-a.z)||1;
+        a.vx+=((gx-a.x)/gl*sp2-a.vx)*Math.min(1,dt*5);a.vz+=((gz-a.z)/gl*sp2-a.vz)*Math.min(1,dt*5);
+        a.x+=a.vx*dt;a.z+=a.vz*dt;
+        a.z=clamp(a.z,HALF+16,HALF+62);
+        a.yaw=Math.atan2(gx-a.x,gz-a.z);
+      }else if(def.fly){
         const ty=(tp0.y)+(def.ranged?9:3)+Math.sin(a.ph*0.7)*2.5;
         a.y+=(ty-a.y)*Math.min(1,dt*2);
         let fw=1;
@@ -959,6 +1023,28 @@ class Game{
   }
 
   updateFx(dt){
+    if(this.weather&&this.state==='fight'){
+      this.wxT+=dt;
+      const alive=[...this.players.values()].filter(p=>p.st==='alive');
+      if(this.weather===1){   // acid rain: stay inside a building or a car
+        this.acidT=(this.acidT||0)-dt;
+        if(this.acidT<=0){this.acidT=1;for(const p of alive){if(p.car>=0)continue;if(inBuilding(p.x,p.z,0.5)&&p.y<30)continue;this.hurt(p,4+this.round*0.15);}}
+      }else if(this.weather===3&&alive.length){   // lightning storm
+        this.boltT=(this.boltT||0)-dt;
+        if(this.boltT<=0){this.boltT=2.4-Math.min(1.2,this.round*0.03);
+          const p=alive[Math.floor(this.rand()*alive.length)],a=this.rand()*6.28,d=this.rand()*14;
+          const bx=p.x+Math.cos(a)*d,bz=p.z+Math.sin(a)*d;
+          this.bolts.push({x:bx,z:bz,t:1.1});this.push('bolt',r2(bx),r2(bz));}
+      }
+    }
+    for(let i=this.bolts.length-1;i>=0;i--){
+      const b=this.bolts[i];b.t-=dt;
+      if(b.t<=0){this.bolts.splice(i,1);
+        this.push('strike',r2(b.x),r2(b.z));
+        for(const p of this.players.values()){if(p.st!=='alive')continue;const q=this.targetPos(p);if(Math.hypot(q.x-b.x,q.z-b.z)<7)this.hurt(p,38+this.round*0.5);}
+        for(const a of this.aliens){if(Math.hypot(a.x-b.x,a.z-b.z)<8&&a.hp>0&&!AT[a.t].giant){a.hp-=Math.max(250,a.mhp*0.4);if(a.hp<=0){const o=[...this.players.values()][0];if(o)this.killAlien(a,o);}}}
+      }
+    }
     for(let i=this.clouds.length-1;i>=0;i--){
       const cl=this.clouds[i];cl.life-=dt;
       const o=this.players.get(cl.own);
@@ -1011,10 +1097,10 @@ class Game{
     const ev=this.ev;this.ev=[];
     return{
       t:'snap',tm:r2(this.time),
-      rd:{h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
+      rd:{w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
-      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0]),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
+      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
       g:this.clouds.map(c=>[c.id,r2(c.x),r2(c.y),r2(c.z),r2(c.r),r2(c.life)]),
@@ -1024,7 +1110,7 @@ class Game{
   }
 }
 
-const API={MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,SEED,WORLD,B,LOOT,HOUSES,JET_COST,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);

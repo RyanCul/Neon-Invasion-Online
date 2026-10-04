@@ -72,3 +72,30 @@ After you create/join an online room you land in a **waiting room** showing the 
 
 ## The Overmind (round 50)
 On **round 50** (and every 50 after) the ultimate boss arrives alongside a normal boss: **THE OVERMIND**, a building-sized brain alien with 150,000+ health (scales with rounds and players). It fires a wide 9-orb barrage, stomps, and every ~13 seconds **summons a swarm of 7 aliens** around itself. Killing it pays $60,000.
+
+## More buildings, stalker marker, alien shark
+- About **22 enterable buildings** now (was 8), each with loot inside and counters. Pink triangles on the minimap = a door you can walk into. The stalker hides in any of them.
+- The **stalker** is a big skull on the minimap: **yellow while hiding, red once he's hunting you** (an arrow on the edge of the map points to him when he's far away).
+- **ALIEN SHARK** every 13 rounds (13, 26, 39...): a land shark that prowls the beach and lunges at anyone who steps onto the sand. It must be killed for the round to end ($6,000 payout). Cyan dot on the minimap.
+
+## Perks, secrets, weather and more (latest update)
+
+**Perks** (armory, below the weapons; one-time purchase, kept until you die/restart): Neon Tank (+50 max HP), Quick Revive, Fast Hands (faster reload), Sprinter, Dead Eye (bigger crit damage), Cash Magnet (+25% cash), Kevlar, Double Tap, plus the others listed in the armory. Owned perks show on the HUD.
+
+**Weak spots**: shots to the head do double damage (giants/bosses have a smaller, bigger-damage weak spot). Crits show as yellow damage numbers.
+
+**Mutated aliens** (round 9+): volatile (explodes on death), armored (tanky, slower), swift (fast, fragile). Mutants pay triple cash.
+
+**Weather** (never before round 9, ~45% of rounds after): acid rain (hurts you outside; get in a building or car), blackout, lightning storm (run from the red circles).
+
+**Interactive map**: jump pads at the intersections; vending machines inside buildings (full heal for $250).
+
+**Secret**: 3 hidden NEON TAPES (far beach, tallest roof, inside a building). Find all three for $25,000 and a full heal for everyone. A rumor appears at round 4.
+
+**Spectate**: when dead, watch teammates (arrow keys / LB-RB / click to switch).
+
+**Rematch lobby** (online): after game over everyone returns to the waiting room for a rematch. Solo still returns to the menu.
+
+**Feedback**: damage numbers, kill streak call-outs, screen shake, hit markers.
+
+**Settings / accessibility** (menu button or O): music/SFX volume, mouse sensitivity, reduce screen shake, reduce flashes, damage numbers on/off, colorblind-friendly map colors, large HUD text. Key rebinding is not included yet.
