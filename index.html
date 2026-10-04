@@ -416,6 +416,7 @@ for(const b of B){
     continue;
   }
   if(kind==='deco'){
+    if(b.hid)continue;
     const dm=new THREE.Mesh(new THREE.BoxGeometry(w,b.h,d),new THREE.MeshLambertMaterial({color:b.c,emissive:b.em?b.c:0x000000,emissiveIntensity:b.em?0.45:0}));dm.position.set(b.x,b.h/2+0.2,b.z);scene.add(dm);
     if(b.scr){
       const cv=document.createElement('canvas');cv.width=512;cv.height=256;const g2=cv.getContext('2d');
@@ -488,9 +489,12 @@ const ferris=[];
       w.rotation.x=-Math.PI/2;w.position.set(t.cx,0.5,t.cz);scene.add(w);
       const is=new THREE.Mesh(new THREE.CylinderGeometry(3,3.6,0.6,10),new THREE.MeshLambertMaterial({color:0x3c9a5a}));is.position.set(t.cx,0.6,t.cz);scene.add(is);
     }
-    if(t.k==='ufo'){   // the saucer body is made of climbable boxes; add a dome, a glowing ring and a beacon
-      const dome=new THREE.Mesh(new THREE.SphereGeometry(3.2,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.55}));dome.position.set(t.cx,4.5,t.cz);scene.add(dome);
-      const ring=new THREE.Mesh(new THREE.TorusGeometry(11.6,0.35,6,28),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;ring.position.set(t.cx,1.7,t.cz);scene.add(ring);
+    if(t.k==='ufo'){
+      const g=new THREE.Group();g.position.set(t.cx,3.2,t.cz);g.rotation.z=0.4;g.rotation.x=0.15;
+      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.4,18),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));g.add(dsk);
+      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.6}));dome.position.y=1.2;g.add(dome);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.4,6,24),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;g.add(ring);
+      scene.add(g);
     }
     if(t.k==='plaza'){
       const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle='#fff';g.beginPath();g.arc(64,64,60,0,6.3);g.fill();g.strokeStyle='#222';g.lineWidth=5;g.beginPath();g.moveTo(64,64);g.lineTo(64,22);g.moveTo(64,64);g.lineTo(92,74);g.stroke();
