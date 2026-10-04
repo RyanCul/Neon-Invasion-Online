@@ -66,3 +66,6 @@ When your crew is overrun you see the summary, then return to the **main menu** 
 Press **G** (or the controller BACK/SELECT button) any time to toggle fullscreen, or use the button on the main menu. Esc also exits.
 
 Early rounds: aliens spawn much closer and faster in rounds 1-7, easing back to the normal distance by round 8.
+
+## Online waiting room
+After you create/join an online room you land in a **waiting room** showing the room code and who has joined. The host (first player in) presses **Space / A / the START GAME button** when everyone is in; guests see "waiting for the host". Players who join after the start drop in like before.

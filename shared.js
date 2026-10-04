@@ -343,7 +343,7 @@ class Game{
       joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),w:0,lv:1,sk:0,jet:false,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
     this.spawnPos(p);
     this.players.set(id,p);
-    if(this.state==='lobby'){this.state='rest';this.timer=6;this.round=0;}
+    if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
     return p;
   }
   setProfile(id,lv,sk,ck){
@@ -404,6 +404,12 @@ class Game{
         if(c&&(c.y||0)>3)break;   // land the helicopter first
         if(c){c.drv=-1;c.sp=0;p.x=c.x+Math.cos(c.h)*3.2;p.z=c.z-Math.sin(c.h)*3.2;}
         p.car=-1;break;
+      }
+      case 'start':{
+        if(this.state!=='wait')break;
+        let host=1e9;for(const q of this.players.values())host=Math.min(host,q.id);
+        if(p.id!==host)break;
+        this.state='rest';this.timer=5;this.round=0;this.push('go');break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
       case 'prof':this.setProfile(id,m.lv,m.sk,m.ck);break;
@@ -568,7 +574,7 @@ class Game{
     for(const p of this.players.values()){
       p.wo=newWo();p.w=0;p.jet=false;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
-    this.loot.fill(true);this.round=0;this.state='rest';this.timer=6;this.push('reset');
+    this.loot.fill(true);this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
   }
 
   spawnAlien(t,fx,fz){
@@ -991,7 +997,7 @@ class Game{
     const ev=this.ev;this.ev=[];
     return{
       t:'snap',tm:r2(this.time),
-      rd:{n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
+      rd:{h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
         hp:Math.round(p.hp),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0]),
