@@ -134,15 +134,15 @@ body.solo #pauseB{display:block}
 #menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;background:radial-gradient(ellipse at center,rgba(20,0,40,.35),rgba(10,0,25,.85));text-align:center;z-index:8;overflow:auto;padding:16px}
 #menu h1{margin:0;font-size:clamp(40px,9vw,112px);font-style:italic;letter-spacing:6px;line-height:1;background:linear-gradient(to bottom,#fff3b0 0%,#ff9a3c 35%,#ff2fa0 70%,#a56bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,47,160,.8))}
 #menu h2{margin:8px 0 18px;font-size:clamp(13px,2.2vw,24px);letter-spacing:10px;color:#9ffcff;text-shadow:0 0 10px #25f4ff;font-weight:normal}
-#menu h2.sub{font-size:clamp(16px,2.8vw,30px);letter-spacing:5px;margin:14px 0 8px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
-#menu h1{margin-top:0;font-size:clamp(34px,5.2vw,80px)}
+#menu h2.sub{font-size:clamp(13px,1.9vw,24px);letter-spacing:4px;margin:14px 0 8px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
+#menu h1{margin-top:clamp(0px,calc((1500px - 100vw)/6),70px);font-size:clamp(40px,6.4vw,120px)}
 #topbtns{position:fixed;right:18px;top:16px;display:flex;gap:8px;z-index:9}
 #menu button.tb{width:126px;height:40px;margin:0;padding:0;font-size:13px;font-style:normal;letter-spacing:2px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
 #nameLab{font-size:18px;letter-spacing:6px;color:#9ffcff;margin-bottom:2px}
-#menu input#name,#menu input#room_in{font-size:22px;padding:14px 12px;width:min(420px,86vw)}
+#menu input#name,#menu input#room_in{font-size:17px;padding:11px 8px;width:min(300px,80vw)}
 #menu button.big{font-size:clamp(20px,2.6vw,28px);letter-spacing:2px;white-space:nowrap;padding:16px 10px;margin:10px 6px;width:min(420px,86vw)}
-#menu #lvbox{position:fixed;left:18px;top:16px;width:210px;margin:0;text-align:left;z-index:9;font-size:14px}
-#lvbox .xb{height:18px}
+#menu #lvbox{position:fixed;left:18px;top:16px;width:320px;margin:0;text-align:left;z-index:9;font-size:17px}
+#menu #lvbox .xb{height:30px;border-width:3px;margin:6px 0}
 #menu button.sm#bLocker{margin:4px 0 0;width:150px;font-size:13px}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
@@ -255,7 +255,7 @@ body.solo #pauseB{display:block}
     <input id="name" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false"><br>
     <button id="bSolo" class="big">PLAY SOLO</button>
     <div style="margin-top:14px;color:#9ffcff;letter-spacing:5px;font-size:18px">ONLINE CO-OP (up to 8 players)</div>
-    <input id="room_in" maxlength="6" placeholder="ROOM CODE (blank = new)"><br>
+    <input id="room_in" maxlength="6" placeholder="ROOM CODE (OPTIONAL)"><br>
     <input id="url" placeholder="server address" style="display:none">
     <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button>
     <div id="msg"></div>
