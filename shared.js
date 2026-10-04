@@ -98,7 +98,8 @@ const AT=[
   {name:'KNIFER', hp:70,  sp:16, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
   {name:'STALKER',hp:900, sp:4.6,r:1.9, cy:2.0, dmg:46, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
-  {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true}
+  {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
+  {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:52,summon:true}
 ];
 
 /* ---------------- world ---------------- */
@@ -536,7 +537,7 @@ class Game{
     this.round++;
     const mul=this.online?1.5:1;     // online rooms get 1.5x aliens
     let total=Math.round((5+this.round*2.4)*mul);
-    const giant=this.round%50===0;
+    const giant=this.round%20===0,ultimate=this.round%50===0;
     const boss=this.round%5===0;
     if(boss)total=Math.round(total*0.5);
     const q=[];
@@ -550,6 +551,7 @@ class Game{
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
+    if(ultimate){q.unshift(17);}
     if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
     else if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
     for(const p of this.players.values()){   // everyone who fell comes back at the start of the round
@@ -560,7 +562,7 @@ class Game{
       }
     }
     this.nested=false;this.queue=q;this.state='fight';this.spawnT=1.5;this.loot.fill(true);
-    this.push('round',this.round,giant?2:(boss?1:0));
+    this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
   }
   endRound(){
     this.state='rest';this.timer=this.round%5===0?12:9;
@@ -583,7 +585,7 @@ class Game{
     const tg=pl[Math.floor(this.rand()*pl.length)];
     let x=0,z=0,ok=false;
     for(let i=0;i<25&&!ok;i++){
-      const a=this.rand()*Math.PI*2,d=Math.max(30,((t===12?150:t===4?90:70)+this.rand()*70)*Math.min(1,0.36+0.08*this.round));   // early rounds spawn closer
+      const a=this.rand()*Math.PI*2,d=Math.max(30,((t===17?180:t===12?150:t===4?90:70)+this.rand()*70)*Math.min(1,0.36+0.08*this.round));   // early rounds spawn closer
       x=tg.x+Math.cos(a)*d;z=tg.z+Math.sin(a)*d;
       if(x<BOUNDS.x0||x>BOUNDS.x1||z<BOUNDS.z0||z>BOUNDS.z1-30)continue;
       if(!def.fly&&BLOCK[cellOf(x,z)])continue;
@@ -612,7 +614,8 @@ class Game{
     const np=Math.max(1,this.players.size);
     let hp=def.hp*this.hpMul();
     if(t===4)hp=2200*(1+0.5*(this.round/5-1))*(1+0.5*(np-1));
-    if(t===12)hp=60000*(1+0.5*(this.round/50-1))*(1+0.5*(np-1));
+    if(t===17)hp=150000*(1+0.5*(this.round/50-1))*(1+0.5*(np-1));
+    if(t===12)hp=60000*(1+0.5*(this.round/20-1))*(1+0.5*(np-1));
     const sp=def.sp*(1+Math.min(0.55,0.028*this.round))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
       dmg:def.dmg*(1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
@@ -700,12 +703,12 @@ class Game{
   }
   fireOrb(a,tx,ty,tz,spread,speed,dmg){
     let ox=a.x,oy=a.y+a.cy+(a.t===4?1.5:0.4),oz=a.z;
-    if(a.t===12){const hl=Math.hypot(tx-a.x,tz-a.z)||1;ox+=(tx-a.x)/hl*13;oz+=(tz-a.z)/hl*13;oy=a.y+30;}
+    if(a.t===12||a.t===17){const hl=Math.hypot(tx-a.x,tz-a.z)||1;ox+=(tx-a.x)/hl*13;oz+=(tz-a.z)/hl*13;oy=a.y+30;}
     let dx=tx-ox,dy=ty-oy,dz=tz-oz;const l=Math.hypot(dx,dy,dz)||1;
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12)?1:0});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:0});
   }
 
   /* ---- main tick ---- */
@@ -829,7 +832,7 @@ class Game{
       }else{
         let want=1;
         if(def.ranged||def.support){
-          const keep=a.t===12?4:30;
+          const keep=(a.t===12||a.t===17)?4:30;
           if(a.los&&dist<keep+8)want=dist<keep-10?-0.6:0;
         }
         if(want!==0){
@@ -866,7 +869,13 @@ class Game{
         let seen=a.los;
         if(def.fly){const d3=Math.hypot(dx,a.y+0.5-ty,dz)||1;seen=rayWorld(a.x,a.y+0.5,a.z,dx/d3,(ty-a.y-0.5)/d3,dz/d3,d3)>=d3-0.5;}
         if(seen){
-          if(a.t===12){
+          if(a.t===17){
+            a.cd=2.2;
+            for(let i=-4;i<=4;i++){
+              const ang=Math.atan2(dx,dz)+i*0.11;
+              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,50,30*(1+0.03*this.round));
+            }
+          }else if(a.t===12){
             a.cd=2.8;
             for(let i=-3;i<=3;i++){
               const ang=Math.atan2(dx,dz)+i*0.13;
@@ -897,7 +906,12 @@ class Game{
         a.stomp-=dt;
         const R=def.stomp;
         if(a.stomp<=0&&dist<R){a.stomp=6;this.push('stomp',r2(a.x),r2(a.z));
-          for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5)this.hurt(p,a.t===12?70:a.t===4?35:30);}}
+          for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5)this.hurt(p,a.t===17?95:a.t===12?70:a.t===4?35:30);}}
+      }
+      if(def.summon){ // the Overmind calls its swarm
+        a.sumT=(a.sumT===undefined?4:a.sumT)-dt;
+        if(a.sumT<=0&&this.aliens.length<46){a.sumT=13;this.push('summon',r2(a.x),r2(a.z));
+          const kinds=[0,2,5,13,3,16];for(let i=0;i<7;i++){const ang=i/7*6.283,rr=20+this.rand()*8;this.spawnAlien(kinds[i%kinds.length],a.x+Math.cos(ang)*rr,a.z+Math.sin(ang)*rr);}}
       }
       if(def.support){ // medic heals nearby aliens
         a.healT=(a.healT===undefined?2:a.healT)-dt;

@@ -38,7 +38,7 @@ Warship (r9, flying shooter), Queen (r11, 3-orb volleys), Titan (r13, mini-boss)
 - **Sky**: every 10 rounds the sky, fog and lighting shift to a more intense palette (toxic green, blood red, electric storm, crimson void, meltdown).
 - **Controller**: plug in or pair any standard gamepad (Xbox/PlayStation/Switch Pro) and press a button. Left stick move/steer, right stick look, RT fire, LT reload/refuel, A jump / jetpack up, B hover, X use/revive, Y or D-pad up go to base, LB/RB switch weapon, L3 sprint, D-pad left shop / right car cam, Start or D-pad down skins. Press A on the menu to start a solo game.
 - **Cars are ram-only**: no guns - hold RT (or A) to accelerate, LT (or B) to brake/reverse, steer with the left stick, L3 handbrake. Run aliens over to kill them, but aliens can still shoot you.
-- **Godzilla alien**: every 50 rounds a building-sized Godzilla alien walks straight through the city (it ignores buildings), with a huge health bar, a stomp shockwave and a fan of fireballs.
+- **Godzilla alien**: every 20 rounds a building-sized Godzilla alien walks straight through the city (it ignores buildings), with a huge health bar, a stomp shockwave and a fan of fireballs.
 - **Garage** (walk up to it, Q or D-pad left cycles, E buys) lists everything, cheapest first: Neon Segway $500, Drift Motorcycle $1,000, Flamingo Coupe $1,500, Jetpack $2,500, Cyan Muscle $3,500, Sunset Hyper $6,000, Monster Truck $9,000, Void Hovercar $14,000. Vehicles are slower and smoother now; speed is shown in MPH.
 - **Car designs**: level-ups also unlock car paint jobs (stripes, spoilers, flames, wings, underglow, rainbow). Equip them in the locker (K); they apply to vehicles you buy after equipping.
 - **Alien sounds**: each alien type has its own growl/screech/buzz, panned left/right and getting louder as it closes in, plus a heartbeat when several are on top of you and ground-shaking footsteps from the Godzilla alien.
@@ -69,3 +69,6 @@ Early rounds: aliens spawn much closer and faster in rounds 1-7, easing back to 
 
 ## Online waiting room
 After you create/join an online room you land in a **waiting room** showing the room code and who has joined. The host (first player in) presses **Space / A / the START GAME button** when everyone is in; guests see "waiting for the host". Players who join after the start drop in like before.
+
+## The Overmind (round 50)
+On **round 50** (and every 50 after) the ultimate boss arrives alongside a normal boss: **THE OVERMIND**, a building-sized brain alien with 150,000+ health (scales with rounds and players). It fires a wide 9-orb barrage, stomps, and every ~13 seconds **summons a swarm of 7 aliens** around itself. Killing it pays $60,000.
