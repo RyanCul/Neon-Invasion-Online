@@ -135,13 +135,15 @@ body.solo #pauseB{display:block}
 #menu h1{margin:0;font-size:clamp(40px,9vw,112px);font-style:italic;letter-spacing:6px;line-height:1;background:linear-gradient(to bottom,#fff3b0 0%,#ff9a3c 35%,#ff2fa0 70%,#a56bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,47,160,.8))}
 #menu h2{margin:8px 0 18px;font-size:clamp(13px,2.2vw,24px);letter-spacing:10px;color:#9ffcff;text-shadow:0 0 10px #25f4ff;font-weight:normal}
 #menu h2.sub{font-size:clamp(16px,2.8vw,30px);letter-spacing:5px;margin:14px 0 8px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
-#menu h1{margin-top:clamp(40px,8vh,70px);font-size:clamp(40px,7.5vw,96px)}
+#menu h1{margin-top:0;font-size:clamp(34px,5.2vw,80px)}
 #topbtns{position:fixed;right:18px;top:16px;display:flex;gap:8px;z-index:9}
-#menu button.tb{width:150px;height:40px;margin:0;padding:0;font-size:13px;font-style:normal;letter-spacing:2px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
-#menu button.big{font-size:clamp(22px,3.4vw,34px);padding:16px 48px;margin:10px 6px;min-width:min(420px,86vw)}
-#menu #lvbox{position:fixed;left:18px;top:16px;width:150px;margin:0;text-align:left;z-index:9;font-size:13px}
-#lvbox .xb{height:8px}
-#menu button.sm#bLocker{margin:4px 0 0;width:100%;font-size:13px}
+#menu button.tb{width:126px;height:40px;margin:0;padding:0;font-size:13px;font-style:normal;letter-spacing:2px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
+#nameLab{font-size:18px;letter-spacing:6px;color:#9ffcff;margin-bottom:2px}
+#menu input#name,#menu input#room_in{font-size:22px;padding:14px 12px;width:min(420px,86vw)}
+#menu button.big{font-size:clamp(20px,2.6vw,28px);letter-spacing:2px;white-space:nowrap;padding:16px 10px;margin:10px 6px;width:min(420px,86vw)}
+#menu #lvbox{position:fixed;left:18px;top:16px;width:210px;margin:0;text-align:left;z-index:9;font-size:14px}
+#lvbox .xb{height:18px}
+#menu button.sm#bLocker{margin:4px 0 0;width:150px;font-size:13px}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
 #howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
@@ -247,12 +249,12 @@ body.solo #pauseB{display:block}
   <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><button class="c sm" id="bLocker">LOCKER</button><div id="lvnote"></div></div>
   <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button></div>
   <h1>NEON INVASION</h1>
-  <h2 class="sub">HOW MANY ROUNDS CAN YOU LAST?</h2>
+  <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
   <div class="box">
-    <div id="nameLab">TYPE YOUR NAME - IT SHOWS ON THE LEADERBOARD</div>
+    <div id="nameLab">NAME</div>
     <input id="name" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false"><br>
     <button id="bSolo" class="big">PLAY SOLO</button>
-    <div style="margin-top:10px;color:#9ffcff;letter-spacing:3px;font-size:14px">ONLINE CO-OP (up to 8 players)</div>
+    <div style="margin-top:14px;color:#9ffcff;letter-spacing:5px;font-size:18px">ONLINE CO-OP (up to 8 players)</div>
     <input id="room_in" maxlength="6" placeholder="ROOM CODE (blank = new)"><br>
     <input id="url" placeholder="server address" style="display:none">
     <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button>
@@ -485,12 +487,9 @@ const ferris=[];
       w.rotation.x=-Math.PI/2;w.position.set(t.cx,0.5,t.cz);scene.add(w);
       const is=new THREE.Mesh(new THREE.CylinderGeometry(3,3.6,0.6,10),new THREE.MeshLambertMaterial({color:0x3c9a5a}));is.position.set(t.cx,0.6,t.cz);scene.add(is);
     }
-    if(t.k==='ufo'){
-      const g=new THREE.Group();g.position.set(t.cx,3.2,t.cz);g.rotation.z=0.4;g.rotation.x=0.15;
-      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.4,18),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));g.add(dsk);
-      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.6}));dome.position.y=1.2;g.add(dome);
-      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.4,6,24),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;g.add(ring);
-      scene.add(g);
+    if(t.k==='ufo'){   // the saucer body is made of climbable boxes; add a dome, a glowing ring and a beacon
+      const dome=new THREE.Mesh(new THREE.SphereGeometry(3.2,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.55}));dome.position.set(t.cx,4.5,t.cz);scene.add(dome);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(11.6,0.35,6,28),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;ring.position.set(t.cx,1.7,t.cz);scene.add(ring);
     }
     if(t.k==='plaza'){
       const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle='#fff';g.beginPath();g.arc(64,64,60,0,6.3);g.fill();g.strokeStyle='#222';g.lineWidth=5;g.beginPath();g.moveTo(64,64);g.lineTo(64,22);g.moveTo(64,64);g.lineTo(92,74);g.stroke();

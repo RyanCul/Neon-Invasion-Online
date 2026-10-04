@@ -253,7 +253,10 @@ function genWorld(seed){
   {let pi=0;const pk=['pond','stage','ufo'];
     for(const sl of slabs){if(!sl.park)continue;const kind=pk[pi++%pk.length];sl.theme=kind;themes.push({k:kind,cx:sl.cx,cz:sl.cz});
       if(kind==='stage'){dbox(sl.cx,sl.cz-8,20,11,1.2,0x2b2145,{em:1,c2:1});dbox(sl.cx,sl.cz-13,20,1.4,8,0xff2fa0,{em:1});loot.push({x:sl.cx,y:1.2+1.7,z:sl.cz-8,t:1});}
-      if(kind==='ufo')loot.push({x:sl.cx,y:1.3,z:sl.cz+2,t:1});
+      if(kind==='ufo'){   // crashed saucer: three stacked tiers you can climb (1.4 per step)
+        dbox(sl.cx,sl.cz,22,22,1.4,0x9aa3b8,{em:1});dbox(sl.cx,sl.cz,15,15,2.8,0x8a93ab,{em:1});dbox(sl.cx,sl.cz,8,8,4.2,0x3cd0b0,{em:1});
+        loot.push({x:sl.cx,y:4.2+1.7,z:sl.cz,t:1});loot.push({x:sl.cx+14,y:1.3,z:sl.cz-12,t:0});
+      }
       if(kind==='pond')loot.push({x:sl.cx+17,y:1.3,z:sl.cz+17,t:0});
     }
   }
