@@ -2008,7 +2008,8 @@ const mmOff=document.createElement('canvas');mmOff.width=MMW;mmOff.height=MMH;
   const g=mmOff.getContext('2d');g.fillStyle='#1a0b33';g.fillRect(0,0,MMW,MMH);
   g.fillStyle='#e0b878';g.fillRect(0,HALF+14-MMZ0,MMW,100);
   g.fillStyle='#3a2a63';
-  for(const b of B){g.fillStyle='#'+palOf(b).toString(16).padStart(6,'0');g.globalAlpha=0.55;g.fillRect(b.x0-MMX0,b.z0-MMZ0,b.w,b.d);}
+  const mmCol=b=>{let c=b.k==='deco'?b.c:palOf(b);const R=c>>16&255,G=c>>8&255,Bl=c&255;if(G>R+12&&G>Bl+12)c=0xb9a1ff;return c;};
+  for(const b of B){g.fillStyle='#'+mmCol(b).toString(16).padStart(6,'0');g.globalAlpha=0.55;g.fillRect(b.x0-MMX0,b.z0-MMZ0,b.w,b.d);}
   g.globalAlpha=1;
   for(const hs of NI.HOUSES){
     g.fillStyle='rgba(255,47,160,0.75)';g.fillRect(hs.x-hs.S/2-MMX0,hs.z-hs.S/2-MMZ0,hs.S,hs.S);
@@ -2024,8 +2025,7 @@ function drawMini(){
   const tx=x=>(x-me.x)*sc+90,tz=z=>(z-me.z)*sc+90;
   mg.fillStyle='#fff3b0';
   for(const s of STATIONS)mg.fillRect(tx(s.x)-3,tz(s.z)-3,6,6);
-  mg.fillStyle='#3cff9e';for(const t of NI.WORLD.themes){const px2=tx(t.cx),pz2=tz(t.cz);if(px2>-8&&px2<188&&pz2>-8&&pz2<188){mg.beginPath();mg.moveTo(px2,pz2-5);mg.lineTo(px2+4,pz2);mg.lineTo(px2,pz2+5);mg.lineTo(px2-4,pz2);mg.fill();}}
-  mg.fillStyle='#fff3b0';
+
   for(const o of lootObjs){if(!o.on||o.l.t===2)continue;mg.fillStyle=o.l.t?'#c58cff':'#fff3b0';mg.fillRect(tx(o.l.x)-1.5,tz(o.l.z)-1.5,3,3);}
   for(const [id,c] of carsM){mg.fillStyle='#ff2fa0';mg.fillRect(tx(c.x)-3,tz(c.z)-2,6,4);}
   for(const o of aliensM.values()){
@@ -2039,7 +2039,7 @@ function drawMini(){
     if(o.t===15){   // rooftop sniper: orange crosshair
       const X=tx(o.x),Z=tz(o.z);mg.strokeStyle='#ff9a3c';mg.lineWidth=2;mg.beginPath();mg.arc(X,Z,5,0,6.3);mg.moveTo(X-8,Z);mg.lineTo(X+8,Z);mg.moveTo(X,Z-8);mg.lineTo(X,Z+8);mg.stroke();continue;}
     mg.fillStyle=o.t===18?'#3cd0ff':o.t===17?'#ff4fd8':o.t===12?'#ff7a1a':o.t===4?'#ff2fa0':(SET.cb?'#ffd400':'#3cff3c');const r=o.t===18?6:o.t===17?13:o.t===12?11:o.t===4?5:AT[o.t].r>2.5?3.5:2.4;mg.beginPath();mg.arc(tx(o.x),tz(o.z),r,0,6.3);mg.fill();if(o.mut){mg.strokeStyle='#ffe63c';mg.lineWidth=2;mg.stroke();}}
-  for(const r of remotes.values()){if(!r.p)continue;mg.fillStyle='#'+r.p.c.toString(16).padStart(6,'0');mg.beginPath();mg.arc(tx(r.x||r.tx),tz(r.z||r.tz),3.5,0,6.3);mg.fill();}
+  for(const r of remotes.values()){if(!r.p)continue;{let pc=r.p.c;const R2=pc>>16&255,G2=pc>>8&255,B2=pc&255;if(G2>R2+12&&G2>B2+12)pc=0xffffff;mg.fillStyle='#'+pc.toString(16).padStart(6,'0');}mg.beginPath();mg.arc(tx(r.x||r.tx),tz(r.z||r.tz),3.5,0,6.3);mg.fill();}
   // green arrows toward dormant alien nests that are off the minimap
   const nestSeen=[];
   for(const o of aliensM.values()){
