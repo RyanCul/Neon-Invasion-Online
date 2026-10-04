@@ -103,3 +103,13 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 **Pause (solo)**: PAUSE button top-right, TAB / Pause key, or controller START. Resume, Settings or Quit to Menu. Online games cannot pause.
 
 **Solo scores count**: when a solo run ends, the browser posts name/rounds/kills to the server's `/score` endpoint (needs the server address on the menu to be reachable). The server rejects absurd values and rate-limits to 10 posts/min per IP, but solo scores can't be fully verified.
+
+## City districts, landmarks and more perks
+
+**Districts** (a toast tells you when you cross into one, and each has its own colours): Downtown (center), Arts Quarter (west, pink/purple), Industrial Zone (east, steel grey), Harbor (south, pastel boardwalk), Neon Strip (north, every building has a glowing sign). Street lamps at every corner.
+
+**Landmarks** (green diamonds on the minimap; each has loot): The Neon Pyramid (climbable stepped pyramid, rare crate on top), Crystal Wheel (spinning Ferris wheel), Hedge Maze (rare crate in the middle, entrance faces south), Neon Drive-In (giant screen and parked cars), Clock Plaza (fountain, clock tower with a rooftop crate), Container Yard (stacks you can climb using the crates), plus park attractions: Mirror Lake, Amphitheater, and a Crash Site with a crashed UFO.
+
+**Perks**: Neon Tank now has 4 tiers (+50 max health each, +200 total) and Sprinter has 4 tiers (+18%, then +12% three times). Higher tiers unlock after the previous one.
+
+**Early rounds**: rounds 1-5 never have more than one red blade-wielder (charger/knifer); round 3 always has exactly one.

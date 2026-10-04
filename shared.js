@@ -56,9 +56,16 @@ const PERKS=[
   {id:4,name:'DEAD EYE',   cost:4000,desc:'headshots / weak spots do 60% more'},
   {id:5,name:'CASH MAGNET',cost:3500,desc:'+25% cash from kills'},
   {id:6,name:'KEVLAR',     cost:5000,desc:'take 25% less damage'},
-  {id:7,name:'DOUBLE TAP', cost:5000,desc:'+20% weapon damage'}
+  {id:7,name:'DOUBLE TAP', cost:5000,desc:'+20% weapon damage'},
+  {id:8,name:'NEON TANK II', cost:4000,desc:'+50 more max health (total +100)',req:0},
+  {id:9,name:'NEON TANK III',cost:6500,desc:'+50 more max health (total +150)',req:8},
+  {id:10,name:'NEON TANK IV',cost:10000,desc:'+50 more max health (total +200)',req:9},
+  {id:11,name:'SPRINTER II',cost:3500,desc:'run another 12% faster',req:3},
+  {id:12,name:'SPRINTER III',cost:5500,desc:'run another 12% faster',req:11},
+  {id:13,name:'SPRINTER IV',cost:8000,desc:'run another 12% faster (about 54% total)',req:12}
 ];
-const mhp=p=>100+(p.perks&&p.perks[0]?50:0);
+const HP_TIERS=[0,8,9,10];
+const mhp=p=>100+(p.perks?50*HP_TIERS.filter(i=>p.perks[i]).length:0);
 const UPCOST=(w,lv)=>Math.round(UP_COST[lv]*(WPN[w].upm||1)/50)*50;
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
 const AMMO_ALL=p=>200+100*p.wo.filter((v,i)=>v>=0&&!WPN[i].melee).length;
@@ -115,6 +122,12 @@ const AT=[
 ];
 
 /* ---------------- world ---------------- */
+/* city districts: they change the colours and the feel of each part of town */
+const DISTRICTS=['DOWNTOWN','ARTS QUARTER','INDUSTRIAL ZONE','HARBOR','NEON STRIP'];
+function distAt(x,z){
+  const i=clamp(Math.floor(x/P+4),0,N-1),j=clamp(Math.floor(z/P+4),0,N-1);
+  if(j>=6)return 3;if(j<=1)return 4;if(i<=1)return 1;if(i>=6)return 2;return 0;
+}
 function genWorld(seed){
   const rand=mulberry32(seed|0);
   const B=[],slabs=[],houses=[],loot=[];
@@ -156,9 +169,9 @@ function genWorld(seed){
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){
     const cx=(i-3.5)*P,cz=(j-3.5)*P;
     const park=rand()<0.14;
-    slabs.push({cx,cz,park});
+    slabs.push({cx,cz,park,b0:B.length,dist:distAt(cx,cz)});
     if(park)continue;
-    if(rand()<0.36){addHouse(cx,cz);continue;}
+    if(rand()<0.36){addHouse(cx,cz);slabs[slabs.length-1].house=true;continue;}
     const boost=1+0.7*(1-Math.hypot(i-3.5,j-3.5)/5);
     const low=j>=6;
     const hh=()=>low?(9+rand()*13):((10+rand()*42)*boost);
@@ -172,6 +185,79 @@ function genWorld(seed){
       for(const sx of[-1,1])for(const sz of[-1,1])add(cx+sx*11.25,cz+sz*11.25,19.5,19.5,hh());
     }
   }
+  for(let i=0;i<slabs.length;i++)slabs[i].b1=i+1<slabs.length?slabs[i+1].b0:B.length;
+  for(const b of B)b.dist=distAt(b.x,b.z);
+  /* ---- themed landmark blocks: some ordinary blocks become places worth exploring ---- */
+  const r4=mulberry32((seed|0)+7),themes=[];
+  const dbox=(x,z,w,d,h,c,extra)=>add(x,z,w,d,h,Object.assign({k:'deco',c,part:1,sign:-1},extra));
+  const NEON6=[0xff2fa0,0x25f4ff,0xa56bff,0xff9a3c,0x3cff9e,0xffe63c];
+  {
+    const cand=slabs.map((s,i)=>({s,i})).filter(o=>!o.s.park&&!o.s.house&&o.s.b1>o.s.b0&&Math.max(...B.slice(o.s.b0,o.s.b1).map(b=>b.h))<=34);
+    const plan=['pyramid','ferris','maze','drivein','plaza','yard','yard','maze','pyramid'],chosen=[];
+    for(const kind of plan){
+      if(!cand.length)break;
+      let best=null,bd=-1;
+      for(const o of cand){const d=chosen.length?Math.min(...chosen.map(c=>Math.hypot(c.s.cx-o.s.cx,c.s.cz-o.s.cz))):r4()*100;if(d>bd){bd=d;best=o;}}
+      chosen.push(best);cand.splice(cand.indexOf(best),1);
+      const sl=best.s,cx=sl.cx,cz=sl.cz;
+      for(let k=sl.b0;k<sl.b1;k++)B[k].dead=1;
+      sl.theme=kind;themes.push({k:kind,cx,cz});
+      if(kind==='pyramid'){
+        for(let t=0;t<8;t++){const w=46-t*5.2;dbox(cx,cz,w,w,1.4*(t+1),NEON6[t%6],{em:1});}
+        loot.push({x:cx,y:11.2+1.7,z:cz,t:1});
+        for(const [ax,az] of [[-24,-24],[24,-24],[-24,24],[24,24]])loot.push({x:cx+ax,y:1.3,z:cz+az,t:0});
+      }else if(kind==='ferris'){
+        dbox(cx-10,cz,3.5,3.5,27,0xe8e8f4,{});dbox(cx+10,cz,3.5,3.5,27,0xe8e8f4,{});
+        dbox(cx,cz+22,9,6,4,0xff2fa0,{em:1});loot.push({x:cx,y:4+1.7,z:cz+22,t:1});
+        loot.push({x:cx-20,y:1.3,z:cz+18,t:0});loot.push({x:cx+20,y:1.3,z:cz-18,t:0});
+      }else if(kind==='maze'){
+        const M=5,C=10,ox=cx-25,oz=cz-25,V=[],H=[];
+        for(let a=0;a<=M;a++){V.push(Array(M).fill(true));H.push(Array(M+1).fill(true));}
+        // V[a][b]: wall left of cell (a,b); H[a][b]: wall above cell (a,b) (cells indexed [a][b], a=x,b=z)
+        const seen=Array.from({length:M},()=>Array(M).fill(false)),st=[[0,0]];seen[0][0]=true;
+        while(st.length){
+          const [a,b]=st[st.length-1],nb=[[1,0],[-1,0],[0,1],[0,-1]].map(d=>[a+d[0],b+d[1],d]).filter(q=>q[0]>=0&&q[0]<M&&q[1]>=0&&q[1]<M&&!seen[q[0]][q[1]]);
+          if(!nb.length){st.pop();continue;}
+          const q=nb[Math.floor(r4()*nb.length)];seen[q[0]][q[1]]=true;
+          if(q[2][0]===1)V[a+1][b]=false;else if(q[2][0]===-1)V[a][b]=false;else if(q[2][1]===1)H[a][b+1]=false;else H[a][b]=false;
+          st.push([q[0],q[1]]);
+        }
+        H[2][M]=false;H[2][0]=true;   // the entrance faces +z (south)
+        for(let a=0;a<=M;a++)for(let b=0;b<M;b++)if(V[a][b])dbox(ox+a*C,oz+b*C+C/2,1.6,C+1.6,5,0x1fa84f,{});
+        for(let a=0;a<M;a++)for(let b=0;b<=M;b++)if(H[a][b])dbox(ox+a*C+C/2,oz+b*C,C+1.6,1.6,5,0x1fa84f,{});
+        loot.push({x:cx,y:1.3,z:cz,t:1});loot.push({x:ox+5,y:1.3,z:oz+5,t:0});loot.push({x:ox+45,y:1.3,z:oz+5,t:0});
+      }else if(kind==='drivein'){
+        dbox(cx,cz-27,36,1.6,19,0x14102a,{scr:1});
+        for(let rw=0;rw<3;rw++)for(let c=0;c<4;c++)dbox(cx-15+c*10,cz-14+rw*11,4.4,2.2,1.5,NEON6[(rw*4+c)%6],{em:1,tilt:1});
+        dbox(cx+21,cz+23,9,6,4,0xffe63c,{em:1});
+        loot.push({x:cx+21,y:4+1.7,z:cz+23,t:1});loot.push({x:cx-20,y:1.3,z:cz+22,t:0});loot.push({x:cx,y:1.3,z:cz+24,t:0});
+      }else if(kind==='plaza'){
+        dbox(cx-8,cz+6,12,12,1.0,0x25f4ff,{em:1});dbox(cx-8,cz+6,3,3,4.5,0xffffff,{em:1});
+        dbox(cx+17,cz-17,5,5,34,0xff9a3c,{em:1});
+        loot.push({x:cx+17,y:34+0.8+0.9,z:cz-17,t:1,roof:1});
+        loot.push({x:cx+22,y:1.3,z:cz+20,t:0});loot.push({x:cx-24,y:1.3,z:cz-20,t:0});
+      }else if(kind==='yard'){
+        const COL=[0xff4a3c,0x25a8ff,0xffc83c,0x3cff9e,0xa56bff,0xff2fa0];
+        let top=null;
+        for(let rw=0;rw<4;rw++)for(let c=0;c<2;c++){
+          const x=cx-13+c*26,z=cz-21+rw*14,n=r4()<0.55?1:2,h=1.3*2*n;
+          dbox(x,z,12.2,2.6,h,COL[Math.floor(r4()*6)],{});
+          if(n===1){dbox(x+(c?-8.5:8.5),z,2,2,1.3,0x8a6a44,{});if(!top)top=[x,z,h];}
+        }
+        if(top)loot.push({x:top[0],y:top[2]+1.7,z:top[1],t:1});
+        loot.push({x:cx,y:1.3,z:cz-3,t:0});loot.push({x:cx,y:1.3,z:cz+16,t:0});
+      }
+    }
+  }
+  /* park flavours */
+  {let pi=0;const pk=['pond','stage','ufo'];
+    for(const sl of slabs){if(!sl.park)continue;const kind=pk[pi++%pk.length];sl.theme=kind;themes.push({k:kind,cx:sl.cx,cz:sl.cz});
+      if(kind==='stage'){dbox(sl.cx,sl.cz-8,20,11,1.2,0x2b2145,{em:1,c2:1});dbox(sl.cx,sl.cz-13,20,1.4,8,0xff2fa0,{em:1});loot.push({x:sl.cx,y:1.2+1.7,z:sl.cz-8,t:1});}
+      if(kind==='ufo')loot.push({x:sl.cx,y:1.3,z:sl.cz+2,t:1});
+      if(kind==='pond')loot.push({x:sl.cx+17,y:1.3,z:sl.cz+17,t:0});
+    }
+  }
+  for(let k=B.length-1;k>=0;k--)if(B[k].dead)B.splice(k,1);
   // rooftop caches on some tall towers (need a jetpack)
   const r3=mulberry32((seed|0)+99);let nroof=0;
   for(const b of B){if(b.part||b.h<26||nroof>=11)continue;if(r3()<0.2){loot.push({x:b.x,y:b.h+0.8+0.9,z:b.z,t:1,roof:1});nroof++;}}
@@ -184,7 +270,7 @@ function genWorld(seed){
   loot.forEach((l,i)=>l.id=i);
   // jump pads on street intersections: they launch you up to the rooftops
   const pads=[[88,0],[-88,88],[176,-88],[-176,-176],[0,176],[-264,88],[264,176]].filter(p=>!B.some(b=>p[0]>b.x0-5&&p[0]<b.x1+5&&p[1]>b.z0-5&&p[1]<b.z1+5)).map(p=>({x:p[0],z:p[1]}));
-  return {B,slabs,houses,loot,pads};
+  return {B,slabs,houses,loot,pads,themes};
 }
 const SEED=1986;
 const WORLD=genWorld(SEED);
@@ -204,7 +290,7 @@ const GARAGE_SPAWNS=[];
 const SHOP=STATIONS.filter(s=>!s.hidden);
 
 /* ---------------- geometry helpers ---------------- */
-const topOf=b=>(b.k==='prop'||b.k==='roof')?b.h:b.h+0.8;
+const topOf=b=>(b.k==='prop'||b.k==='roof'||b.k==='deco')?b.h:b.h+0.8;
 /* fy = feet height. Boxes whose top is at/below the feet (or whose underside is above the head) don't block. */
 function pushOut(p,r,fy){
   fy=fy||0;
@@ -505,8 +591,8 @@ class Game{
       p.money-=c;p.wo[w]++;this.push('upg',p.id,w,p.wo[w]);
     }else if(m.k==='perk'){
       if(!near('perks'))return;
-      const id=m.id|0,pk=PERKS[id];if(!pk||p.perks[id]||p.money<pk.cost)return;
-      p.money-=pk.cost;p.perks[id]=true;if(id===0)p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);
+      const id=m.id|0,pk=PERKS[id];if(!pk||p.perks[id]||p.money<pk.cost||(pk.req!==undefined&&!p.perks[pk.req]))return;
+      p.money-=pk.cost;p.perks[id]=true;if(HP_TIERS.includes(id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);
     }else if(m.k==='vend'){
       const h=HOUSES.find(h=>Math.hypot(h.vx-p.x,h.vz-p.z)<4);if(!h)return;
       if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);
@@ -585,6 +671,11 @@ class Game{
       let r=this.rand()*ptot,t=0;
       for(const e of pool){r-=e[2];if(r<=0){t=e[0];break;}}
       q.push(t);
+    }
+    if(this.round<=5){   // early rounds: just ONE red blade-wielder (charger / knifer) at a time
+      let seen=0;
+      for(let i=0;i<q.length;i++)if(q[i]===5||q[i]===13){if(++seen>1)q[i]=0;}
+      if(this.round===3&&!seen)q[Math.floor(this.rand()*q.length)]=5;
     }
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
@@ -1111,6 +1202,6 @@ class Game{
 }
 
 const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
-  genWorld,SEED,WORLD,B,LOOT,HOUSES,JET_COST,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
+  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);
