@@ -10,9 +10,29 @@ const MAX_PER_ROOM=8,MAX_ROOMS=60;
 const FILES={'/':'index.html','/index.html':'index.html','/shared.js':'shared.js','/song.mp3':'song.mp3'};
 const TYPES={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.mp3':'audio/mpeg'};
 
+const scoreHits=new Map();
 const server=http.createServer((req,res)=>{
   const url=req.url.split('?')[0];
   if(url==='/health'){res.writeHead(200);res.end('ok');return;}
+  if(url==='/score'){
+    const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'POST,OPTIONS'};
+    if(req.method==='OPTIONS'){res.writeHead(204,cors);res.end();return;}
+    if(req.method!=='POST'){res.writeHead(405,cors);res.end();return;}
+    const ip=req.socket.remoteAddress||'?',now=Date.now();
+    const hits=(scoreHits.get(ip)||[]).filter(t=>now-t<60000);
+    if(hits.length>=10){res.writeHead(429,cors);res.end('slow down');return;}
+    hits.push(now);scoreHits.set(ip,hits);
+    let body='';req.on('data',d=>{body+=d;if(body.length>2000)req.destroy();});
+    req.on('end',()=>{
+      try{
+        const m=JSON.parse(body),rounds=Math.floor(+m.rounds),kills=Math.floor(+m.kills)||0;
+        if(!(rounds>0)||rounds>300||kills<0||kills>200000)throw new Error('bad');
+        recordLB([{name:cleanName(m.name,0)==='PLAYER0'?'PLAYER':cleanName(m.name,0),rounds,kills,lv:Math.min(99,Math.max(1,Math.floor(+m.lv)||1))}]);
+        res.writeHead(200,{...cors,'Content-Type':'application/json'});res.end(JSON.stringify(topLB(10)));
+      }catch(e){res.writeHead(400,cors);res.end('bad score');}
+    });
+    return;
+  }
   if(url==='/leaderboard'){
     res.writeHead(200,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});
     res.end(JSON.stringify(topLB(25)));return;

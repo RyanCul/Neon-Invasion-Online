@@ -80,7 +80,7 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 
 ## Perks, secrets, weather and more (latest update)
 
-**Perks** (armory, below the weapons; one-time purchase, kept until you die/restart): Neon Tank (+50 max HP), Quick Revive, Fast Hands (faster reload), Sprinter, Dead Eye (bigger crit damage), Cash Magnet (+25% cash), Kevlar, Double Tap, plus the others listed in the armory. Owned perks show on the HUD.
+**Perks** (now their own PERK TOWER in the fourth corner of the starting plaza, opposite the armory's diagonal; one-time purchase, kept until you die/restart): Neon Tank (+50 max HP), Quick Revive, Fast Hands (faster reload), Sprinter, Dead Eye (bigger crit damage), Cash Magnet (+25% cash), Kevlar, Double Tap, plus the others listed in the armory. Owned perks show on the HUD.
 
 **Weak spots**: shots to the head do double damage (giants/bosses have a smaller, bigger-damage weak spot). Crits show as yellow damage numbers.
 
@@ -99,3 +99,7 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 **Feedback**: damage numbers, kill streak call-outs, screen shake, hit markers.
 
 **Settings / accessibility** (menu button or O): music/SFX volume, mouse sensitivity, reduce screen shake, reduce flashes, damage numbers on/off, colorblind-friendly map colors, large HUD text. Key rebinding is not included yet.
+
+**Pause (solo)**: PAUSE button top-right, TAB / Pause key, or controller START. Resume, Settings or Quit to Menu. Online games cannot pause.
+
+**Solo scores count**: when a solo run ends, the browser posts name/rounds/kills to the server's `/score` endpoint (needs the server address on the menu to be reachable). The server rejects absurd values and rate-limits to 10 posts/min per IP, but solo scores can't be fully verified.

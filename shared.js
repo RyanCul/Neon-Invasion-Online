@@ -198,7 +198,7 @@ const GARAGE_SPAWNS=[];
   STATIONS.push({k:'armory',x:ix-o,z:iz-o,c:ci});
   STATIONS.push({k:'forge', x:ix+o,z:iz-o,c:ci});
   STATIONS.push({k:'garage',x:ix-o,z:iz+o,c:ci});
-  STATIONS.push({k:'forge', x:ix+o,z:iz+o,c:ci,hidden:1}); // spare, unused
+  STATIONS.push({k:'perks', x:ix+o,z:iz+o,c:ci}); // perk tower
   GARAGE_SPAWNS.push({x:ix-6,z:iz+30,h:0,c:ci});
 });
 const SHOP=STATIONS.filter(s=>!s.hidden);
@@ -504,7 +504,7 @@ class Game{
       const c=UPCOST(w,p.wo[w]);if(p.money<c)return;
       p.money-=c;p.wo[w]++;this.push('upg',p.id,w,p.wo[w]);
     }else if(m.k==='perk'){
-      if(!near('armory'))return;
+      if(!near('perks'))return;
       const id=m.id|0,pk=PERKS[id];if(!pk||p.perks[id]||p.money<pk.cost)return;
       p.money-=pk.cost;p.perks[id]=true;if(id===0)p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);
     }else if(m.k==='vend'){
