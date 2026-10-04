@@ -197,14 +197,6 @@ function genWorld(seed){
       for(const z of[-11,-5])prop(-9,z,1.4,5,1.1,1);
       prop(9,-12,3,3,3.2,0);prop(-3,-14.2,6,1.2,3.4,2);prop(6,-14.2,4,1.2,3.4,2);prop(-13,3,1.4,5,1.1,1);
     }
-    if(hi%2===0){   // second floor over the back half, reached by a staircase along the east wall
-      const SH=5.2,ST=10;
-      part(0,-6.35,S-2*t,17.7,SH,{k:'roof',y0:4.6,nomm:1});
-      for(let i=1;i<=ST;i++)part(13.4,14.5-1.2*(i-0.5),3.2,1.2,0.52*i,{k:'deco',c:i%2?0xff2fa0:0x25f4ff,em:1,nomm:1});
-      const R2=(lx,lz)=>{const q=k===0?[lx,lz]:k===1?[-lz,lx]:k===2?[-lx,-lz]:[lz,-lx];return[cx+q[0],cz+q[1]];};
-      let a=R2(-8,-8);loot.push({x:a[0],y:SH+1.3,z:a[1],t:1});a=R2(8,-11);loot.push({x:a[0],y:SH+1.3,z:a[1],t:0});a=R2(-10,-1);loot.push({x:a[0],y:SH+1.3,z:a[1],t:0});
-      hs0.fl=1;
-    }
   }
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){
     const cx=(i-3.5)*P,cz=(j-3.5)*P;

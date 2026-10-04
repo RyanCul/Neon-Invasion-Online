@@ -606,7 +606,7 @@ const lootObjs=[];
   const palmData=[];
   const nearStation=(x,z)=>STATIONS.some(s=>Math.hypot(s.x-x,s.z-z)<5);
   for(const s of sl){
-    for(let u=-25;u<=25;u+=12.5)for(const q of[[s.cx+u,s.cz-27.5],[s.cx+u,s.cz+27.5],[s.cx-27.5,s.cz+u],[s.cx+27.5,s.cz+u]])if(!nearStation(q[0],q[1]))palmData.push(q);
+    for(let u=-25;u<=25;u+=12.5)for(const q of[[s.cx+u,s.cz-27.5],[s.cx+u,s.cz+27.5],[s.cx-27.5,s.cz+u],[s.cx+27.5,s.cz+u]])if(!nearStation(q[0],q[1])&&!NI.inBuilding(q[0],q[1]))palmData.push(q);
     if(s.park)for(let k=0;k<10;k++){const px=s.cx+(rand()*2-1)*20,pz=s.cz+(rand()*2-1)*20;if((s.theme==='pond'||s.theme==='ufo')&&Math.hypot(px-s.cx,pz-s.cz)<17)continue;if(s.theme==='stage'&&Math.abs(px-s.cx)<12&&pz<s.cz+2)continue;palmData.push([px,pz]);}
   }
   const parts=[];

@@ -148,9 +148,9 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 - Kill cash: the killer gets full cash; teammates within 60 units get 25%.
 
 ### Latest: interiors, marina, signs, loot from cars
-- **Building interiors:** every kind of place now has its own furniture (arcade cabinets, DJ booth and speakers, video shelves, diner booths, rink floor, lobby desk, tiki bar, record bins). Every other enterable building has a **second floor** over the back half, reached by a lit staircase along the east wall, with extra loot upstairs.
+- **Building interiors:** every kind of place now has its own furniture (arcade cabinets, DJ booth and speakers, video shelves, diner booths, rink floor, lobby desk, tiki bar, record bins)..
 - **Marina** on the east beach: boardwalk, four piers, docked boats you can stand on and a yacht with a loot cache on its cabin roof.
-- **Drive-in:** the screen now plays an animated loop (sunset, alien attack, car chase, intermission).
+- **Drive-in:** palms no longer clip into the screen; it now plays an animated loop (sunset, alien attack, car chase, intermission).
 - **Time-of-day neon signs** at the plaza, drive-in and marina follow the player's real clock (sunrise special, sunshine hours, happy hour, night shift, midnight movies).
 - You can now **grab loot while driving** or flying a vehicle.
 - The big 3-2-1 number in the wave warning was removed (the label and arrows stay).
