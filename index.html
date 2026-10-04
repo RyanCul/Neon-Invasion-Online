@@ -104,6 +104,7 @@ body.bigui #money,body.bigui #ammo,body.bigui #roundnum,body.bigui #prompt,body.
 .lp.med{color:#9fffc8;text-shadow:0 0 10px #3cff9e,0 0 24px #3cff9e}
 .lp.rare{color:#e3c8ff;text-shadow:0 0 10px #a56bff,0 0 26px #a56bff;font-size:clamp(28px,4.4vw,50px)}
 @keyframes lootup{0%{opacity:0;transform:translateY(14px) scale(.85)}12%{opacity:1;transform:translateY(0) scale(1.06)}25%{transform:scale(1)}75%{opacity:1}100%{opacity:0;transform:translateY(-34px)}}
+body:not(.playing) #hint{display:none}
 #hint{position:fixed;left:50%;bottom:4px;transform:translateX(-50%);font-size:11px;color:#d6b8ff;opacity:.8;pointer-events:none;white-space:nowrap;text-shadow:0 0 6px #7a2cff}
 #radio{position:fixed;left:22px;bottom:130px;pointer-events:none;font-weight:bold;letter-spacing:2px;color:#9ffcff;text-shadow:0 0 6px #25f4ff;font-size:12px;display:none}
 body.playing #radio{display:block}
@@ -133,6 +134,24 @@ body.solo #pauseB{display:block}
 #menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;background:radial-gradient(ellipse at center,rgba(20,0,40,.35),rgba(10,0,25,.85));text-align:center;z-index:8;overflow:auto;padding:16px}
 #menu h1{margin:0;font-size:clamp(40px,9vw,112px);font-style:italic;letter-spacing:6px;line-height:1;background:linear-gradient(to bottom,#fff3b0 0%,#ff9a3c 35%,#ff2fa0 70%,#a56bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(255,47,160,.8))}
 #menu h2{margin:8px 0 18px;font-size:clamp(13px,2.2vw,24px);letter-spacing:10px;color:#9ffcff;text-shadow:0 0 10px #25f4ff;font-weight:normal}
+#menu h2.sub{font-size:clamp(16px,2.8vw,30px);letter-spacing:5px;margin:14px 0 8px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
+#menu h1{margin-top:clamp(40px,8vh,70px);font-size:clamp(40px,7.5vw,96px)}
+#topbtns{position:fixed;right:18px;top:16px;display:flex;gap:8px;z-index:9}
+#menu button.tb{width:150px;height:40px;margin:0;padding:0;font-size:13px;font-style:normal;letter-spacing:2px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
+#menu button.big{font-size:clamp(22px,3.4vw,34px);padding:16px 48px;margin:10px 6px;min-width:min(420px,86vw)}
+#menu #lvbox{position:fixed;left:18px;top:16px;width:150px;margin:0;text-align:left;z-index:9;font-size:13px}
+#lvbox .xb{height:8px}
+#menu button.sm#bLocker{margin:4px 0 0;width:100%;font-size:13px}
+#howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
+#howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
+#howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
+#howto h3{margin:10px 0 4px;color:#9ffcff;letter-spacing:3px;font-size:15px}
+#howto .goal{text-align:center;color:#e9d7ff;font-size:14px;margin:4px 0 8px}
+#howto .cols{display:flex;gap:26px;flex-wrap:wrap}#howto .cols>div{flex:1;min-width:300px}
+#howto table{border-collapse:collapse;width:100%;font-size:12px}
+#howto td{padding:2px 6px;border-bottom:1px solid rgba(165,107,255,.25);vertical-align:top}
+#howto td:first-child{color:#fff3b0;white-space:nowrap;font-weight:bold}
+#howto button{font:inherit;font-weight:bold;letter-spacing:3px;padding:8px 22px;margin-top:12px;cursor:pointer;color:#fff;background:#a5207a;border:2px solid #fff}
 #menu p{margin:3px 0;font-size:clamp(12px,1.5vw,16px);color:#e9d7ff;max-width:640px}
 #menu input{font:inherit;font-size:16px;letter-spacing:2px;padding:9px 12px;background:#1a0b33;color:#fff;border:2px solid #25f4ff;box-shadow:0 0 10px rgba(37,244,255,.5);text-align:center;width:min(300px,80vw);margin:5px;outline:none;text-transform:uppercase}
 #menu input#url{text-transform:none;width:min(380px,90vw);font-size:13px}
@@ -218,31 +237,55 @@ body.solo #pauseB{display:block}
 <div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
 <div id="contact"></div>
 <div id="dnl"></div><div id="streak"></div><div id="wxban"></div><div id="spec"></div><div id="pkbar"></div>
-<div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M music &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="setClose">CLOSE (O / ESC)</button></div></div></div>
+<div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M music &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="bFS">FULLSCREEN</button> <button id="setClose">CLOSE (O / ESC)</button></div></div></div>
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
 <div id="lock">CLICK TO PLAY</div>
 <button id="pauseB">II PAUSE (TAB)</button>
 <div id="pauseO"><h1>PAUSED</h1><button id="pResume">RESUME</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><button class="c sm" id="bLocker">LOCKER</button><div id="lvnote"></div></div>
+  <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button></div>
   <h1>NEON INVASION</h1>
-  <h2>A L I E N &nbsp; W A V E S</h2>
-  <p>Aliens are landing in the neon city. Survive wave after wave with your friends.</p>
-  <p>Earn cash for every kill, buy laser guns, upgrade them at the Neon Forge, and buy cars at the Garage and run the aliens over.</p>
-  <p style="color:#ff9ee0">A boss alien arrives every 5 rounds - every 20 rounds, a GODZILLA ALIEN as big as a building - and on round 50, THE OVERMIND. How far can your crew get?</p>
+  <h2 class="sub">HOW MANY ROUNDS CAN YOU LAST?</h2>
   <div class="box">
     <div id="nameLab">TYPE YOUR NAME - IT SHOWS ON THE LEADERBOARD</div>
     <input id="name" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false"><br>
-    <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><button class="c sm" id="bLocker">GUN SKIN LOCKER</button><div id="lvnote"></div></div>
-    <button id="bSolo">PLAY SOLO</button>
-    <div style="margin-top:8px;color:#9ffcff;letter-spacing:3px;font-size:13px">ONLINE CO-OP (up to 8 players)</div>
+    <button id="bSolo" class="big">PLAY SOLO</button>
+    <div style="margin-top:10px;color:#9ffcff;letter-spacing:3px;font-size:14px">ONLINE CO-OP (up to 8 players)</div>
     <input id="room_in" maxlength="6" placeholder="ROOM CODE (blank = new)"><br>
-    <input id="url" placeholder="server address"><br>
-    <button class="c" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button> <button class="c sm" id="bFS">FULLSCREEN</button> <button class="c sm" id="bSet">SETTINGS</button>
+    <input id="url" placeholder="server address" style="display:none">
+    <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button>
     <div id="msg"></div>
   </div>
-  <div class="keys">WASD move &middot; SHIFT sprint &middot; SPACE jump &middot; MOUSE aim &middot; CLICK fire &middot; R reload<br>E buy / enter car / revive (hold) &middot; Q cycle shop item &middot; 1-5 switch weapon &middot; V car camera</div>
 </div>
+<div id="howto"><div class="box2"><h2>HOW TO PLAY</h2>
+  <p class="goal">Survive wave after wave of aliens. Earn cash for kills, buy guns and perks, and see how many rounds you can last.</p>
+  <div class="cols">
+    <div><h3>KEYBOARD &amp; MOUSE</h3><table>
+      <tr><td>W A S D</td><td>move</td></tr><tr><td>SHIFT</td><td>sprint</td></tr><tr><td>SPACE</td><td>jump (hold to fly with a jetpack)</td></tr>
+      <tr><td>MOUSE</td><td>aim / look</td></tr><tr><td>LEFT CLICK</td><td>fire</td></tr><tr><td>RIGHT CLICK</td><td>aim down sights</td></tr>
+      <tr><td>R</td><td>reload</td></tr><tr><td>E</td><td>use: buy, enter car, revive a friend (hold)</td></tr>
+      <tr><td>Q</td><td>change shop item</td></tr><tr><td>1-9 / WHEEL / F</td><td>switch weapon / quick swap</td></tr>
+      <tr><td>K</td><td>skins locker</td></tr><tr><td>TAB</td><td>pause (solo)</td></tr>
+      <tr><td>O / G / M / N</td><td>settings / fullscreen / music / day-night</td></tr>
+    </table>
+    <h3>DRIVING</h3><table>
+      <tr><td>W / S</td><td>gas / brake and reverse</td></tr><tr><td>A / D</td><td>steer (the car drifts through turns)</td></tr>
+      <tr><td>SHIFT</td><td>handbrake drift</td></tr><tr><td>MOUSE</td><td>look around the car (it re-centers by itself)</td></tr>
+      <tr><td>V</td><td>hood camera</td></tr><tr><td>E</td><td>get out</td></tr>
+    </table></div>
+    <div><h3>CONTROLLER</h3><table>
+      <tr><td>LEFT STICK</td><td>move / steer</td></tr><tr><td>RIGHT STICK</td><td>aim / look around the car</td></tr>
+      <tr><td>RT</td><td>fire (gas while driving)</td></tr><tr><td>LT</td><td>aim down sights (brake while driving)</td></tr>
+      <tr><td>A</td><td>jump (gas while driving)</td></tr><tr><td>B</td><td>hover (brake while driving)</td></tr>
+      <tr><td>X</td><td>use / reload</td></tr><tr><td>Y</td><td>use, or back to the starting area</td></tr>
+      <tr><td>LB / RB</td><td>switch weapon</td></tr><tr><td>L3</td><td>sprint (handbrake while driving)</td></tr>
+      <tr><td>D-PAD UP / DOWN</td><td>back to base / skins locker</td></tr><tr><td>D-PAD RIGHT</td><td>hood camera</td></tr>
+      <tr><td>START</td><td>pause (solo)</td></tr><tr><td>BACK</td><td>fullscreen</td></tr>
+    </table></div>
+  </div>
+  <div style="text-align:center"><button id="howClose">CLOSE</button></div></div></div>
 <div id="lbp"><div class="lbox"><h2>LEADERBOARD</h2><div id="lbbody">Loading...</div><button id="lbClose">CLOSE</button></div></div>
 <div id="locker"><div class="lbox"><h2>LOCKER</h2><p id="lkinfo"></p><h3 class="lh">GUN SKINS</h3><div id="skgrid"></div><h3 class="lh">CAR DESIGNS</h3><div id="csgrid"></div><button id="lkClose">CLOSE</button></div></div>
 <div id="err">Couldn&rsquo;t load a required file (Three.js or shared.js). The first run needs an internet connection for the 3D library.</div>
@@ -1461,7 +1504,7 @@ function toggleSettings(force){
   s.style.display=want?'flex':'none';
   if(want){try{document.exitPointerLock();}catch(e){}}
 }
-$('bSet').onclick=()=>toggleSettings(true);$('setClose').onclick=()=>toggleSettings(false);
+$('setClose').onclick=()=>toggleSettings(false);
 addEventListener('keydown',e=>{
   const t=document.activeElement&&document.activeElement.tagName;
   if(e.code==='KeyO'&&t!=='INPUT')toggleSettings();
@@ -1630,7 +1673,9 @@ addEventListener('mouseup',e=>{if(e.button===0)mouseDown=false;if(e.button===2)a
 addEventListener('mousemove',e=>{
   if(!locked)return;
   const zs=camFov/78;
-  me.yaw-=e.movementX*0.0022*zs*(SET.sens/100);
+  const carNow=driving>=0&&carsM.get(driving),isHeli=carNow&&CARS[carNow.t].kind==='heli';
+  if(carNow&&!isHeli){camOrb-=e.movementX*0.0022*(SET.sens/100);camIdle=0;}
+  else me.yaw-=e.movementX*0.0022*zs*(SET.sens/100);
   const pl=driving>=0?'c':'p';
   if(driving>=0){const hc=carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli';cs.pitch=hc?clamp(cs.pitch-e.movementY*0.0022*(SET.sens/100),-1.0,0.6):clamp(cs.pitch-e.movementY*0.0022*(SET.sens/100),-0.25,0.6);}
   else me.pitch=clamp(me.pitch-e.movementY*0.0022*zs*(SET.sens/100),-1.5,1.5);
@@ -1670,7 +1715,8 @@ function pollPad(dt){
     {const hc=carsM.get(driving);if(hc&&CARS[hc.t].kind==='heli')pad.z=-ly;}
   }
   const fast=1+0.0*dt;
-  if(driving>=0){const hc=carsM.get(driving);if(hc&&CARS[hc.t].kind==='heli'){me.yaw-=rx*dt*2.6*(SET.pad/100);cs.pitch=clamp(cs.pitch-ry*dt*1.8*(SET.pad/100),-1.0,0.6);}}
+  if(driving>=0){const hc=carsM.get(driving);if(hc&&CARS[hc.t].kind==='heli'){me.yaw-=rx*dt*2.6*(SET.pad/100);cs.pitch=clamp(cs.pitch-ry*dt*1.8*(SET.pad/100),-1.0,0.6);}
+    else if(hc){camOrb-=rx*dt*2.8*(SET.pad/100);cs.pitch=clamp(cs.pitch-ry*dt*1.8*(SET.pad/100),-0.25,0.6);if(rx||ry)camIdle=0;}}
   else{ me.yaw-=rx*dt*3.0*fast*(SET.pad/100); me.pitch=clamp(me.pitch-ry*dt*2.3*(SET.pad/100),-1.5,1.5); }
   const hel=driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli';
   setK('Space',(driving<0||hel)&&B(0));setK('KeyC',(driving<0||hel)&&B(1));setK('KeyE',B(2)||B(3));setK('ShiftLeft',B(10));
@@ -1782,7 +1828,7 @@ function interact(){
 }
 function enterCarLocal(id){
   const c=carsM.get(id);if(!c)return;
-  driving=id;cs.x=c.x;cs.z=c.z;cs.h=c.th||c.h||0;cs.sp=0;cs.vx=cs.vz=0;cs.pitch=0;cs.y=c.ty||0;cs.vy=0;if(CARS[c.t].kind==='heli'){me.yaw=cs.h+Math.PI;cs.pitch=0;}thr=0;steerS=0;camH=cs.h;
+  camOrb=0;camIdle=0;driftV=0;driving=id;cs.x=c.x;cs.z=c.z;cs.h=c.th||c.h||0;cs.sp=0;cs.vx=cs.vz=0;cs.pitch=0;cs.y=c.ty||0;cs.vy=0;if(CARS[c.t].kind==='heli'){me.yaw=cs.h+Math.PI;cs.pitch=0;}thr=0;steerS=0;camH=cs.h;
   reloadT=0;viewRoot.visible=false;
 }
 function exitCarLocal(destroyed){
@@ -1830,7 +1876,7 @@ function updateFoot(dt){
   if(me.vy>0&&me.y+EYE+0.15>ce){me.y=ce-EYE-0.15;me.vy=0;}
 }
 /* ---------- car driving ---------- */
-let thr=0,steerS=0,camH=0,camFov=78;
+let thr=0,steerS=0,camH=0,camFov=78,camOrb=0,camIdle=0,driftV=0,driftT=0;
 function updateCarDrive(dt){
   const cd=CARS[carsM.get(driving)?carsM.get(driving).t:0];
   const maxS=cd.maxS;
@@ -1848,11 +1894,18 @@ function updateCarDrive(dt){
   // steering: smoothed input, less turning at speed, none while stopped
   const sIn=clamp((lf?1:0)-(rt?1:0)-pad.x,-1,1);
   steerS+=(sIn-steerS)*(1-Math.exp(-6.5*dt));
-  const turn=cd.turn/(1+Math.abs(cs.sp)/(maxS*0.8));
+  // drift: when you steer hard at speed (or pull the handbrake) the tyres let go a little, so the nose swings round easily
+  const spdNow=Math.hypot(cs.vx,cs.vz);
+  const dTgt=(hb&&spdNow>6)?1:((spdNow>maxS*0.4&&Math.abs(steerS)>0.3&&cs.sp>0)?Math.min(1,Math.abs(steerS)):0);
+  driftV+=(dTgt-driftV)*(1-Math.exp(-7*dt));
+  const turn=cd.turn*1.25*(1+0.5*driftV)/(1+Math.abs(cs.sp)/(maxS*0.9));
   cs.h+=steerS*turn*clamp(cs.sp/5,-1,1)*dt;
-  // grip: velocity eases toward where the car is pointing
+  if(driftV>0.2)cs.sp*=Math.exp(-0.18*driftV*dt);
+  // grip: velocity eases toward where the car is pointing (less grip while drifting)
   const fx=Math.sin(cs.h),fz=Math.cos(cs.h);
-  const k=1-Math.exp(-(hb?2.0:8)*dt);
+  const k=1-Math.exp(-(hb?2.0:(8-5.0*driftV))*dt);
+  driftT-=dt;
+  if(driftV>0.45&&spdNow>7&&driftT<=0){driftT=0.07;burst(cs.x-fx*1.6+(Math.random()-0.5),0.6,cs.z-fz*1.6+(Math.random()-0.5),0xd8d0f0,2,2.2,0.7);if(Math.random()<0.4)noise(0.1,0.03,3200);}
   cs.vx+=(fx*cs.sp-cs.vx)*k;cs.vz+=(fz*cs.sp-cs.vz)*k;
   const px=cs.x,pz=cs.z;
   cs.x+=cs.vx*dt;cs.z+=cs.vz*dt;
@@ -2127,7 +2180,7 @@ function updateHUD(dt){
   let st_garage_open=false;
   {const s0=nearStation();if(!s0||(s0.k!=='garage'&&s0.k!=='armory'&&s0.k!=='perks'))garageClosed=false;}
   if(driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli')txt=cs.y>3?'LAND TO EXIT<small>WASD fly - MOUSE aim - SPACE up - C down - CLICK fire</small>':'[E] EXIT<small>SPACE lift off - MOUSE aims - CLICK fire</small>';
-  else if(driving>=0)txt='[E] EXIT<small>W/S gas &amp; brake - A/D steer - SHIFT handbrake - V camera  |  PAD: hold RT/A gas, LT/B brake, left stick steer</small>';
+  else if(driving>=0)txt='[E] EXIT<small>W/S gas &amp; brake - A/D steer - SHIFT handbrake - MOUSE look - V camera  |  PAD: hold RT/A gas, LT/B brake, left stick steer</small>';
   else if(myP.st==='alive'){
     const car=nearCar(),st=nearStation();
     if(dn){txt='HOLD [E] REVIVE '+dn.p.n;if(dn.p.rp>0){$('revbar').style.display='block';$('revbar').firstChild.style.width=Math.min(100,dn.p.rp/3*100)+'%';}}
@@ -2317,14 +2370,19 @@ function frame(now){
     if(driving>=0){
       const fx=Math.sin(cs.h),fz=Math.cos(cs.h),cdv=CARS[carsM.get(driving)?carsM.get(driving).t:0];
       let dh=cs.h-camH;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;camH+=dh*(1-Math.exp(-4.5*dt));
-      const cfx=Math.sin(camH),cfz=Math.cos(camH);
+      if(cdv.kind!=='heli'){
+        camIdle+=dt;if(camIdle>1.4)camOrb*=Math.exp(-2.4*dt);
+        while(camOrb>Math.PI)camOrb-=6.283;while(camOrb<-Math.PI)camOrb+=6.283;
+        me.yaw=(hoodCam?cs.h:camH)+camOrb+Math.PI;   // guns follow the camera
+      }
+      const cam_a=camH+camOrb,cfx=Math.sin(cam_a),cfz=Math.cos(cam_a);
       if(cdv.kind==='heli'){
         const cp=Math.cos(cs.pitch),ax=-Math.sin(me.yaw)*cp,ay=Math.sin(cs.pitch),az=-Math.cos(me.yaw)*cp;
         if(hoodCam){camera.position.set(cs.x+fx*1.6,cs.y+cdv.eye,cs.z+fz*1.6);camera.rotation.set(cs.pitch,me.yaw,0);}
         else{camera.position.set(cs.x-Math.sin(me.yaw+Math.PI)*cdv.cdist,cs.y+cdv.chgt-cs.pitch*4,cs.z-Math.cos(me.yaw+Math.PI)*cdv.cdist);camera.lookAt(cs.x+ax*40,cs.y+1.5+ay*40,cs.z+az*40);}
       }
-      else if(hoodCam){camera.position.set(cs.x+fx*0.8,cdv.eye,cs.z+fz*0.8);camera.rotation.set(cs.pitch*0.5,cs.h+Math.PI,0);}
-      else{camera.position.set(cs.x-cfx*cdv.cdist,cdv.chgt+cs.pitch*6,cs.z-cfz*cdv.cdist);camera.lookAt(cs.x+fx*8,2.2,cs.z+fz*8);}
+      else if(hoodCam){camera.position.set(cs.x+fx*0.8,cdv.eye,cs.z+fz*0.8);camera.rotation.set(cs.pitch*0.5,cs.h+Math.PI+camOrb,0);}
+      else{camera.position.set(cs.x-cfx*cdv.cdist,cdv.chgt+cs.pitch*6,cs.z-cfz*cdv.cdist);camera.lookAt(cs.x+cfx*8,2.2,cs.z+cfz*8);}
     }else if(myP.st==='dead'){
       const sl=specList();
       if(sl.length){
@@ -2370,12 +2428,14 @@ function frame(now){
   let nm='',url='',rm='';
   try{nm=localStorage.getItem('ni_name')||'';url=localStorage.getItem('ni_url')||'';}catch(e){}
   $('name').value=nm;
-  const def=(location.protocol==='http:'||location.protocol==='https:')&&!/netlify|github\.io/.test(location.host)?(location.protocol==='https:'?'wss://':'ws://')+location.host:'ws://localhost:8080';
-  $('url').value=(url&&!(/localhost|127\.0\.0\.1/.test(url)&&!/localhost|127\.0\.0\.1/.test(location.host)&&def.indexOf('localhost')<0))?url:def;
+  const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&!/netlify|github\.io/.test(location.host);
+  const def=onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:(location.protocol==='file:'?'ws://localhost:8080':'wss://neon-invasion-online.onrender.com');
+  $('url').value=def;   // the address box is hidden now: always use the right server automatically
   const getName=()=>{const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
   if(!$('name').value)$('name').focus();
   $('bLocker').onclick=openLocker;$('lkClose').onclick=closeLocker;
+  $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
   $('bLB').onclick=async()=>{

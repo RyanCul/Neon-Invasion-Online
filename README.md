@@ -113,3 +113,9 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 **Perks**: Neon Tank now has 4 tiers (+50 max health each, +200 total) and Sprinter has 4 tiers (+18%, then +12% three times). Higher tiers unlock after the previous one.
 
 **Early rounds**: rounds 1-5 never have more than one red blade-wielder (charger/knifer); round 3 always has exactly one.
+
+## Menu and driving update
+
+**Main menu**: level + LOCKER in the top-left; SETTINGS and HOW TO PLAY boxes in the top-right (fullscreen now lives inside Settings); new subtitle; bigger PLAY SOLO and CREATE / JOIN ROOM buttons. The server address box is hidden: the game uses its own server automatically (or `wss://neon-invasion-online.onrender.com` when hosted on Netlify/GitHub Pages; edit that URL in `index.html` if your Render address differs).
+
+**Driving**: mouse / right stick orbits the camera around the car (it re-centers after ~1.5s, and gun cars shoot where the camera points). Steering is stronger and the car drifts a little through hard turns at speed, with tyre smoke and squeal; SHIFT is a handbrake drift.
