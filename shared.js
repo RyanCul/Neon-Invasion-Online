@@ -69,7 +69,7 @@ const mhp=p=>100+(p.perks?50*HP_TIERS.filter(i=>p.perks[i]).length:0);
 const UPCOST=(w,lv)=>Math.round(UP_COST[lv]*(WPN[w].upm||1)/50)*50;
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
 const AMMO_ALL=p=>200+100*p.wo.filter((v,i)=>v>=0&&!WPN[i].melee).length;
-const JET_COST=2500,JET_UP=[1500,3000,5000],jetMax=l=>4+2*(l|0);
+const MBOX_COST=950,JET_COST=2500,JET_UP=[1500,3000,5000],jetMax=l=>4+2*(l|0);
 const AMMO_COST=w=>Math.max(250,Math.round(WPN[w].cost/2/50)*50);
 
 const CARS=[
@@ -276,7 +276,10 @@ function genWorld(seed){
   loot.forEach((l,i)=>l.id=i);
   // jump pads on street intersections: they launch you up to the rooftops
   const pads=[[88,0],[-88,88],[176,-88],[-176,-176],[0,176],[-264,88],[264,176]].filter(p=>!B.some(b=>p[0]>b.x0-5&&p[0]<b.x1+5&&p[1]>b.z0-5&&p[1]<b.z1+5)).map(p=>({x:p[0],z:p[1]}));
-  return {B,slabs,houses,loot,pads,themes,sauc};
+  let mbox=null;
+  {let best=-1,hs0=null;for(const hs of houses){const d=Math.hypot(hs.x,hs.z);if(d>best){best=d;hs0=hs;}}
+   if(hs0){const k=hs0.k,lx=-10,lz=10,q=k===0?[lx,lz]:k===1?[-lz,lx]:k===2?[-lx,-lz]:[lz,-lx];mbox={x:hs0.x+q[0],z:hs0.z+q[1],name:hs0.name};}}
+  return {B,slabs,houses,loot,pads,themes,sauc,mbox};
 }
 const SEED=1986;
 const WORLD=genWorld(SEED);
@@ -462,7 +465,7 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
@@ -609,6 +612,14 @@ class Game{
       if(!near('perks'))return;
       const id=m.id|0,pk=PERKS[id];if(!pk||p.perks[id]||p.money<pk.cost||(pk.req!==undefined&&!p.perks[pk.req]))return;
       p.money-=pk.cost;p.perks[id]=true;if(HP_TIERS.includes(id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);
+    }else if(m.k==='mbox'){
+      const mb=WORLD.mbox;if(!mb||Math.hypot(mb.x-p.x,mb.z-p.z)>4.5||p.money<MBOX_COST)return;
+      p.money-=MBOX_COST;
+      const w=1+Math.floor(this.rand()*(WPN.length-1));
+      if(p.wo[w]<0){p.wo[w]=0;this.push('gave',p.id,w);}
+      else if(p.wo[w]<MAXUP){p.wo[w]++;this.push('upg',p.id,w,p.wo[w]);}
+      else this.push('ammoall',p.id);
+      this.push('mbox',p.id,w);
     }else if(m.k==='vend'){
       const h=HOUSES.find(h=>Math.hypot(h.vx-p.x,h.vz-p.z)<4);if(!h)return;
       if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);
@@ -658,6 +669,7 @@ class Game{
     if(AT[a.t].stalker)a.enr=1;
     let crit=0;
     if(y!==undefined){const df=AT[a.t];if(y>a.y+a.cy+df.r*(df.giant?0.12:0.4)){crit=1;dmg*=(df.giant?2.5:2)*(p.perks&&p.perks[4]?1.6:1);}}
+    p.dd=(p.dd||0)+Math.max(0,Math.min(dmg,a.hp));
     a.hp-=dmg;
     p.money+=10;
     let killed=0;
@@ -670,8 +682,9 @@ class Game{
     p.money+=Math.round(mk);p.kills++;
     if(a.mut===1){   // volatile mutant: blows up when it dies
       this.push('blast',r2(a.x),r2(a.y+1),r2(a.z));
-      for(const q of this.players.values()){if(q.st!=='alive')continue;const t=this.targetPos(q),d=Math.hypot(t.x-a.x,t.z-a.z);if(d<9&&q.y-EYE<6)this.hurt(q,(25+this.round)*(1-d/12));}
+      for(const q of this.players.values()){if(q.st!=='alive')continue;const t=this.targetPos(q),d=Math.hypot(t.x-a.x,t.z-a.z);if(d<9&&q.y-EYE<6)this.hurt(q,(25+this.round)*(1-d/12),a.x,a.z);}
     }
+    if(def.boss){p.bk=(p.bk|0)+1;this.bossDrop(a,p);}
     this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id);
   }
 
@@ -717,7 +730,7 @@ class Game{
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
   }
   endRound(){
-    this.state='rest';this.timer=this.round%5===0?12:9;
+    this.sides=null;this.state='rest';this.timer=this.round%5===0?12:9;
     if(this.weather){this.weather=0;this.bolts.length=0;this.push('weather',0);}
     for(const p of this.players.values()){
       if(p.st==='alive')p.money+=50*this.round;
@@ -725,20 +738,25 @@ class Game{
     this.push('clear',this.round);
   }
   resetGame(){
+    this.sides=null;
     this.aliens.length=0;this.orbs.length=0;this.cars.length=0;this.queue.length=0;this.clouds.length=0;
     for(const p of this.players.values()){
-      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
+      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.dd=0;p.rvd=0;p.dn=0;p.dt=0;p.bk=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
     this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
   }
 
+  pickSides(){
+    const n=this.round+1>=8?2:1,a0=this.rand()*Math.PI*2;
+    return n===1?[a0]:[a0,a0+Math.PI*(0.7+this.rand()*0.6)];
+  }
   spawnAlien(t,fx,fz){
     const def=AT[t],pl=[...this.players.values()].filter(p=>p.st==='alive');
     if(!pl.length)return;
     const tg=pl[Math.floor(this.rand()*pl.length)];
     let x=0,z=0,ok=false;
     for(let i=0;i<25&&!ok;i++){
-      const a=this.rand()*Math.PI*2,d=Math.max(30,((t===17?180:t===12?150:t===4?90:70)+this.rand()*70)*Math.min(1,0.36+0.08*this.round));   // early rounds spawn closer
+      const a=(this.sides&&this.sides.length&&this.state==='fight'&&!def.beach&&this.rand()<0.85)?this.sides[Math.floor(this.rand()*this.sides.length)]+(this.rand()-0.5)*1.0:this.rand()*Math.PI*2,d=Math.max(Math.min(62,40+4*this.round),((t===17?180:t===12?150:t===4?90:80)+this.rand()*70)*Math.min(1,0.4+0.08*this.round));   // early rounds spawn a bit closer, but never right on top of you
       x=tg.x+Math.cos(a)*d;z=tg.z+Math.sin(a)*d;
       if(x<BOUNDS.x0||x>BOUNDS.x1||z<BOUNDS.z0||z>BOUNDS.z1-30)continue;
       if(!def.fly&&BLOCK[cellOf(x,z)])continue;
@@ -813,12 +831,48 @@ class Game{
     }
     if(!this.nested){this.nested=true;this.push('nest');}
   }
+  startTel(a,tp,dx,dz,dist,alive){
+    const L=dist||1;let tel=[],T=1.8;
+    if(a.t===4){tel=[{k:'c',x:tp.x,z:tp.z,r:14}];T=1.7;}                                   // SLAM: lands where you stand
+    else if(a.t===12){tel=[{k:'l',x:a.x,z:a.z,dx:dx/L,dz:dz/L,w:9,len:150}];T=2.3;}        // BEAM: a long lane
+    else{for(const p of alive){const q=this.targetPos(p);tel.push({k:'c',x:q.x,z:q.z,r:10});for(let i=0;i<2;i++){const an=this.rand()*6.28,rr=8+this.rand()*14;tel.push({k:'c',x:q.x+Math.cos(an)*rr,z:q.z+Math.sin(an)*rr,r:10});}}tel=tel.slice(0,9);T=2.4;}   // METEORS
+    a.tel=tel;a.telT=T;a.telD=T;this.push('telwarn',a.t);
+  }
+  resolveTel(a,alive){
+    const dmg=(a.t===4?70:a.t===12?95:85)*(1+0.02*this.round);
+    this.push('telhit',a.t,r2(a.x),r2(a.z));
+    for(const sh of a.tel){if(sh.k==='c')this.push('blast',r2(sh.x),1,r2(sh.z));}
+    for(const p of alive){
+      const q=this.targetPos(p);if(p.y-EYE>5)continue;
+      let hit=false;
+      for(const sh of a.tel){
+        if(sh.k==='c'){if(Math.hypot(q.x-sh.x,q.z-sh.z)<sh.r+1)hit=true;}
+        else{const rx=q.x-sh.x,rz=q.z-sh.z,al=rx*sh.dx+rz*sh.dz,pe=Math.abs(rx*sh.dz-rz*sh.dx);if(al>0&&al<sh.len&&pe<sh.w/2+1)hit=true;}
+      }
+      if(hit)this.hurt(p,dmg,a.x,a.z);
+    }
+  }
+  bossDrop(a,killer){
+    const all=[...this.players.values()];
+    if(a.t===4){      // RESTOCK: full health, ammo, revives, cash
+      for(const q of all){if(q.st==='dead')continue;q.st='alive';q.hp=mhp(q);q.bleed=0;q.money+=1000;this.push('ammoall',q.id);}
+    }else if(a.t===12){   // a free perk for everyone
+      for(const q of all){
+        const opts=PERKS.filter(pk=>!q.perks[pk.id]&&(pk.req===undefined||q.perks[pk.req]));
+        if(opts.length){const pk=opts[Math.floor(this.rand()*opts.length)];q.perks[pk.id]=true;if(HP_TIERS.includes(pk.id))q.hp=Math.min(mhp(q),q.hp+50);this.push('perk',q.id,pk.id);}
+        else q.money+=5000;
+      }
+    }else if(a.t===17){   // every gun you own goes up a level
+      for(const q of all){for(let w=0;w<WPN.length;w++)if(q.wo[w]>=0&&q.wo[w]<MAXUP)q.wo[w]++;this.push('ammoall',q.id);}
+    }
+    this.push('bossdrop',a.t);
+  }
   explode(a){
     a.hp=0;this.push('blast',r2(a.x),r2(a.y+1),r2(a.z));
     for(const p of this.players.values()){
       if(p.st!=='alive')continue;
       const q=this.targetPos(p),d=Math.hypot(q.x-a.x,q.z-a.z);
-      if(d<10&&p.y-EYE<6)this.hurt(p,a.dmg*(1-d/14));
+      if(d<10&&p.y-EYE<6)this.hurt(p,a.dmg*(1-d/14),a.x,a.z);
     }
   }
   updateSniper(a,tp0,tp,dx,dz,dist,dt){
@@ -833,7 +887,7 @@ class Game{
       if(a.aim<=0){
         const hit=clear&&Math.hypot(tp.x-a.ax,tp.z-a.az)<5;       // keep moving and the shot misses
         this.push('snipe',a.id,r2(tp.x),r2(py),r2(tp.z),hit?1:0);
-        if(hit)this.hurt(tp0,a.dmg);
+        if(hit)this.hurt(tp0,a.dmg,a.x,a.z);
         a.cd=4.2;
       }
     }else if(a.cd<=0&&clear){a.aim=1.3;a.ax=tp.x;a.az=tp.z;this.push('aim',a.id,tp0.id,1.3);}
@@ -842,26 +896,26 @@ class Game{
     if(p.car>=0){const c=this.cars.find(c=>c.id===p.car);if(c)return{x:c.x,z:c.z,y:1+(c.y||0),car:c};}
     return{x:p.x,z:p.z,y:p.y-EYE,car:null};
   }
-  hurt(p,dmg){
+  hurt(p,dmg,sx,sz){
     if(p.st!=='alive')return;
     if(p.car>=0){
       const c=this.cars.find(c=>c.id===p.car);
       if(c){
-        c.hp-=dmg*0.8;this.push('carhit',p.id);
+        c.hp-=dmg*0.8;this.push('carhit',p.id,sx===undefined?0:r2(sx),sz===undefined?0:r2(sz),sx===undefined?0:1);
         if(c.hp<=0){
           this.push('boom',r2(c.x),2,r2(c.z),99,0);
           p.car=-1;p.hp-=25;this.cars.splice(this.cars.indexOf(c),1);
           p.x=c.x+3;p.z=c.z;this.push('tp',p.id,r2(p.x),r2(p.z));
           this.push('hurt',p.id,25);
-          if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;}
+          if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.dn=(p.dn|0)+1;}
         }
         return;
       }
     }
     if(p.perks&&p.perks[6])dmg*=0.75;
-    p.hp-=dmg;p.lastHit=this.time;
-    this.push('hurt',p.id,Math.round(dmg));
-    if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.car=-1;this.push('down',p.id);}
+    p.hp-=dmg;p.lastHit=this.time;p.dt=(p.dt||0)+dmg;
+    this.push('hurt',p.id,Math.round(dmg),sx===undefined?0:r2(sx),sz===undefined?0:r2(sz),sx===undefined?0:1);
+    if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.car=-1;p.dn=(p.dn|0)+1;this.push('down',p.id);}
   }
   fireOrb(a,tx,ty,tz,spread,speed,dmg){
     let ox=a.x,oy=a.y+a.cy+(a.t===4?1.5:0.4),oz=a.z;
@@ -890,7 +944,7 @@ class Game{
           if(q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&this.time-q.rvT<0.35&&Math.hypot(q.x-p.x,q.z-p.z)<5)reviving=true;
         }
         p.rvProg=reviving?p.rvProg+dt*(plist.some(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&q.perks[1])?2:1):Math.max(0,p.rvProg-dt*2);
-        if(p.rvProg>=3){p.st='alive';p.hp=55;p.rvProg=0;p.lastHit=this.time;this.push('revived',p.id);}
+        if(p.rvProg>=3){const rvr=plist.find(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id);if(rvr)rvr.rvd=(rvr.rvd|0)+1;p.st='alive';p.hp=55;p.rvProg=0;p.lastHit=this.time;this.push('revived',p.id);}
         else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';p.oc=0;this.push('died',p.id);}
       }
     }
@@ -904,6 +958,7 @@ class Game{
     }
 
     if(this.state==='rest'){
+      if(!this.sides)this.sides=this.pickSides();
       this.timer-=dt;
       if(this.timer<=0)this.startRound();
     }else if(this.state==='over'){
@@ -1036,7 +1091,7 @@ class Game{
         if(dist<reach+(tp.car?1.8:0.4)&&dy<4&&a.cd<=0&&(def.fly||tp0.y-EYE<6)){
           a.cd=def.fly?1.1:(def.biter?0.55:0.9);
           if(def.bomb){this.explode(a);a.cd=9;}
-          else this.hurt(tp0,a.dmg);
+          else this.hurt(tp0,a.dmg,a.x,a.z);
         }
       }
       if(def.ranged&&a.cd<=0&&dist<60){
@@ -1077,11 +1132,20 @@ class Game{
           }
         }
       }
+      if(def.boss){   // telegraphed special attack: red zones show where it will land
+        if(a.tel){
+          a.telT-=dt;
+          if(a.telT<=0){this.resolveTel(a,alive);a.tel=null;a.atkT=a.t===4?7:a.t===12?9:11;}
+        }else{
+          a.atkT=(a.atkT===undefined?4:a.atkT)-dt;
+          if(a.atkT<=0&&dist<130)this.startTel(a,tp,dx,dz,dist,alive);
+        }
+      }
       if(def.stomp){ // shockwave
         a.stomp-=dt;
         const R=def.stomp;
         if(a.stomp<=0&&dist<R){a.stomp=6;this.push('stomp',r2(a.x),r2(a.z));
-          for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5)this.hurt(p,a.t===17?95:a.t===12?70:a.t===4?35:30);}}
+          for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5)this.hurt(p,a.t===17?95:a.t===12?70:a.t===4?35:30,a.x,a.z);}}
       }
       if(def.summon){ // the Overmind calls its swarm
         a.sumT=(a.sumT===undefined?4:a.sumT)-dt;
@@ -1126,7 +1190,7 @@ class Game{
         const tp=this.targetPos(p);
         const hr=tp.car?2.6:1.1;
         if(Math.hypot(o.x-tp.x,o.z-tp.z)<hr&&Math.abs(o.y-(tp.car?1.2+(tp.car.y||0):p.y-EYE*0.5))<(tp.car?2.2:2.0)){
-          this.hurt(p,o.dmg);dead=true;break;
+          this.hurt(p,o.dmg,o.x-o.vx*0.3,o.z-o.vz*0.3);dead=true;break;
         }
       }
       if(dead)this.orbs.splice(i,1);
@@ -1198,7 +1262,7 @@ class Game{
         if(c.hp<=0){
           this.push('boom',r2(c.x),2,r2(c.z),99,0);
           p.car=-1;p.hp-=25;this.cars.splice(i,1);p.x=c.x+3;p.z=c.z;this.push('tp',p.id,r2(p.x),r2(p.z));
-          if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;}
+          if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.dn=(p.dn|0)+1;}
         }
       }
     }
@@ -1208,10 +1272,10 @@ class Game{
     const ev=this.ev;this.ev=[];
     return{
       t:'snap',tm:r2(this.time),
-      rd:{w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
+      rd:{sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed)})),
-      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0]),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
+      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
       g:this.clouds.map(c=>[c.id,r2(c.x),r2(c.y),r2(c.z),r2(c.r),r2(c.life)]),
@@ -1222,6 +1286,6 @@ class Game{
 }
 
 const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
-  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
+  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);

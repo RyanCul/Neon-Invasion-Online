@@ -129,3 +129,16 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 ### Latest: jetpack tank upgrades + taller buildings
 - The jetpack now starts with 4s of fuel. A garage entry "JETPACK FUEL +2s" upgrades it three times ($1,500 / $3,000 / $5,000) up to 10s. Resets on death/new game.
 - Enterable buildings are now 20-23 tall (were 11-13).
+
+### Latest: minimap arrows, readable shop menus, safer spawns
+- Minimap: every awake alien that is off the map now gets a green edge arrow (merged by direction). The pink building arrows are gone.
+- Armory / Perk Tower / Garage menus: bigger, higher-contrast text in a fixed-size panel (8 visible rows, fixed-height description) so the box no longer resizes as you scroll.
+- Aliens spawn at least 44 units away in round 1, rising to 62 by round 6 (was 30), and early rounds spawn closer, so round starts don't drop a mob on top of you.
+
+### Latest: wave warning, hit arcs, mystery box, boss attacks, spectator cams, stats
+- **Wave warning:** the last 3 seconds before a round show "WAVE INCOMING" with a countdown and red arrows pointing to the side(s) aliens will spawn from (most of the wave comes from there; 2 sides from round 8). Arrows stay for 4 seconds after the wave starts.
+- **Hit direction:** a red arc on the screen edge points toward whatever hit you (works in cars too).
+- **Mystery box:** a glowing gold box with a light beam sits inside the enterable building farthest from the shops. $950 for a random weapon; if you already own it, it upgrades one MK level; maxed guns get an ammo refill.
+- **Boss variety:** telegraphed red danger zones before special attacks - BOSS: SLAM (a circle lands on you), GODZILLA: DEATH BEAM (a long lane), OVERMIND: METEOR RAIN (circles on every player). Unique team drops on death: BOSS = full restock/revive/+$1000, GODZILLA = free perk each, OVERMIND = every gun +1 MK.
+- **Spectating:** press V while dead to cycle CHASE / FIRST PERSON / OVERHEAD / FREE CAM.
+- **Post-game stats:** kills, damage dealt, revives, times downed and boss kills per player, with a star MVP for crews of 2+.
