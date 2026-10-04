@@ -1299,7 +1299,7 @@ addEventListener('mousemove',e=>{
 });
 /* ---------- controller (Gamepad API, standard mapping) ----------
    Left stick move/steer | Right stick look | RT fire | LT reload/refuel | A jump/jet up | B hover
-   X use/revive | Y go to base | LB/RB weapon | L3 sprint | D-pad: up=base, left=shop, right=car cam, down=skins | Start=skins */
+   X use/revive | Y = E (use) | LB/RB weapon | L3 sprint | D-pad: up=base, left=shop, right=car cam, down=skins | Start=skins */
 let padPrev=[],padRT=false;
 const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<NW;i++){w=(w+dir+NW)%NW;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
@@ -1333,11 +1333,11 @@ function pollPad(dt){
   if(driving>=0){const hc=carsM.get(driving);if(hc&&CARS[hc.t].kind==='heli'){me.yaw-=rx*dt*2.6;cs.pitch=clamp(cs.pitch-ry*dt*1.8,-1.0,0.6);}}
   else{ me.yaw-=rx*dt*3.0*fast; me.pitch=clamp(me.pitch-ry*dt*2.3,-1.5,1.5); }
   const hel=driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli';
-  setK('Space',(driving<0||hel)&&B(0));setK('KeyC',(driving<0||hel)&&B(1));setK('KeyE',B(2));setK('ShiftLeft',B(10));
+  setK('Space',(driving<0||hel)&&B(0));setK('KeyC',(driving<0||hel)&&B(1));setK('KeyE',B(2)||B(3));setK('ShiftLeft',B(10));
   const rt=(driving<0||hel)&&V(7)>0.35;
   if(rt!==padRT){padRT=rt;mouseDown=rt;if(rt)mousePressed=0.15;}
   if(edge(2)){if(canInteract())interact();else startReload();}
-  if(edge(3)&&!garageActive())goBase();
+  if(edge(3))interact();   // Y is always the same as the E key
   aiming=driving<0&&V(6)>0.35;
   if(edge(4))cycleW(-1);
   if(edge(5))cycleW(1);
