@@ -171,7 +171,7 @@ body.playing #pauseB{display:block}
 #menu #lvbox .xb{height:28px;border-width:3px;margin:4px 0}
 #menu #nameLab{font-size:16px;letter-spacing:6px}
 #lvbtns{display:flex;gap:6px;flex-wrap:nowrap;width:max-content}
-#menu button.sm#bCust,#menu button.sm#bFr{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
+#menu button.sm#bCust,#menu button.sm#bFr,#menu button.sm#bAch{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
 #howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
@@ -336,7 +336,7 @@ body.playing #pauseB{display:block}
 <div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pFr" class="alt">FRIENDS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
-  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bFr">FRIENDS</button></div><div id="lvnote"></div></div>
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bFr">FRIENDS</button><button class="c sm" id="bAch">ACHIEVEMENTS</button></div><div id="lvnote"></div></div>
   <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button></div>
   <h1>NEON INVASION</h1>
   <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
@@ -384,8 +384,8 @@ body.playing #pauseB{display:block}
 <div id="osk"><div class="pv" id="oskPv"></div><div id="oskKeys"></div><small id="oskHint"></small></div>
 <div id="frp"><div class="fbox"><h2>FRIENDS</h2><div id="frbody"></div><button id="frClose">CLOSE</button></div></div>
 <div id="lbp"><div class="lbox"><h2>LEADERBOARD</h2><div id="lbbody">Loading...</div><button id="lbClose">CLOSE</button></div></div>
-<div id="locker"><div class="lbox"><h2>CUSTOMIZE</h2>
-<div id="lktabs" class="navtabs"><div data-p="0">CHARACTER</div><div data-p="1">PROFILE</div><div data-p="2">WEAPONS &amp; CARS</div><div data-p="3">ACHIEVEMENTS</div></div>
+<div id="locker"><div class="lbox"><h2 id="lkh">CUSTOMIZE</h2>
+<div id="lktabs" class="navtabs"><div data-p="0">CHARACTER</div><div data-p="1">PROFILE</div><div data-p="2">WEAPONS &amp; CARS</div></div>
 <p id="lkinfo"></p>
 <div class="lkp" id="lkp0"><div id="chwrap"><canvas id="chprev" width="400" height="520"></canvas><div id="chside"><div id="chtabs"></div><div id="chgrid"></div></div></div></div>
 <div class="lkp" id="lkp1"><div id="pfprev"></div><div id="pftabs" class="subtabs"></div><div id="pfgrid" class="grid"></div></div>
@@ -2338,7 +2338,7 @@ function showOverSummary(roundNum){
   if(unl.length)html+='<div class="unl">NEW SKIN UNLOCKED: '+unl.map(s=>s.name).join(', ')+'  (press K)</div>';
   { const names=[];NI.CH_LISTS.forEach((l,i)=>{for(const s of l)if(s.lvl>before.L&&s.lvl<=after.L)names.push(s.name);});
     if(names.length)html+='<div class="unl">NEW STYLE UNLOCKED: '+names.join(', ')+'  (press K)</div>'; }
-  if(sessAch.length)html+='<div class="unl">ACHIEVEMENTS: '+sessAch.map(a=>a.n).join(', ')+'  (CUSTOMIZE)</div>';
+  if(sessAch.length)html+='<div class="unl">ACHIEVEMENTS: '+sessAch.map(a=>a.n).join(', ')+'  (ACHIEVEMENTS)</div>';
   if(unlC.length)html+='<div class="unl">NEW CAR DESIGN UNLOCKED: '+unlC.map(s=>s.name).join(', ')+'  (press K)</div>';
   $('overXP').innerHTML=PT(html);
   const bar=$('overXP').querySelector('.xb i');
@@ -2403,7 +2403,7 @@ function kfxBurst(id,x,y,z){
     case 9:[0xff2040,0xff9a3c,0xffe63c,0x3cff9e,0x25f4ff,0xa56bff,0xff2fa0].forEach(c=>B(c,6,18,1));break;
   }
 }
-/* ---- the CUSTOMIZE screen (tabs: CHARACTER / PROFILE / WEAPONS & CARS / ACHIEVEMENTS) ---- */
+/* ---- the CUSTOMIZE screen (tabs: CHARACTER / PROFILE / WEAPONS & CARS; ACHIEVEMENTS opens on its own from the menu) ---- */
 let lkTab=0,pfTab=0,gnTab=0,acTab=0;
 const PF_TABS=['TITLE','BADGE','NAME COLOR','FRAME'],GN_TABS=['GUN SKINS','GUN CAMOS','KILL EFFECTS','CAR DESIGNS'];
 const AC_TABS=[['COMBAT',['k','cr']],['BOSSES & TEAM',['bo','rv']],['SURVIVAL',['br','rt','gm']],['WEAPONS',['w']],['DRIVING',['rk']]];
@@ -2490,9 +2490,9 @@ function startChPrev(){
   const tick=()=>{if(!lockerOpen||!chPrev)return;const t=performance.now()/1000;chPrev.g.rotation.y=t*0.9;cosTick(chPrev.g,t);chPrev.rd.render(chPrev.sc,chPrev.cm);requestAnimationFrame(tick);};
   tick();
 }
-function openLocker(){
-  lockerOpen=true;lkTab=0;for(const k in keys)keys[k]=false;mouseDown=false;
-  renderLocker();renderChar();$('locker').style.display='flex';startChPrev();$('lock').style.display='none';
+function openLocker(ach){
+  lockerOpen=true;lkTab=ach?3:0;$('lkh').textContent=ach?'ACHIEVEMENTS':'CUSTOMIZE';$('lktabs').style.display=ach?'none':'';for(const k in keys)keys[k]=false;mouseDown=false;
+  renderLocker();renderChar();$('locker').style.display='flex';if(!ach)startChPrev();$('lock').style.display='none';
   try{document.exitPointerLock();}catch(e){}
 }
 function closeLocker(){
@@ -2971,7 +2971,7 @@ const padK={};function setK(c,v){if(padK[c]!==v){padK[c]=v;keys[c]=v;}}
 /* ===== controller navigation for every menu (D-pad / left stick move, A select, B back, LB/RB switch tabs) ===== */
 const UI_ORDER=['osk','frp','settings','howto','locker','lbp','pauseO','menu'];
 const UI_CLOSE={frp:'frClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume'};
-const UI_DEF={menu:'#bSolo',pauseO:'#pResume',locker:'#lktabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
+const UI_DEF={menu:'#bSolo',pauseO:'#pResume',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
 function uiLayer(){for(const id of UI_ORDER){const el=$(id);if(!el)continue;if(id==='menu'&&started)continue;if(getComputedStyle(el).display!=='none')return el;}return null;}
 function uiFocusables(layer){
   return [...layer.querySelectorAll('button,input,a#discord,.sk,.navtabs div,.subtabs div,#chtabs div')].filter(el=>{
@@ -3925,6 +3925,7 @@ function frame(now){
   const getName=()=>{if(acct)$('name').value=acct.name;const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
   if(!$('name').value)$('name').focus();
+  $('bAch').onclick=()=>{openLocker(true);$('locker').scrollTop=0;};
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};

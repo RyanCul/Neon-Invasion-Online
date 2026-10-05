@@ -251,7 +251,7 @@ Eight kinds of buildings are now fully dressed (batched decor, so it stays fast)
 - Opening it fills in the room code and shows "YOU WERE INVITED"; the player types a name (if new) and presses CREATE / JOIN ROOM.
 
 ## Achievements & cosmetics
-CUSTOMIZE has four tabs: CHARACTER, PROFILE, WEAPONS & CARS, ACHIEVEMENTS. Titles, badges, name colours, frames, weapon camos and kill effects unlock by level or by earning achievements (kills, revives, bosses, rounds, weapon kills). Earned-only items are shown in the ACHIEVEMENTS tab. Your name chips show in the lobby, team HUD, friends list and above your head in 3D.
+CUSTOMIZE has three tabs: CHARACTER, PROFILE, WEAPONS & CARS. ACHIEVEMENTS is its own button on the home screen next to FRIENDS. Titles, badges, name colours, frames, weapon camos and kill effects unlock by level or by earning achievements (kills, revives, bosses, rounds, weapon kills). Earned-only items are shown in the ACHIEVEMENTS tab. Your name chips show in the lobby, team HUD, friends list and above your head in 3D.
 
 ## Controller menus
 Every menu works with a controller, including the home screen. D-pad/left stick moves, A selects, B goes back, LB/RB switch main tabs, LT/RT switch sub-tabs, left/right adjusts sliders. Text fields open an on-screen keyboard. Pressing A on the title screen with nothing focused starts solo.
