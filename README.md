@@ -236,3 +236,16 @@ Eight kinds of buildings are now fully dressed (batched decor, so it stays fast)
 - The home screen now has a single CUSTOMIZE button (the old Locker button is gone; K / D-pad down still open it in a game). It holds the character, gun skins and car designs.
 - Nine character categories now: suit colors, hats, sunglasses, Hawaiian shirts, jackets (linen/pastel blazers, bomber, letterman, leopard coat, chrome, gold tuxedo), chains and pendants, shoes (sneakers, high-tops, roller skates, rocket boots...), face items (mustache, headphones, hoop, neon paint, bandana, grill, antennae) and back items (surfboard, boombox, palm pack, rocket pack, capes, wings). Everything is level-gated, saved in the browser and sent to teammates, so co-op players see each other's outfits.
 - Controller awareness: as soon as you touch a controller, every on-screen hint switches to its own button names (Xbox: X / A / B ..., PlayStation: SQUARE / CROSS / CIRCLE ..., Switch: Y / B / A ...). Touch the keyboard or mouse and the hints switch back. The how-to-play controller table and the menu button follow the controller type.
+
+## Online accounts and friends
+
+- **FRIENDS** button (home menu and pause menu): log in or create a free account (name + password).
+- An account saves your level, looks (customize) and best round online, so it follows you to any device. XP only ever goes up.
+- Add friends by name; they accept from their own FRIENDS panel. Your list shows each friend's **level** and what they are doing: in a co-op room (with round and player count, plus a JOIN button), playing solo (round), in the menu, or offline.
+- Server: accounts are stored with the leaderboard. On free hosts the disk is wiped on redeploy, so set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (free Upstash Redis) on Render to keep accounts. Without them it falls back to `accounts.json` (`ACC_FILE` env to move it).
+- Note: progress is saved by the client, so XP is trusted (capped at 2,000,000).
+
+## Invite links
+
+- In a co-op room, the waiting room and the pause menu have a **COPY INVITE LINK** button. The link looks like `https://your-game-site/?room=ABCD`.
+- Opening it fills in the room code and shows "YOU WERE INVITED"; the player types a name (if new) and presses CREATE / JOIN ROOM.

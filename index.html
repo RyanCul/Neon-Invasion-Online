@@ -138,6 +138,7 @@ body.playing #radio{display:block}
 #down p{margin:6px 0;font-size:18px;letter-spacing:3px;color:#ffe6f6;text-shadow:0 0 8px #ff2fa0}
 #lobby{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,0,35,.72);text-align:center;z-index:6;color:#fff}
 #lobby h1{font-size:34px;letter-spacing:6px;color:#ff2fa0;text-shadow:0 0 18px #ff2fa0;margin:0 0 6px}
+#lbInv{margin:8px 0 2px;font:inherit;font-size:15px;font-weight:bold;letter-spacing:3px;padding:8px 20px;cursor:pointer;color:#fff;background:linear-gradient(#25c4d0,#16707a);border:2px solid #9ffcff}
 #lbCode{font-size:64px;font-weight:bold;letter-spacing:14px;color:#25f4ff;text-shadow:0 0 20px #25f4ff;margin-left:14px}
 #lbSub{font-size:13px;letter-spacing:3px;color:#d6b8ff;margin-bottom:14px}
 #lbPlayers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:560px;margin-bottom:16px}
@@ -170,7 +171,7 @@ body.playing #pauseB{display:block}
 #menu #lvbox .xb{height:28px;border-width:3px;margin:4px 0}
 #menu #nameLab{font-size:16px;letter-spacing:6px}
 #lvbtns{display:flex;gap:6px;flex-wrap:nowrap;width:max-content}
-#menu button.sm#bCust{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
+#menu button.sm#bCust,#menu button.sm#bFr{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
 #howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
@@ -183,6 +184,8 @@ body.playing #pauseB{display:block}
 #howto button{font:inherit;font-weight:bold;letter-spacing:3px;padding:8px 22px;margin-top:12px;cursor:pointer;color:#fff;background:#a5207a;border:2px solid #fff}
 #menu p{margin:3px 0;font-size:clamp(12px,1.5vw,16px);color:#e9d7ff;max-width:640px}
 #menu input{font:inherit;font-size:16px;letter-spacing:2px;padding:9px 12px;background:#1a0b33;color:#fff;border:2px solid #25f4ff;box-shadow:0 0 10px rgba(37,244,255,.5);text-align:center;width:min(300px,80vw);margin:5px;outline:none;text-transform:uppercase}
+#menu input#name{border-color:#ff2fa0;box-shadow:0 0 12px #ff2fa0}
+#menu button#bLB{background:linear-gradient(#39ff6a,#12a83a);border-color:#c8ffd6;box-shadow:0 0 14px #39ff6a;color:#06210f}
 #menu input#url{text-transform:none;width:min(380px,90vw);font-size:13px}
 #menu button{font:inherit;font-size:18px;font-weight:bold;letter-spacing:3px;font-style:italic;padding:11px 26px;margin:6px;cursor:pointer;color:#fff;background:linear-gradient(#ff2fa0,#a5207a);border:2px solid #ffb3d9;box-shadow:0 0 14px #ff2fa0}
 #menu button.c{background:linear-gradient(#25c4d0,#16707a);border-color:#9ffcff;box-shadow:0 0 14px #25f4ff}
@@ -237,6 +240,21 @@ body.playing #pauseB{display:block}
 .lbt td:nth-child(3),.lbt td:nth-child(4),.lbt th:nth-child(3),.lbt th:nth-child(4){text-align:right}
 .lbt tr.me td{color:#fff3b0;text-shadow:0 0 8px #ff9a3c;font-weight:bold}
 .lbt tr:nth-child(2) td:first-child{color:#ffd23c}
+#frp{position:fixed;inset:0;display:none;align-items:flex-start;justify-content:center;background:rgba(10,0,25,.92);z-index:13;overflow:auto;padding:14px}
+#frp .fbox{max-width:560px;width:100%;text-align:center}
+#frp h2{margin:0 0 8px;font-size:clamp(24px,4vw,38px);font-style:italic;letter-spacing:5px;color:#fff3b0;text-shadow:0 0 10px #ff9a3c}
+#frp input{font:inherit;font-size:16px;letter-spacing:2px;padding:8px 10px;margin:4px;width:min(220px,70%);text-align:center;background:#12062a;color:#fff;border:2px solid #25f4ff;text-transform:uppercase}
+#frp input[type=password]{text-transform:none}
+#frp button{font:inherit;font-size:14px;font-weight:bold;letter-spacing:2px;padding:7px 16px;margin:3px;cursor:pointer;color:#fff;background:linear-gradient(#ff2fa0,#a5207a);border:2px solid #ffb3d9}
+#frp button.c{background:linear-gradient(#1fa9b8,#0b5f78);border-color:#9ffcff}
+#frp button.g{background:#2a1a50;border-color:#6a52b0;font-size:12px;padding:5px 10px}
+#frp .fm{min-height:20px;margin:6px 0;color:#fff3b0;font-size:14px;letter-spacing:1px}
+#frp .fs{margin:12px 0 4px;color:#9ffcff;letter-spacing:4px;font-size:14px;text-align:left}
+#frp .fr{display:flex;align-items:center;gap:8px;padding:7px 10px;margin:3px 0;background:rgba(40,16,80,.7);border:1px solid #6a52b0;text-align:left;flex-wrap:wrap}
+#frp .fr b{font-size:17px;letter-spacing:2px;min-width:110px}
+#frp .fr .lv{color:#ff9a3c;font-weight:bold;min-width:52px}
+#frp .fr .st{flex:1;font-size:13px;letter-spacing:1px;min-width:120px}
+#frp .on{color:#7dff9a}#frp .so{color:#25f4ff}#frp .mn{color:#fff3b0}#frp .of{color:#8a7fb0}
 #lbp{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:12;overflow:auto;padding:14px}
 #lbp .lbox{max-width:520px;width:100%;text-align:center}
 #lbp h2{margin:0 0 10px;font-size:clamp(24px,4vw,40px);font-style:italic;letter-spacing:5px;color:#fff3b0;text-shadow:0 0 10px #ff9a3c}
@@ -270,7 +288,7 @@ body.playing #pauseB{display:block}
 
 <div id="radio"><span style="color:#fff3b0">NEON FM 98.6</span> &middot; Too Soon &mdash; Diamond Ace</div>
 <div id="down"><h1 id="downT">YOU'RE DOWN</h1><p id="downP"></p></div>
-<div id="lobby"><h1>WAITING ROOM</h1><div id="lbCode"></div><div id="lbSub">Tell your friends this room code</div><div id="lbPlayers"></div><button id="lbStart">START GAME</button><div id="lbHint"></div></div>
+<div id="lobby"><h1>WAITING ROOM</h1><div id="lbCode"></div><div id="lbSub">Tell your friends this room code</div><button id="lbInv" class="c">COPY INVITE LINK</button><div id="lbPlayers"></div><button id="lbStart">START GAME</button><div id="lbHint"></div></div>
 <div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
 <div id="contact"></div><canvas id="bigmap"></canvas><div id="wave"></div><div id="waveA"></div><div id="hitdir"></div>
 <div id="dnl"></div><div id="streak"></div><div id="wxban"></div><div id="spec"></div><div id="pkbar"></div>
@@ -278,10 +296,10 @@ body.playing #pauseB{display:block}
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
 <div id="lock">CLICK TO PLAY</div>
 <button id="pauseB">II MENU (TAB)</button>
-<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
+<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pFr" class="alt">FRIENDS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
-  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button></div><div id="lvnote"></div></div>
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bFr">FRIENDS</button></div><div id="lvnote"></div></div>
   <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button></div>
   <h1>NEON INVASION</h1>
   <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
@@ -324,6 +342,7 @@ body.playing #pauseB{display:block}
     </table></div>
   </div>
   <div style="text-align:center"><button id="howClose">CLOSE</button></div></div></div>
+<div id="frp"><div class="fbox"><h2>FRIENDS</h2><div id="frbody"></div><button id="frClose">CLOSE</button></div></div>
 <div id="lbp"><div class="lbox"><h2>LEADERBOARD</h2><div id="lbbody">Loading...</div><button id="lbClose">CLOSE</button></div></div>
 <div id="locker"><div class="lbox"><h2>CUSTOMIZE</h2><p id="lkinfo"></p><h3 class="lh">CHARACTER</h3><div id="chwrap"><canvas id="chprev" width="400" height="520"></canvas><div id="chside"><div id="chtabs"></div><div id="chgrid"></div></div></div><h3 class="lh">GUN SKINS</h3><div id="skgrid"></div><h3 class="lh">CAR DESIGNS</h3><div id="csgrid"></div><button id="lkClose">CLOSE</button></div></div>
 <div id="err">Couldn&rsquo;t load a required file (Three.js or shared.js). The first run needs an internet connection for the 3D library.</div>
@@ -2021,6 +2040,35 @@ function loadProf(){
     pend=parseInt(localStorage.getItem(PEND)||'0',10)||0;
   }catch(e){}
 }
+const AKEY='ni_acct_v1';
+let acct=null,curRound=1,bestRound=0,frData=null,frTimer=0;
+try{acct=JSON.parse(localStorage.getItem(AKEY)||'null');if(!acct||!acct.name||!acct.token)acct=null;}catch(e){acct=null;}
+try{bestRound=parseInt(localStorage.getItem('ni_best_v1')||'0',10)||0;}catch(e){}
+function apiBase(){let u=($('url').value||'').trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');}
+async function api(path,body){
+  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),20000);
+  try{const r=await fetch(apiBase()+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal,keepalive:true});
+    let j={};try{j=await r.json();}catch(e){}j.status=r.status;return j;}
+  catch(e){return{err:'Could not reach the server.',status:0};}finally{clearTimeout(to);}
+}
+function saveAcct(){try{if(acct)localStorage.setItem(AKEY,JSON.stringify(acct));else localStorage.removeItem(AKEY);}catch(e){}}
+function cloudProf(){return{xp:prof.xp+pend,skin:prof.skin,car:prof.car,ch:prof.ch,best:bestRound};}
+function adoptCloud(p){   // server profile -> this browser (xp only goes up, looks follow the account)
+  if(!p)return;
+  if((p.xp|0)>prof.xp)prof.xp=p.xp|0;
+  if(p.best>bestRound){bestRound=p.best|0;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
+  if(Array.isArray(p.ch))prof.ch=NI.CH_LISTS.map((l,i)=>p.ch[i]|0);
+  prof.skin=p.skin|0;prof.car=p.car|0;fixSkin();saveProf();
+  try{refreshLv();}catch(e){}
+}
+async function cloudSync(){
+  if(!acct)return null;
+  const st=(typeof started!=='undefined'&&started&&mode==='solo')?'solo':'menu';
+  const j=await api('/api/sync',{name:acct.name,token:acct.token,prof:cloudProf(),st,round:curRound});
+  if(j.status===401){acct=null;saveAcct();frData=null;return{err:'Signed out - please log in again.'};}
+  if(j.prof){adoptCloud(j.prof);frData={friends:j.friends||[],incoming:j.incoming||[],outgoing:j.outgoing||[]};}
+  return j;
+}
 function saveProf(){try{localStorage.setItem(PKEY,JSON.stringify(prof));localStorage.setItem(PEND,String(pend));}catch(e){}}
 function lvInfo(xp){let L=1,x=xp;while(L<NI.MAXLV&&x>=NI.xpNeed(L)){x-=NI.xpNeed(L);L++;}return{L,into:x,need:L>=NI.MAXLV?1:NI.xpNeed(L),max:L>=NI.MAXLV};}
 function commitPending(){if(pend>0){prof.xp+=pend;pend=0;saveProf();}}
@@ -2029,6 +2077,14 @@ function myLevel(){return lvInfo(prof.xp).L;}
 function hex6(c){return '#'+c.toString(16).padStart(6,'0');}
 function fixChar(){const L=myLevel();prof.ch=NI.CH_LISTS.map((l,i)=>{const v=prof.ch[i]|0;return(l[v]&&l[v].lvl<=L)?v:0;});}
 function profMsg(){return{t:'prof',lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch};}
+function inviteLink(){const b=location.href.split('#')[0].split('?')[0];return b+'?room='+encodeURIComponent(roomCode);}
+function copyInvite(btn){
+  const url=inviteLink(),old=btn.textContent;
+  const ok=()=>{btn.textContent='LINK COPIED!';setTimeout(()=>{btn.textContent=old;},1800);};
+  const fb=()=>{try{const ta=document.createElement('textarea');ta.value=url;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();const r=document.execCommand('copy');ta.remove();if(r){ok();return;}}catch(e){}prompt('Copy this invite link:',url);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,fb);else fb();
+}
+function acctJoin(){return acct?{acct:acct.name,tok:acct.token}:{};}
 function fixSkin(){fixChar();if(skinOf(prof.skin).lvl>myLevel())prof.skin=0;if(!NI.CSKINS[prof.car]||NI.CSKINS[prof.car].lvl>myLevel())prof.car=0;}
 loadProf();
 let loadNote='';
@@ -2037,7 +2093,7 @@ let loadNote='';
     loadNote='+'+earned+' XP saved from your last game'+(a.L>b.L?' - LEVEL UP to '+a.L+'!':'');}
   fixSkin();saveProf();
 })();
-window.addEventListener('pagehide',()=>{commitPending();});
+window.addEventListener('pagehide',()=>{commitPending();if(acct)try{cloudSync();}catch(e){}});
 window.addEventListener('beforeunload',()=>{commitPending();});
 
 /* ---------- networking ---------- */
@@ -2052,7 +2108,7 @@ function startOnline(url,room,name){
   mode='online';$('msg').textContent='Connecting...';
   try{ws=new WebSocket(url);}catch(e){$('msg').textContent='Bad server address.';return;}
   let opened=false;
-  ws.onopen=()=>{opened=true;ws.send(JSON.stringify({t:'join',room:room,name:name,lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch}));};
+  ws.onopen=()=>{opened=true;ws.send(JSON.stringify(Object.assign({t:'join',room:room,name:name,lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch},acctJoin())));};
   ws.onmessage=e=>{
     let m;try{m=JSON.parse(e.data);}catch(x){return;}
     if(m.t==='joined'){myId=m.id;roomCode=m.room;begin();}
@@ -2067,7 +2123,7 @@ function send(m){
   else if(ws&&ws.readyState===1)ws.send(JSON.stringify(m));
 }
 function begin(){
-  started=true;firstSnap=true;gameXP=0;lastK=0;$('menu').style.display='none';document.body.classList.add('playing');document.body.classList.toggle('solo',mode==='solo');
+  started=true;if(acct)setTimeout(cloudSync,400);firstSnap=true;gameXP=0;lastK=0;$('menu').style.display='none';document.body.classList.add('playing');document.body.classList.toggle('solo',mode==='solo');
   $('room').textContent=mode==='online'?'ROOM '+roomCode+' - tell friends this code':'SOLO';
   startSong();actx();
   requestLock();
@@ -2297,7 +2353,7 @@ function handleEvent(e){
     const big=e[4]===99||AT[e[4]].r>=2.5;
     burst(e[1],e[2],e[3],col,big?60:24,big?26:16,big?1.6:1);burst(e[1],e[2],e[3],0xffffff,10,12,0.8);
     big?sfx.boom():sfx.kill();
-  }else if(k==='round'){
+  }else if(k==='round'){curRound=e[1]|0;if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
     toast(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===3?'THE ULTIMATE ALIEN HAS ARRIVED - IT CALLS ITS SWARM':e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
     if(!nManual){nTarget=e[1]>=6?1:0;}
     if(e[1]===4)setTimeout(()=>toast('RUMOR','3 NEON TAPES ARE HIDDEN: THE FAR BEACH, THE TALLEST ROOF, AND INSIDE A BUILDING'),3300);
@@ -2329,7 +2385,7 @@ function handleEvent(e){
     const dm=Math.hypot(e[2]-me.x,e[4]-me.z);
     tone(2600,90,0.4,'sawtooth',e[5]&&dm<8?0.16:0.07);noise(0.3,e[5]&&dm<8?0.2:0.08,2500);
   }
-  else if(k==='over'){gameOverShown=true;showOverSummary(e[1]);if(mode==='solo')postSoloScore(e[1]-1,myP?myP.k:0);}
+  else if(k==='over'){if(e[1]-1>bestRound){bestRound=e[1]-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(x){}}gameOverShown=true;showOverSummary(e[1]);if(mode==='solo')postSoloScore(e[1]-1,myP?myP.k:0);}
   else if(k==='tp'){if(e[1]===myId){me.x=e[2];me.z=e[3];me.y=0;me.vy=0;gameOverShown=false;$('over').style.display='none';}}
   else if(k==='hurt'){if(e[1]===myId){hurtA=Math.min(1,0.4+e[2]/40);shake=Math.max(shake,Math.min(0.7,0.2+e[2]/90));sfx.hurt();if(e[5])addHitDir(e[3],e[4]);}}
   else if(k==='carhit'){if(e[1]===myId){hurtA=0.35;shake=0.2;sfx.hurt();if(e[4])addHitDir(e[2],e[3]);}}
@@ -2466,12 +2522,12 @@ let userPause=false;
 function setPause(v){
   if((mode!=='solo'&&mode!=='online')||!started||!S||S.rd.s==='over')v=false;
   userPause=v;$('pauseO').style.display=v?'flex':'none';
-  $('pTitle').textContent=mode==='solo'?'PAUSED':'MENU';$('pNote').style.display=(v&&mode==='online')?'block':'none';
+  $('pInv').style.display=mode==='online'&&roomCode?'block':'none';$('pTitle').textContent=mode==='solo'?'PAUSED':'MENU';$('pNote').style.display=(v&&mode==='online')?'block':'none';
   if(v){for(const k in keys)keys[k]=false;mouseDown=false;aiming=false;}
   if(v){try{document.exitPointerLock();}catch(e){}$('lock').style.display='none';}else if(started)requestLock();
 }
 $('pauseB').onclick=()=>setPause(true);$('pResume').onclick=()=>setPause(false);
-$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
+$('lbInv').onclick=e=>{e.stopPropagation();copyInvite($('lbInv'));};$('pInv').onclick=()=>copyInvite($('pInv'));$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
 function toggleSettings(force){
   const s=$('settings'),open=s.style.display==='flex',want=force===undefined?!open:force;
   s.style.display=want?'flex':'none';
@@ -3556,13 +3612,73 @@ function frame(now){
   const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&!/netlify|github\.io/.test(location.host);
   const def=onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:(location.protocol==='file:'?'ws://localhost:8080':'wss://neon-invasion-online.onrender.com');
   $('url').value=def;   // the address box is hidden now: always use the right server automatically
-  const getName=()=>{const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
+  const getName=()=>{if(acct)$('name').value=acct.name;const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
   if(!$('name').value)$('name').focus();
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
+  /* ---------- friends panel ---------- */
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let frMsg='';
+  const stTxt=f=>f.st==='room'?'<span class="on">IN A ROOM - ROUND '+f.round+(f.state==='wait'?' (LOBBY)':'')+' - '+f.pl+' PLAYING</span>':f.st==='solo'?'<span class="so">PLAYING SOLO - ROUND '+f.round+'</span>':f.st==='menu'?'<span class="mn">IN THE MENU</span>':'<span class="of">OFFLINE</span>';
+  function drawFr(){
+    const b=$('frbody');
+    if(!acct){
+      b.innerHTML='<div class="fm">Make a free account to save your level and looks online and add friends.<br>Your progress follows you to any device.</div>'+
+        '<input id="fn" maxlength="12" placeholder="NAME" autocomplete="off" spellcheck="false"><br><input id="fp" type="password" maxlength="40" placeholder="PASSWORD" autocomplete="off"><br>'+
+        '<button class="c" id="fLogin">LOG IN</button><button id="fReg">CREATE ACCOUNT</button><div class="fm" id="fmsg">'+esc(frMsg)+'</div>';
+      $('fn').value=($('name').value||'').trim().toUpperCase().replace(/^PLAYER$/,'');
+      const go=async reg=>{
+        const n=$('fn').value.trim(),p=$('fp').value;if(!n||!p){frMsg='Type a name and password.';$('fmsg').textContent=frMsg;return;}
+        $('fmsg').textContent='Working...';
+        const j=await api(reg?'/api/register':'/api/login',Object.assign({name:n,pass:p},reg?{xp:prof.xp+pend,skin:prof.skin,car:prof.car,ch:prof.ch}:{}));
+        if(!j.token){frMsg=j.err||'Something went wrong.';$('fmsg').textContent=frMsg;return;}
+        acct={name:j.prof.name,token:j.token};saveAcct();adoptCloud(j.prof);
+        frData={friends:j.friends||[],incoming:j.incoming||[],outgoing:j.outgoing||[]};
+        $('name').value=acct.name;try{localStorage.setItem('ni_name',acct.name);}catch(e){}
+        frMsg=reg?'Account created - your progress is saved online.':'Welcome back, '+acct.name+'!';
+        cloudSync().then(()=>{if($('frp').style.display==='flex')drawFr();});drawFr();
+      };
+      $('fLogin').onclick=()=>go(false);$('fReg').onclick=()=>go(true);
+      $('fp').onkeydown=e=>{if(e.key==='Enter')go(false);e.stopPropagation();};$('fn').onkeydown=e=>e.stopPropagation();
+      return;
+    }
+    const d=frData||{friends:[],incoming:[],outgoing:[]};
+    const ord={room:0,solo:1,menu:2,off:3};
+    const fl=d.friends.slice().sort((a,b)=>(ord[a.st]-ord[b.st])||a.n.localeCompare(b.n));
+    let h='<div class="fm">SIGNED IN AS <b>'+esc(acct.name)+'</b> - LEVEL '+myLevel()+(bestRound?' - BEST ROUND '+bestRound:'')+'</div>';
+    h+='<input id="fa" maxlength="12" placeholder="ADD A FRIEND BY NAME" autocomplete="off" spellcheck="false"><button class="c" id="fAdd">ADD</button><div class="fm" id="fmsg">'+esc(frMsg)+'</div>';
+    if(d.incoming.length){h+='<div class="fs">FRIEND REQUESTS</div>'+d.incoming.map(n=>'<div class="fr"><b>'+esc(n)+'</b><span class="st">WANTS TO BE FRIENDS</span><button class="c g" data-op="accept" data-t="'+esc(n)+'">ACCEPT</button><button class="g" data-op="decline" data-t="'+esc(n)+'">DECLINE</button></div>').join('');}
+    h+='<div class="fs">YOUR FRIENDS ('+fl.length+')</div>';
+    h+=fl.length?fl.map(f=>'<div class="fr"><b>'+esc(f.n)+'</b><span class="lv">LV '+f.l+'</span><span class="st">'+stTxt(f)+'</span>'+(f.st==='room'&&!started?'<button class="c g" data-join="'+esc(f.room)+'">JOIN</button>':'')+'<button class="g" data-op="remove" data-t="'+esc(f.n)+'" title="Remove">X</button></div>').join(''):'<div class="fm">No friends yet - add one by name above.</div>';
+    if(d.outgoing.length)h+='<div class="fs">SENT REQUESTS</div>'+d.outgoing.map(n=>'<div class="fr"><b>'+esc(n)+'</b><span class="st of">WAITING...</span><button class="g" data-op="cancel" data-t="'+esc(n)+'">CANCEL</button></div>').join('');
+    h+='<div style="margin-top:14px"><button class="g" id="fOut">LOG OUT</button></div>';
+    b.innerHTML=h;
+    const act=async(op,t)=>{
+      $('fmsg').textContent='Working...';
+      const j=await api('/api/friend',{name:acct.name,token:acct.token,op,target:t});
+      if(j.status===401){acct=null;saveAcct();frData=null;frMsg='Signed out - please log in again.';drawFr();return;}
+      if(j.friends)frData={friends:j.friends,incoming:j.incoming||[],outgoing:j.outgoing||[]};
+      frMsg=j.err||j.msg||'';drawFr();
+    };
+    $('fAdd').onclick=()=>{const t=$('fa').value.trim();if(t)act('add',t);};
+    $('fa').onkeydown=e=>{if(e.key==='Enter'){const t=$('fa').value.trim();if(t)act('add',t);}e.stopPropagation();};
+    b.querySelectorAll('[data-op]').forEach(el=>{el.onclick=()=>act(el.dataset.op,el.dataset.t);});
+    b.querySelectorAll('[data-join]').forEach(el=>{el.onclick=()=>{closeFr();$('room_in').value=el.dataset.join;$('bOnline').click();};});
+    $('fOut').onclick=()=>{acct=null;saveAcct();frData=null;frMsg='Logged out. Your progress stays saved on this device.';drawFr();};
+  }
+  function openFr(){frMsg='';$('frp').style.display='flex';drawFr();
+    if(acct){cloudSync().then(j=>{if($('frp').style.display==='flex'){if(j&&j.err)frMsg=j.err;drawFr();}});}
+    clearInterval(frTimer);frTimer=setInterval(()=>{if($('frp').style.display==='flex'&&acct&&document.activeElement.tagName!=='INPUT')cloudSync().then(()=>{if(acct&&document.activeElement.tagName!=='INPUT')drawFr();});},8000);}
+  function closeFr(){$('frp').style.display='none';clearInterval(frTimer);}
+  window.__openFr=openFr;
+  try{const rc=(new URLSearchParams(location.search).get('room')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+    if(rc){$('room_in').value=rc;$('msg').textContent='YOU WERE INVITED TO ROOM '+rc+' - '+($('name').value.trim()?'PRESS CREATE / JOIN ROOM':'TYPE YOUR NAME, THEN PRESS CREATE / JOIN ROOM');}}catch(e){}
+  $('bFr').onclick=openFr;$('pFr').onclick=openFr;$('frClose').onclick=closeFr;
+  if(acct){$('name').value=acct.name;cloudSync();}
+  setInterval(()=>{if(acct&&!document.hidden)cloudSync();},15000);
   $('bLB').onclick=async()=>{
     $('lbp').style.display='flex';$('lbbody').textContent='Loading...';
     try{

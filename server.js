@@ -13,6 +13,7 @@ const TYPES={'.html':'text/html; charset=utf-8','.js':'application/javascript; c
 const scoreHits=new Map();
 const server=http.createServer((req,res)=>{
   const url=req.url.split('?')[0];
+  if(url.startsWith('/api/')){handleApi(req,res,url);return;}
   if(url==='/health'){res.writeHead(200);res.end('ok');return;}
   if(url==='/score'){
     const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'POST,OPTIONS'};
@@ -100,6 +101,126 @@ function recordLB(list){
 const topLB=n=>lb.slice(0,n).map(x=>({n:x.n,r:x.r,k:x.k,l:x.l}));
 loadLB();
 
+
+/* ---------------- accounts, cloud saves and friends ----------------
+   Optional name + password accounts: they keep your level and outfit online and unlock the friends list.
+   Stored in accounts.json next to server.js, or in Upstash Redis when UPSTASH_REDIS_REST_URL / TOKEN are set
+   (use Upstash on free hosts like Render - local files are wiped on every restart there). */
+const crypto=require('crypto');
+const ACC_FILE=process.env.ACC_FILE||path.join(__dirname,'accounts.json');
+let accFile={},accTimer=null;
+const accCache=new Map();   // NAME -> account (kept in memory, written through)
+try{if(!(UP_URL&&UP_TOKEN)&&fs.existsSync(ACC_FILE)){accFile=JSON.parse(fs.readFileSync(ACC_FILE,'utf8'))||{};console.log('accounts loaded:',Object.keys(accFile).length);}}catch(e){console.error('could not load accounts',e.message);}
+async function accGet(key){
+  if(accCache.has(key))return accCache.get(key);
+  let a=null;
+  if(UP_URL&&UP_TOKEN){try{const j=await upstash(['GET','ni_acct:'+key]);if(j&&j.result)a=JSON.parse(j.result);}catch(e){console.error('acct get',e.message);}}
+  else a=accFile[key]||null;
+  if(a)accCache.set(key,a);
+  return a;
+}
+function accSave(a){
+  const key=a.name.toUpperCase();accCache.set(key,a);
+  if(UP_URL&&UP_TOKEN){upstash(['SET','ni_acct:'+key,JSON.stringify(a)]).catch(e=>console.error('acct save',e.message));}
+  else{accFile[key]=a;clearTimeout(accTimer);accTimer=setTimeout(()=>{try{fs.writeFileSync(ACC_FILE,JSON.stringify(accFile));}catch(e){console.error('could not save accounts',e.message);}},700);}
+}
+const sha=s=>crypto.createHash('sha256').update(s).digest('hex');
+const hashPw=(pw,salt)=>crypto.scryptSync(pw,salt,32).toString('hex');
+const lvOf=xp=>{let L=1,x=Math.max(0,xp|0);while(L<NI.MAXLV&&x>=NI.xpNeed(L)){x-=NI.xpNeed(L);L++;}return L;};
+const presence=new Map();   // NAME -> {t, st, round}   (solo play and menu heartbeats)
+const roomAccts=new Map();  // ws -> NAME for players inside online rooms
+function cleanAcctName(n){
+  n=String(n||'').replace(/[^\w\-]/g,'').trim().slice(0,12).toUpperCase();
+  const sq=n.replace(/[^A-Z]/g,'');
+  if(n.length<3||BAD.some(b=>sq.includes(b))||/^PLAYER\d*$/.test(n))return '';
+  return n;
+}
+const apiHits=new Map();
+function apiLimited(ip,max){const now=Date.now(),h=(apiHits.get(ip)||[]).filter(t=>now-t<60000);if(h.length>=max)return true;h.push(now);apiHits.set(ip,h);return false;}
+async function authed(m){
+  if(!m||typeof m.name!=='string'||typeof m.token!=='string')return null;
+  const a=await accGet(String(m.name).toUpperCase());
+  if(!a)return null;const h=sha(m.token);
+  return a.toks&&a.toks.includes(h)?a:null;
+}
+const profOf=a=>({name:a.name,xp:a.xp|0,skin:a.skin|0,car:a.car|0,ch:a.ch||[]});
+function whereIs(name){
+  for(const r of rooms.values())for(const [w,n] of roomAccts)if(n===name&&r.clients&&[...r.clients.values()].includes(w))return{st:'room',room:r.code,round:r.game.round|0,state:r.game.state,pl:r.clients.size};
+  const p=presence.get(name);
+  if(p&&Date.now()-p.t<45000)return{st:p.st,round:p.round|0};
+  return{st:'off'};
+}
+async function friendList(a){
+  const out=[];
+  for(const n of a.friends||[]){const f=await accGet(n);if(!f)continue;out.push({n:f.name,l:lvOf(f.xp),...whereIs(f.name.toUpperCase()),best:f.best|0});}
+  out.sort((x,y)=>(x.st==='off')-(y.st==='off')||y.l-x.l);
+  return{friends:out,incoming:(a.inReq||[]).slice(0,20),outgoing:(a.outReq||[]).slice(0,20)};
+}
+async function handleApi(req,res,url){
+  const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'POST,OPTIONS'};
+  const J=(code,obj)=>{res.writeHead(code,{...cors,'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(obj));};
+  if(req.method==='OPTIONS'){res.writeHead(204,cors);res.end();return;}
+  if(req.method!=='POST'){J(405,{err:'POST only'});return;}
+  const ip=req.socket.remoteAddress||'?';
+  const authUrl=url==='/api/login'||url==='/api/register';
+  if(apiLimited(ip+(authUrl?'a':url==='/api/sync'?'s':'f'),authUrl?12:url==='/api/sync'?30:40)){J(429,{err:'Slow down a little.'});return;}
+  let body='';req.on('data',d=>{body+=d;if(body.length>4000)req.destroy();});
+  req.on('end',async()=>{
+    let m;try{m=JSON.parse(body||'{}');}catch(e){J(400,{err:'bad request'});return;}
+    try{
+      if(url==='/api/register'){
+        const name=cleanAcctName(m.name),pw=String(m.pass||'');
+        if(!name){J(400,{err:'Pick a name of 3-12 letters or numbers.'});return;}
+        if(pw.length<4||pw.length>40){J(400,{err:'Password must be 4-40 characters.'});return;}
+        if(await accGet(name)){J(409,{err:'That name is taken.'});return;}
+        const salt=crypto.randomBytes(12).toString('hex'),token=crypto.randomBytes(20).toString('hex');
+        const a={name,salt,hash:hashPw(pw,salt),toks:[sha(token)],xp:Math.max(0,Math.min(2000000,m.xp|0)),skin:m.skin|0,car:m.car|0,ch:Array.isArray(m.ch)?m.ch.slice(0,12).map(v=>v|0):[],friends:[],inReq:[],outReq:[],best:0,created:Date.now()};
+        accSave(a);J(200,{token,prof:profOf(a),...await friendList(a)});return;
+      }
+      if(url==='/api/login'){
+        const name=String(m.name||'').replace(/[^\w\-]/g,'').toUpperCase(),a=await accGet(name);
+        if(!a||hashPw(String(m.pass||''),a.salt)!==a.hash){J(401,{err:'Wrong name or password.'});return;}
+        const token=crypto.randomBytes(20).toString('hex');a.toks=[...(a.toks||[]).slice(-4),sha(token)];accSave(a);
+        J(200,{token,prof:profOf(a),...await friendList(a)});return;
+      }
+      const a=await authed(m);
+      if(!a){J(401,{err:'Please log in again.'});return;}
+      if(url==='/api/sync'){   // heartbeat: save progress, report where I am, get my friends
+        if(m.prof&&typeof m.prof==='object'){
+          const p=m.prof;
+          if(Number.isFinite(+p.xp)&&+p.xp>(a.xp|0))a.xp=Math.min(2000000,Math.floor(+p.xp));
+          a.skin=p.skin|0;a.car=p.car|0;if(Array.isArray(p.ch))a.ch=p.ch.slice(0,12).map(v=>v|0);
+          if(Number.isFinite(+p.best)&&+p.best>(a.best|0))a.best=Math.min(300,Math.floor(+p.best));
+          accSave(a);
+        }
+        presence.set(a.name.toUpperCase(),{t:Date.now(),st:m.st==='solo'?'solo':'menu',round:Math.min(500,m.round|0)});
+        J(200,{prof:profOf(a),...await friendList(a)});return;
+      }
+      if(url==='/api/friend'){
+        const op=String(m.op||''),tn=String(m.target||'').replace(/[^\w\-]/g,'').toUpperCase(),me=a.name.toUpperCase();
+        const has=(arr,n)=>(arr||[]).some(x=>x.toUpperCase()===n),drop=(arr,n)=>(arr||[]).filter(x=>x.toUpperCase()!==n);
+        const t=await accGet(tn);
+        if(!t||tn===me){J(404,{err:'No player with that name.'});return;}
+        t.friends=t.friends||[];t.inReq=t.inReq||[];t.outReq=t.outReq||[];a.friends=a.friends||[];a.inReq=a.inReq||[];a.outReq=a.outReq||[];
+        if(op==='add'||op==='accept'){
+          if(has(a.friends,tn)){J(200,{msg:'Already friends.',...await friendList(a)});return;}
+          if(has(a.inReq,tn)||has(t.outReq,me)){   // they asked first: it is mutual now
+            a.inReq=drop(a.inReq,tn);t.outReq=drop(t.outReq,me);a.friends.push(t.name);t.friends.push(a.name);accSave(a);accSave(t);J(200,{msg:'You are now friends with '+t.name+'.',...await friendList(a)});return;
+          }
+          if(a.friends.length>=50){J(400,{err:'Friend list is full (50).'});return;}
+          if(!has(t.inReq,me)){t.inReq.push(a.name);if(t.inReq.length>30)t.inReq.shift();}
+          if(!has(a.outReq,tn))a.outReq.push(t.name);
+          accSave(a);accSave(t);J(200,{msg:'Request sent to '+t.name+'.',...await friendList(a)});return;
+        }
+        if(op==='decline'||op==='cancel'){a.inReq=drop(a.inReq,tn);a.outReq=drop(a.outReq,tn);t.outReq=drop(t.outReq,me);t.inReq=drop(t.inReq,me);accSave(a);accSave(t);J(200,{...await friendList(a)});return;}
+        if(op==='remove'){a.friends=drop(a.friends,tn);t.friends=drop(t.friends,me);accSave(a);accSave(t);J(200,{...await friendList(a)});return;}
+        J(400,{err:'bad op'});return;
+      }
+      J(404,{err:'unknown'});
+    }catch(e){console.error('api error',e);J(500,{err:'server error'});}
+  });
+}
+
 const wss=new WebSocketServer({server,maxPayload:8192});
 const rooms=new Map();   // code -> {code, game, clients:Map(id->ws), nid}
 
@@ -143,8 +264,10 @@ wss.on('connection',ws=>{
       if(!r){ws.send(JSON.stringify({t:'err',msg:'Server is full. Try again later.'}));return;}
       if(r.clients.size>=MAX_PER_ROOM){ws.send(JSON.stringify({t:'err',msg:'That room is full (8 players max).'}));return;}
       room=r;pid=r.nid++;r.clients.set(pid,ws);
-      r.game.addPlayer(pid,cleanName(m.name,pid));
-      r.game.setProfile(pid,m.lv,m.sk,m.ck,m.ch);
+      let pname=cleanName(m.name,pid),plv=m.lv;
+      if(m.acct&&m.tok){authed({name:m.acct,token:m.tok}).then(a=>{if(!a)return;roomAccts.set(ws,a.name.toUpperCase());a.last=Date.now();}).catch(()=>{});}
+      r.game.addPlayer(pid,pname);
+      r.game.setProfile(pid,plv,m.sk,m.ck,m.ch);
       ws.send(JSON.stringify({t:'joined',id:pid,room:r.code}));
       console.log(`[${r.code}] player ${pid} joined (${r.clients.size} in room)`);
       return;
@@ -153,7 +276,7 @@ wss.on('connection',ws=>{
   });
   ws.on('close',()=>{
     if(!room)return;
-    room.clients.delete(pid);room.game.removePlayer(pid);
+    roomAccts.delete(ws);room.clients.delete(pid);room.game.removePlayer(pid);
     console.log(`[${room.code}] player ${pid} left (${room.clients.size} in room)`);
     if(!room.clients.size){rooms.delete(room.code);console.log(`[${room.code}] closed`);}
   });
