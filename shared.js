@@ -221,8 +221,8 @@ const ACH=[
   {id:'rt100',n:'ROUND TRIPPER',d:'CLEAR 100 ROUNDS IN TOTAL',s:'rt',g:100},{id:'rt500',n:'MARATHON',d:'CLEAR 500 ROUNDS IN TOTAL',s:'rt',g:500}
 ];
 /* one achievement per boss: KILL THE <BOSS>; s:'bk' counts per boss type in st.bk[type] */
-const BOSS_TYPES=[[4,'BOSS',5],[14,'STALKER',6],[11,'TITAN',13],[18,'ALIEN SHARK',13],[23,'CARNIVAL BOSS',16],[12,'GODZILLA',20],[24,'THE BUTCHER',25],[22,'PIRATE CAPTAIN',26],[21,'CLEOPATRA',32],[17,'THE OVERMIND',50]];   // in order of the round each first shows up
-BOSS_TYPES.forEach(([t,nm,rd])=>{const the=(nm.indexOf('THE ')===0||nm==='GODZILLA'||nm==='CLEOPATRA')?nm:'THE '+nm;ACH.push({id:'bk'+t,n:nm+' DOWN',d:'KILL '+the,s:'bk',i:t,g:1});TITLES.push({id:TITLES.length,name:nm+' HUNTER',ach:'bk'+t});});
+const BOSS_TYPES=[[4,'BOSS',5,'♚','#ff2f4f'],[14,'STALKER',6,'✂','#c58cff'],[11,'TITAN',13,'♜','#ff9a3c'],[18,'ALIEN SHARK',13,'⚓','#25f4ff'],[23,'CARNIVAL BOSS',16,'☺','#ffe63c'],[12,'GODZILLA',20,'☄','#9dff3c'],[24,'THE BUTCHER',25,'⚔','#ff2f4f'],[22,'PIRATE CAPTAIN',26,'☠','#ffd23c'],[21,'CLEOPATRA',32,'☥','#ffc83c'],[17,'THE OVERMIND',50,'✺','#ff2fa0']];   // in order of the round each first shows up
+BOSS_TYPES.forEach(([t,nm,rd,sym,c])=>{const the=(nm.indexOf('THE ')===0||nm==='GODZILLA'||nm==='CLEOPATRA')?nm:'THE '+nm;ACH.push({id:'bk'+t,n:nm+' DOWN',d:'KILL '+the,s:'bk',i:t,g:1});TITLES.push({id:TITLES.length,name:nm+' HUNTER',ach:'bk'+t});BADGES.push({id:BADGES.length,name:nm+' TROPHY',ach:'bk'+t,sym,c});});
 const ACH_IDS=ACH.map(a=>a.id);
 const EXLISTS=[TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX];   // order of the ex[] array: title, badge, name colour, frame, camo, kill effect
 const EX_NAMES=['TITLE','BADGE','NAME COLOR','FRAME','GUN CAMO','KILL EFFECT'];
@@ -456,7 +456,7 @@ function genWorld(seed){
         dbox(cx,cz+22,9,6,4,0xff2fa0,{em:1});loot.push({x:cx,y:4+1.7,z:cz+22,t:1});
         loot.push({x:cx-20,y:1.3,z:cz+18,t:0});loot.push({x:cx+20,y:1.3,z:cz-18,t:0});
       }else if(kind==='maze'){
-        const M=5,C=10,ox=cx-25,oz=cz-25,V=[],H=[];
+        const M=5,C=8.5,ox=cx-21.25,oz=cz-21.25,V=[],H=[];   // 8.5-unit cells keep the maze clear of the corner shops
         for(let a=0;a<=M;a++){V.push(Array(M).fill(true));H.push(Array(M+1).fill(true));}
         // V[a][b]: wall left of cell (a,b); H[a][b]: wall above cell (a,b) (cells indexed [a][b], a=x,b=z)
         const seen=Array.from({length:M},()=>Array(M).fill(false)),st=[[0,0]];seen[0][0]=true;
@@ -470,7 +470,7 @@ function genWorld(seed){
         H[2][M]=false;H[2][0]=true;   // the entrance faces +z (south)
         for(let a=0;a<=M;a++)for(let b=0;b<M;b++)if(V[a][b])dbox(ox+a*C,oz+b*C+C/2,1.6,C+1.6,5,0x1fa84f,{});
         for(let a=0;a<M;a++)for(let b=0;b<=M;b++)if(H[a][b])dbox(ox+a*C+C/2,oz+b*C,C+1.6,1.6,5,0x1fa84f,{});
-        loot.push({x:cx,y:1.3,z:cz,t:1});loot.push({x:ox+5,y:1.3,z:oz+5,t:0});loot.push({x:ox+45,y:1.3,z:oz+5,t:0});
+        loot.push({x:cx,y:1.3,z:cz,t:1});loot.push({x:ox+C/2,y:1.3,z:oz+C/2,t:0});loot.push({x:ox+M*C-C/2,y:1.3,z:oz+C/2,t:0});
       }else if(kind==='drivein'){
         dbox(cx,cz-27,36,1.6,19,0x14102a,{scr:1});
         for(let rw=0;rw<3;rw++)for(let c=0;c<4;c++)dbox(cx-15+c*10,cz-14+rw*11,4.4,2.2,1.5,NEON6[(rw*4+c)%6],{em:1,tilt:1});
