@@ -547,7 +547,7 @@ const ferris=[];
       const gond=[];
       for(let k=0;k<12;k++){const a=k/12*6.283,gg=new THREE.Group();gg.position.set(Math.cos(a)*22,Math.sin(a)*22,0);
         const cab=new THREE.Mesh(new THREE.BoxGeometry(3,2.6,7),new THREE.MeshBasicMaterial({color:[0xffe63c,0xff9a3c,0x3cff9e,0xa56bff][k%4]}));cab.position.y=-1.8;gg.add(cab);spin.add(gg);gond.push(gg);}
-      ferris.push({spin,gond});
+      ferris.push({spin,gond,cx:t.cx,cz:t.cz});
     }
     if(t.k==='pond'){
       const w=new THREE.Mesh(new THREE.CircleGeometry(15,28),new THREE.MeshBasicMaterial({color:0x2fb4ff,transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false}));
@@ -729,8 +729,8 @@ function updateFx(dt){
 }
 
 /* ================= models ================= */
-const ACOL=[0x3cff9e,0xa56bff,0x25f4ff,0xff9a3c,0xff2fa0, 0xff4a3c,0xffe63c,0x7a8fb8,0xd8ffe8,0xff2040,0x6a2bd0,0xff3030,0x2fd86a,0xc0102a,0x24304f,0xffa23c,0x8a5a3a,0xb01cff,0x2fb4ff];
-const ASCALE=[0.85,0.85,1,1.5,2.8, 0.8,0.85,1.15,0.9,1.5,1.3,2.2,10.5,0.88,1.28,0.95,1,12.5,1];
+const ACOL=[0x3cff9e,0xa56bff,0x25f4ff,0xff9a3c,0xff2fa0, 0xff4a3c,0xffe63c,0x7a8fb8,0xd8ffe8,0xff2040,0x6a2bd0,0xff3030,0x2fd86a,0xc0102a,0x24304f,0xffa23c,0x8a5a3a,0xb01cff,0x2fb4ff,0xffb347];
+const ASCALE=[0.85,0.85,1,1.5,2.8, 0.8,0.85,1.15,0.9,1.5,1.3,2.2,10.5,0.88,1.28,0.95,1,12.5,1,1];
 function makeAlien(t){
   const g=new THREE.Group(),col=ACOL[t];
   const body=new THREE.MeshLambertMaterial({color:col,emissive:col,emissiveIntensity:0.35});
@@ -821,6 +821,17 @@ function makeAlien(t){
     for(const sx of[-1,1]){const hole=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.14,0.08),new THREE.MeshBasicMaterial({color:0x000000}));hole.position.set(sx*0.24,3.2,0.62);hum.add(hole);}
     const hair=new THREE.Mesh(new THREE.SphereGeometry(0.66,8,6),new THREE.MeshLambertMaterial({color:0x2a1608}));hair.scale.set(0.98,0.7,1.0);hair.position.set(0,3.5,-0.05);hum.add(hair);
     const kn=new THREE.Mesh(new THREE.BoxGeometry(0.1,1.5,0.3),new THREE.MeshBasicMaterial({color:0xf2f6ff}));kn.position.set(0,-1.55,0.3);kn.rotation.x=-0.4;o.arms[1].add(kn);
+  }
+  if(t===19){ // PIZZA ALIEN: chef hat, big mustache, holds a pizza out in front
+    const hat=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.45,0.9,10),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x888888,emissiveIntensity:0.4}));hat.position.set(0,3.95,0);hum.add(hat);
+    const puff=new THREE.Mesh(new THREE.SphereGeometry(0.62,8,6),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x888888,emissiveIntensity:0.4}));puff.position.set(0,4.45,0);hum.add(puff);
+    const mu=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.14,0.12),new THREE.MeshLambertMaterial({color:0x2a1608}));mu.position.set(0,2.85,0.6);hum.add(mu);
+    const pz=new THREE.Group();
+    const crust=new THREE.Mesh(new THREE.CylinderGeometry(0.95,0.95,0.12,16),new THREE.MeshLambertMaterial({color:0xe8a64a,emissive:0x6a4010,emissiveIntensity:0.4}));pz.add(crust);
+    const cheese=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,0.14,16),new THREE.MeshBasicMaterial({color:0xffd23c}));pz.add(cheese);
+    for(let i=0;i<6;i++){const pp=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.16,8),new THREE.MeshBasicMaterial({color:0xd8281c}));const an=i*1.05;pp.position.set(Math.cos(an)*0.45,0,Math.sin(an)*0.45);pz.add(pp);}
+    pz.position.set(0,-1.1,0.7);pz.rotation.x=-0.5;o.arms[1].add(pz);
+    o.arms[1].rotation.x=-1.0;o.sniperPose=true;
   }
   if(t===15){ // ROOF SNIPER: hood and a long scoped rifle
     const hood=new THREE.Mesh(new THREE.SphereGeometry(0.72,8,6),new THREE.MeshLambertMaterial({color:0x1a0b33}));hood.scale.set(1,1.1,1);hood.position.set(0,3.15,-0.05);hum.add(hood);
@@ -1150,7 +1161,7 @@ function checkSights(dt){
     const dx=newAlien.x-cx,dz=newAlien.z-cz,d=Math.hypot(dx,dz),pan=(dx*rx+dz*rz)/Math.max(d,1);
     const big=newAlien.t===18||newAlien.t===4||newAlien.t===12||newAlien.t===17||newAlien.t===14||newAlien.t===15;
     spotSting(newAlien,d,pan,newAlien.t===4||newAlien.t===12||newAlien.t===17||newAlien.t===14);
-    const el=$('contact');el.textContent=newAlien.t===18?'⚠ ALIEN SHARK':newAlien.t===14?'⚠ THE STALKER':newAlien.t===15?'⚠ ROOFTOP SNIPER':big?(newAlien.t===17?'⚠ THE OVERMIND IN SIGHT':newAlien.t===12?'⚠ GODZILLA ALIEN IN SIGHT':'⚠ BOSS IN SIGHT'):'⚠ CONTACT';
+    const el=$('contact');el.textContent=newAlien.t===19?'⚠ PIZZA DELIVERY':newAlien.t===18?'⚠ ALIEN SHARK':newAlien.t===14?'⚠ THE STALKER':newAlien.t===15?'⚠ ROOFTOP SNIPER':big?(newAlien.t===17?'⚠ THE OVERMIND IN SIGHT':newAlien.t===12?'⚠ GODZILLA ALIEN IN SIGHT':'⚠ BOSS IN SIGHT'):'⚠ CONTACT';
     el.className=big?'big show':'show';contactT=big?2.2:1.0;
   }
 }
@@ -1330,8 +1341,8 @@ function onServer(m){
   const os=new Set();
   for(const o of m.o){
     os.add(o[0]);let q=orbsM.get(o[0]);
-    if(!q){const sz=o[4]?1.6:0.55;
-      q={m:new THREE.Mesh(new THREE.SphereGeometry(sz,8,6),new THREE.MeshBasicMaterial({color:0xc6ff3c})),x:o[1],y:o[2],z:o[3]};
+    if(!q){const sz=o[4]===2?0.9:o[4]?1.6:0.55;
+      q={m:o[4]===2?pizzaMesh():new THREE.Mesh(new THREE.SphereGeometry(sz,8,6),new THREE.MeshBasicMaterial({color:0xc6ff3c})),x:o[1],y:o[2],z:o[3]};
       const gl=new THREE.Mesh(new THREE.SphereGeometry(sz*2.2,8,6),new THREE.MeshBasicMaterial({color:0x7aff3c,transparent:true,opacity:0.35,blending:THREE.AdditiveBlending,depthWrite:false}));q.m.add(gl);
       scene.add(q.m);orbsM.set(o[0],q);}
     q.tx=o[1];q.ty=o[2];q.tz=o[3];
@@ -1513,6 +1524,7 @@ function handleEvent(e){
   else if(k==='hurt'){if(e[1]===myId){hurtA=Math.min(1,0.4+e[2]/40);shake=Math.max(shake,Math.min(0.7,0.2+e[2]/90));sfx.hurt();if(e[5])addHitDir(e[3],e[4]);}}
   else if(k==='carhit'){if(e[1]===myId){hurtA=0.35;shake=0.2;sfx.hurt();if(e[4])addHitDir(e[2],e[3]);}}
   else if(k==='telwarn'){tone(220,170,0.6,'sawtooth',0.14);tone(330,250,0.6,'square',0.06);toast(e[1]===4?'BOSS SLAM!':e[1]===12?'DEATH BEAM!':'METEOR RAIN!',e[1]===4?'RUN OUT OF THE RED CIRCLE':e[1]===12?'GET OUT OF THE RED LANE':'MOVE - RED CIRCLES ARE COMING DOWN');}
+  else if(k==='pizza'){sfx.buy();toast('FREE SLICE!','the pizza alien dropped a healing slice');}
   else if(k==='telhit'){shake=Math.max(shake,0.45);}
   else if(k==='bossdrop'){sfx.buy();setTimeout(()=>sfx.buy(),160);toast('BOSS DROP: '+(e[1]===4?'FULL RESTOCK':e[1]===12?'FREE PERK':'WEAPON UPGRADE'),e[1]===4?'everyone healed, revived, reloaded +$1000':e[1]===12?'every player gets a random perk':'every gun you own goes up one level');}
   else if(k==='mbox'){if(e[1]===myId){setTimeout(()=>sfx.buy(),200);}}
@@ -1547,6 +1559,12 @@ function handleEvent(e){
 }
 let toastT=0;
 function lootMsg(kind,title,sub){const f=$('lootstack'),d=document.createElement('div');d.className='lp '+kind;d.innerHTML=title+(sub?'<small>'+sub+'</small>':'');f.appendChild(d);setTimeout(()=>d.remove(),2100);while(f.children.length>3)f.firstChild.remove();}
+function pizzaMesh(){
+  const g=new THREE.Group(),cr=new THREE.Mesh(new THREE.CylinderGeometry(0.95,0.95,0.14,16),new THREE.MeshBasicMaterial({color:0xe8a64a}));g.add(cr);
+  const ch=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,0.16,16),new THREE.MeshBasicMaterial({color:0xffd23c}));g.add(ch);
+  for(let i=0;i<6;i++){const pp=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.18,8),new THREE.MeshBasicMaterial({color:0xd8281c}));const an=i*1.05;pp.position.set(Math.cos(an)*0.45,0,Math.sin(an)*0.45);g.add(pp);}
+  g.rotation.x=0.6;return g;
+}
 const telMat=op=>new THREE.MeshBasicMaterial({color:0xff2040,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide});
 function updTel(o){
   const t=o.tel;
@@ -1692,6 +1710,23 @@ const padObjs=[];
 })();
 function updatePads(dt){
   for(const p of padObjs){p.ar.forEach((a,i)=>{a.position.y=1+((elapsed*2+i*0.45)%1.4)*2.2;a.material.opacity=1-((elapsed*2+i*0.45)%1.4)/1.4;});}
+}
+let ride=null;const _gp=new THREE.Vector3();
+function nearWheel(){if(!myP||myP.st!=='alive'||driving>=0||me.y>3||ride)return null;return ferris.find(f=>Math.hypot(f.cx-me.x,f.cz-me.z)<13)||null;}
+function gondolaPos(f,k){f.spin.parent.updateMatrixWorld(true);f.gond[k].getWorldPosition(_gp);return{x:_gp.x,y:_gp.y-2.95,z:_gp.z};}
+function startRide(f){
+  let best=0,by=1e9;for(let k=0;k<f.gond.length;k++){const p=gondolaPos(f,k);if(p.y<by){by=p.y;best=k;}}
+  ride={f,k:best,t:0};me.vx=me.vy=me.vz=0;sfx.buy();toast('CRYSTAL WHEEL','ENJOY THE VIEW - [E] TO GET OFF - YOU STEP OFF AT THE BOTTOM AFTER ONE TURN');
+}
+function stopRide(toGround){
+  if(!ride)return;const f=ride.f;ride=null;me.vy=0;
+  if(toGround){me.x=f.cx;me.z=f.cz+12;me.y=0;}
+}
+function updateRide(dt){
+  if(!myP||myP.st!=='alive'||driving>=0){ride=null;return;}
+  ride.t+=dt;const p=gondolaPos(ride.f,ride.k);
+  me.x=p.x;me.y=p.y;me.z=p.z;me.vx=me.vy=me.vz=0;
+  if(ride.t>53&&p.y<9)stopRide(true);   // one full turn (2*PI/0.12 = ~52s), then step off at the bottom
 }
 function nearMbox(){const m=NI.WORLD.mbox;if(!m||!myP||me.y>3)return null;return Math.hypot(m.x-me.x,m.z-me.z)<4.2?m:null;}
 function nearVend(){if(!myP||me.y>3)return null;return NI.HOUSES.find(h=>Math.hypot(h.vx-me.x,h.vz-me.z)<3.8)||null;}
@@ -1930,10 +1965,12 @@ function garageMove(d){menuMove(d);}
 function canInteract(){
   if(!myP||myP.st!=='alive')return false;
   const car=nearCar();
-  return !!(nearStation()||nearMbox()||nearVend()||nearDown()||(car!==null&&carsM.get(car)&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5));
+  return !!(ride||nearWheel()||nearStation()||nearMbox()||nearVend()||nearDown()||(car!==null&&carsM.get(car)&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5));
 }
 function interact(){
   if(!myP||dead)return;
+  if(ride){stopRide(false);return;}
+  if(nearWheel()&&!nearStation()){startRide(nearWheel());return;}
   if(driving>=0){send({t:'exit'});return;}
   if(myP.st!=='alive')return;
   const car=nearCar(),st=nearStation();
@@ -2238,6 +2275,15 @@ function drawMini(){
     mg.fillStyle='#3cff3c';mg.strokeStyle='#0a3a0a';mg.lineWidth=1.5;
     mg.beginPath();mg.moveTo(7,0);mg.lineTo(-5,-5);mg.lineTo(-5,5);mg.closePath();mg.fill();mg.stroke();mg.restore();
   }
+  // blue edge arrows for teammates who are off the minimap
+  for(const r of remotes.values()){
+    if(!r.p||r.p.st==='dead')continue;
+    const rx=r.x!==undefined?r.x:r.tx,rz=r.z!==undefined?r.z:r.tz;if(rx===undefined)continue;
+    const dx=rx-me.x,dz=rz-me.z;if(Math.abs(dx)<R&&Math.abs(dz)<R)continue;
+    const a=Math.atan2(dz,dx);
+    mg.save();mg.translate(90+Math.cos(a)*80,90+Math.sin(a)*80);mg.rotate(a);
+    mg.fillStyle='#3c8cff';mg.strokeStyle='#ffffff';mg.lineWidth=1.5;mg.beginPath();mg.moveTo(8,0);mg.lineTo(-5,-6);mg.lineTo(-5,6);mg.closePath();mg.fill();mg.stroke();mg.restore();
+  }
   // green edge arrows for every awake alien that is off the minimap (merged when they are in the same direction)
   {const seen=[];
     for(const o of aliensM.values()){
@@ -2321,6 +2367,8 @@ function updateHUD(dt){
     const car=nearCar(),st=nearStation();
     if(dn){txt='HOLD [E] REVIVE '+dn.p.n;if(dn.p.rp>0){$('revbar').style.display='block';$('revbar').firstChild.style.width=Math.min(100,dn.p.rp/3*100)+'%';}}
     else if(car!==null&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5)txt='[E] ENTER '+CARS[carsM.get(car).t].name;
+    else if(ride){txt='[E] GET OFF<small>you step off at the bottom after one full turn</small>';}
+    else if(nearWheel()&&!st){txt='[E] RIDE THE CRYSTAL WHEEL<small>a slow ride with a great view</small>';}
     else if(nearMbox()&&!st){no=myP.m<NI.MBOX_COST;txt='[E] MYSTERY BOX $'+NI.MBOX_COST+'<small>a random weapon - or a free upgrade if you already own it</small>';}
     else if(nearVend()&&!st){const full=myP.hp>=(myP.mh||100)-0.5;no=full||myP.m<250;txt=full?'VENDING MACHINE<small>you are at full health</small>':'[E] VENDING MACHINE - FULL HEAL $250';}
     else if(st){
@@ -2446,7 +2494,7 @@ function frame(now){
     if(mode==='solo')solo.tick(dt);
     dead=myP&&myP.st==='dead';
     if(myP){
-      if(driving>=0){const dc=carsM.get(driving);if(dc&&CARS[dc.t].kind==='heli')updateHeli(dt,CARS[dc.t]);else updateCarDrive(dt);}else if(myP.st!=='dead')updateFoot(dt);
+      if(driving>=0){const dc=carsM.get(driving);if(dc&&CARS[dc.t].kind==='heli')updateHeli(dt,CARS[dc.t]);else updateCarDrive(dt);}else if(ride)updateRide(dt);else if(myP.st!=='dead')updateFoot(dt);
       proxAudio(dt);
       distT-=dt;if(distT<=0){distT=0.5;const dn=NI.distAt(me.x,me.z);if(dn!==curDist){curDist=dn;if(me.z<BOUNDS.z1-70)toast('ENTERING: '+DNAME[dn],DBLURB[dn]);}}
       tryFire(dt);
@@ -2472,7 +2520,7 @@ function frame(now){
     if(o.mring){o.mring.scale.setScalar(1+0.18*Math.sin(elapsed*6+o.x));}
     if(o.wag)o.wag.rotation.y=Math.sin(elapsed*7+o.x)*0.45;
   }
-  for(const q of orbsM.values()){q.m.position.x+=(q.tx-q.m.position.x)*k;q.m.position.y+=(q.ty-q.m.position.y)*k;q.m.position.z+=(q.tz-q.m.position.z)*k;}
+  for(const q of orbsM.values()){q.m.rotation.y+=dt*9;q.m.position.x+=(q.tx-q.m.position.x)*k;q.m.position.y+=(q.ty-q.m.position.y)*k;q.m.position.z+=(q.tz-q.m.position.z)*k;}
   for(const r of remotes.values()){
     const m=r.mesh,p=r.p;if(!p)continue;
     r.x=(r.x===undefined?r.tx:r.x);r.z=(r.z===undefined?r.tz:r.z);

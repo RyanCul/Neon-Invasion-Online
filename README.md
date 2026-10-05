@@ -154,3 +154,10 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 - **Time-of-day neon signs** at the plaza, drive-in and marina follow the player's real clock (sunrise special, sunshine hours, happy hour, night shift, midnight movies).
 - You can now **grab loot while driving** or flying a vehicle.
 - The big 3-2-1 number in the wave warning was removed (the label and arrows stay).
+
+### Latest: ferris wheel ride + teammate arrows
+- Walk up to the Crystal Wheel and press E to ride a gondola. It carries you around one full turn and steps you off at the bottom, or press E any time to hop off.
+- Teammates who are off the minimap now show as blue edge arrows.
+
+### Latest: the Pizza Alien
+- A chef-hat alien with a big mustache shows up in round 7 (and again in rounds 12, 17, 22...). It carries a pizza and lobs spinning pizza bullets at you. Kill it for $300 and a free healing slice: 40% health for the killer, +25 for teammates within 45 units.

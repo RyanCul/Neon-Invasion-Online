@@ -118,7 +118,8 @@ const AT=[
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
   {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
   {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:52,summon:true},
-  {name:'ALIEN SHARK',hp:2600,sp:15,r:3.0,cy:1.8,dmg:30,money:6000,fly:false,beach:true,loner:true}
+  {name:'ALIEN SHARK',hp:2600,sp:15,r:3.0,cy:1.8,dmg:30,money:6000,fly:false,beach:true,loner:true},
+  {name:'PIZZA ALIEN',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true}
 ];
 
 /* ---------------- world ---------------- */
@@ -731,6 +732,7 @@ class Game{
       for(const q of this.players.values()){if(q.st!=='alive')continue;const t=this.targetPos(q),d=Math.hypot(t.x-a.x,t.z-a.z);if(d<9&&q.y-EYE<6)this.hurt(q,(25+this.round)*(1-d/12),a.x,a.z);}
     }
     if(def.boss){p.bk=(p.bk|0)+1;this.bossDrop(a,p);}
+    if(def.pizza){for(const q of this.players.values()){if(q.st==='alive'&&Math.hypot(q.x-a.x,q.z-a.z)<45)q.hp=Math.min(mhp(q),q.hp+(q===p?mhp(q)*0.4:25));}this.push('pizza',r2(a.x),r2(a.y+1),r2(a.z));}
     this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id);
   }
 
@@ -759,6 +761,7 @@ class Game{
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
+    if(this.round>=7&&(this.round-7)%5===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
     if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
     if(ultimate){q.unshift(17);}
     if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
@@ -970,7 +973,7 @@ class Game{
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:0});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:0)});
   }
 
   /* ---- main tick ---- */
@@ -1165,6 +1168,9 @@ class Game{
               const ang=Math.atan2(dx,dz)+i*0.16;
               this.fireOrb(a,a.x+Math.sin(ang)*30,ty,a.z+Math.cos(ang)*30,0.04,42,20*(1+0.03*this.round));
             }
+          }else if(a.t===19){      // PIZZA ALIEN: lobs pizzas
+            a.cd=1.5+this.rand()*0.6;
+            this.fireOrb(a,tp.x,ty,tp.z,0.05,32,a.dmg);
           }else if(a.t===10){
             a.cd=2.4+this.rand();
             for(let i=-1;i<=1;i++){
