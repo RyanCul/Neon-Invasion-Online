@@ -15,17 +15,18 @@ const PLAYER_COLORS=[0xff2fa0,0x25f4ff,0xfff3b0,0xa56bff,0x3cff9e,0xff9a3c,0xfff
 
 /* weapons: colored laser guns */
 const WPN=[
-  {id:0,name:'FLAMINGO',  kind:'PINK LASER PISTOL',   color:0xff2fa0,dmg:30, rate:4.6, mag:12, res:120,cost:0,   pellets:1,spread:0.004,pierce:1,reload:1.1,auto:false},
-  {id:1,name:'AQUA-9',    kind:'CYAN LASER SMG',      color:0x25f4ff,dmg:17, rate:13,  mag:24, res:120,cost:3200,pellets:1,spread:0.02, pierce:1,reload:1.4,auto:true},
-  {id:2,name:'SUNSET',    kind:'ORANGE LASER SHOTGUN',color:0xff9a3c,dmg:20, rate:1.5, mag:6,  res:54, cost:1500,pellets:8,spread:0.07, pierce:1,reload:2.0,auto:false},
-  {id:3,name:'VIOLET RAIL',kind:'PURPLE PIERCING RAIL',color:0xa56bff,dmg:170,rate:1.2, mag:8,  res:56, cost:2500,pellets:1,spread:0.0,  pierce:4,reload:1.8,auto:false},
-  {id:4,name:'LIME STORM',kind:'GREEN LASER MINIGUN', color:0x3cff9e,dmg:24, rate:11,  mag:90, res:450,cost:3500,pellets:1,spread:0.03, pierce:1,reload:2.4,auto:true},
-  {id:5,name:'LONGSHOT',  kind:'BLUE LASER SCOPE RIFLE',color:0x3c8cff,dmg:230,rate:0.95,mag:5,  res:40, cost:3000,pellets:1,spread:0,   pierce:3,reload:2.3,auto:false,range:420,scope:true},
-  {id:6,name:'ARC GATLING',kind:'RED CHARGE-UP MINIGUN',color:0xff3c4c,dmg:13, rate:20,  mag:180,res:720,cost:7000,pellets:1,spread:0.04,pierce:1,reload:3.0,auto:true,charge:0.9},
-  {id:7,name:'NEON STARS',kind:'GOLD THROWING STARS', color:0xffd23c,dmg:55, rate:3.2, mag:12, res:96, cost:2000,pellets:1,spread:0.006,pierce:5,reload:1.2,auto:false,range:90,proj:'star'},
-  {id:8,name:'INFERNO',   kind:'FLAMETHROWER',        color:0xff5a1a,dmg:7,  rate:18,  mag:100,res:500,cost:3800,pellets:3,spread:0.13, pierce:6,reload:2.2,auto:true,range:24,flame:true,burn:true},
-  {id:9,name:'TOXIC SPRAYER',kind:'GAS CLOUD LAUNCHER',color:0xb6ff1c,dmg:30, rate:1.4, mag:6,  res:36, cost:4500,pellets:1,spread:0.01, pierce:1,reload:2.0,auto:false,range:75,gas:true},
-  {id:10,name:'BRASS KNUCKLES',kind:'CLOSE-RANGE PUNCHERS',color:0xffc83c,dmg:90,rate:3.2,mag:999,res:0,  cost:800, pellets:1,spread:0.08,pierce:3,reload:0,auto:true,range:4.3,melee:true}
+  {id:0,name:'FLAMINGO',  kind:'PINK LASER PISTOL',   color:0xff2fa0,dmg:30, rate:4.6, mag:12, res:120,cost:0,   pellets:1,spread:0.004,pierce:1,reload:1.1,auto:false,tag:'ACCURATE SIDEARM - no tricks, never runs out'},
+  {id:1,name:'AQUA-9',    kind:'CYAN LASER SMG',      color:0x25f4ff,dmg:17, rate:13,  mag:24, res:120,cost:3200,pellets:1,spread:0.02, pierce:1,reload:1.4,auto:true,chain:1,tag:'CHAIN LIGHTNING - hits arc to a nearby alien'},
+  {id:2,name:'SUNSET',    kind:'ORANGE LASER SHOTGUN',color:0xff9a3c,dmg:20, rate:1.5, mag:6,  res:54, cost:1500,pellets:8,spread:0.07, pierce:1,reload:2.0,auto:false,falloff:1,tag:'POINT-BLANK - huge up close, weak at range'},
+  {id:3,name:'VIOLET RAIL',kind:'PURPLE PIERCING RAIL',color:0xa56bff,dmg:170,rate:1.2, mag:8,  res:56, cost:2500,pellets:1,spread:0.0,  pierce:4,reload:1.8,auto:false,ramp:1,tag:'ARMOR PIERCER - every alien it passes through takes MORE'},
+  {id:4,name:'LIME STORM',kind:'GREEN LASER MINIGUN', color:0x3cff9e,dmg:24, rate:11,  mag:90, res:450,cost:3500,pellets:1,spread:0.03, pierce:1,reload:2.4,auto:true,slow:1,tag:'SUPPRESSION - hits slow aliens down'},
+  {id:5,name:'LONGSHOT',  kind:'BLUE LASER SCOPE RIFLE',color:0x3c8cff,dmg:230,rate:0.95,mag:5,  res:40, cost:3000,pellets:1,spread:0,   pierce:3,reload:2.3,auto:false,range:420,scope:true,far:1,tag:'SNIPER - damage grows with distance'},
+  {id:6,name:'ARC GATLING',kind:'RED CHARGE-UP MINIGUN',color:0xff3c4c,dmg:13, rate:20,  mag:180,res:720,cost:7000,pellets:1,spread:0.04,pierce:1,reload:3.0,auto:true,charge:0.9,spin:1,tag:'SPIN-UP - damage ramps the longer you hold fire'},
+  {id:7,name:'NEON STARS',kind:'GOLD THROWING STARS', color:0xffd23c,dmg:55, rate:3.2, mag:12, res:96, cost:2000,pellets:1,spread:0.006,pierce:5,reload:1.2,auto:false,range:90,proj:'star',bounce:1,tag:'RICOCHET - stars bounce between aliens'},
+  {id:8,name:'INFERNO',   kind:'FLAMETHROWER',        color:0xff5a1a,dmg:7,  rate:18,  mag:100,res:500,cost:3800,pellets:3,spread:0.13, pierce:6,reload:2.2,auto:true,range:24,flame:true,burn:true,tag:'BURN - sets aliens on fire'},
+  {id:9,name:'TOXIC SPRAYER',kind:'GAS CLOUD LAUNCHER',color:0xb6ff1c,dmg:30, rate:1.4, mag:6,  res:36, cost:4500,pellets:1,spread:0.01, pierce:1,reload:2.0,auto:false,range:75,gas:true,tag:'POISON CLOUD - area damage over time'},
+  {id:10,name:'BRASS KNUCKLES',kind:'CLOSE-RANGE PUNCHERS',color:0xffc83c,dmg:90,rate:3.2,mag:999,res:0,  cost:800, pellets:1,spread:0.08,pierce:3,reload:0,auto:true,range:4.3,melee:true,tag:'MELEE - massive close damage, unlimited'},
+  {id:11,name:'MINI-BOMBER',kind:'MINI BOMB LAUNCHER',color:0xff3cf0,dmg:62,rate:2.2,mag:8,res:56,cost:5500,pellets:1,spread:0.008,pierce:1,reload:2.2,auto:false,range:110,br:5,tag:'EXPLOSIVES - mini blasts hurt everything nearby'}
 ];
 WPN[0].upm=0.5;WPN[1].upm=0.8;WPN[10].upm=0.6;WPN[7].upm=0.8;
 /* ---- levels & gun skins (profile is stored in the player's browser) ---- */
@@ -80,10 +81,11 @@ const CARS=[
   {id:4,name:'SUNSET HYPER',    kind:'car',   color:0xffc83c,cost:6000, hp:850, maxS:33,acc:1.7,turn:2.0,rad:2.4,ram:2.2,body:1.2, cdist:12,chgt:5.0,eye:2.6},
   {id:5,name:'MONSTER TRUCK',   kind:'truck', color:0x7a3cff,cost:9000, hp:2600,maxS:28,acc:1.4,turn:1.7,rad:3.5,ram:5.0,body:1.5, cdist:15,chgt:6.6,eye:4.0},
   {id:6,name:'VOID HOVERCAR',   kind:'hover', color:0xb03cff,cost:14000,hp:1100,maxS:38,acc:1.9,turn:2.3,rad:2.6,ram:2.6,body:1.2, cdist:12,chgt:5.0,eye:2.6},
-  {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9}
+  {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9},
+  {id:8,name:'BATTLE TANK',kind:'tank',color:0x6cff3c,cost:25000,hp:7000,maxS:9,acc:0.7,turn:0.95,rad:4.2,ram:6.0,body:1.8,cdist:19,chgt:8.5,eye:4.8,gun:true,dmg:130,rate:0.8,blast:8}
 ];
 /* everything sold at the garage, cheapest first (the jetpack sits between the coupe and the muscle car) */
-const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'jetup'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6},{k:'car',id:7}];
+const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'jetup'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6},{k:'car',id:7},{k:'car',id:8}];
 /* car paint & designs unlocked by level */
 const CSKINS=[
   {id:0,name:'FACTORY',    lvl:1, body:null,     trim:null,     deco:'none'},
@@ -123,7 +125,9 @@ const AT=[
   {name:'MOVIE ALIEN',hp:520,sp:5.0,r:1.6,cy:1.7,dmg:16,money:700,fly:false,ranged:true,movie:true,loner:true},
   {name:'CLEOPATRA',hp:1400,sp:0,r:1.6,cy:1.8,dmg:24,money:2500,fly:false,ranged:true,perch:true,loner:true},
   {name:'PIRATE CAPTAIN',hp:1800,sp:0,r:1.6,cy:1.8,dmg:26,money:3000,fly:false,ranged:true,perch:true,pirate:true,loner:true},
-  {name:'CARNIVAL BOSS',hp:2400,sp:0,r:1.7,cy:1.9,dmg:22,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true}
+  {name:'CARNIVAL BOSS',hp:2400,sp:0,r:1.7,cy:1.9,dmg:22,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true},
+  {name:'THE BUTCHER',hp:2600,sp:5.0,r:1.9,cy:2.0,dmg:64,money:4000,fly:false,stalker:true,loner:true,saw:true},
+  {name:'TIPSY ALIEN',hp:110,sp:5.0,r:1.4,cy:1.5,dmg:0,money:120,fly:false,ranged:true,tipsy:true}
 ];
 
 /* ---------------- world ---------------- */
@@ -176,7 +180,7 @@ function genWorld(seed){
     const free=(lx,lz,w,d)=>!zones.some(z=>lx+w/2>z[0]&&lx-w/2<z[1]&&lz+d/2>z[2]&&lz-d/2<z[3]);
     const prop=(lx,lz,w,d,hh,neonI,flat)=>{if(!flat&&!free(lx,lz,w,d))return;if(Math.abs(lx)+w/2>15||Math.abs(lz)+d/2>15)return;part(lx,lz,w,d,hh,{k:'prop',neon:neonI,nomm:1});};
     const nm=hs0.name;
-    if(nm==='TIKI BAR'){const kq=R(4,-13.4),bq=R(4,-10.6);part(4,-13.4,2.6,1.6,1.5,{k:'prop',neon:3,nomm:1});hs0.bx=cx+bq[0];hs0.bz=cz+bq[1];hs0.kx=cx+kq[0];hs0.kz=cz+kq[1];}   // a beer tap at the tiki bar
+    if(nm==='TIKI BAR'){const kq=R(4,-13.4),bq=R(4,-10.6);part(0,-13.4,27,1.8,1.25,{k:'prop',neon:3,nomm:1});hs0.bx=cx+bq[0];hs0.bz=cz+bq[1];hs0.kx=cx+kq[0];hs0.kz=cz+kq[1];}   // a beer tap at the tiki bar
     if(nm==='ARCADE'){
       [-12.5,-9,-5.5,5.5,9,12.5].forEach((x,i)=>prop(x,-14,2.2,1.6,3.2,i%5));
       prop(-4,4,2,3,2.4,1);prop(4,4,2,3,2.4,2);prop(9,9,2,3,2.4,4);
@@ -603,13 +607,14 @@ class Game{
       const cd=CARS[c.t];
       if(!cd.gun)return;   // only the helicopter has guns - every other vehicle just rams
       if(this.time<p.fireT)return;p.fireT=this.time+0.8/cd.rate;
-      def={pellets:1,spread:0.012,pierce:2,range:320};dmg=cd.dmg;col=cd.color;
+      def=cd.blast?{pellets:1,spread:0.0,pierce:1,range:260,br:cd.blast}:{pellets:1,spread:0.012,pierce:2,range:320};dmg=cd.dmg;col=cd.color;
     }else{
       if(p.car>=0)return;
       const w=m.w|0;if(!WPN[w]||p.wo[w]<0)return;
       def=WPN[w];lvl=p.wo[w];
       if(this.time<p.fireT)return;p.fireT=this.time+0.8/def.rate;
       dmg=def.dmg*DMG_MULT[lvl]*(p.perks[7]?1.2:1);col=def.color;
+      if(def.spin){p.spin=(this.time-(p.lastF||-9)<0.35)?Math.min(2.2,(p.spin||0)+0.8/def.rate):0;p.lastF=this.time;dmg*=0.65+0.55*Math.min(1,p.spin/1.6);}
     }
     const range=def.range||260;
     const shotEv=()=>this.push('shot',p.id,m.w,lvl,r2(ox),r2(oy),r2(oz),r2(d[0]),r2(d[1]),r2(d[2]),m.s|0,p.sk|0);
@@ -618,6 +623,17 @@ class Game{
       for(const a of this.aliens){const t=raySphere(ox,oy,oz,d[0],d[1],d[2],a.x,a.y+a.cy,a.z,a.r+0.3);if(t>=0&&t<tb)tb=t;}
       if(this.clouds.length>=30)this.clouds.shift();
       this.clouds.push({id:this.nid++,x:ox+d[0]*tb,y:Math.max(0.6,oy+d[1]*tb),z:oz+d[2]*tb,r:6+lvl*0.9,life:6+lvl*0.5,dps:dmg*1.6,own:p.id,tk:0.2});
+      shotEv();return;
+    }
+    if(def.br){   // explosive shell: bursts where it lands and hurts everything nearby
+      let tb=rayWorld(ox,oy,oz,d[0],d[1],d[2],range);
+      for(const a of this.aliens){const t=raySphere(ox,oy,oz,d[0],d[1],d[2],a.x,a.y+a.cy,a.z,a.r+0.3);if(t>=0&&t<tb)tb=t;}
+      const bx=ox+d[0]*tb,by=oy+d[1]*tb,bz=oz+d[2]*tb;
+      this.push('bomb',r2(bx),r2(by),r2(bz),def.br);
+      for(const a of this.aliens.slice()){
+        const dd2=Math.hypot(a.x-bx,a.y+a.cy-by,a.z-bz),reach=def.br+a.r;
+        if(dd2<reach)this.damageAlien(a,dmg*(1-0.55*dd2/reach),p,a.x,a.y+a.cy,a.z);
+      }
       shotEv();return;
     }
     const dirs=spreadDirs(def,d,m.s|0);
@@ -633,7 +649,20 @@ class Game{
       for(const h of hits){
         if(n>=def.pierce)break;n++;
         const a=h[1];
-        this.damageAlien(a,dmg*(n>1?0.8:1),p,ox+dd[0]*h[0],oy+dd[1]*h[0],oz+dd[2]*h[0]);
+        let hm=n>1?0.8:1;
+        if(def.ramp&&n>1)hm=Math.pow(1.3,n-1);
+        if(def.falloff)hm*=h[0]<10?1.7:h[0]>34?0.45:1.7-1.25*(h[0]-10)/24;
+        if(def.far)hm*=1+Math.min(1,h[0]/160);
+        this.damageAlien(a,dmg*hm,p,ox+dd[0]*h[0],oy+dd[1]*h[0],oz+dd[2]*h[0]);
+        if(def.slow&&a.hp>0)a.slowT=0.8;
+        if(def.chain||def.bounce){   // arc / ricochet to a nearby alien
+          let cur=a;const seen=new Set([a.id]);
+          for(let j=0;j<(def.bounce?2:1);j++){
+            let nx=null,nd=def.bounce?18:10;
+            for(const o of this.aliens){if(seen.has(o.id)||o.hp<=0)continue;const dq=Math.hypot(o.x-cur.x,o.z-cur.z);if(dq<nd){nd=dq;nx=o;}}
+            if(!nx)break;seen.add(nx.id);this.damageAlien(nx,dmg*(def.bounce?0.7:0.5),p,nx.x,nx.y+nx.cy,nx.z);cur=nx;
+          }
+        }
         if(def.burn&&a.hp>0){a.burn=2.5;a.burnD=Math.max(a.burnD||0,dmg*1.4);a.burnOwn=p.id;}
       }
     }
@@ -775,6 +804,8 @@ class Game{
     if(this.round>=12&&(this.round-12)%7===0&&WORLD.themes.some(q=>q.k==='marina'))q.unshift(22);   // pirate captain on the marina boardwalk: rounds 12, 18, 24, ...
     if(this.round>=16&&(this.round-16)%7===0&&WORLD.themes.some(q=>q.k==='ferris'))q.unshift(23);   // carnival boss under the ferris wheel: rounds 16, 22, 28, ...
     if(this.round>=22&&this.round%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 22, 33, 44, ...
+    if(this.round>=8){const nT=Math.min(8,1+Math.floor((this.round-8)/3));for(let i=0;i<nT;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,25);}   // tipsy aliens from round 8: their bottles make you drunk (no damage)
+    if(this.round>=22&&(this.round-22)%7===0)q.unshift(24);   // the chainsaw stalker: rounds 22, 29, 36, ...
     if(this.round>=9&&(this.round-9)%7===0&&WORLD.themes.some(q=>q.k==='drivein'))q.unshift(20);   // the movie alien visits the drive-in: rounds 9, 16, 23, ...
     if(this.round>=7&&(this.round-7)%7===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
     if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
@@ -830,8 +861,8 @@ class Game{
       if(x===0)x=88;}
     if(fx!==undefined){x=fx;z=fz;}
     let yy=def.fly?9+this.rand()*6:0;
-    if(t===14){   // hide inside one of the enterable buildings
-      const hs=HOUSES[Math.floor(this.rand()*HOUSES.length)];
+    if(def.stalker){   // hide inside one of the enterable buildings
+      const hs=HOUSES[Math.floor(this.rand()*HOUSES.length)];this._hh=hs;
       let hx=hs.x,hz=hs.z;
       for(let i=0;i<30;i++){const tx=hs.x+(this.rand()-0.5)*hs.S*0.55,tz=hs.z+(this.rand()-0.5)*hs.S*0.55;if(!inBuilding(tx,tz,1)){hx=tx;hz=tz;break;}}
       x=hx;z=hz;
@@ -872,14 +903,15 @@ class Game{
     const sp=def.sp*(1+Math.min(0.55,0.028*this.round))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
       dmg:def.dmg*(1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
-    if(t===14){al.hide=true;al.stT=0;}
+    if(def.stalker){al.hide=true;al.stT=0;al.hh=this._hh;}
+    if(t===19||t===20)al.guard=true;
     if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
       al.mut=1+Math.floor(this.rand()*3);
       if(al.mut===2){al.hp*=2.6;al.mhp=al.hp;al.sp*=0.85;}
       else if(al.mut===3){al.sp*=1.5;al.hp*=0.8;al.mhp=al.hp;}
     }
     this.aliens.push(al);
-    if(t===14)this.push('stalker',al.id,r2(x),r2(z));
+    if(def.stalker)this.push('stalker',al.id,r2(x),r2(z),t);
     if(t===18)this.push('shark',al.id,r2(x),r2(z));
     if(t===19)this.push('pizzaspawn',al.id,r2(x),r2(z));
     if(t===22)this.push('piratespawn',al.id,r2(x),r2(z));
@@ -1009,7 +1041,7 @@ class Game{
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:0)))))});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:0))))))});
   }
 
   /* ---- main tick ---- */
@@ -1057,7 +1089,7 @@ class Game{
       if(!this.queue.length)this.emptyT=(this.emptyT||0)+dt;else this.emptyT=0;
       if(this.round>=6&&this.emptyT>25&&this.aliens.length<=6){   // safety net: a far-off straggler gets dropped closer so the round can finish
         const al=plist.filter(p=>p.st==='alive');
-        if(al.length)for(const a of this.aliens){const D=AT[a.t];if(a.t>=19||D.loner||D.boss||D.giant||D.fly||D.sniper||D.stalker||a.dorm||a.hide||a.reloc)continue;
+        if(al.length)for(const a of this.aliens){const D=AT[a.t];if((a.t>=19&&a.t<=24)||D.loner||D.boss||D.giant||D.fly||D.sniper||D.stalker||a.dorm||a.hide||a.reloc)continue;
           let tp=al[0],bd=1e9;for(const p of al){const d=Math.hypot(a.x-p.x,a.z-p.z);if(d<bd){bd=d;tp=p;}}
           if(bd<90)continue;
           for(let k=0;k<12;k++){const an=this.rand()*6.283,x=tp.x+Math.cos(an)*60,z=tp.z+Math.sin(an)*60;if(Math.abs(x)>HALF-8||Math.abs(z)>HALF-8||inBuilding(x,z,1)||groundAt(x,z)>0.5)continue;a.x=x;a.z=z;a.reloc=1;break;}}
@@ -1065,11 +1097,11 @@ class Game{
       const cap0=Math.min(48,22+6*(plist.length-1)),cap=this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
-        if(nt>=19&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
+        if(((nt>=19&&nt<=24)||nt===14)&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
         this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
-      if(!this.queue.length&&this.aliens.every(a=>a.t>=19))this.endRound();   // hidden specials (pizza/movie/Cleopatra) never hold a round open
+      if(!this.queue.length&&this.aliens.every(a=>(a.t>=19&&a.t<=24)||a.hide))this.endRound();   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
         this.state='over';this.timer=14;
         this.best=Math.max(this.best,this.round);
@@ -1128,13 +1160,18 @@ class Game{
       const dx=tp.x-a.x,dz=tp.z-a.z,dist=Math.hypot(dx,dz)||1;
       a.yaw=Math.atan2(dx,dz);
       if(def.sniper){this.updateSniper(a,tp0,tp,dx,dz,dist,dt);continue;}
-      if(def.stalker&&a.hide){   // hiding: stands still until someone gets close (or 2.5 minutes pass)
-        a.stT=(a.stT||0)+dt;a.vx=a.vz=0;
-        if(dist<12||a.stT>150||(this.emptyT>6&&a.stT>20)){a.hide=false;this.push('stalk',a.id);}
+      if(a.guard){   // pizza / movie aliens stay at their spawn until someone comes near
+        if(dist<45)a.guard=false;else{a.vx=a.vz=0;continue;}
+      }
+      if(def.stalker&&a.hide){   // hiding: stands still until a player walks into the building it is hiding in
+        a.vx=a.vz=0;const hh=a.hh;
+        let wake=false;if(hh){for(const q of this.players.values()){if(q.st==='alive'&&Math.abs(q.x-hh.x)<hh.S/2+1&&Math.abs(q.z-hh.z)<hh.S/2+1&&q.y<hh.H){wake=true;break;}}}else wake=dist<14;
+        if(wake){a.hide=false;this.push('stalk',a.id);}
         continue;
       }
       let mx=0,mz=0,speed=a.sp;
       if(def.stalker)speed=(a.enr||dist<16)?a.sp*2.0:a.sp;
+      if(a.slowT>0){a.slowT-=dt;speed*=0.5;}
       if(this.round>=6&&this.emptyT>0&&this.aliens.length<=6&&!def.loner&&!def.boss&&!def.giant&&!def.stalker)speed*=1+Math.min(0.9,this.emptyT/20);   // last few stragglers speed up so a round never drags
       if(def.beach){   // the shark prowls the sand and lunges at anyone who comes onto the beach
         const onBeach=tp.z>HALF+6&&!tp.car;
@@ -1189,6 +1226,7 @@ class Game{
         if(dist<reach+(tp.car?1.8:0.4)&&dy<4&&a.cd<=0&&(def.fly||tp0.y-EYE<6)){
           a.cd=def.fly?1.1:(def.biter?0.55:0.9);
           if(def.bomb){this.explode(a);a.cd=9;}
+          else if(def.tipsy)this.push('drunk',tp0.id,10);
           else this.hurt(tp0,a.dmg,a.x,a.z);
         }
       }
@@ -1227,6 +1265,9 @@ class Game{
           }else if(a.t===20){      // MOVIE ALIEN: a fan of popcorn
             a.cd=2.2+this.rand()*0.6;
             for(let i=-2;i<=2;i++){const ang=Math.atan2(dx,dz)+i*0.14;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,30,a.dmg);}
+          }else if(a.t===25){      // TIPSY ALIEN: lobs bottles - a hit makes you drunk instead of hurting you
+            a.cd=1.7+this.rand()*0.8;
+            this.fireOrb(a,tp.x,ty,tp.z,0.07,30,0);
           }else if(a.t===19){      // PIZZA ALIEN: lobs pizzas
             a.cd=1.5+this.rand()*0.6;
             this.fireOrb(a,tp.x,ty,tp.z,0.05,32,a.dmg);
@@ -1303,7 +1344,7 @@ class Game{
         const tp=this.targetPos(p);
         const hr=tp.car?2.6:1.1;
         if(Math.hypot(o.x-tp.x,o.z-tp.z)<hr&&Math.abs(o.y-(tp.car?1.2+(tp.car.y||0):p.y-EYE*0.5))<(tp.car?2.2:2.0)){
-          this.hurt(p,o.dmg,o.x-o.vx*0.3,o.z-o.vz*0.3);dead=true;break;
+          if(o.big===7)this.push('drunk',p.id,10);else this.hurt(p,o.dmg,o.x-o.vx*0.3,o.z-o.vz*0.3);dead=true;break;
         }
       }
       if(dead)this.orbs.splice(i,1);
@@ -1367,9 +1408,9 @@ class Game{
           if(Math.hypot(a.x-c.x,a.z-c.z)<a.r+cdef.rad+0.1&&a.y<5){
             const df=AT[a.t],huge=!!df.giant,big=df.r>2.5;
             a.rt=huge?0.7:0.45;
-            const crush=cdef.kind==='truck'&&a.t===7;   // the monster truck flattens armored aliens outright
-            this.damageAlien(a,crush?a.hp+1:Math.abs(c.sp)*(huge?9:big?(cdef.kind==='truck'?7:4):8)*cdef.ram,p,a.x,a.y+a.cy,a.z);
-            c.hp-=huge?35:big?(cdef.kind==='truck'?5:10):3;
+            const crush=(cdef.kind==='truck'||cdef.kind==='tank')&&a.t===7;   // the monster truck flattens armored aliens outright
+            this.damageAlien(a,crush?a.hp+1:Math.abs(c.sp)*(huge?9:big?(cdef.kind==='truck'||cdef.kind==='tank'?7:4):8)*cdef.ram,p,a.x,a.y+a.cy,a.z);
+            c.hp-=huge?35:big?(cdef.kind==='truck'||cdef.kind==='tank'?5:10):3;
             this.push('thud',r2(a.x),r2(a.z));
           }
         }

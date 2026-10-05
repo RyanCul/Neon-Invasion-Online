@@ -186,3 +186,16 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 
 ## Special alien schedule (spread out)
 Movie Alien: round 9, then every 7. Pizza Alien: round 7, then every 7. Pirate Captain: round 12, then every 7. Carnival Boss: round 16, then every 7. Cleopatra: round 22, then every 11.
+
+## Guards, Butcher, tank, bomber, weapon variety
+- Pizza and Movie aliens now stay at their spawn until a player gets within ~45 units. The stalker stays hidden until a player walks into the building it's hiding in. A hidden stalker no longer holds a round open (and a second one isn't spawned while one is already waiting).
+- THE BUTCHER: a second, tougher chainsaw stalker (patchwork mask, apron, chainsaw) hiding in a building from round 22, then every 7 rounds. Same hide-until-entered rule.
+- When a teammate dies or goes down, everyone gets a "HAS FALLEN" notice and a giant pulsing blue arrow on the minimap (a pulsing ring on the full map).
+- BATTLE TANK ($25,000, garage): slow and tough, fires explosive shells with a big blast radius, crushes armored aliens.
+- MINI-BOMBER weapon ($5,500, key =): fires mini bombs that explode on impact and hit everything nearby.
+- Weapon variety: SMG chain lightning, shotgun point-blank bonus / range falloff, rail gets stronger per alien pierced, minigun slows aliens, Longshot damage grows with distance, Arc Gatling ramps up the longer you hold fire, Neon Stars ricochet. Each shows its trick in the armory.
+
+## Beach, tiki bar, Tipsy Alien
+- Beach & ocean: wet sand and rolling foam at the waterline, crest lines rolling in, umbrellas and towels, beach balls, starfish, sandcastles, volleyball nets, lifeguard towers, flickering beach torches, bobbing buoys with blinking lights, drifting sailboats and jumping dolphins.
+- Tiki bar: bamboo-fronted counter (solid), thatch overhang, bottle shelf, tiki masks, neon COLD BEER sign, string lights, torches, surfboards, potted palms, and a big glowing beer bottle on the counter - [E] there for $40 to drink it (30s drunk effect).
+- TIPSY ALIEN: from round 8 (1 at first, more as rounds go on). Lobs bottles; a hit (or a touch) gives 10 seconds of the drunk effect and no damage.
