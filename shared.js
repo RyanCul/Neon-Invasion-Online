@@ -78,9 +78,9 @@ const CARS=[
   {id:2,name:'FLAMINGO COUPE',  kind:'car',   color:0xff3d9a,cost:1500, hp:250, maxS:25,acc:1.5,turn:2.1,rad:2.3,ram:1.6,body:1.0, cdist:11,chgt:4.6,eye:2.4},
   {id:3,name:'CYAN MUSCLE',     kind:'car',   color:0x25f4ff,cost:3500, hp:500, maxS:29,acc:1.5,turn:2.0,rad:2.4,ram:1.9,body:1.12,cdist:11,chgt:4.8,eye:2.5},
   {id:4,name:'SUNSET HYPER',    kind:'car',   color:0xffc83c,cost:6000, hp:850, maxS:33,acc:1.7,turn:2.0,rad:2.4,ram:2.2,body:1.2, cdist:12,chgt:5.0,eye:2.6},
-  {id:5,name:'MONSTER TRUCK',   kind:'truck', color:0x7a3cff,cost:9000, hp:1500,maxS:24,acc:1.1,turn:1.5,rad:3.4,ram:3.4,body:1.5, cdist:15,chgt:6.6,eye:4.0},
+  {id:5,name:'MONSTER TRUCK',   kind:'truck', color:0x7a3cff,cost:9000, hp:2600,maxS:28,acc:1.4,turn:1.7,rad:3.5,ram:5.0,body:1.5, cdist:15,chgt:6.6,eye:4.0},
   {id:6,name:'VOID HOVERCAR',   kind:'hover', color:0xb03cff,cost:14000,hp:1100,maxS:38,acc:1.9,turn:2.3,rad:2.6,ram:2.6,body:1.2, cdist:12,chgt:5.0,eye:2.6},
-  {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:30000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9}
+  {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9}
 ];
 /* everything sold at the garage, cheapest first (the jetpack sits between the coupe and the muscle car) */
 const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'jetup'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6},{k:'car',id:7}];
@@ -119,7 +119,11 @@ const AT=[
   {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
   {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:52,summon:true},
   {name:'ALIEN SHARK',hp:2600,sp:15,r:3.0,cy:1.8,dmg:30,money:6000,fly:false,beach:true,loner:true},
-  {name:'PIZZA ALIEN',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true}
+  {name:'PIZZA ALIEN',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true},
+  {name:'MOVIE ALIEN',hp:520,sp:5.0,r:1.6,cy:1.7,dmg:16,money:700,fly:false,ranged:true,movie:true,loner:true},
+  {name:'CLEOPATRA',hp:1400,sp:0,r:1.6,cy:1.8,dmg:24,money:2500,fly:false,ranged:true,perch:true,loner:true},
+  {name:'PIRATE CAPTAIN',hp:1800,sp:0,r:1.6,cy:1.8,dmg:26,money:3000,fly:false,ranged:true,perch:true,pirate:true,loner:true},
+  {name:'CARNIVAL BOSS',hp:2400,sp:0,r:1.7,cy:1.9,dmg:22,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true}
 ];
 
 /* ---------------- world ---------------- */
@@ -172,6 +176,7 @@ function genWorld(seed){
     const free=(lx,lz,w,d)=>!zones.some(z=>lx+w/2>z[0]&&lx-w/2<z[1]&&lz+d/2>z[2]&&lz-d/2<z[3]);
     const prop=(lx,lz,w,d,hh,neonI,flat)=>{if(!flat&&!free(lx,lz,w,d))return;if(Math.abs(lx)+w/2>15||Math.abs(lz)+d/2>15)return;part(lx,lz,w,d,hh,{k:'prop',neon:neonI,nomm:1});};
     const nm=hs0.name;
+    if(nm==='TIKI BAR'){const kq=R(4,-13.4),bq=R(4,-10.6);part(4,-13.4,2.6,1.6,1.5,{k:'prop',neon:3,nomm:1});hs0.bx=cx+bq[0];hs0.bz=cz+bq[1];hs0.kx=cx+kq[0];hs0.kz=cz+kq[1];}   // a beer tap at the tiki bar
     if(nm==='ARCADE'){
       [-12.5,-9,-5.5,5.5,9,12.5].forEach((x,i)=>prop(x,-14,2.2,1.6,3.2,i%5));
       prop(-4,4,2,3,2.4,1);prop(4,4,2,3,2.4,2);prop(9,9,2,3,2.4,4);
@@ -663,6 +668,8 @@ class Game{
       else if(p.wo[w]<MAXUP){p.wo[w]++;this.push('upg',p.id,w,p.wo[w]);}
       else this.push('ammoall',p.id);
       this.push('mbox',p.id,w);
+    }else if(m.k==='beer'){
+      const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
     }else if(m.k==='vend'){
       const h=HOUSES.find(h=>Math.hypot(h.vx-p.x,h.vz-p.z)<4);if(!h)return;
       if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);
@@ -733,6 +740,10 @@ class Game{
     }
     if(def.boss){p.bk=(p.bk|0)+1;this.bossDrop(a,p);}
     if(def.pizza){for(const q of this.players.values()){if(q.st==='alive'&&Math.hypot(q.x-a.x,q.z-a.z)<45)q.hp=Math.min(mhp(q),q.hp+(q===p?mhp(q)*0.4:25));}this.push('pizza',r2(a.x),r2(a.y+1),r2(a.z));}
+    if(def.pirate){p.money+=1800;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('piratedead',p.id);}
+    if(def.carni){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')q.hp=mhp(q);this.push('carnidead',p.id);}
+    if(def.perch&&!def.pirate&&!def.carni){p.money+=1500;const opts=PERKS.filter(pk=>!p.perks[pk.id]&&(pk.req===undefined||p.perks[pk.req]));if(opts.length){const pk=opts[Math.floor(this.rand()*opts.length)];p.perks[pk.id]=true;if(HP_TIERS.includes(pk.id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,pk.id);}this.push('cleodead',p.id);}
+    if(def.movie){p.money+=800;this.push('ammoall',p.id);this.push('ticket',p.id);}
     this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id);
   }
 
@@ -761,7 +772,11 @@ class Game{
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
-    if(this.round>=7&&(this.round-7)%5===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
+    if(this.round>=12&&(this.round-12)%7===0&&WORLD.themes.some(q=>q.k==='marina'))q.unshift(22);   // pirate captain on the marina boardwalk: rounds 12, 18, 24, ...
+    if(this.round>=16&&(this.round-16)%7===0&&WORLD.themes.some(q=>q.k==='ferris'))q.unshift(23);   // carnival boss under the ferris wheel: rounds 16, 22, 28, ...
+    if(this.round>=22&&this.round%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 22, 33, 44, ...
+    if(this.round>=9&&(this.round-9)%7===0&&WORLD.themes.some(q=>q.k==='drivein'))q.unshift(20);   // the movie alien visits the drive-in: rounds 9, 16, 23, ...
+    if(this.round>=7&&(this.round-7)%7===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
     if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
     if(ultimate){q.unshift(17);}
     if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
@@ -773,7 +788,7 @@ class Game{
         this.push('revived',p.id);
       }
     }
-    this.nested=false;this.queue=q;this.state='fight';this.spawnT=1.5;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
+    this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
     this.weather=0;
     if(this.round>=9&&this.rand()<0.45){this.weather=1+Math.floor(this.rand()*3);this.wxT=0;this.push('weather',this.weather);}
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
@@ -822,6 +837,22 @@ class Game{
       x=hx;z=hz;
     }
     if(t===18){x=(this.rand()-0.5)*260;z=HALF+40;}
+    if(t===19){   // the pizza alien always starts inside a restaurant (a diner)
+      const dn=HOUSES.filter(h=>h.name==='DINER'),hs=dn.length?dn[Math.floor(this.rand()*dn.length)]:HOUSES[Math.floor(this.rand()*HOUSES.length)];
+      let hx=hs.x,hz=hs.z;
+      for(let i=0;i<30;i++){const tx=hs.x+(this.rand()-0.5)*hs.S*0.55,tz=hs.z+(this.rand()-0.5)*hs.S*0.55;if(!inBuilding(tx,tz,1)){hx=tx;hz=tz;break;}}
+      x=hx;z=hz;
+    }
+    if(t===21){   // Cleopatra rules from the very top of the pyramid
+      const py=WORLD.themes.find(q=>q.k==='pyramid');
+      if(py){x=py.cx;z=py.cz;yy=11.2;}
+    }
+    if(t===22){const mr=WORLD.themes.find(q=>q.k==='marina');if(mr){x=mr.cx;z=mr.cz-8;yy=0.7;}}
+    if(t===23){const fw=WORLD.themes.find(q=>q.k==='ferris');if(fw){for(let i=0;i<30;i++){const tx=fw.cx+(this.rand()-0.5)*16,tz=fw.cz+10+this.rand()*6;if(!inBuilding(tx,tz,1)){x=tx;z=tz;break;}}yy=0;}}
+    if(t===20){   // the movie alien steps out of the drive-in screen
+      const di=WORLD.themes.find(q=>q.k==='drivein');
+      if(di){x=di.cx+(this.rand()-0.5)*24;z=di.cz-20;}
+    }
     if(t===15){   // perch on a rooftop
       const roofs=B.filter(b=>b.k===undefined&&topOf(b)>=14&&(b.x1-b.x0)>=8&&(b.z1-b.z0)>=8);
       if(roofs.length){
@@ -850,6 +881,11 @@ class Game{
     this.aliens.push(al);
     if(t===14)this.push('stalker',al.id,r2(x),r2(z));
     if(t===18)this.push('shark',al.id,r2(x),r2(z));
+    if(t===19)this.push('pizzaspawn',al.id,r2(x),r2(z));
+    if(t===22)this.push('piratespawn',al.id,r2(x),r2(z));
+    if(t===23)this.push('carnispawn',al.id,r2(x),r2(z));
+    if(t===21)this.push('cleospawn',al.id,r2(x),r2(z));
+    if(t===20)this.push('moviespawn',al.id,r2(x),r2(z));
     if(t===15)this.push('sniper',al.id,r2(x),r2(z));
   }
 
@@ -876,7 +912,7 @@ class Game{
       this.spawnAlien(ty,x+(this.rand()-0.5)*14,z+(this.rand()-0.5)*14);
       const a=this.aliens[this.aliens.length-1];
       if(BLOCK[cellOf(a.x,a.z)]){a.x=x;a.z=z;}
-      a.dorm=true;a.far=true;a.dormT=55+this.rand()*20;k++;
+      a.dorm=true;a.far=true;a.dormT=(this.round>=6?30:55)+this.rand()*20;k++;
     }
     if(!this.nested){this.nested=true;this.push('nest');}
   }
@@ -973,7 +1009,7 @@ class Game{
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:0)});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:5,dmg,big:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:0)))))});
   }
 
   /* ---- main tick ---- */
@@ -994,7 +1030,7 @@ class Game{
         }
         p.rvProg=reviving?p.rvProg+dt*(plist.some(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&q.perks[1])?2:1):Math.max(0,p.rvProg-dt*2);
         if(p.rvProg>=3){const rvr=plist.find(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id);if(rvr)rvr.rvd=(rvr.rvd|0)+1;p.st='alive';p.hp=55;p.rvProg=0;p.lastHit=this.time;this.push('revived',p.id);}
-        else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';p.oc=0;this.push('died',p.id);}
+        else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';this.push('died',p.id);}
       }
     }
 
@@ -1017,13 +1053,23 @@ class Game{
       if(this.timer<=0)this.resetGame();
     }else if(this.state==='fight'){
       this.spawnT-=dt;
-      const cap=Math.min(48,22+6*(plist.length-1));
+      this.fightT=(this.fightT||0)+dt;
+      if(!this.queue.length)this.emptyT=(this.emptyT||0)+dt;else this.emptyT=0;
+      if(this.round>=6&&this.emptyT>25&&this.aliens.length<=6){   // safety net: a far-off straggler gets dropped closer so the round can finish
+        const al=plist.filter(p=>p.st==='alive');
+        if(al.length)for(const a of this.aliens){const D=AT[a.t];if(a.t>=19||D.loner||D.boss||D.giant||D.fly||D.sniper||D.stalker||a.dorm||a.hide||a.reloc)continue;
+          let tp=al[0],bd=1e9;for(const p of al){const d=Math.hypot(a.x-p.x,a.z-p.z);if(d<bd){bd=d;tp=p;}}
+          if(bd<90)continue;
+          for(let k=0;k<12;k++){const an=this.rand()*6.283,x=tp.x+Math.cos(an)*60,z=tp.z+Math.sin(an)*60;if(Math.abs(x)>HALF-8||Math.abs(z)>HALF-8||inBuilding(x,z,1)||groundAt(x,z)>0.5)continue;a.x=x;a.z=z;a.reloc=1;break;}}
+      }
+      const cap0=Math.min(48,22+6*(plist.length-1)),cap=this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
+        if(nt>=19&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
-        this.spawnT=Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
+        this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
-      if(!this.queue.length&&!this.aliens.length)this.endRound();
+      if(!this.queue.length&&this.aliens.every(a=>a.t>=19))this.endRound();   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
         this.state='over';this.timer=14;
         this.best=Math.max(this.best,this.round);
@@ -1061,7 +1107,7 @@ class Game{
       if(a.dorm){
         a.dormT-=dt;
         let near=1e9;for(const p of alive){const d=Math.hypot(p.x-a.x,p.z-a.z);if(d<near)near=d;}
-        if(near<85||a.dormT<=0)a.dorm=false;
+        if(near<85||a.dormT<=0||(this.round>=6&&this.emptyT>4))a.dorm=false;
         else{
           const ang=a.ph*0.12+a.id;a.vx=Math.cos(ang)*1.8;a.vz=Math.sin(ang)*1.8;
           a.x+=a.vx*dt;a.z+=a.vz*dt;pushOut(a,Math.min(a.r,1.8));a.yaw=Math.atan2(a.vx,a.vz);
@@ -1074,7 +1120,7 @@ class Game{
         for(const p of alive){const tp=this.targetPos(p);const d=Math.hypot(tp.x-a.x,tp.z-a.z);if(d<best){best=d;bp=p;}}
         if(bp){a.tgt=bp.id;
           const tp=this.targetPos(bp);
-          a.los=best<70&&rayWorld(a.x,1.5,a.z,(tp.x-a.x)/best,0,(tp.z-a.z)/best,best)>=best-0.5;}
+          a.los=best<70&&rayWorld(a.x,(AT[a.t].perch?a.y:0)+1.5,a.z,(tp.x-a.x)/best,0,(tp.z-a.z)/best,best)>=best-0.5;}
       }
       const tp0=this.players.get(a.tgt);
       if(!tp0||tp0.st!=='alive'){continue;}
@@ -1084,11 +1130,12 @@ class Game{
       if(def.sniper){this.updateSniper(a,tp0,tp,dx,dz,dist,dt);continue;}
       if(def.stalker&&a.hide){   // hiding: stands still until someone gets close (or 2.5 minutes pass)
         a.stT=(a.stT||0)+dt;a.vx=a.vz=0;
-        if(dist<12||a.stT>150){a.hide=false;this.push('stalk',a.id);}
+        if(dist<12||a.stT>150||(this.emptyT>6&&a.stT>20)){a.hide=false;this.push('stalk',a.id);}
         continue;
       }
       let mx=0,mz=0,speed=a.sp;
       if(def.stalker)speed=(a.enr||dist<16)?a.sp*2.0:a.sp;
+      if(this.round>=6&&this.emptyT>0&&this.aliens.length<=6&&!def.loner&&!def.boss&&!def.giant&&!def.stalker)speed*=1+Math.min(0.9,this.emptyT/20);   // last few stragglers speed up so a round never drags
       if(def.beach){   // the shark prowls the sand and lunges at anyone who comes onto the beach
         const onBeach=tp.z>HALF+6&&!tp.car;
         let gx,gz,sp2;
@@ -1130,7 +1177,7 @@ class Game{
         }
         a.vx+=(mx*speed-a.vx)*Math.min(1,dt*6);a.vz+=(mz*speed-a.vz)*Math.min(1,dt*6);
         a.x+=a.vx*dt;a.z+=a.vz*dt;
-        if(!def.giant)pushOut(a,Math.min(a.r,1.8));
+        if(!def.giant&&!def.perch)pushOut(a,Math.min(a.r,1.8));
       }
       a.x=clamp(a.x,BOUNDS.x0,BOUNDS.x1);a.z=clamp(a.z,BOUNDS.z0,BOUNDS.z1);
 
@@ -1168,6 +1215,18 @@ class Game{
               const ang=Math.atan2(dx,dz)+i*0.16;
               this.fireOrb(a,a.x+Math.sin(ang)*30,ty,a.z+Math.cos(ang)*30,0.04,42,20*(1+0.03*this.round));
             }
+          }else if(a.t===22){      // PIRATE CAPTAIN: cannonballs, three at a time
+            a.cd=2.4+this.rand()*0.7;
+            for(let i=-1;i<=1;i++){const ang=Math.atan2(dx,dz)+i*0.2;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.05,26,a.dmg);}
+          }else if(a.t===23){      // CARNIVAL BOSS: a spread of seven balloons
+            a.cd=2.0+this.rand()*0.6;
+            for(let i=-3;i<=3;i++){const ang=Math.atan2(dx,dz)+i*0.12;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,28,a.dmg);}
+          }else if(a.t===21){      // CLEOPATRA: golden bolts from her staff
+            a.cd=1.9+this.rand()*0.6;
+            for(let i=-1;i<=1;i++){const ang=Math.atan2(dx,dz)+i*0.16;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,36,a.dmg);}
+          }else if(a.t===20){      // MOVIE ALIEN: a fan of popcorn
+            a.cd=2.2+this.rand()*0.6;
+            for(let i=-2;i<=2;i++){const ang=Math.atan2(dx,dz)+i*0.14;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,30,a.dmg);}
           }else if(a.t===19){      // PIZZA ALIEN: lobs pizzas
             a.cd=1.5+this.rand()*0.6;
             this.fireOrb(a,tp.x,ty,tp.z,0.05,32,a.dmg);
@@ -1308,8 +1367,9 @@ class Game{
           if(Math.hypot(a.x-c.x,a.z-c.z)<a.r+cdef.rad+0.1&&a.y<5){
             const df=AT[a.t],huge=!!df.giant,big=df.r>2.5;
             a.rt=huge?0.7:0.45;
-            this.damageAlien(a,Math.abs(c.sp)*(huge?9:big?4:8)*cdef.ram,p,a.x,a.y+a.cy,a.z);
-            c.hp-=huge?35:big?10:3;
+            const crush=cdef.kind==='truck'&&a.t===7;   // the monster truck flattens armored aliens outright
+            this.damageAlien(a,crush?a.hp+1:Math.abs(c.sp)*(huge?9:big?(cdef.kind==='truck'?7:4):8)*cdef.ram,p,a.x,a.y+a.cy,a.z);
+            c.hp-=huge?35:big?(cdef.kind==='truck'?5:10):3;
             this.push('thud',r2(a.x),r2(a.z));
           }
         }

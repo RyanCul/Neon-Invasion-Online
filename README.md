@@ -161,3 +161,28 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 
 ### Latest: the Pizza Alien
 - A chef-hat alien with a big mustache shows up in round 7 (and again in rounds 12, 17, 22...). It carries a pizza and lobs spinning pizza bullets at you. Kill it for $300 and a free healing slice: 40% health for the killer, +25 for teammates within 45 units.
+
+## Latest batch
+- Your owned garage car is kept when you die (until you start a new game). Helicopter now $15,000.
+- Monster truck buffed (tougher, faster, heavier ram) and crushes armored aliens.
+- Round 6+: aliens trickle in gradually instead of all at once at round start.
+- Full map: press **L** (or click the right stick) to open, again to close.
+- Ferris wheel: your own cabin is hidden while riding so the seat doesn't block the view.
+- Pizza Alien always spawns inside a diner. Movie Alien spawns at the drive-in (rounds 6, 9, 12...). Cleopatra waits atop the pyramid every 11 rounds (11, 22, 33...).
+- These three do NOT show on the minimap or edge arrows - go to the locations to find them.
+
+## Minimap + pacing update
+- Pizza, Movie and Cleopatra aliens are back on the minimap/full map as big green markers (P / M / C) and big pulsing green edge arrows when off-map.
+- Pizza Alien sounds: "order up" ding when a pizza is thrown, sizzle when it lands, a 3-note fanfare when it dies and heals the team.
+- Round 6+ pacing: spawn rate scales with round size so spawning finishes in ~40s; once the queue is empty dormant groups wake, the hiding stalker comes out after ~20s, the last few aliens speed up, and far stragglers get dropped closer. Hidden specials no longer hold a round open.
+
+## More landmark bosses
+- PIRATE CAPTAIN on the marina boardwalk (rounds 8, 14, 20...): fires 3 cannonballs at a time. Kill: +$1800 and ammo refill for everyone alive.
+- CARNIVAL BOSS under the ferris wheel (rounds 10, 16, 22...): fires a 7-balloon spread. Kill: +$2000 and the whole team is healed.
+- Both show on the minimap as green K / F markers and big green edge arrows, like Pizza (P), Movie (M) and Cleopatra (C). They wait where they spawned and never hold a round open.
+
+## Tiki bar beer
+- Every TIKI BAR has a beer tap by the back counter: [E] for $40. Drinking it gives a 30-second drunk effect (screen sway, blur, colour drift, fading in and out). Dying clears it.
+
+## Special alien schedule (spread out)
+Movie Alien: round 9, then every 7. Pizza Alien: round 7, then every 7. Pirate Captain: round 12, then every 7. Carnival Boss: round 16, then every 7. Cleopatra: round 22, then every 11.
