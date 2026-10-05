@@ -1,6 +1,6 @@
 # NEON INVASION
 Co-op alien-wave FPS in the neon 80s city. Rounds get harder, a boss alien every 5 rounds.
-Earn cash per kill, buy colored laser guns, upgrade them at the NEON FORGE, buy armed cars at the GARAGE.
+Earn cash per kill, buy colored laser guns, upgrade them at the QUICK UPGRADE station, buy armed cars at the GARAGE.
 
 ## Play solo (no server)
 Open index.html in a browser (keep shared.js and song.mp3 beside it) and click PLAY SOLO.
@@ -46,7 +46,7 @@ Warship (r9, flying shooter), Queen (r11, 3-orb volleys), Titan (r13, mini-boss)
 - **Aliens in view**: when an alien comes into sight (on screen with a clear line, not behind a building) you hear a "contact" sting plus its own voice, a low tension drone plays while any are visible, and a CONTACT warning flashes (bosses and the Godzilla alien get a bigger horn and their own warning).
 
 ## Weapons, armory & upgrades
-11 laser guns, every one with **9 upgrades** (MK I → MK X: more damage, bigger mags, brighter laser). Buy and upgrade from the **ARMORY** list menu (Up/Down or Q to choose, E / X to buy or upgrade, B closes). The Forge still upgrades your current gun. "Refill all ammo" is in the armory too.
+11 laser guns, every one with **9 upgrades** (MK I → MK X: more damage, bigger mags, brighter laser). Buy and upgrade from the **WEAPONS** station list menu (Up/Down or Q to choose, E / X to buy or upgrade, B closes). The Forge still upgrades your current gun. "Refill all ammo" is in the armory too.
 New guns: **LONGSHOT** (slow, long-range sniper – hold right-click / LT to scope), **ARC GATLING** (hold fire to charge, then it sprays), **NEON STARS** (thrown shuriken), **INFERNO** (flamethrower, sets aliens on fire), **TOXIC SPRAYER** (gas canister, poison cloud), **BRASS KNUCKLES** (close range, no ammo).
 Switching: keys 1-9, 0, - · mouse wheel · LB/RB · **F = quick-swap to your previous weapon; on a pad LB/RB (the bumpers) cycle weapons**. Right-click / LT = aim. On a pad, X = interact (or reload if nothing nearby); Y = E (use/enter/exit/buy) when something is in reach, otherwise Y (and D-pad up) sends you back to the starting area between rounds.
 
@@ -80,7 +80,7 @@ On **round 50** (and every 50 after) the ultimate boss arrives alongside a norma
 
 ## Perks, secrets, weather and more (latest update)
 
-**Perks** (now their own PERK TOWER in the fourth corner of the starting plaza, opposite the armory's diagonal; one-time purchase, kept until you die/restart): Neon Tank (+50 max HP), Quick Revive, Fast Hands (faster reload), Sprinter, Dead Eye (bigger crit damage), Cash Magnet (+25% cash), Kevlar, Double Tap, plus the others listed in the armory. Owned perks show on the HUD.
+**Perks** (now their own CHARACTER BUFFS tower in the fourth corner of the starting plaza, opposite the armory's diagonal; one-time purchase, kept until you die/restart): Neon Tank (+50 max HP), Quick Revive, Fast Hands (faster reload), Sprinter, Dead Eye (bigger crit damage), Cash Magnet (+25% cash), Kevlar, Double Tap, plus the others listed in the armory. Owned perks show on the HUD.
 
 **Weak spots**: shots to the head do double damage (giants/bosses have a smaller, bigger-damage weak spot). Crits show as yellow damage numbers.
 

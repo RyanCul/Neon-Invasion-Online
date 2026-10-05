@@ -220,12 +220,15 @@ const ACH=[
   {id:'gm10',n:'REGULAR',d:'PLAY 10 GAMES',s:'gm',g:10},{id:'gm100',n:'NEON ADDICT',d:'PLAY 100 GAMES',s:'gm',g:100},
   {id:'rt100',n:'ROUND TRIPPER',d:'CLEAR 100 ROUNDS IN TOTAL',s:'rt',g:100},{id:'rt500',n:'MARATHON',d:'CLEAR 500 ROUNDS IN TOTAL',s:'rt',g:500}
 ];
+/* one achievement per boss: KILL THE <BOSS>; s:'bk' counts per boss type in st.bk[type] */
+const BOSS_TYPES=[[4,'BOSS',5],[14,'STALKER',6],[11,'TITAN',13],[18,'ALIEN SHARK',13],[23,'CARNIVAL BOSS',16],[12,'GODZILLA',20],[24,'THE BUTCHER',25],[22,'PIRATE CAPTAIN',26],[21,'CLEOPATRA',32],[17,'THE OVERMIND',50]];   // in order of the round each first shows up
+BOSS_TYPES.forEach(([t,nm,rd])=>{const the=(nm.indexOf('THE ')===0||nm==='GODZILLA'||nm==='CLEOPATRA')?nm:'THE '+nm;ACH.push({id:'bk'+t,n:nm+' DOWN',d:'KILL '+the,s:'bk',i:t,g:1});TITLES.push({id:TITLES.length,name:nm+' HUNTER',ach:'bk'+t});});
 const ACH_IDS=ACH.map(a=>a.id);
 const EXLISTS=[TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX];   // order of the ex[] array: title, badge, name colour, frame, camo, kill effect
 const EX_NAMES=['TITLE','BADGE','NAME COLOR','FRAME','GUN CAMO','KILL EFFECT'];
 /* is this item open for a player of level lv holding achievements ach (array of ids)? */
 function itemOpen(it,lv,ach){if(!it)return false;if(it.lvl!==undefined&&it.lvl<=lv)return true;return !!(it.ach&&ach&&ach.indexOf(it.ach)>=0);}
-function achProgress(a,st){st=st||{};if(a.s==='w')return(st.wk&&st.wk[a.i])|0;return(st[a.s])|0;}
+function achProgress(a,st){st=st||{};if(a.s==='bk')return(st.bk&&st.bk[a.i])|0;if(a.s==='w')return(st.wk&&st.wk[a.i])|0;return(st[a.s])|0;}
 /* everything an achievement unlocks, as [kind,name] pairs */
 function achRewards(id){
   const out=[];
@@ -990,7 +993,7 @@ class Game{
   }
   killAlien(a,p,crit){
     const def=AT[a.t];
-    this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0);   // credit for the killer's own lifetime stats / achievements
+    this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0,a.t);   // credit for the killer's own lifetime stats / achievements
     const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1);
     p.money+=Math.round(mk);p.kills++;
     for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash

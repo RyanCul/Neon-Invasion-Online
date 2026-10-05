@@ -162,7 +162,8 @@ body.playing #pauseB{display:block}
 #menu h2.sub{font-size:clamp(13px,1.9vw,24px);letter-spacing:4px;margin:6px 0 4px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
 #menu h1{margin-top:0;font-size:clamp(32px,min(6.4vw,11vh,calc((100vw - 520px)/10.5)),120px)}
 #menu{justify-content:safe center;padding-top:16px}
-#topbtns{position:fixed;right:18px;top:16px;display:flex;gap:8px;z-index:9}
+#menu button.tb#bFr{display:flex;align-items:center;justify-content:center;gap:7px;width:clamp(130px,12vw,166px);background:linear-gradient(180deg,#ff4fb4,#c01a84);border:2px solid #ffd0ee;color:#fff;box-shadow:0 0 14px rgba(255,47,160,.7)}#menu button.tb#bFr svg{filter:drop-shadow(0 0 3px #fff)}
+#topbtns{position:fixed;right:18px;top:16px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;z-index:9;max-width:70vw}
 #menu button.tb{width:clamp(96px,9vw,126px);height:40px;margin:0;padding:0;font-size:clamp(10px,1vw,13px);font-style:normal;letter-spacing:1px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
 #nameLab{font-size:18px;letter-spacing:6px;color:#9ffcff;margin-bottom:2px}
 #menu input#name,#menu input#room_in{font-size:17px;padding:8px 8px;width:min(300px,80vw)}
@@ -336,8 +337,8 @@ body.playing #pauseB{display:block}
 <div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pFr" class="alt">FRIENDS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
-  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bFr">FRIENDS</button><button class="c sm" id="bAch">ACHIEVEMENTS</button></div><div id="lvnote"></div></div>
-  <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button></div>
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch">ACHIEVEMENTS</button></div><div id="lvnote"></div></div>
+  <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button><div style="flex-basis:100%;height:0"></div><button class="tb" id="bFr"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z"/></svg><span>FRIENDS</span></button></div>
   <h1>NEON INVASION</h1>
   <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
   <div class="box">
@@ -1260,19 +1261,33 @@ function label(text,color){
   const t=new THREE.CanvasTexture(c);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,fog:false,depthWrite:false}));
   sp.scale.set(8,2,1);return sp;
 }
-const STCOL={armory:0x25f4ff,forge:0xff9a3c,garage:0xff2fa0,perks:0x9dff3c},STNAME={armory:'ARMORY',forge:'NEON FORGE',garage:'GARAGE',perks:'PERK TOWER'};
+const STCOL={armory:0x25f4ff,forge:0xff9a3c,garage:0xff2fa0,perks:0xb36bff},STNAME={armory:'WEAPONS',forge:'QUICK UPGRADE',garage:'GARAGE',perks:'CHARACTER BUFFS'};
 for(const s of STATIONS){
   const col=STCOL[s.k],g=new THREE.Group();g.position.set(s.x,0,s.z);
   const base=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.9,0.6,12),new THREE.MeshLambertMaterial({color:0x1a0b33}));base.position.y=0.7;g.add(base);
   const pil=new THREE.Mesh(new THREE.BoxGeometry(1.1,3.2,1.1),new THREE.MeshBasicMaterial({color:col}));pil.position.y=2.2;g.add(pil);
-  const ico=new THREE.Mesh(new THREE.OctahedronGeometry(1),new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true}));ico.position.y=5.2;g.add(ico);
+  const ico=new THREE.Group();ico.position.y=5.2;g.add(ico);
+  const bm=(w,h,d,c,x,y,z,par,op)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshBasicMaterial({color:c,transparent:op!==undefined,opacity:op===undefined?1:op}));m.position.set(x,y,z);(par||g).add(m);return m;};
+  const wire=(geo,c)=>new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:c,wireframe:true}));
+  if(s.k==='armory'){            // WEAPONS: cyan gun rack with a spinning crosshair
+    pil.visible=false;bm(4.6,3.4,0.3,0x0b2a3a,0,2.5,-0.9);bm(4.8,0.25,0.5,col,0,4.3,-0.8);bm(4.8,0.25,0.5,col,0,0.9,-0.8);
+    for(let i=0;i<3;i++){const y=1.6+i*1.0;bm(3.6,0.28,0.3,0xdfe9f2,0,y,-0.55);bm(0.9,0.55,0.3,0x2a3a4a,-1.1,y-0.35,-0.55);bm(0.12,0.12,0.5,col,1.9,y,-0.55);}
+    ico.add(wire(new THREE.TorusGeometry(0.9,0.07,6,24),0xffffff));ico.add(bm(2.3,0.08,0.08,0xffffff,0,0,0,ico));ico.add(bm(0.08,2.3,0.08,0xffffff,0,0,0,ico));
+  }else if(s.k==='forge'){       // QUICK UPGRADE: orange anvil with a glowing up arrow
+    pil.visible=false;bm(2.6,0.8,1.5,0x2a1a10,0,1.3,0);bm(1.1,1.0,1.0,0x3a2418,0,2.1,0);bm(3.4,0.7,1.3,0x4a3020,0,2.8,0);bm(1.1,0.5,0.9,0x4a3020,2.1,2.8,0).rotation.z=-0.35;bm(3.4,0.12,1.35,col,0,3.18,0);
+    const ar=new THREE.Mesh(new THREE.ConeGeometry(0.9,1.5,4),new THREE.MeshBasicMaterial({color:col}));ico.add(ar);const sh=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,1.1,6),new THREE.MeshBasicMaterial({color:0xffffff}));sh.position.y=-1.1;ico.add(sh);
+  }else if(s.k==='garage'){      // GARAGE: pink roll-up bay door with a wheel
+    pil.visible=false;bm(0.5,4.2,0.6,col,-2.4,2.4,0);bm(0.5,4.2,0.6,col,2.4,2.4,0);bm(5.3,0.6,0.7,col,0,4.6,0);
+    for(let i=0;i<6;i++)bm(4.3,0.42,0.3,i%2?0x7a1a56:0x3a0d2c,0,1.1+i*0.58,0);
+    ico.add(wire(new THREE.TorusGeometry(0.85,0.32,6,14),0xffffff));
+  }
   const ring=new THREE.Mesh(new THREE.RingGeometry(3.2,3.7,32),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.8,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
   ring.rotation.x=-Math.PI/2;ring.position.y=0.5;g.add(ring);
   let ly=7.6;
   if(s.k==='perks'){   // tower: stacked glowing tiers, one per perk
-    pil.visible=false;ico.position.y=15;
+    pil.visible=false;ico.position.y=15;ico.add(wire(new THREE.OctahedronGeometry(1),0xffffff));
     for(let i=0;i<PERKS.length;i++){
-      const w=3.4-i*0.14,t=new THREE.Mesh(new THREE.BoxGeometry(w,0.7,w),new THREE.MeshBasicMaterial({color:i%2?0x9dff3c:0x25f4ff,transparent:true,opacity:0.85}));
+      const w=3.4-i*0.14,t=new THREE.Mesh(new THREE.BoxGeometry(w,0.7,w),new THREE.MeshBasicMaterial({color:i%2?0xb36bff:0xe3c6ff,transparent:true,opacity:0.85}));
       t.position.y=1.6+i*0.85;g.add(t);
       const tr=new THREE.Mesh(new THREE.BoxGeometry(w+0.35,0.12,w+0.35),new THREE.MeshBasicMaterial({color:0xffffff}));tr.position.y=t.position.y+0.4;g.add(tr);
     }
@@ -2100,7 +2115,7 @@ let myName='PLAYER';
 let prof={xp:0,skin:0,car:0,ch:[0,0,0,0,0,0,0,0,0],ex:[0,0,0,0,0,0],st:{k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]},ach:[]},pend=0,gameXP=0,lastK=0,joinRound=1,firstSnap=true,lockerOpen=false;
 function mergeSt(a,b){   // lifetime stats: every counter only ever goes up
   const o={k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]};
-  for(const s of [a,b]){if(!s)continue;for(const k of ['k','rv','bo','br','cr','rk','gm','rt'])o[k]=Math.max(o[k],s[k]|0);for(let i=0;i<12;i++)o.wk[i]=Math.max(o.wk[i],(s.wk&&s.wk[i])|0);}
+  for(const s of [a,b]){if(!s)continue;for(const k of ['k','rv','bo','br','cr','rk','gm','rt'])o[k]=Math.max(o[k],s[k]|0);for(let i=0;i<12;i++)o.wk[i]=Math.max(o.wk[i],(s.wk&&s.wk[i])|0);o.bk=[];for(let i=0;i<32;i++)o.bk[i]=Math.max((a&&a.bk&&a.bk[i])|0,(b&&b.bk&&b.bk[i])|0);}
   return o;
 }
 function loadProf(){
@@ -2148,7 +2163,7 @@ function saveProf(){try{localStorage.setItem(PKEY,JSON.stringify(prof));localSto
 function lvInfo(xp){let L=1,x=xp;while(L<NI.MAXLV&&x>=NI.xpNeed(L)){x-=NI.xpNeed(L);L++;}return{L,into:x,need:L>=NI.MAXLV?1:NI.xpNeed(L),max:L>=NI.MAXLV};}
 /* ---- lifetime stats and achievements ---- */
 let statDirty=false,statSaveT=0,achQ=[],achBusy=false,sessAch=[];
-function stAdd(k,n,i){const s=prof.st;if(k==='w')s.wk[i]=(s.wk[i]|0)+n;else s[k]=(s[k]|0)+n;statDirty=true;}
+function stAdd(k,n,i){const s=prof.st;if(k==='bk'){s.bk=s.bk||[];s.bk[i]=(s.bk[i]|0)+n;}else if(k==='w')s.wk[i]=(s.wk[i]|0)+n;else s[k]=(s[k]|0)+n;statDirty=true;}
 function stMax(k,v){if(v>(prof.st[k]|0)){prof.st[k]=v;statDirty=true;}}
 function checkAch(){
   if(!statDirty)return;statDirty=false;
@@ -2406,7 +2421,7 @@ function kfxBurst(id,x,y,z){
 /* ---- the CUSTOMIZE screen (tabs: CHARACTER / PROFILE / WEAPONS & CARS; ACHIEVEMENTS opens on its own from the menu) ---- */
 let lkTab=0,pfTab=0,gnTab=0,acTab=0;
 const PF_TABS=['TITLE','BADGE','NAME COLOR','FRAME'],GN_TABS=['GUN SKINS','GUN CAMOS','KILL EFFECTS','CAR DESIGNS'];
-const AC_TABS=[['COMBAT',['k','cr']],['BOSSES & TEAM',['bo','rv']],['SURVIVAL',['br','rt','gm']],['WEAPONS',['w']],['DRIVING',['rk']]];
+const AC_TABS=[['COMBAT',['k','cr']],['BOSSES & TEAM',['bo','rv','bk']],['SURVIVAL',['br','rt','gm']],['WEAPONS',['w']],['DRIVING',['rk']]];
 function lockText(s,L){return s.lvl!==undefined&&s.lvl<999?'UNLOCKS AT LEVEL '+s.lvl:(s.ach?'EARN: '+((NI.ACH.find(a=>a.id===s.ach)||{}).n||'ACHIEVEMENT'):'LOCKED');}
 function cardHTML(sw,name,open,on,s,L){return '<div class="sw" style="background:'+sw+'"></div><b>'+name+'</b><small>'+(open?(on?'EQUIPPED':'UNLOCKED'):lockText(s,L))+'</small>';}
 function drawTabs(el,names,cur,fn){el.innerHTML='';names.forEach((n,i)=>{const d=document.createElement('div');d.textContent=n;d.className=cur===i?'on':'';d.onclick=()=>{fn(i);};el.appendChild(d);});}
@@ -2554,7 +2569,7 @@ function handleEvent(e){
       stAdd('rt',1);checkAch();
     }
   }
-  else if(k==='kc'){if(e[1]===myId){stAdd('k',1);if(e[2]<0)stAdd('rk',1);else stAdd('w',1,e[2]);if(e[3])stAdd('cr',1);if(e[4])stAdd('bo',1);checkAch();}}
+  else if(k==='kc'){if(e[1]===myId){stAdd('k',1);if(e[2]<0)stAdd('rk',1);else stAdd('w',1,e[2]);if(e[3])stAdd('cr',1);if(e[4])stAdd('bo',1);if(e[5]!==undefined&&NI.ACH.some(q=>q.s==='bk'&&q.i===e[5]))stAdd('bk',1,e[5]);checkAch();}}
   else if(k==='perk'){if(e[1]===myId){sfx.buy();toast('PERK: '+PERKS[e[2]].name,PERKS[e[2]].desc);}}
   else if(k==='beer'){if(e[1]===myId){drunkT=drunkD=30;sfx.buy();toast('GLUG GLUG','you feel great. the world feels... tilted');}}
   else if(k==='drunk'){if(e[1]===myId){drunkT=Math.max(drunkT,e[2]||10);drunkD=Math.max(drunkD*(drunkT>e[2]?1:0),e[2]||10);toast('TIPSY!','a flying bottle got you - no damage, just wobbly');tone(1500,700,0.08,'triangle',0.1);tone(300,120,0.3,'sawtooth',0.07);}}
@@ -3151,7 +3166,7 @@ function goBase(){
   me.x=BASE.x;me.z=BASE.z;me.y=0;me.vx=me.vz=me.vy=0;
   me.yaw=Math.PI*0.75;me.pitch=0;
   burst(me.x,1,me.z,0x25f4ff,26,16,1);sfx.round();
-  toast('BACK AT BASE','ARMORY - FORGE - GARAGE');
+  toast('BACK AT BASE','WEAPONS - QUICK UPGRADE - GARAGE - CHARACTER BUFFS');
 }
 function selectWeapon(n){
   if(!myP||myP.wo[n]<0||n===curW)return;
@@ -3485,7 +3500,7 @@ const bmC=$('bigmap'),bg=bmC.getContext('2d');bmC.width=MMW;bmC.height=MMH;
 function drawBig(){
   bg.drawImage(mmOff,0,0);
   const X=x=>x-MMX0,Z=z=>z-MMZ0;
-  bg.fillStyle='#fff3b0';for(const s of STATIONS)bg.fillRect(X(s.x)-4,Z(s.z)-4,8,8);
+  for(const s of STATIONS){bg.fillStyle='#'+STCOL[s.k].toString(16).padStart(6,'0');bg.fillRect(X(s.x)-4,Z(s.z)-4,8,8);}
   const mb=NI.WORLD.mbox;if(mb){bg.fillStyle='#ffd23c';bg.fillRect(X(mb.x)-5,Z(mb.z)-5,10,10);bg.fillStyle='#000';bg.font='bold 12px sans-serif';bg.fillText('?',X(mb.x)-3,Z(mb.z)+4);}
   for(const [id,c] of carsM){bg.fillStyle='#ff2fa0';bg.fillRect(X(c.x)-4,Z(c.z)-3,8,6);}
   for(const o of aliensM.values()){
@@ -3505,8 +3520,7 @@ function drawMini(){
   const px=me.x-MMX0,pz=me.z-MMZ0;
   mg.drawImage(mmOff,px-R,pz-R,R*2,R*2,0,0,180,180);
   const tx=x=>(x-me.x)*sc+90,tz=z=>(z-me.z)*sc+90;
-  mg.fillStyle='#fff3b0';
-  for(const s of STATIONS)mg.fillRect(tx(s.x)-3,tz(s.z)-3,6,6);
+  for(const s of STATIONS){mg.fillStyle='#'+STCOL[s.k].toString(16).padStart(6,'0');mg.fillRect(tx(s.x)-3,tz(s.z)-3,6,6);}
 
   for(const o of lootObjs){if(!o.on||o.l.t===2)continue;mg.fillStyle=o.l.t?'#c58cff':'#fff3b0';mg.fillRect(tx(o.l.x)-1.5,tz(o.l.z)-1.5,3,3);}
   for(const [id,c] of carsM){mg.fillStyle='#ff2fa0';mg.fillRect(tx(c.x)-3,tz(c.z)-2,6,4);}
@@ -3651,7 +3665,7 @@ function updateHUD(dt){
     else if(nearVend()&&!st){const full=myP.hp>=(myP.mh||100)-0.5;no=full||myP.m<250;txt=full?'VENDING MACHINE<small>you are at full health</small>':'[E] VENDING MACHINE - FULL HEAL $250';}
     else if(st){
       if(st.k==='armory'){
-        if(garageClosed)txt='[E] OPEN ARMORY<small>buy &amp; upgrade laser guns</small>';
+        if(garageClosed)txt='[E] OPEN WEAPONS<small>buy &amp; upgrade laser guns</small>';
         else{
           st_garage_open=2;
           const rows=armoryRows(),n=rows.length,ai=((armSel%n)+n)%n;let html='';
@@ -3673,18 +3687,18 @@ function updateHUD(dt){
             if(lv<0){no=myP.m<w.cost;act='[E] BUY '+w.name+' $'+w.cost.toLocaleString();}
             else if(lv>=NI.MAXUP){no=true;act=w.name+' IS FULLY UPGRADED';}
             else{const c=NI.UPCOST(row.id,lv);no=myP.m<c;act='[E] UPGRADE TO MK '+ROM[lv+1]+' $'+c.toLocaleString();}}
-          txt='ARMORY <span style="font-size:12px">('+(ai+1)+'/'+n+')</span><div class="glist tight">'+html+'</div><span class="act">'+act+'</span><small>'+info+'  -  UP/DOWN choose  -  [E]/X select  -  B close</small>';
+          txt='WEAPONS <span style="font-size:12px">('+(ai+1)+'/'+n+')</span><div class="glist tight">'+html+'</div><span class="act">'+act+'</span><small>'+info+'  -  UP/DOWN choose  -  [E]/X select  -  B close</small>';
         }
       }
       else if(st.k==='perks'){
-        if(garageClosed)txt='[E] OPEN PERK TOWER<small>permanent upgrades for your fighter</small>';
+        if(garageClosed)txt='[E] OPEN CHARACTER BUFFS<small>permanent upgrades for your fighter</small>';
         else{
           st_garage_open=2;
           const n=PERKS.length,pi=((perkSel%n)+n)%n;let html='';
           const PW=Math.max(0,Math.min(pi-3,n-8));
           PERKS.forEach((pk,i)=>{if(i<PW||i>=PW+8)return;const own=hasPk(pk.id),lk=pkLocked(pk);html+='<div class="gl'+(i===pi?' sel':'')+((own||lk||myP.m<pk.cost)?' bad':'')+'"><span>'+pk.name+'</span><span>'+(own?'OWNED':lk?'LOCKED':'$'+pk.cost.toLocaleString())+'</span></div>';});
           const pk=PERKS[pi],own=hasPk(pk.id);const lk=pkLocked(pk);no=own||lk||myP.m<pk.cost;
-          txt='PERK TOWER <span style="font-size:12px">('+(pi+1)+'/'+n+')</span><div class="glist tight">'+html+'</div><span class="act">'+(own?pk.name+' OWNED':lk?'LOCKED - buy '+PERKS[pk.req].name+' first':'[E] BUY '+pk.name+' $'+pk.cost.toLocaleString())+'</span><small>'+pk.desc+'  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';
+          txt='CHARACTER BUFFS <span style="font-size:12px">('+(pi+1)+'/'+n+')</span><div class="glist tight">'+html+'</div><span class="act">'+(own?pk.name+' OWNED':lk?'LOCKED - buy '+PERKS[pk.req].name+' first':'[E] BUY '+pk.name+' $'+pk.cost.toLocaleString())+'</span><small>'+pk.desc+'  -  UP/DOWN choose  -  [E]/X buy  -  B close</small>';
         }
       }
       else if(st.k==='forge'){const w=curW,lv=myP.wo[w];
