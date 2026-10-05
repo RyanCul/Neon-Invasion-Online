@@ -96,7 +96,64 @@ const CH_SHIRTS=[
   {id:9,name:'VICE SUNSET',     lvl:40,kind:'sunset',  base:'#0b1b5a',c2:'#ff2fa0',c3:'#ffe63c'},
   {id:10,name:'LEGEND FLORAL',  lvl:46,kind:'hibiscus',base:'#14101c',c2:'#25f4ff',c3:'#ff2fa0'}
 ];
-const CH_LISTS=[CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS];
+const CH_JACKETS=[
+  {id:0,name:'NO JACKET',        lvl:1, c:'#4b3a7a'},
+  {id:1,name:'WHITE LINEN BLAZER',lvl:3, col:0xf6f2e6,trim:0xdddddd,c:'#f6f2e6'},
+  {id:2,name:'PASTEL PINK BLAZER',lvl:7, col:0xffa8d2,trim:0xff6fb2,c:'#ffa8d2'},
+  {id:3,name:'MIAMI TEAL BLAZER', lvl:11,col:0x3fe0cf,trim:0xf4f4ff,c:'#3fe0cf'},
+  {id:4,name:'ORANGE BOMBER',    lvl:15,col:0xff8a3c,trim:0x222233,c:'#ff8a3c'},
+  {id:5,name:'LETTERMAN',        lvl:19,col:0x2f4bff,trim:0xffffff,c:'#2f4bff',kind:'letter'},
+  {id:6,name:'NEON TRACK JACKET',lvl:23,col:0x14102a,trim:0x25f4ff,glow:1,c:'#25f4ff'},
+  {id:7,name:'LEOPARD COAT',     lvl:29,col:0xd89a3c,trim:0x3a2210,kind:'leopard',c:'#d89a3c'},
+  {id:8,name:'CHROME JACKET',    lvl:34,col:0xc8d0e0,trim:0xffffff,glow:1,c:'#c8d0e0'},
+  {id:9,name:'SUNSET SATIN',     lvl:42,col:0xff3f8f,trim:0xffb347,c:'#ff3f8f'},
+  {id:10,name:'GOLD TUXEDO',     lvl:49,col:0xffc83c,trim:0x15101c,glow:1,c:'#ffc83c'}
+];
+const CH_CHAINS=[
+  {id:0,name:'NO CHAIN',        lvl:1, c:'#4b3a7a'},
+  {id:1,name:'GOLD CHAIN',      lvl:2, col:0xffc83c,pend:'',c:'#ffc83c'},
+  {id:2,name:'DOUBLE GOLD',     lvl:8, col:0xffc83c,pend:'double',c:'#ffd86a'},
+  {id:3,name:'PINK HEART',      lvl:14,col:0xff2fa0,pend:'heart',c:'#ff2fa0'},
+  {id:4,name:'DOLLAR COIN',     lvl:20,col:0xffc83c,pend:'coin',c:'#ffe27a'},
+  {id:5,name:'FLAMINGO CHARM',  lvl:27,col:0xff5fb0,pend:'flamingo',c:'#ff5fb0'},
+  {id:6,name:'PALM TREE',       lvl:33,col:0x2fd86a,pend:'palm',c:'#2fd86a'},
+  {id:7,name:'DIAMOND ICE',     lvl:40,col:0xdff6ff,pend:'diamond',c:'#dff6ff'},
+  {id:8,name:'NEON TUBE',       lvl:47,col:0x25f4ff,pend:'neon',glow:1,c:'#25f4ff'}
+];
+const CH_SHOES=[
+  {id:0,name:'BAREFOOT',        lvl:1, c:'#4b3a7a'},
+  {id:1,name:'WHITE SNEAKERS',  lvl:2, up:0xf4f4ff,sole:0xdddddd,c:'#f4f4ff'},
+  {id:2,name:'PINK HIGH-TOPS',  lvl:6, up:0xff5fb0,sole:0xffffff,hi:1,c:'#ff5fb0'},
+  {id:3,name:'JELLY SANDALS',   lvl:10,up:0x5fe3d6,sole:0x5fe3d6,kind:'sandal',c:'#5fe3d6'},
+  {id:4,name:'ROLLER SKATES',   lvl:16,up:0xff2fa0,sole:0xffffff,kind:'skate',c:'#ff2fa0'},
+  {id:5,name:'FLIP FLOPS',      lvl:21,up:0xffe63c,sole:0xff8a3c,kind:'sandal',c:'#ffe63c'},
+  {id:6,name:'NEON RUNNERS',    lvl:26,up:0x14102a,sole:0x25f4ff,glow:1,c:'#25f4ff'},
+  {id:7,name:'GOLD KICKS',      lvl:33,up:0xffc83c,sole:0xffffff,hi:1,c:'#ffc83c'},
+  {id:8,name:'ALIEN STOMPERS',  lvl:41,up:0x3cff9e,sole:0x1a3a2a,big:1,c:'#3cff9e'},
+  {id:9,name:'ROCKET BOOTS',    lvl:47,up:0xc8d0e0,sole:0x444455,kind:'rocket',c:'#ff9a3c'}
+];
+const CH_FACES=[
+  {id:0,name:'CLEAN FACE',      lvl:1, c:'#4b3a7a'},
+  {id:1,name:'VICE MUSTACHE',   lvl:4, kind:'stache',c:'#3a2210'},
+  {id:2,name:'HEADPHONES',      lvl:12,kind:'phones',col:0xff2fa0,c:'#ff2fa0'},
+  {id:3,name:'GOLD HOOP',       lvl:17,kind:'hoop',c:'#ffc83c'},
+  {id:4,name:'NEON FACE PAINT', lvl:22,kind:'paint',c:'#25f4ff'},
+  {id:5,name:'BANDANA MASK',    lvl:28,kind:'bandana',c:'#ff2040'},
+  {id:6,name:'DIAMOND GRILL',   lvl:35,kind:'grill',c:'#dff6ff'},
+  {id:7,name:'ALIEN ANTENNAE',  lvl:43,kind:'antenna',c:'#3cff9e'}
+];
+const CH_BACKS=[
+  {id:0,name:'NOTHING',         lvl:1, c:'#4b3a7a'},
+  {id:1,name:'SURFBOARD',       lvl:5, kind:'surf',c:'#25f4ff'},
+  {id:2,name:'BOOMBOX',         lvl:13,kind:'boombox',c:'#ff2fa0'},
+  {id:3,name:'PALM BACKPACK',   lvl:18,kind:'pack',c:'#2fd86a'},
+  {id:4,name:'ROCKET PACK',     lvl:25,kind:'rocket',c:'#ff9a3c'},
+  {id:5,name:'PINK CAPE',       lvl:31,kind:'cape',col:0xff5fb0,c:'#ff5fb0'},
+  {id:6,name:'ANGEL WINGS',     lvl:37,kind:'wings',col:0xffffff,c:'#f4f4ff'},
+  {id:7,name:'NEON WINGS',      lvl:44,kind:'wings',col:0x25f4ff,glow:1,c:'#25f4ff'},
+  {id:8,name:'GOLD CAPE',       lvl:50,kind:'cape',col:0xffc83c,glow:1,c:'#ffc83c'}
+];
+const CH_LISTS=[CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS];
 const MAXUP=9;                            // every weapon has 9 upgrades (MK II ... MK X): late-game power for the long haul
 const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
@@ -584,7 +641,7 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,ch:[0,0,0,0],jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,ch:[0,0,0,0,0,0,0,0,0],jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
@@ -1552,7 +1609,7 @@ class Game{
   }
 }
 
-const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);

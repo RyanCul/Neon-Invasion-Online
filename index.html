@@ -170,7 +170,7 @@ body.playing #pauseB{display:block}
 #menu #lvbox .xb{height:28px;border-width:3px;margin:4px 0}
 #menu #nameLab{font-size:16px;letter-spacing:6px}
 #lvbtns{display:flex;gap:6px;flex-wrap:nowrap;width:max-content}
-#menu button.sm#bLocker,#menu button.sm#bCust{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
+#menu button.sm#bCust{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
 #howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
@@ -226,7 +226,7 @@ body.playing #pauseB{display:block}
 #chprev{width:200px;height:260px;border:2px solid #a56bff;background:radial-gradient(circle at 50% 80%,#5a1a7a,#14062a);box-shadow:0 0 14px #a56bff}
 #chside{flex:1;min-width:280px}
 #chtabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-#chtabs div{flex:1;padding:6px 8px;border:2px solid #4b3a7a;cursor:pointer;font-size:13px;letter-spacing:2px;font-weight:bold;color:#e3c8ff;background:rgba(30,10,60,.7)}
+#chtabs div{flex:1 1 auto;padding:5px 7px;border:2px solid #4b3a7a;cursor:pointer;font-size:11px;letter-spacing:1px;font-weight:bold;color:#e3c8ff;background:rgba(30,10,60,.7)}
 #chtabs div.on{border-color:#ff2fa0;color:#fff;background:rgba(255,47,160,.3);box-shadow:0 0 10px #ff2fa0}
 #chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;max-height:230px;overflow:auto;padding:2px}
 #chgrid .sk{padding:6px}
@@ -281,7 +281,7 @@ body.playing #pauseB{display:block}
 <div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
-  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bLocker">LOCKER</button></div><div id="lvnote"></div></div>
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button></div><div id="lvnote"></div></div>
   <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button></div>
   <h1>NEON INVASION</h1>
   <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
@@ -304,7 +304,7 @@ body.playing #pauseB{display:block}
       <tr><td>MOUSE</td><td>aim / look</td></tr><tr><td>LEFT CLICK</td><td>fire</td></tr><tr><td>RIGHT CLICK</td><td>aim down sights</td></tr>
       <tr><td>R</td><td>reload</td></tr><tr><td>E</td><td>use: buy, enter car, revive a friend (hold)</td></tr>
       <tr><td>Q</td><td>change shop item</td></tr><tr><td>1-9 / WHEEL / F</td><td>switch weapon / quick swap</td></tr>
-      <tr><td>K</td><td>skins locker</td></tr><tr><td>TAB</td><td>pause menu (the game keeps going in co-op)</td></tr>
+      <tr><td>K</td><td>customize your character, guns and cars</td></tr><tr><td>TAB</td><td>pause menu (the game keeps going in co-op)</td></tr>
       <tr><td>O / G / M / N</td><td>settings / fullscreen / music / day-night</td></tr>
       <tr><td>L</td><td>full map (click the right stick on a controller)</td></tr>
     </table>
@@ -313,7 +313,7 @@ body.playing #pauseB{display:block}
       <tr><td>SHIFT</td><td>handbrake drift</td></tr><tr><td>MOUSE</td><td>look around the car (it re-centers by itself)</td></tr>
       <tr><td>V</td><td>hood camera</td></tr><tr><td>E</td><td>get out</td></tr>
     </table></div>
-    <div><h3>CONTROLLER</h3><table>
+    <div><h3 id="padHdr">CONTROLLER</h3><table id="padTbl">
       <tr><td>LEFT STICK</td><td>move / steer</td></tr><tr><td>RIGHT STICK</td><td>aim / look around the car</td></tr>
       <tr><td>RT</td><td>fire (gas while driving)</td></tr><tr><td>LT</td><td>aim down sights (brake while driving)</td></tr>
       <tr><td>A</td><td>jump (gas while driving)</td></tr><tr><td>B</td><td>hover (brake while driving)</td></tr>
@@ -325,7 +325,7 @@ body.playing #pauseB{display:block}
   </div>
   <div style="text-align:center"><button id="howClose">CLOSE</button></div></div></div>
 <div id="lbp"><div class="lbox"><h2>LEADERBOARD</h2><div id="lbbody">Loading...</div><button id="lbClose">CLOSE</button></div></div>
-<div id="locker"><div class="lbox"><h2>LOCKER</h2><p id="lkinfo"></p><h3 class="lh">CHARACTER</h3><div id="chwrap"><canvas id="chprev" width="400" height="520"></canvas><div id="chside"><div id="chtabs"></div><div id="chgrid"></div></div></div><h3 class="lh">GUN SKINS</h3><div id="skgrid"></div><h3 class="lh">CAR DESIGNS</h3><div id="csgrid"></div><button id="lkClose">CLOSE</button></div></div>
+<div id="locker"><div class="lbox"><h2>CUSTOMIZE</h2><p id="lkinfo"></p><h3 class="lh">CHARACTER</h3><div id="chwrap"><canvas id="chprev" width="400" height="520"></canvas><div id="chside"><div id="chtabs"></div><div id="chgrid"></div></div></div><h3 class="lh">GUN SKINS</h3><div id="skgrid"></div><h3 class="lh">CAR DESIGNS</h3><div id="csgrid"></div><button id="lkClose">CLOSE</button></div></div>
 <div id="err">Couldn&rsquo;t load a required file (Three.js or shared.js). The first run needs an internet connection for the 3D library.</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1649,8 +1649,75 @@ function buildShades(id){
   }
   return g;
 }
+function buildJacket(j){
+  const g=new THREE.Group(),m=new THREE.MeshLambertMaterial({color:j.col,emissive:j.glow?j.col:0x000000,emissiveIntensity:j.glow?0.35:0,side:2}),tm=new THREE.MeshLambertMaterial({color:j.trim,emissive:j.glow?j.trim:0x000000,emissiveIntensity:j.glow?0.5:0,side:2});
+  if(j.kind==='leopard'){const cv=document.createElement('canvas');cv.width=128;cv.height=64;const x=cv.getContext('2d');x.fillStyle='#d89a3c';x.fillRect(0,0,128,64);x.fillStyle='#3a2210';for(let i=0;i<34;i++){x.beginPath();x.arc((i*47)%128,(i*29)%64,3+(i%3),0,6.3);x.fill();}const tx=new THREE.CanvasTexture(cv);tx.wrapS=tx.wrapT=THREE.RepeatWrapping;tx.repeat.set(2,1);m.map=tx;m.color.setHex(0xffffff);}
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.6,0.98,16,1,true,0.75,6.283-1.5),m);body.position.y=0.92;g.add(body);
+  for(const sx of[-1,1]){const sl=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.24,0.5,10),j.kind==='letter'?tm:m);sl.position.set(sx*0.6,1.15,0);sl.rotation.z=sx*0.38;g.add(sl);
+    const cf=new THREE.Mesh(new THREE.CylinderGeometry(0.245,0.245,0.08,10),tm);cf.position.set(sx*0.74,0.93,0);cf.rotation.z=sx*0.38;g.add(cf);
+    const lp=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.55,0.05),tm);lp.position.set(sx*0.2,1.12,0.55);lp.rotation.z=-sx*0.3;g.add(lp);}
+  const hem=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.1,16,1,true,0.75,6.283-1.5),tm);hem.position.y=0.46;g.add(hem);
+  const col=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.1,12,1,true,0.9,6.283-1.8),tm);col.position.y=1.4;g.add(col);
+  return g;
+}
+function buildChain(c){
+  const g=new THREE.Group(),mat=c.glow?new THREE.MeshBasicMaterial({color:c.col}):new THREE.MeshLambertMaterial({color:c.col,emissive:c.col,emissiveIntensity:0.35});
+  const ring=(r,y,tube)=>{const t=new THREE.Mesh(new THREE.TorusGeometry(r,tube||0.035,6,16),mat);t.rotation.x=1.5708;t.position.y=y;g.add(t);};
+  ring(0.4,1.34);ring(0.46,1.22);if(c.pend==='double')ring(0.5,1.1,0.045);
+  const P=new THREE.Group();P.position.set(0,1.0,0.5);g.add(P);
+  const add=(geo,x,y,z,rx,rz)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(rx)m.rotation.x=rx;if(rz)m.rotation.z=rz;P.add(m);return m;};
+  switch(c.pend){
+    case 'heart':add(new THREE.SphereGeometry(0.09,8,6),-0.06,0.05,0);add(new THREE.SphereGeometry(0.09,8,6),0.06,0.05,0);{const k=add(new THREE.ConeGeometry(0.13,0.2,4),0,-0.07,0,0,3.1416);k.scale.z=0.5;}break;
+    case 'coin':{const k=add(new THREE.CylinderGeometry(0.13,0.13,0.03,14),0,0,0,1.5708);k.scale.y=1;add(new THREE.BoxGeometry(0.05,0.15,0.01),0,0,0.03);}break;
+    case 'flamingo':add(new THREE.SphereGeometry(0.1,8,6),0,-0.04,0);add(new THREE.CylinderGeometry(0.025,0.025,0.2,5),0.06,0.1,0,0,-0.4);add(new THREE.BoxGeometry(0.05,0.03,0.07),0.1,0.2,0.0);break;
+    case 'palm':add(new THREE.CylinderGeometry(0.02,0.03,0.2,5),0,-0.05,0);for(let i=0;i<5;i++){const l=add(new THREE.BoxGeometry(0.04,0.01,0.2),Math.sin(i*1.25)*0.08,0.08,Math.cos(i*1.25)*0.05);l.rotation.y=i*1.25;l.rotation.x=0.4;}break;
+    case 'diamond':{const k=add(new THREE.OctahedronGeometry(0.13),0,0,0);k.scale.y=1.3;}break;
+    case 'neon':{const k=add(new THREE.CylinderGeometry(0.035,0.035,0.5,6),0,0.05,0,0,1.5708);}break;
+    default:add(new THREE.SphereGeometry(0.05,6,5),0,0.02,0);
+  }
+  return g;
+}
+function buildShoes(s){
+  const g=new THREE.Group(),up=s.glow?new THREE.MeshBasicMaterial({color:s.up}):new THREE.MeshLambertMaterial({color:s.up}),so=s.glow?new THREE.MeshBasicMaterial({color:s.sole}):new THREE.MeshLambertMaterial({color:s.sole}),leg=new THREE.MeshLambertMaterial({color:0x2a2140});
+  for(const sx of[-1,1]){
+    const lg=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.13,0.26,8),leg);lg.position.set(sx*0.2,0.14,0);g.add(lg);
+    const w=s.big?0.4:0.3,h=s.big?0.3:(s.kind==='sandal'?0.07:0.17),d=s.big?0.7:0.52;
+    const sh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),up);sh.position.set(sx*0.2,h/2+0.05,0.1);g.add(sh);
+    const sl=new THREE.Mesh(new THREE.BoxGeometry(w+0.02,0.05,d+0.03),so);sl.position.set(sx*0.2,0.03,0.1);g.add(sl);
+    if(s.hi){const hi=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.14,0.28,8),up);hi.position.set(sx*0.2,0.28,0.0);g.add(hi);}
+    if(s.kind==='sandal'){const st=new THREE.Mesh(new THREE.BoxGeometry(w,0.05,0.07),up);st.position.set(sx*0.2,0.12,0.12);g.add(st);}
+    if(s.kind==='skate'){for(const [wx,wz] of[[-0.1,-0.1],[0.1,-0.1],[-0.1,0.28],[0.1,0.28]]){const wh=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.05,8),new THREE.MeshBasicMaterial({color:0x25f4ff}));wh.rotation.z=1.5708;wh.position.set(sx*0.2+wx,0.0,wz+0.1);g.add(wh);}}
+    if(s.kind==='rocket'){const fl=new THREE.Mesh(new THREE.ConeGeometry(0.1,0.3,6),new THREE.MeshBasicMaterial({color:0xff9a3c}));fl.rotation.x=3.1416;fl.position.set(sx*0.2,-0.12,0.0);g.add(fl);const bt=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.17,0.3,8),up);bt.position.set(sx*0.2,0.3,0);g.add(bt);}
+  }
+  return g;
+}
+function buildFace(f){
+  const g=new THREE.Group(),A=(o)=>{g.add(o);return o;},bm=(c,basic)=>basic?new THREE.MeshBasicMaterial({color:c}):new THREE.MeshLambertMaterial({color:c});
+  switch(f.kind){
+    case 'stache':{const d=bm(0x2a1a0a);A(new THREE.Mesh(new THREE.BoxGeometry(0.3,0.07,0.06),d)).position.set(0,1.6,0.37);for(const sx of[-1,1]){const e=A(new THREE.Mesh(new THREE.BoxGeometry(0.12,0.05,0.05),d));e.position.set(sx*0.17,1.58,0.35);e.rotation.z=-sx*0.5;}break;}
+    case 'phones':{const m=new THREE.MeshLambertMaterial({color:f.col,emissive:f.col,emissiveIntensity:0.5});const ar=A(new THREE.Mesh(new THREE.TorusGeometry(0.43,0.035,6,16,Math.PI),m));ar.position.y=1.72;for(const sx of[-1,1]){const c=A(new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.14,0.1,10),m));c.rotation.z=1.5708;c.position.set(sx*0.43,1.7,0);}break;}
+    case 'hoop':{const t=A(new THREE.Mesh(new THREE.TorusGeometry(0.07,0.015,6,12),bm(0xffc83c,true)));t.position.set(0.39,1.58,0.02);t.rotation.y=1.5708;break;}
+    case 'paint':for(const sx of[-1,1]){for(let i=0;i<2;i++){const b=A(new THREE.Mesh(new THREE.BoxGeometry(0.12,0.025,0.02),bm(i?0xff2fa0:0x25f4ff,true)));b.position.set(sx*0.22,1.66-i*0.06,0.33);b.rotation.z=sx*0.4;}}break;
+    case 'bandana':{const m=A(new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,0.18,12,1,true,-1.3,2.6),new THREE.MeshLambertMaterial({color:0xff2040,side:2})));m.position.y=1.56;const kn=A(new THREE.Mesh(new THREE.BoxGeometry(0.12,0.1,0.06),bm(0xc01030)));kn.position.set(0.4,1.56,-0.1);break;}
+    case 'grill':{const gr=A(new THREE.Mesh(new THREE.BoxGeometry(0.2,0.05,0.03),bm(0xffffff,true)));gr.position.set(0,1.56,0.38);const gd=A(new THREE.Mesh(new THREE.BoxGeometry(0.2,0.015,0.035),bm(0xffc83c,true)));gd.position.set(0,1.585,0.385);break;}
+    case 'antenna':for(const sx of[-1,1]){const st=A(new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.4,5),bm(0x3cff9e)));st.position.set(sx*0.16,2.2,0);st.rotation.z=-sx*0.25;const bl=A(new THREE.Mesh(new THREE.SphereGeometry(0.07,8,6),bm(0x3cff9e,true)));bl.position.set(sx*0.26,2.39,0);}break;
+  }
+  return g;
+}
+function buildBack(b){
+  const g=new THREE.Group(),A=(o,x,y,z)=>{o.position.set(x,y,z);g.add(o);return o;},L=(c)=>new THREE.MeshLambertMaterial({color:c}),B=(c)=>new THREE.MeshBasicMaterial({color:c});
+  switch(b.kind){
+    case 'surf':{const s=A(new THREE.Mesh(new THREE.BoxGeometry(0.5,1.9,0.07),L(0x25f4ff)),0.1,1.0,-0.58);s.rotation.z=0.18;A(new THREE.Mesh(new THREE.BoxGeometry(0.12,1.9,0.075),B(0xff2fa0)),0.1,1.0,-0.585).rotation.z=0.18;A(new THREE.Mesh(new THREE.ConeGeometry(0.25,0.4,8),L(0x25f4ff)),0.28,2.15,-0.58).rotation.z=0.18;break;}
+    case 'boombox':{A(new THREE.Mesh(new THREE.BoxGeometry(0.9,0.5,0.3),L(0x222233)),0,1.15,-0.6);for(const sx of[-1,1]){const c=A(new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,0.04,10),B(0xff2fa0)),sx*0.25,1.15,-0.76);c.rotation.x=1.5708;}A(new THREE.Mesh(new THREE.BoxGeometry(0.7,0.05,0.05),L(0xcccccc)),0,1.45,-0.6);break;}
+    case 'pack':{A(new THREE.Mesh(new THREE.BoxGeometry(0.7,0.9,0.3),L(0x1f8a4a)),0,1.0,-0.6);for(let i=0;i<5;i++){const l=A(new THREE.Mesh(new THREE.BoxGeometry(0.1,0.02,0.5),L(0x2fd86a)),(i-2)*0.16,1.55,-0.75);l.rotation.x=-0.5;l.rotation.z=(i-2)*0.2;}break;}
+    case 'rocket':for(const sx of[-1,1]){A(new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.17,0.9,10),L(0xc8d0e0)),sx*0.22,1.0,-0.62);A(new THREE.Mesh(new THREE.ConeGeometry(0.15,0.25,10),L(0xff2040)),sx*0.22,1.57,-0.62);const f=A(new THREE.Mesh(new THREE.ConeGeometry(0.12,0.5,8),B(0xff9a3c)),sx*0.22,0.3,-0.62);f.rotation.x=3.1416;}break;
+    case 'cape':{const m=new THREE.Mesh(new THREE.BoxGeometry(1.0,1.5,0.04),b.glow?B(b.col):L(b.col));A(m,0,0.85,-0.56).rotation.x=-0.12;A(new THREE.Mesh(new THREE.BoxGeometry(1.04,0.08,0.06),B(0xffffff)),0,1.55,-0.52);break;}
+    case 'wings':for(const sx of[-1,1])for(let i=0;i<4;i++){const f=A(new THREE.Mesh(new THREE.BoxGeometry(0.14,0.9-i*0.12,0.03),b.glow?B(i%2?0xff2fa0:b.col):L(b.col)),sx*(0.45+i*0.2),1.4-i*0.12,-0.5-i*0.04);f.rotation.z=sx*(-0.7+i*0.15);f.rotation.y=sx*0.3;}break;
+  }
+  return g;
+}
 function applyCos(g,ch){
-  ch=ch||[0,0,0,0];const u=g.userData,cos=u.cos;
+  ch=ch||[];const u=g.userData,cos=u.cos;
   while(cos.children.length)cos.remove(cos.children[0]);
   const key=ch.join(',');u.chKey=key;
   const suit=NI.CH_SUITS[ch[0]]||NI.CH_SUITS[0],hat=ch[1]|0,sh=ch[2]|0,shirt=NI.CH_SHIRTS[ch[3]]||NI.CH_SHIRTS[0];
@@ -1670,6 +1737,11 @@ function applyCos(g,ch){
   u.vis.visible=sh===0;
   if(hat)cos.add(buildHat(hat));
   if(sh)cos.add(buildShades(sh));
+  if(ch[4])cos.add(buildJacket(NI.CH_JACKETS[ch[4]]));
+  if(ch[5])cos.add(buildChain(NI.CH_CHAINS[ch[5]]));
+  if(ch[6])cos.add(buildShoes(NI.CH_SHOES[ch[6]]));
+  if(ch[7])cos.add(buildFace(NI.CH_FACES[ch[7]]));
+  if(ch[8])cos.add(buildBack(NI.CH_BACKS[ch[8]]));
 }
 function cosTick(g,t){const u=g.userData;if(u.rainbow){u.body.material.color.setHSL((t*0.25)%1,1,0.55);u.body.material.emissive.setHSL((t*0.25)%1,1,0.4);}}
 
@@ -1941,11 +2013,11 @@ function levelColor(w,lv,t,sk){
 /* ================= profile: level, XP, skins (saved in this browser) ================= */
 const PKEY='ni_prof_v1',PEND='ni_pend_v1';
 let myName='PLAYER';
-let prof={xp:0,skin:0,car:0,ch:[0,0,0,0]},pend=0,gameXP=0,lastK=0,joinRound=1,firstSnap=true,lockerOpen=false;
+let prof={xp:0,skin:0,car:0,ch:[0,0,0,0,0,0,0,0,0]},pend=0,gameXP=0,lastK=0,joinRound=1,firstSnap=true,lockerOpen=false;
 function loadProf(){
   try{
     const o=JSON.parse(localStorage.getItem(PKEY)||'null');
-    if(o&&typeof o.xp==='number')prof={xp:Math.max(0,o.xp|0),skin:o.skin|0,car:o.car|0,ch:Array.isArray(o.ch)?[0,1,2,3].map(i=>o.ch[i]|0):[0,0,0,0]};
+    if(o&&typeof o.xp==='number')prof={xp:Math.max(0,o.xp|0),skin:o.skin|0,car:o.car|0,ch:NI.CH_LISTS.map((l,i)=>Array.isArray(o.ch)?(o.ch[i]|0):0)};
     pend=parseInt(localStorage.getItem(PEND)||'0',10)||0;
   }catch(e){}
 }
@@ -2114,7 +2186,7 @@ function showOverSummary(roundNum){
   { const names=[];NI.CH_LISTS.forEach((l,i)=>{for(const s of l)if(s.lvl>before.L&&s.lvl<=after.L)names.push(s.name);});
     if(names.length)html+='<div class="unl">NEW STYLE UNLOCKED: '+names.join(', ')+'  (press K)</div>'; }
   if(unlC.length)html+='<div class="unl">NEW CAR DESIGN UNLOCKED: '+unlC.map(s=>s.name).join(', ')+'  (press K)</div>';
-  $('overXP').innerHTML=html;
+  $('overXP').innerHTML=PT(html);
   const bar=$('overXP').querySelector('.xb i');
   setTimeout(()=>{if(bar)bar.style.width=pctA+'%';},60);
   refreshLv();
@@ -2144,7 +2216,7 @@ function renderLocker(){
     cg.appendChild(d);
   }
 }
-const CH_TABS=['SUIT','HATS','SHADES','SHIRTS'];let chTab=0,chPrev=null;
+const CH_TABS=['SUIT','HATS','SHADES','SHIRTS','JACKETS','CHAINS','SHOES','FACE','BACK'];let chTab=0,chPrev=null;
 function chSwatch(i,s){
   if(i===0)return s.col==='rainbow'?skSwatch({col:'rainbow'}):'linear-gradient(90deg,'+s.c+','+s.c+')';
   if(i===3){if(s.kind==='none')return '#4b3a7a';const cv=shirtCanvas(s);return 'url('+cv.toDataURL()+') center/cover';}
@@ -2167,9 +2239,9 @@ function startChPrev(){
   if(!chPrev){
     let rd;try{rd=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});}catch(e){return;}
     rd.setSize(200,260,false);rd.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
-    const sc=new THREE.Scene(),cm=new THREE.PerspectiveCamera(35,200/260,0.1,50);cm.position.set(0,1.9,6.2);cm.lookAt(0,1.75,0);
+    const sc=new THREE.Scene(),cm=new THREE.PerspectiveCamera(35,200/260,0.1,50);cm.position.set(0,1.5,7.6);cm.lookAt(0,1.2,0);
     sc.add(new THREE.AmbientLight(0xffffff,0.9));const dl=new THREE.DirectionalLight(0xffd0f0,0.8);dl.position.set(3,4,5);sc.add(dl);
-    const col=(myP&&myP.c)||0xff2fa0;const g=makePlayerMesh(col,'',prof.ch,true);g.scale.setScalar(1.15);g.position.y=-0.3;sc.add(g);
+    const col=(myP&&myP.c)||0xff2fa0;const g=makePlayerMesh(col,'',prof.ch,true);g.scale.setScalar(1.0);g.position.y=0;sc.add(g);
     chPrev={rd,sc,cm,g};
   }
   applyCos(chPrev.g,prof.ch);
@@ -2365,7 +2437,7 @@ function updateWave(dt){
   const d=new THREE.Vector3();camera.getWorldDirection(d);const l=Math.hypot(d.x,d.z)||1,fx=d.x/l,fz=d.z/l;
   sd.forEach((a,i)=>{const dx=Math.cos(a),dz=Math.sin(a);wa.children[i].style.transform='rotate('+Math.atan2(dx*(-fz)+dz*fx,dx*fx+dz*fz)+'rad)';});
 }
-function toast(t,sub){const el=$('toast');el.innerHTML=t+(sub?'<small>'+sub+'</small>':'');el.classList.add('show');toastT=2.6;}
+function toast(t,sub){const el=$('toast');el.innerHTML=PT(t+(sub?'<small>'+sub+'</small>':''));el.classList.add('show');toastT=2.6;}
 
 /* ================= settings, accessibility, feedback, weather, extras ================= */
 const SET_DEF={music:35,sfx:100,sens:100,pad:100,shake:100,flash:true,dn:true,cb:false,big:false};
@@ -2608,6 +2680,44 @@ addEventListener('mousemove',e=>{
 /* ---------- controller (Gamepad API, standard mapping) ----------
    Left stick move/steer | Right stick look | RT fire | LT reload/refuel | A jump/jet up | B hover
    X use/revive | Y use / back to base | LB/RB weapon | L3 sprint | D-pad: up=base, left=shop, right=car cam, down=skins | Start=skins */
+/* ---- controller awareness: the on-screen hints switch to the pad's own button names as soon as you touch it ---- */
+let usingPad=false,padType='xbox',lastUP=null;
+const PADN={
+  xbox:{a:'A',b:'B',x:'X',y:'Y',lb:'LB',rb:'RB',lt:'LT',rt:'RT',start:'MENU',back:'VIEW',l3:'L3',r3:'R3'},
+  ps:{a:'CROSS',b:'CIRCLE',x:'SQUARE',y:'TRIANGLE',lb:'L1',rb:'R1',lt:'L2',rt:'R2',start:'OPTIONS',back:'SHARE',l3:'L3',r3:'R3'},
+  switch:{a:'B',b:'A',x:'Y',y:'X',lb:'L',rb:'R',lt:'ZL',rt:'ZR',start:'+',back:'-',l3:'L3',r3:'R3'}};
+const PB=k=>PADN[padType][k];
+function padKind(id){id=(id||'').toLowerCase();if(/054c|dualshock|dualsense|playstation|wireless controller|sony/.test(id))return'ps';if(/057e|nintendo|switch|pro controller|joy-con/.test(id))return'switch';return'xbox';}
+function PT(s){
+  if(!usingPad||typeof s!=='string')return s;
+  const A=PB('a'),B=PB('b'),X=PB('x'),RT=PB('rt'),LT=PB('lt');
+  return s
+    .replace(/\[E\]\/X/g,'['+X+']').replace(/\[E\]/g,'['+X+']')
+    .replace(/UP\/DOWN choose/g,'STICK / D-PAD choose').replace(/\bB close\b/g,B+' close')
+    .replace(/\(press K\)/g,'(D-PAD DOWN)')
+    .replace(/HOLD SPACE TO FLY - C TO HOVER - R REFUELS ON THE GROUND/,'HOLD '+A+' TO FLY - '+B+' TO HOVER - '+X+' REFUELS ON THE GROUND')
+    .replace(/hold SPACE to fly, C to hover/,'hold '+A+' to fly, '+B+' to hover').replace(/R refuels on the ground/,X+' refuels on the ground')
+    .replace(/WASD fly - MOUSE aim - SPACE up - C down - CLICK fire/,'LEFT STICK fly - RIGHT STICK aim - '+A+' up - '+B+' down - '+RT+' fire')
+    .replace(/W\/S gas &amp; brake - A\/D steer - SHIFT handbrake - MOUSE look - V camera\s*\|\s*PAD: hold RT\/A gas, LT\/B brake, left stick steer/,'hold '+RT+' / '+A+' gas - '+LT+' / '+B+' brake - LEFT STICK steer - '+PB('l3')+' handbrake - RIGHT STICK look - D-PAD RIGHT hood camera')
+    .replace(/click to fire the gun when it is free/,'press '+RT+' to fire the gun when it is free')
+    .replace(/CLICK \/ RT = MINIGUNS/,RT+' = MINIGUNS')
+    .replace(/V = CHANGE CAMERA &nbsp;-&nbsp; ARROW KEYS \/ LB RB \/ CLICK = SWITCH PLAYER/,PB('lb')+' / '+PB('rb')+' = SWITCH PLAYER')
+    .replace(/PRESS SPACE \/ A \/ CLICK START WHEN EVERYONE IS IN/,'PRESS '+A+' TO START WHEN EVERYONE IS IN')
+    .replace(/press L \(or click the right stick\) to close/,'click the right stick ('+PB('r3')+') to close')
+    .replace(/in the garage: Q/g,'in the garage: stick');
+}
+function padTable(){
+  const R=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
+  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'jump (gas while driving)')+R(PB('b'),'hover (brake while driving)')+R(PB('x'),'use: buy, enter a car, revive (hold) / reload')+R(PB('y'),'use, or back to the starting area')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3'),'sprint (handbrake while driving)')+R('D-PAD UP / DOWN','back to base / customize')+R('D-PAD RIGHT','hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back'),'fullscreen')+R(PB('r3'),'full map');
+}
+function refreshPadUI(){
+  const key=usingPad+padType;if(lastUP===key)return;lastUP=key;
+  const pt=$('padTbl');if(pt)pt.innerHTML=padTable();
+  const pb=$('pauseB');if(pb)pb.textContent=usingPad?'II MENU ('+PB('start')+')':'II MENU (TAB)';
+  const ph=$('padHdr');if(ph)ph.textContent='CONTROLLER'+(padType==='ps'?' (PLAYSTATION)':padType==='switch'?' (SWITCH)':' (XBOX)');
+}
+for(const ev of['keydown','mousedown'])addEventListener(ev,()=>{if(usingPad){usingPad=false;refreshPadUI();}},true);
+addEventListener('mousemove',e=>{if(usingPad&&Math.abs(e.movementX||0)+Math.abs(e.movementY||0)>3){usingPad=false;refreshPadUI();}},true);
 let padPrev=[],padRT=false;
 const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<NW;i++){w=(w+dir+NW)%NW;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
@@ -2619,7 +2729,8 @@ function pollPad(dt){
   const lx=dz(gp.axes[0]||0),ly=dz(gp.axes[1]||0),rx=dz(gp.axes[2]||0),ry=dz(gp.axes[3]||0);
   const edge=i=>B(i)&&!padPrev[i];
   const any=lx||ly||rx||ry||gp.buttons.some(b=>b.pressed);
-  if(any){pad.on=true;pad.t=performance.now();}
+  if(any){pad.on=true;pad.t=performance.now();usingPad=true;}
+  padType=padKind(gp.id);refreshPadUI();
   if(!started){ if(any)menuMusic(); if(edge(0)||edge(9)){const b=$('bSolo');if(b&&$('menu')&&$('menu').style.display!=='none')b.click();} padPrev=gp.buttons.map(b=>b.pressed);return; }
   if(userPause){ if(edge(9)||edge(1))setPause(false); padPrev=gp.buttons.map(b=>b.pressed);return; }
   if(lockerOpen){ if(edge(1)||edge(9))closeLocker(); padPrev=gp.buttons.map(b=>b.pressed);return; }
@@ -2660,7 +2771,7 @@ function pollPad(dt){
   if(edge(9)&&(mode==='solo'||mode==='online')){setPause(!userPause);}else if((edge(13)&&!garageActive())||edge(9))openLocker();
   padPrev=gp.buttons.map(b=>b.pressed);
 }
-addEventListener('gamepadconnected',e=>{if(started)toast('CONTROLLER CONNECTED','LS move - RS look - RT fire - A jump');});
+addEventListener('gamepadconnected',e=>{padType=padKind(e.gamepad&&e.gamepad.id);usingPad=true;refreshPadUI();if(started)toast('CONTROLLER CONNECTED','LS move - RS look - '+PB('rt')+' fire - '+PB('a')+' jump - '+PB('x')+' use');});
 addEventListener('wheel',e=>{if(!started||driving>=0)return;const dir=e.deltaY>0?1:-1;cycleW(dir);});
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===canvas;if(locked)wasLocked=true;$('lock').style.display=(started&&!locked&&!userPause&&!lockerOpen&&!(S&&gameOverShown))?'flex':'none';});
 $('lock').addEventListener('click',requestLock);
@@ -3022,7 +3133,7 @@ function drawBig(){
   for(const r of remotes.values()){if(!r.p||(r.p.st!=='dead'&&r.p.st!=='down'))continue;const rx=r.x!==undefined?r.x:r.tx,rz=r.z!==undefined?r.z:r.tz;if(rx===undefined)continue;const pr=0.5+0.5*Math.sin(elapsed*6);
     bg.strokeStyle='#3c8cff';bg.fillStyle='rgba(60,140,255,0.35)';bg.lineWidth=4;bg.beginPath();bg.arc(X(rx),Z(rz),18+pr*10,0,6.3);bg.fill();bg.stroke();bg.fillStyle='#fff';bg.font='bold 16px sans-serif';bg.fillText('\u2716 '+(r.p.n||''),X(rx)+24,Z(rz)+6);}
   bg.save();bg.translate(X(me.x),Z(me.z));bg.rotate(-me.yaw);bg.fillStyle='#fff';bg.strokeStyle='#ff2fa0';bg.lineWidth=2;bg.beginPath();bg.moveTo(0,-11);bg.lineTo(8,9);bg.lineTo(-8,9);bg.closePath();bg.fill();bg.stroke();bg.restore();
-  bg.fillStyle='rgba(0,0,0,.6)';bg.fillRect(0,0,MMW,24);bg.fillStyle='#25f4ff';bg.font='bold 14px sans-serif';bg.fillText('FULL MAP  -  press L (or click the right stick) to close',10,17);
+  bg.fillStyle='rgba(0,0,0,.6)';bg.fillRect(0,0,MMW,24);bg.fillStyle='#25f4ff';bg.font='bold 14px sans-serif';bg.fillText(PT('FULL MAP  -  press L (or click the right stick) to close'),10,17);
 }
 function drawMini(){
   const R=130,sc=180/(R*2);
@@ -3124,7 +3235,7 @@ function updateHUD(dt){
       for(const p of all)html+='<span style="color:'+(p.me?'#fff3b0':'#fff')+'">'+(p.n||'PLAYER')+(p.id===S.rd.h?' (HOST)':'')+(p.me?' (YOU)':'')+'</span>';
       if($('lbPlayers').innerHTML!==html)$('lbPlayers').innerHTML=html;
       const host=S.rd.h===myId;$('lbStart').disabled=!host;
-      $('lbHint').textContent=host?'PRESS SPACE / A / CLICK START WHEN EVERYONE IS IN':'WAITING FOR THE HOST TO START...';
+      $('lbHint').textContent=PT(host?'PRESS SPACE / A / CLICK START WHEN EVERYONE IS IN':'WAITING FOR THE HOST TO START...');
     }else lb.style.display='none';
   }
   // status
@@ -3139,7 +3250,7 @@ function updateHUD(dt){
   $('boss').firstChild.nodeValue=boss&&boss.t===18?'ALIEN SHARK':boss&&boss.t===17?'THE OVERMIND':boss&&boss.t===12?'GODZILLA ALIEN':'BOSS ALIEN';
   $('boss').style.display=boss?'block':'none';if(boss)$('boss').querySelector('i').style.width=boss.hp+'%';
   // ammo
-  if(driving>=0){$('ammo').innerHTML='<small class="wn" style="color:#'+CARS[carsM.get(driving)?carsM.get(driving).t:0].color.toString(16).padStart(6,'0')+'">'+(carsM.get(driving)?CARS[carsM.get(driving).t].name:'')+'</small>'+(carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli'?Math.round(cs.y)+'<small>FT ALT - CLICK / RT = MINIGUNS</small>':Math.round(Math.hypot(cs.vx,cs.vz)*2.2)+'<small>MPH - RAM THEM</small>');}
+  if(driving>=0){$('ammo').innerHTML=PT('<small class="wn" style="color:#'+CARS[carsM.get(driving)?carsM.get(driving).t:0].color.toString(16).padStart(6,'0')+'">'+(carsM.get(driving)?CARS[carsM.get(driving).t].name:'')+'</small>'+(carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli'?Math.round(cs.y)+'<small>FT ALT - CLICK / RT = MINIGUNS</small>':Math.round(Math.hypot(cs.vx,cs.vz)*2.2)+'<small>MPH - RAM THEM</small>'));}
   else{
     const w=WPN[curW],a=ammo[curW],lv=Math.max(0,myP.wo[curW]);const c=levelColor(curW,lv,tmNow);const hex='#'+c.getHexString();
     $('ammo').innerHTML='<small class="wn" style="color:'+hex+';text-shadow:0 0 8px '+hex+'">'+w.name+(lv?' MK '+ROM[lv]:'')+'</small>'+(w.melee?'&infin;':(reloadT>0?'<span class="rl">RELOADING</span>':a.mag+'<span style="font-size:20px;color:#9ffcff"> / '+a.res+'</span>'));
@@ -3235,9 +3346,9 @@ function updateHUD(dt){
       }
     }
   }
-  pr.style.top=(st_garage_open===2?'13%':st_garage_open?'24%':(driving>=0?'80%':'60%'));pr.style.display=txt?'block':'none';pr.innerHTML=txt;pr.classList.toggle('no',no);pr.classList.toggle('menu',!!st_garage_open);
+  pr.style.top=(st_garage_open===2?'13%':st_garage_open?'24%':(driving>=0?'80%':'60%'));pr.style.display=txt?'block':'none';pr.innerHTML=PT(txt);pr.classList.toggle('no',no);pr.classList.toggle('menu',!!st_garage_open);
   {let pk='';for(const p of PERKS)if(hasPk(p.id))pk+='<span>'+p.name+'</span>';if(pk!==pkCache){pkCache=pk;$('pkbar').innerHTML=pk;}}
-  {const sp=$('spec');if(myP.st==='dead'){const sl=specList();if(sl.length){const rr=remotes.get(specId)||remotes.get(sl[0]);sp.style.display='block';sp.innerHTML='SPECTATING '+(rr&&rr.p?rr.p.n:'')+'<small>'+SPECN[specMode]+' &nbsp;-&nbsp; V = CHANGE CAMERA &nbsp;-&nbsp; ARROW KEYS / LB RB / CLICK = SWITCH PLAYER</small>';}else sp.style.display='none';}else sp.style.display='none';}
+  {const sp=$('spec');if(myP.st==='dead'){const sl=specList();if(sl.length){const rr=remotes.get(specId)||remotes.get(sl[0]);sp.style.display='block';sp.innerHTML=PT('SPECTATING '+(rr&&rr.p?rr.p.n:'')+'<small>'+SPECN[specMode]+' &nbsp;-&nbsp; V = CHANGE CAMERA &nbsp;-&nbsp; ARROW KEYS / LB RB / CLICK = SWITCH PLAYER</small>');}else sp.style.display='none';}else sp.style.display='none';}
   // downed / dead
   const dw=$('down');
   if(myP.st==='down'){dw.style.display='flex';$('downT').textContent="YOU'RE DOWN";$('downP').textContent='BLEEDING OUT '+Math.ceil(myP.bl)+'s - A TEAMMATE CAN REVIVE YOU'+(myP.rp>0?' ('+Math.round(myP.rp/3*100)+'%)':'');}
@@ -3448,7 +3559,7 @@ function frame(now){
   const getName=()=>{const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
   if(!$('name').value)$('name').focus();
-  $('bLocker').onclick=openLocker;$('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;
+  $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
