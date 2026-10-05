@@ -204,6 +204,7 @@ function genWorld(seed){
   }
   const NAMES=['ARCADE','NEON CLUB','VIDEO RENTAL','DINER','ROLLER RINK','HOTEL LOBBY','TIKI BAR','RECORD SHOP'];
   /* an enterable building: 4 walls with a door gap, a roof, two counters, loot inside */
+  let dinerN=0;
   function addHouse(cx,cz){
     const S=34,t=1.6,H=20+Math.floor(rand()*4),gap=11,k=Math.floor(rand()*4);
     const tex=Math.floor(rand()*4),pal=Math.floor(rand()*8),neon=Math.floor(rand()*5);
@@ -224,7 +225,7 @@ function genWorld(seed){
     part(9,-1,2.2,8,1.0,{k:'prop'});
     part(-14.8,4,2.0,3.2,3.2,{k:'prop',vend:1});   // vending machine: heal for $250
     const dl=R(0,S/2+2);
-    const vp=R(-12.8,4);houses.push({x:cx,z:cz,S,H,k,name:NAMES[Math.floor(rand()*NAMES.length)],neon,pal,tex,dx:cx+dl[0],dz:cz+dl[1],vx:cx+vp[0],vz:cz+vp[1]});
+    const vp=R(-12.8,4);houses.push({x:cx,z:cz,S,H,k,name:(()=>{let n=NAMES[Math.floor(rand()*NAMES.length)];if(n==='DINER'&&(++dinerN)%2===0)n='PIZZA SHOP';return n;})(),neon,pal,tex,dx:cx+dl[0],dz:cz+dl[1],vx:cx+vp[0],vz:cz+vp[1]});
     const corners=[[-12,-12],[12,-12],[-12,12],[12,12]],skip=Math.floor(rand()*4);
     corners.forEach((c,i)=>{if(i===skip)return;const r=R(c[0],c[1]);loot.push({x:cx+r[0],y:1.3,z:cz+r[1],t:0});});
     const rr=R(0,-13);loot.push({x:cx+rr[0],y:1.3,z:cz+rr[1],t:1});
@@ -245,6 +246,13 @@ function genWorld(seed){
       for(let i=0;i<5;i++)prop(-12.5+i*1.9,9,0.9,0.9,1.2,3);
     }else if(nm==='VIDEO RENTAL'){
       prop(-12.5,-1,1.2,8,3.2,2);prop(-3,-14.2,8,1.2,3.4,2);prop(4,-8,1.2,8,2.8,1);prop(8.5,-13,4,1.2,3.2,1);prop(12.5,-6,1.2,5,2.6,4);
+    }else if(nm==='PIZZA SHOP'){
+      // same furniture as the diner (so the world generator stays in step), plus a brick oven and a prep counter added without touching the random stream
+      const nr=(lx,lz,w,d,hh)=>{const q=R(lx,lz),sw=k%2?d:w,sd=k%2?w:d;B.push({x0:cx+q[0]-sw/2,x1:cx+q[0]+sw/2,z0:cz+q[1]-sd/2,z1:cz+q[1]+sd/2,x:cx+q[0],z:cz+q[1],w:sw,d:sd,h:hh,tex,pal,neon:0,sign:-1,part:1,k:'prop',nomm:1});};
+      nr(7,-13.4,6,2.6,3.4);nr(-5,-14.1,12,1.6,1.1);
+      for(const z of[-12,-6,0])prop(-13,z,2.4,4,1.6,0);
+      for(const z of[-12,-6])prop(13,z,2.4,4,1.6,0);
+      prop(-8,-3,2.2,2.2,1.1,3);prop(-8,3,2.2,2.2,1.1,3);prop(8,-12,2.2,2.2,1.1,3);prop(13,-13.5,1.6,1.6,3.2,4);
     }else if(nm==='DINER'){
       for(const z of[-12,-6,0])prop(-13,z,2.4,4,1.6,0);
       for(const z of[-12,-6])prop(13,z,2.4,4,1.6,0);
@@ -958,7 +966,7 @@ class Game{
     }
     if(t===18){x=(this.rand()-0.5)*260;z=HALF+40;}
     if(t===19){   // the pizza alien always starts inside a restaurant (a diner)
-      const dn=HOUSES.filter(h=>h.name==='DINER'),hs=dn.length?dn[Math.floor(this.rand()*dn.length)]:HOUSES[Math.floor(this.rand()*HOUSES.length)];
+      const dn=HOUSES.filter(h=>h.name==='DINER'||h.name==='PIZZA SHOP'),hs=dn.length?dn[Math.floor(this.rand()*dn.length)]:HOUSES[Math.floor(this.rand()*HOUSES.length)];
       let hx=hs.x,hz=hs.z;
       for(let i=0;i<30;i++){const tx=hs.x+(this.rand()-0.5)*hs.S*0.55,tz=hs.z+(this.rand()-0.5)*hs.S*0.55;if(!inBuilding(tx,tz,1)){hx=tx;hz=tz;break;}}
       x=hx;z=hz;
