@@ -45,10 +45,62 @@ const SKINS=[
   {id:9, name:'DIAMOND',    lvl:40, col:0xe8ffff,   body:0xcfefff},
   {id:10,name:'NEON GOD',   lvl:50, col:'rainbow',  body:'rainbow'}
 ];
-const MAXUP=5;                            // every weapon has 5 upgrades (MK II ... MK VI)
-const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8];
-const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3];
-const UP_COST=[1500,3000,5500,9000,14000];   // cost to reach upgrade 1..5 (scaled per weapon by upm)
+/* ---- character customizer: Vice City styles unlocked by level (picked in the locker, shown to teammates) ---- */
+const CH_SUITS=[
+  {id:0,name:'TEAM COLOR',      lvl:1, col:null,   c:'#ff2fa0'},
+  {id:1,name:'FLAMINGO PINK',   lvl:2, col:0xff5fb0,c:'#ff5fb0'},
+  {id:2,name:'MIAMI TEAL',      lvl:4, col:0x1fd6c4,c:'#1fd6c4'},
+  {id:3,name:'SUNSET ORANGE',   lvl:7, col:0xff8a3c,c:'#ff8a3c'},
+  {id:4,name:'OCEAN DRIVE BLUE',lvl:10,col:0x2f8bff,c:'#2f8bff'},
+  {id:5,name:'PALM GREEN',      lvl:13,col:0x2fd86a,c:'#2fd86a'},
+  {id:6,name:'LAVENDER HAZE',   lvl:17,col:0xb58cff,c:'#b58cff'},
+  {id:7,name:'LAMBO WHITE',     lvl:22,col:0xf4f4ff,c:'#f4f4ff'},
+  {id:8,name:'GOLD CHAIN',      lvl:28,col:0xffc83c,c:'#ffc83c'},
+  {id:9,name:'MIDNIGHT NEON',   lvl:35,col:0x1a1040,glow:0x25f4ff,c:'#25f4ff'},
+  {id:10,name:'VICE RAINBOW',   lvl:45,col:'rainbow',c:'#ff9a3c'}
+];
+const CH_HATS=[
+  {id:0,name:'NO HAT',          lvl:1, c:'#4b3a7a'},
+  {id:1,name:'PANAMA HAT',      lvl:2, c:'#e8d29a'},
+  {id:2,name:'FEDORA',          lvl:5, c:'#d9c7a0'},
+  {id:3,name:'PINK HEADBAND',   lvl:8, c:'#ff2fa0'},
+  {id:4,name:'SAILOR CAP',      lvl:11,c:'#ffffff'},
+  {id:5,name:'BUCKET HAT',      lvl:15,c:'#5fe3d6'},
+  {id:6,name:'VICE TRUCKER CAP',lvl:19,c:'#ff7ab8'},
+  {id:7,name:"CAPTAIN'S CAP",   lvl:24,c:'#f6f6ff'},
+  {id:8,name:'PALM CROWN',      lvl:30,c:'#2fd86a'},
+  {id:9,name:'FLAMINGO FLOATIE',lvl:38,c:'#ff5fb0'},
+  {id:10,name:'NEON CROWN',     lvl:48,c:'#ffd23c'}
+];
+const CH_SHADES=[
+  {id:0,name:'NO SHADES',       lvl:1, c:'#4b3a7a'},
+  {id:1,name:'AVIATORS',        lvl:3, c:'#3a3a48'},
+  {id:2,name:'PINK WAYFARERS',  lvl:6, c:'#ff2fa0'},
+  {id:3,name:'ROUND LENNONS',   lvl:9, c:'#25c8ff'},
+  {id:4,name:'SUNSET VISOR',    lvl:14,c:'#ff8a3c'},
+  {id:5,name:'HEART SHADES',    lvl:20,c:'#ff3c6a'},
+  {id:6,name:'NEON BAR',        lvl:27,c:'#25f4ff'},
+  {id:7,name:'GOLD AVIATORS',   lvl:36,c:'#ffd23c'},
+  {id:8,name:'RAINBOW LENSES',  lvl:44,c:'#a56bff'}
+];
+const CH_SHIRTS=[
+  {id:0,name:'TANK TOP',        lvl:1, kind:'none',    base:'#4b3a7a'},
+  {id:1,name:'PALM PARADISE',   lvl:2, kind:'palm',    base:'#1fb6c8',c2:'#0b6a4a',c3:'#ffffff'},
+  {id:2,name:'HIBISCUS RED',    lvl:5, kind:'hibiscus',base:'#ffffff',c2:'#ff2f4f',c3:'#ffd23c'},
+  {id:3,name:'FLAMINGO PARTY',  lvl:8, kind:'flamingo',base:'#fff3f8',c2:'#ff5fb0',c3:'#ff2fa0'},
+  {id:4,name:'SUNSET GRID',     lvl:12,kind:'sunset',  base:'#3b1470',c2:'#ff3f8f',c3:'#ffb347'},
+  {id:5,name:'OCEAN WAVES',     lvl:16,kind:'waves',   base:'#0e4f8a',c2:'#25f4ff',c3:'#ffffff'},
+  {id:6,name:'PARROT JUNGLE',   lvl:21,kind:'parrot',  base:'#0f7a4a',c2:'#ff3f4f',c3:'#ffd23c'},
+  {id:7,name:'MIAMI STRIPES',   lvl:26,kind:'stripes', base:'#ff8fc8',c2:'#ff8fc8',c3:'#5fe3d6'},
+  {id:8,name:'GOLD PALMS',      lvl:32,kind:'palm',    base:'#14101c',c2:'#ffc83c',c3:'#ffc83c'},
+  {id:9,name:'VICE SUNSET',     lvl:40,kind:'sunset',  base:'#0b1b5a',c2:'#ff2fa0',c3:'#ffe63c'},
+  {id:10,name:'LEGEND FLORAL',  lvl:46,kind:'hibiscus',base:'#14101c',c2:'#25f4ff',c3:'#ff2fa0'}
+];
+const CH_LISTS=[CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS];
+const MAXUP=9;                            // every weapon has 9 upgrades (MK II ... MK X): late-game power for the long haul
+const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
+const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
+const UP_COST=[1500,3000,5500,9000,14000,22000,34000,50000,75000];   // cost to reach upgrade 1..5 (scaled per weapon by upm)
 const PERKS=[
   {id:0,name:'NEON TANK',  cost:2500,desc:'+50 max health'},
   {id:1,name:'QUICK REVIVE',cost:1500,desc:'revive teammates twice as fast'},
@@ -84,6 +136,9 @@ const CARS=[
   {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9},
   {id:8,name:'BATTLE TANK',kind:'tank',color:0x6cff3c,cost:25000,hp:7000,maxS:9,acc:0.7,turn:0.95,rad:4.2,ram:6.0,body:1.8,cdist:19,chgt:8.5,eye:4.8,gun:true,dmg:130,rate:0.8,blast:8}
 ];
+const SEATS={segway:2,moto:2,car:4,truck:4,hover:4,heli:4,tank:4};CARS.forEach(c=>{c.seats=SEATS[c.kind]||2;});
+/* alien drivers: [first round, vehicle id] - weaker rides first, the tank arrives at round 51 */
+const VEH_TIERS=[[8,0],[16,1],[21,2],[28,3],[34,4],[40,5],[45,6],[48,7],[51,8]];
 /* everything sold at the garage, cheapest first (the jetpack sits between the coupe and the muscle car) */
 const GARAGE_ITEMS=[{k:'car',id:0},{k:'car',id:1},{k:'car',id:2},{k:'jet'},{k:'jetup'},{k:'car',id:3},{k:'car',id:4},{k:'car',id:5},{k:'car',id:6},{k:'car',id:7},{k:'car',id:8}];
 /* car paint & designs unlocked by level */
@@ -106,7 +161,7 @@ const AT=[
   {name:'SPITTER',hp:50,  sp:5.6, r:1.4, cy:1.5, dmg:12, money:75,  fly:false,ranged:true},
   {name:'DRONE',  hp:34,  sp:13,  r:1.5, cy:0,   dmg:10, money:70,  fly:true},
   {name:'BRUTE',  hp:420, sp:4.6, r:2.7, cy:2.7, dmg:38, money:200, fly:false},
-  {name:'BOSS',   hp:3500,sp:5.4, r:5.2, cy:5.2, dmg:55, money:1500,fly:false,ranged:true,boss:true,stomp:16},
+  {name:'BOSS',   hp:3500,sp:5.4, r:5.2, cy:5.2, dmg:55, money:1500,fly:false,ranged:true,boss:true,stomp:10},
   {name:'CHARGER',hp:45,  sp:12,  r:1.3, cy:1.4, dmg:22, money:80,  fly:false},
   {name:'BOMBER', hp:40,  sp:9.5, r:1.4, cy:1.5, dmg:30, money:90,  fly:false,bomb:true},
   {name:'ARMORED',hp:240, sp:5.8, r:1.8, cy:1.8, dmg:26, money:140, fly:false},
@@ -114,19 +169,19 @@ const AT=[
   {name:'WARSHIP',hp:190, sp:9,   r:2.4, cy:0,   dmg:16, money:160, fly:true,ranged:true},
   {name:'QUEEN',  hp:300, sp:4.8, r:2.0, cy:2.0, dmg:15, money:180, fly:false,ranged:true},
   {name:'TITAN',  hp:1600,sp:4.4, r:3.8, cy:3.8, dmg:52, money:500, fly:false,stomp:12},
-  {name:'GODZILLA',hp:60000,sp:3.6,r:15, cy:22,  dmg:95, money:20000,fly:false,ranged:true,boss:true,giant:true,stomp:42},
+  {name:'GODZILLA',hp:60000,sp:3.6,r:15, cy:22,  dmg:95, money:20000,fly:false,ranged:true,boss:true,giant:true,stomp:26},
   {name:'KNIFER', hp:70,  sp:16, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
   {name:'STALKER',hp:900, sp:4.6,r:1.9, cy:2.0, dmg:46, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
   {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
-  {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:52,summon:true},
+  {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:30,summon:true},
   {name:'ALIEN SHARK',hp:2600,sp:15,r:3.0,cy:1.8,dmg:30,money:6000,fly:false,beach:true,loner:true},
   {name:'PIZZA ALIEN',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true},
   {name:'MOVIE ALIEN',hp:520,sp:5.0,r:1.6,cy:1.7,dmg:16,money:700,fly:false,ranged:true,movie:true,loner:true},
-  {name:'CLEOPATRA',hp:1400,sp:0,r:1.6,cy:1.8,dmg:24,money:2500,fly:false,ranged:true,perch:true,loner:true},
-  {name:'PIRATE CAPTAIN',hp:1800,sp:0,r:1.6,cy:1.8,dmg:26,money:3000,fly:false,ranged:true,perch:true,pirate:true,loner:true},
-  {name:'CARNIVAL BOSS',hp:2400,sp:0,r:1.7,cy:1.9,dmg:22,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true},
-  {name:'THE BUTCHER',hp:2600,sp:5.0,r:1.9,cy:2.0,dmg:64,money:4000,fly:false,stalker:true,loner:true,saw:true},
+  {name:'CLEOPATRA',hp:4300,sp:0,r:1.6,cy:1.8,dmg:30,money:4000,fly:false,ranged:true,perch:true,loner:true},
+  {name:'PIRATE CAPTAIN',hp:4600,sp:0,r:1.6,cy:1.8,dmg:32,money:4500,fly:false,ranged:true,perch:true,pirate:true,loner:true},
+  {name:'CARNIVAL BOSS',hp:3300,sp:0,r:1.7,cy:1.9,dmg:26,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true},
+  {name:'THE BUTCHER',hp:4000,sp:5.0,r:1.9,cy:2.0,dmg:56,money:6000,fly:false,stalker:true,loner:true,saw:true},
   {name:'TIPSY ALIEN',hp:110,sp:5.0,r:1.4,cy:1.5,dmg:0,money:120,fly:false,ranged:true,tipsy:true}
 ];
 
@@ -521,16 +576,17 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,ch:[0,0,0,0],jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
     return p;
   }
-  setProfile(id,lv,sk,ck){
+  setProfile(id,lv,sk,ck,ch){
     const p=this.players.get(id);if(!p)return;
     p.lv=clamp(lv|0,1,MAXLV);sk=sk|0;p.sk=(sk>=0&&sk<SKINS.length)?sk:0;
     ck=ck|0;p.ck=(ck>=0&&ck<CSKINS.length&&CSKINS[ck].lvl<=p.lv)?ck:0;
+    p.ch=CH_LISTS.map((L,i)=>{const v=Array.isArray(ch)?(ch[i]|0):0;return(v>=0&&v<L.length&&L[v].lvl<=p.lv)?v:0;});
   }
   /* rounds this player survived while in the game (for the leaderboard) */
   credit(p){
@@ -544,9 +600,29 @@ class Game{
   removePlayer(id){
     const p=this.players.get(id);if(!p)return;
     if(this.round>=1&&this.state!=='over')this.report([p]);
-    if(p.car>=0){const c=this.cars.find(c=>c.id===p.car);if(c)c.drv=-1;}
+    if(p.car>=0)this.leaveCar(p);
     this.players.delete(id);this.flows.delete(id);
     if(!this.players.size){this.state='lobby';}
+  }
+  /* leave a vehicle: a passenger just steps out; if the driver leaves, whoever got in first takes the wheel */
+  leaveCar(p){
+    const c=this.cars.find(c=>c.id===p.car);p.car=-1;if(!c)return null;
+    c.pax=c.pax||[];const i=c.pax.indexOf(p.id);
+    if(i>=0)c.pax.splice(i,1);
+    else if(c.drv===p.id){c.drv=c.pax.length?c.pax.shift():-1;c.sp=0;}
+    return c;
+  }
+  /* a destroyed vehicle throws everybody out */
+  wreck(c){
+    const occ=[c.drv,...(c.pax||[])];
+    this.push('boom',r2(c.x),2,r2(c.z),99,0);
+    const ix=this.cars.indexOf(c);if(ix>=0)this.cars.splice(ix,1);
+    let k=0;
+    for(const id of occ){
+      const q=this.players.get(id);if(!q||q.car!==c.id)continue;
+      q.car=-1;q.hp-=25;q.x=c.x+3+k*1.6;q.z=c.z+k;k++;this.push('tp',q.id,r2(q.x),r2(q.z));this.push('hurt',q.id,25);
+      if(q.hp<=0){q.hp=0;q.st='down';q.bleed=25;q.dn=(q.dn|0)+1;this.push('down',q.id);}
+    }
   }
   spawnPos(p){p.x=(this.rand()-0.5)*10;p.z=(this.rand()-0.5)*10;p.y=EYE;p.car=-1;this.push('tp',p.id,r2(p.x),r2(p.z));}
   push(...e){this.ev.push(e);}
@@ -563,7 +639,7 @@ class Game{
         p.yaw=+m.yaw||0;p.pitch=+m.pitch||0;p.w=m.w|0;p.jfl=m.jt?1:0;
         if(p.car>=0){
           const c=this.cars.find(c=>c.id===p.car);
-          if(c&&m.car){c.x=clamp(+m.car.x,BOUNDS.x0,BOUNDS.x1);c.z=clamp(+m.car.z,BOUNDS.z0,BOUNDS.z1);c.h=+m.car.h||0;c.sp=clamp(+m.car.sp||0,-20,CARS[c.t].maxS*1.15);c.y=CARS[c.t].kind==='heli'?clamp(+m.car.y||0,0,95):0;}
+          if(c&&c.drv===p.id&&m.car){c.x=clamp(+m.car.x,BOUNDS.x0,BOUNDS.x1);c.z=clamp(+m.car.z,BOUNDS.z0,BOUNDS.z1);c.h=+m.car.h||0;c.sp=clamp(+m.car.sp||0,-20,CARS[c.t].maxS*1.15);c.y=CARS[c.t].kind==='heli'?clamp(+m.car.y||0,0,95):0;}
           if(c){p.x=c.x;p.z=c.z;p.y=EYE+(c.y||0);}
         }else if(p.st==='alive'||p.st==='down'){
           p.x=clamp(x,BOUNDS.x0,BOUNDS.x1);p.z=clamp(z,BOUNDS.z0,BOUNDS.z1);p.y=clamp(y,0,120);
@@ -575,16 +651,20 @@ class Game{
       case 'enter':{
         if(p.st!=='alive'||p.car>=0)break;
         const c=this.cars.find(c=>c.id===m.id);
-        if(!c||c.drv>=0)break;
+        if(!c)break;
         if(Math.hypot(c.x-p.x,c.z-p.z)>7)break;
-        c.drv=p.id;p.car=c.id;break;
+        c.pax=c.pax||[];
+        if(c.drv<0){c.drv=p.id;}
+        else{if(1+c.pax.length>=CARS[c.t].seats)break;c.pax.push(p.id);}   // somebody is already driving: ride along
+        p.car=c.id;break;
       }
       case 'exit':{
         if(p.car<0)break;
         const c=this.cars.find(c=>c.id===p.car);
         if(c&&(c.y||0)>3)break;   // land the helicopter first
-        if(c){c.drv=-1;c.sp=0;p.x=c.x+Math.cos(c.h)*3.2;p.z=c.z-Math.sin(c.h)*3.2;}
-        p.car=-1;break;
+        this.leaveCar(p);
+        if(c){p.x=c.x+Math.cos(c.h)*3.2;p.z=c.z-Math.sin(c.h)*3.2;}
+        break;
       }
       case 'start':{
         if(this.state!=='wait')break;
@@ -593,7 +673,7 @@ class Game{
         this.state='rest';this.timer=5;this.round=0;this.push('go');break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
-      case 'prof':this.setProfile(id,m.lv,m.sk,m.ck);break;
+      case 'prof':this.setProfile(id,m.lv,m.sk,m.ck,m.ch);break;
     }
   }
 
@@ -722,7 +802,7 @@ class Game{
       let z=sp.z,tries=0;
       while(this.cars.some(c=>Math.hypot(c.x-sp.x,c.z-z)<7)&&tries++<6)z+=7;
       if(!owned){p.money-=CARS[t].cost;p.oc|=1<<t;}
-      const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,sp:0,k:p.ck|0};
+      const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,pax:[],sp:0,k:p.ck|0};
       c.h=0;
       this.cars.push(c);this.push('bought',p.id,c.id);
     }
@@ -748,6 +828,7 @@ class Game{
   damageAlien(a,dmg,p,x,y,z){
     if(a.hp<=0)return;
     if(a.dorm){for(const o of this.aliens)if(o.dorm&&Math.hypot(o.x-a.x,o.z-a.z)<30)o.dorm=false;}
+    a.guard=false;
     if(a.hide){a.hide=false;this.push('stalk',a.id);}
     if(AT[a.t].stalker)a.enr=1;
     let crit=0;
@@ -767,28 +848,32 @@ class Game{
       if(q===p||q.st!=='alive')continue;
       if(Math.hypot(q.x-a.x,q.z-a.z)<60)q.money+=Math.round(mk*0.25);
     }
+    if(a.veh>=0){this.push('boom',r2(a.x),2,r2(a.z),99,0);p.money+=Math.round(CARS[a.veh].cost*0.04);}   // the wrecked ride pays a little
     if(a.mut===1){   // volatile mutant: blows up when it dies
       this.push('blast',r2(a.x),r2(a.y+1),r2(a.z));
       for(const q of this.players.values()){if(q.st!=='alive')continue;const t=this.targetPos(q),d=Math.hypot(t.x-a.x,t.z-a.z);if(d<9&&q.y-EYE<6)this.hurt(q,(25+this.round)*(1-d/12),a.x,a.z);}
     }
     if(def.boss){p.bk=(p.bk|0)+1;this.bossDrop(a,p);}
     if(def.pizza){for(const q of this.players.values()){if(q.st==='alive'&&Math.hypot(q.x-a.x,q.z-a.z)<45)q.hp=Math.min(mhp(q),q.hp+(q===p?mhp(q)*0.4:25));}this.push('pizza',r2(a.x),r2(a.y+1),r2(a.z));}
-    if(def.pirate){p.money+=1800;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('piratedead',p.id);}
+    if(def.pirate){p.money+=2400;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('piratedead',p.id);}
     if(def.carni){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')q.hp=mhp(q);this.push('carnidead',p.id);}
-    if(def.perch&&!def.pirate&&!def.carni){p.money+=1500;const opts=PERKS.filter(pk=>!p.perks[pk.id]&&(pk.req===undefined||p.perks[pk.req]));if(opts.length){const pk=opts[Math.floor(this.rand()*opts.length)];p.perks[pk.id]=true;if(HP_TIERS.includes(pk.id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,pk.id);}this.push('cleodead',p.id);}
+    if(def.perch&&!def.pirate&&!def.carni){p.money+=2000;const opts=PERKS.filter(pk=>!p.perks[pk.id]&&(pk.req===undefined||p.perks[pk.req]));if(opts.length){const pk=opts[Math.floor(this.rand()*opts.length)];p.perks[pk.id]=true;if(HP_TIERS.includes(pk.id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,pk.id);}this.push('cleodead',p.id);}
     if(def.movie){p.money+=800;this.push('ammoall',p.id);this.push('ticket',p.id);}
     this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id);
   }
 
   /* ---- rounds ---- */
-  hpMul(){const r=this.round;return r<=10?1+0.15*(r-1):(1+0.15*9)*Math.pow(1.08,r-10);}
+  hpMul(){const r=this.round;   // steep early, then a gentle slope after round 40 so round 150 stays winnable
+    if(r<=10)return 1+0.15*(r-1);
+    const m40=(1+0.15*9)*Math.pow(1.08,30);
+    return r<=40?(1+0.15*9)*Math.pow(1.08,r-10):m40*Math.pow(1.006,r-40);}
   startRound(){
     this.round++;
     const npl=Math.max(1,this.players.size),mul=1+0.55*(npl-1);     // bigger crews face bigger waves: 1.0x solo, 1.55x for 2, 2.65x for 4, 3.75x for 6
-    let total=Math.round((5+this.round*2.4)*mul);
+    let total=Math.round(Math.min(5+this.round*2.4,75)*mul);
     const giant=this.round%20===0,ultimate=this.round%50===0,shark=this.round%13===0;
     const boss=this.round%5===0;
-    if(boss)total=Math.round(total*0.5);
+    if(boss)total=Math.max(4,Math.round(total*0.28));   // boss rounds: only a few escorts so the boss is the focus
     const q=[];
     const pool=[[0,1,Math.max(3,10-this.round*0.4)],[2,2,3],[1,3,3],[5,4,3],[3,5,2],[6,6,2.5],[7,7,2.5],[8,8,1.5],[9,9,1.5],[10,11,1.2],[11,13,1],[13,8,3],[16,11,3]].filter(e=>this.round>=e[1]);
     const ptot=pool.reduce((sum,e)=>sum+e[2],0);
@@ -805,11 +890,11 @@ class Game{
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
-    if(this.round>=12&&(this.round-12)%7===0&&WORLD.themes.some(q=>q.k==='marina'))q.unshift(22);   // pirate captain on the marina boardwalk: rounds 12, 18, 24, ...
+    if(this.round>=26&&(this.round-26)%7===0&&WORLD.themes.some(q=>q.k==='marina'))q.unshift(22);   // pirate captain on the marina boardwalk: rounds 26, 33, 40, ...
     if(this.round>=16&&(this.round-16)%7===0&&WORLD.themes.some(q=>q.k==='ferris'))q.unshift(23);   // carnival boss under the ferris wheel: rounds 16, 22, 28, ...
-    if(this.round>=22&&this.round%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 22, 33, 44, ...
-    if(this.round>=8){const nT=Math.min(8,1+Math.floor((this.round-8)/3));for(let i=0;i<nT;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,25);}   // tipsy aliens from round 8: their bottles make you drunk (no damage)
-    if(this.round>=22&&(this.round-22)%7===0)q.unshift(24);   // the chainsaw stalker: rounds 22, 29, 36, ...
+    if(this.round>=32&&(this.round-32)%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 32, 43, 54, ...
+    if(this.round>=8){const nT=this.round%5===0?1:Math.min(8,1+Math.floor((this.round-8)/3));for(let i=0;i<nT;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,25);}   // tipsy aliens from round 8: their bottles make you drunk (no damage)
+    if(this.round>=25&&(this.round-25)%7===0)q.unshift(24);   // the chainsaw stalker: rounds 25, 32, 39, ...
     if(this.round>=9&&(this.round-9)%7===0&&WORLD.themes.some(q=>q.k==='drivein'))q.unshift(20);   // the movie alien visits the drive-in: rounds 9, 16, 23, ...
     if(this.round>=7&&(this.round-7)%7===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
     if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
@@ -823,7 +908,7 @@ class Game{
         this.push('revived',p.id);
       }
     }
-    this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
+    this.vehLeft=this.round>=VEH_TIERS[0][0]?3:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
     this.weather=0;
     if(this.round>=9&&this.rand()<0.45){this.weather=1+Math.floor(this.rand()*3);this.wxT=0;this.push('weather',this.weather);}
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
@@ -900,20 +985,22 @@ class Game{
     }
     const np=Math.max(1,this.players.size);
     let hp=def.hp*this.hpMul()*(1+0.1*(np-1));   // +10% alien health per extra player
-    if(t===4)hp=2200*(1+0.5*(this.round/5-1))*(1+0.5*(np-1));
-    if(t===18)hp=2600*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
-    if(t===17)hp=150000*(1+0.5*(this.round/50-1))*(1+0.5*(np-1));
-    if(t===12)hp=60000*(1+0.5*(this.round/20-1))*(1+0.5*(np-1));
+    if(t===4)hp=2900*(1+0.5*(this.round/5-1))*(1+0.8*(np-1));
+    if(t===18)hp=3400*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
+    if(t===17)hp=190000*(1+0.5*(this.round/50-1))*(1+0.8*(np-1));
+    if(t===12)hp=78000*(1+0.5*(this.round/20-1))*(1+0.8*(np-1));
+    if(t>=21&&t<=24)hp*=1+0.6*(np-1);   // landmark bosses are tougher in co-op too
     const sp=def.sp*(1+Math.min(0.55,0.028*this.round))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
-      dmg:def.dmg*(1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
+      dmg:def.dmg*Math.min(2.5,1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
     if(def.stalker){al.hide=true;al.stT=0;al.hh=this._hh;}
-    if(t===19||t===20)al.guard=true;
+    if(t>=19&&t<=23)al.guard=true;   // every landmark boss waits at its spot until a player is in sight
     if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
       al.mut=1+Math.floor(this.rand()*3);
       if(al.mut===2){al.hp*=2.6;al.mhp=al.hp;al.sp*=0.85;}
       else if(al.mut===3){al.sp*=1.5;al.hp*=0.8;al.mhp=al.hp;}
     }
+    this.mountVeh(al);
     this.aliens.push(al);
     if(def.stalker)this.push('stalker',al.id,r2(x),r2(z),t);
     if(t===18)this.push('shark',al.id,r2(x),r2(z));
@@ -923,6 +1010,20 @@ class Game{
     if(t===21)this.push('cleospawn',al.id,r2(x),r2(z));
     if(t===20)this.push('moviespawn',al.id,r2(x),r2(z));
     if(t===15)this.push('sniper',al.id,r2(x),r2(z));
+  }
+
+  /* some aliens drive vehicles (max 3 a round); the ride gets better as the rounds go on */
+  mountVeh(al){
+    if(!(this.vehLeft>0)||(al.t!==0&&al.t!==1))return;
+    const tiers=VEH_TIERS.filter(v=>v[0]<=this.round);if(!tiers.length)return;
+    const same=this.queue.filter(x=>x===0||x===1).length;
+    if(this.rand()>=this.vehLeft/(1+same))return;
+    let vt=(this.rand()<0.4?tiers[tiers.length-1]:tiers[Math.floor(this.rand()*tiers.length)])[1];
+    if(vt>=7&&al.t!==1)vt=6;   // only gunners can drive the tank and the helicopter
+    const cd=CARS[vt];
+    al.veh=vt;al.hp+=cd.hp*0.4;al.mhp=al.hp;
+    al.sp=Math.max(al.sp,Math.min(cd.maxS*0.5,16));al.r=Math.max(al.r,cd.rad*0.9);al.cy=Math.max(al.cy,cd.eye*0.6);al.dmg*=1.35;
+    this.vehLeft--;
   }
 
   /* a nest of aliens far from the players: they idle until someone gets close, so exploring pays off */
@@ -954,7 +1055,7 @@ class Game{
   }
   startTel(a,tp,dx,dz,dist,alive){
     const L=dist||1;let tel=[],T=1.8;
-    if(a.t===4){tel=[{k:'c',x:tp.x,z:tp.z,r:14}];T=1.7;}                                   // SLAM: lands where you stand
+    if(a.t===4){tel=[{k:'c',x:tp.x,z:tp.z,r:10}];T=1.7;}                                   // SLAM: lands where you stand
     else if(a.t===12){tel=[{k:'l',x:a.x,z:a.z,dx:dx/L,dz:dz/L,w:9,len:150}];T=2.3;}        // BEAM: a long lane
     else{for(const p of alive){const q=this.targetPos(p);tel.push({k:'c',x:q.x,z:q.z,r:10});for(let i=0;i<2;i++){const an=this.rand()*6.28,rr=8+this.rand()*14;tel.push({k:'c',x:q.x+Math.cos(an)*rr,z:q.z+Math.sin(an)*rr,r:10});}}tel=tel.slice(0,9);T=2.4;}   // METEORS
     a.tel=tel;a.telT=T;a.telD=T;this.push('telwarn',a.t);
@@ -1024,11 +1125,7 @@ class Game{
       if(c){
         c.hp-=dmg*0.8;this.push('carhit',p.id,sx===undefined?0:r2(sx),sz===undefined?0:r2(sz),sx===undefined?0:1);
         if(c.hp<=0){
-          this.push('boom',r2(c.x),2,r2(c.z),99,0);
-          p.car=-1;p.hp-=25;this.cars.splice(this.cars.indexOf(c),1);
-          p.x=c.x+3;p.z=c.z;this.push('tp',p.id,r2(p.x),r2(p.z));
-          this.push('hurt',p.id,25);
-          if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.dn=(p.dn|0)+1;}
+          this.wreck(c);
         }
         return;
       }
@@ -1098,7 +1195,7 @@ class Game{
           if(bd<90)continue;
           for(let k=0;k<12;k++){const an=this.rand()*6.283,x=tp.x+Math.cos(an)*60,z=tp.z+Math.sin(an)*60;if(Math.abs(x)>HALF-8||Math.abs(z)>HALF-8||inBuilding(x,z,1)||groundAt(x,z)>0.5)continue;a.x=x;a.z=z;a.reloc=1;break;}}
       }
-      const cap0=Math.min(48,22+6*(plist.length-1)),cap=this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
+      const cap0=Math.min(48,22+6*(plist.length-1)),cap=this.round%5===0?Math.min(cap0,8+3*(plist.length-1)):this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
         if(((nt>=19&&nt<=24)||nt===14)&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
@@ -1165,16 +1262,17 @@ class Game{
       a.yaw=Math.atan2(dx,dz);
       if(def.sniper){this.updateSniper(a,tp0,tp,dx,dz,dist,dt);continue;}
       if(a.guard){   // pizza / movie aliens stay at their spawn until someone comes near
-        if(dist<45)a.guard=false;else{a.vx=a.vz=0;continue;}
+        if(a.los&&dist<70)a.guard=false;else{a.vx=a.vz=0;continue;}   // wakes only once a player is actually in sight
       }
       if(def.stalker&&a.hide){   // hiding: stands still until a player walks into the building it is hiding in
         a.vx=a.vz=0;const hh=a.hh;
-        let wake=false;if(hh){for(const q of this.players.values()){if(q.st==='alive'&&Math.abs(q.x-hh.x)<hh.S/2+1&&Math.abs(q.z-hh.z)<hh.S/2+1&&q.y<hh.H){wake=true;break;}}}else wake=dist<14;
+        let wake=false;if(hh){for(const q of this.players.values()){if(q.st==='alive'&&Math.abs(q.x-hh.x)<hh.S/2+1&&Math.abs(q.z-hh.z)<hh.S/2+1&&q.y<hh.H){wake=true;break;}}}else wake=a.los&&dist<14;
+        if(!wake&&a.los&&dist<20)wake=true;   // or a player looks in through the door
         if(wake){a.hide=false;this.push('stalk',a.id);}
         continue;
       }
       let mx=0,mz=0,speed=a.sp;
-      if(def.stalker)speed=(a.enr||dist<16)?a.sp*2.0:a.sp;
+      if(def.stalker)speed=(a.enr||dist<16)?a.sp*(def.saw?2.2:2.0):a.sp;
       if(a.slowT>0){a.slowT-=dt;speed*=0.5;}
       if(this.round>=6&&this.emptyT>0&&this.aliens.length<=6&&!def.loner&&!def.boss&&!def.giant&&!def.stalker)speed*=1+Math.min(0.9,this.emptyT/20);   // last few stragglers speed up so a round never drags
       if(def.beach){   // the shark prowls the sand and lunges at anyone who comes onto the beach
@@ -1243,29 +1341,29 @@ class Game{
             a.cd=2.2;
             for(let i=-4;i<=4;i++){
               const ang=Math.atan2(dx,dz)+i*0.11;
-              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,50,30*(1+0.03*this.round));
+              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,50,30*Math.min(2.5,1+0.03*this.round));
             }
           }else if(a.t===12){
             a.cd=2.8;
             for(let i=-3;i<=3;i++){
               const ang=Math.atan2(dx,dz)+i*0.13;
-              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,46,26*(1+0.03*this.round));
+              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,46,26*Math.min(2.5,1+0.03*this.round));
             }
           }else if(a.t===4){
             a.cd=3.0;
             for(let i=-2;i<=2;i++){
               const ang=Math.atan2(dx,dz)+i*0.16;
-              this.fireOrb(a,a.x+Math.sin(ang)*30,ty,a.z+Math.cos(ang)*30,0.04,42,20*(1+0.03*this.round));
+              this.fireOrb(a,a.x+Math.sin(ang)*30,ty,a.z+Math.cos(ang)*30,0.04,42,20*Math.min(2.5,1+0.03*this.round));
             }
           }else if(a.t===22){      // PIRATE CAPTAIN: cannonballs, three at a time
-            a.cd=2.4+this.rand()*0.7;
-            for(let i=-1;i<=1;i++){const ang=Math.atan2(dx,dz)+i*0.2;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.05,26,a.dmg);}
+            a.cd=1.9+this.rand()*0.5;
+            for(let i=-2;i<=2;i++){const ang=Math.atan2(dx,dz)+i*0.17;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.05,30,a.dmg);}
           }else if(a.t===23){      // CARNIVAL BOSS: a spread of seven balloons
             a.cd=2.0+this.rand()*0.6;
             for(let i=-3;i<=3;i++){const ang=Math.atan2(dx,dz)+i*0.12;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,28,a.dmg);}
           }else if(a.t===21){      // CLEOPATRA: golden bolts from her staff
-            a.cd=1.9+this.rand()*0.6;
-            for(let i=-1;i<=1;i++){const ang=Math.atan2(dx,dz)+i*0.16;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,36,a.dmg);}
+            a.cd=1.5+this.rand()*0.5;
+            for(let i=-2;i<=2;i++){const ang=Math.atan2(dx,dz)+i*0.14;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,40,a.dmg);}
           }else if(a.t===20){      // MOVIE ALIEN: a fan of popcorn
             a.cd=2.2+this.rand()*0.6;
             for(let i=-2;i<=2;i++){const ang=Math.atan2(dx,dz)+i*0.14;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.04,30,a.dmg);}
@@ -1400,6 +1498,10 @@ class Game{
   updateCars(dt,plist){
     for(let i=this.cars.length-1;i>=0;i--){
       const c=this.cars[i];
+      c.pax=(c.pax||[]).filter(id=>{const q=this.players.get(id);return q&&q.st==='alive'&&q.car===c.id;});
+      if(c.drv>=0){const q=this.players.get(c.drv);if(!q||q.st!=='alive'||q.car!==c.id)c.drv=-1;}
+      if(c.drv<0&&c.pax.length)c.drv=c.pax.shift();   // first one in drives
+      for(const id of c.pax){const q=this.players.get(id);q.x=c.x;q.z=c.z;q.y=EYE+(c.y||0);}
       if(c.drv<0)continue;
       const p=this.players.get(c.drv);
       if(!p){c.drv=-1;continue;}
@@ -1419,9 +1521,7 @@ class Game{
           }
         }
         if(c.hp<=0){
-          this.push('boom',r2(c.x),2,r2(c.z),99,0);
-          p.car=-1;p.hp-=25;this.cars.splice(i,1);p.x=c.x+3;p.z=c.z;this.push('tp',p.id,r2(p.x),r2(p.z));
-          if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.dn=(p.dn|0)+1;}
+          this.wreck(c);
         }
       }
     }
@@ -1433,10 +1533,10 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
-      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0]),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
+      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
-      c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
+      c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,px:c.pax||[],sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
       g:this.clouds.map(c=>[c.id,r2(c.x),r2(c.y),r2(c.z),r2(c.r),r2(c.life)]),
       lo:this.loot.map(v=>v?1:0).join(''),
       ev
@@ -1444,7 +1544,7 @@ class Game{
   }
 }
 
-const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);

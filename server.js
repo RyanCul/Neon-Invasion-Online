@@ -144,7 +144,7 @@ wss.on('connection',ws=>{
       if(r.clients.size>=MAX_PER_ROOM){ws.send(JSON.stringify({t:'err',msg:'That room is full (8 players max).'}));return;}
       room=r;pid=r.nid++;r.clients.set(pid,ws);
       r.game.addPlayer(pid,cleanName(m.name,pid));
-      r.game.setProfile(pid,m.lv,m.sk,m.ck);
+      r.game.setProfile(pid,m.lv,m.sk,m.ck,m.ch);
       ws.send(JSON.stringify({t:'joined',id:pid,room:r.code}));
       console.log(`[${r.code}] player ${pid} joined (${r.clients.size} in room)`);
       return;

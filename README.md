@@ -46,7 +46,7 @@ Warship (r9, flying shooter), Queen (r11, 3-orb volleys), Titan (r13, mini-boss)
 - **Aliens in view**: when an alien comes into sight (on screen with a clear line, not behind a building) you hear a "contact" sting plus its own voice, a low tension drone plays while any are visible, and a CONTACT warning flashes (bosses and the Godzilla alien get a bigger horn and their own warning).
 
 ## Weapons, armory & upgrades
-11 laser guns, every one with **5 upgrades** (MK I → MK VI: more damage, bigger mags, brighter laser). Buy and upgrade from the **ARMORY** list menu (Up/Down or Q to choose, E / X to buy or upgrade, B closes). The Forge still upgrades your current gun. "Refill all ammo" is in the armory too.
+11 laser guns, every one with **9 upgrades** (MK I → MK X: more damage, bigger mags, brighter laser). Buy and upgrade from the **ARMORY** list menu (Up/Down or Q to choose, E / X to buy or upgrade, B closes). The Forge still upgrades your current gun. "Refill all ammo" is in the armory too.
 New guns: **LONGSHOT** (slow, long-range sniper – hold right-click / LT to scope), **ARC GATLING** (hold fire to charge, then it sprays), **NEON STARS** (thrown shuriken), **INFERNO** (flamethrower, sets aliens on fire), **TOXIC SPRAYER** (gas canister, poison cloud), **BRASS KNUCKLES** (close range, no ammo).
 Switching: keys 1-9, 0, - · mouse wheel · LB/RB · **F = quick-swap to your previous weapon; on a pad LB/RB (the bumpers) cycle weapons**. Right-click / LT = aim. On a pad, X = interact (or reload if nothing nearby); Y = E (use/enter/exit/buy) when something is in reach, otherwise Y (and D-pad up) sends you back to the starting area between rounds.
 
@@ -202,3 +202,29 @@ Movie Alien: round 9, then every 7. Pizza Alien: round 7, then every 7. Pirate C
 
 ## Beach bar
 - An open-air BEACH BAR sits on the sand just south of the starting plaza (about x=-20, straight toward the ocean): thatch roof, bamboo counter, stools, tiki masks, neon sign, torches, surfboards and the same glowing beer bottle ([E], $40, 30s drunk effect) on the customer side of the counter.
+
+## Built to last to round ~150
+- Alien health: unchanged through round 40, then only +0.6% per round (it used to compound 8% per round forever). Wave size is capped at 75 (x crew multiplier). Alien damage is capped at x2.5.
+- Weapons now have 9 upgrades (MK II -> MK X, up to 13x base damage, bigger mags). MK VII-X cost $22k / $34k / $50k / $75k (x the gun's price factor), a late-game cash sink.
+- Boss rounds (every 5th): only ~28% as many escorts (minimum 4), at most 8 aliens on screen at once (+3 per extra player), so the boss is the focus.
+- Rough target: a maxed gun clears a late wave in roughly 2-4 minutes; area weapons, teammates and perks shorten that.
+
+## Schedule + boss update
+- Butcher (chainsaw stalker): round 25, then every 7. Faster (base speed 6.4, x2.3 when hunting vs the Stalker's x2.0) and much stronger than the Stalker (3,600 base health / 90 damage vs 900 / 46).
+- Pirate Captain: round 26, then every 7. 3,400 base health, 40 damage, fires 5 cannonballs faster. Kill reward +$2,400 and an ammo refill.
+- Cleopatra: round 32, then every 11. 3,200 base health, 38 damage, fires 5 gold bolts faster. Kill reward +$2,000 and a free perk.
+
+## Wait until seen
+Pizza, Movie, Cleopatra, Pirate Captain and Carnival Boss now stay put (no moving, no shooting) until a player is actually in line of sight within ~70 units, or hurts them. The Stalker and Butcher stay hidden until a player enters their building or looks in at them from within ~20 units.
+
+## Boss tuning (hard, but beatable)
+- Stomp areas shrunk: Boss 10, Godzilla 26, Overmind 30 (slam warning circle r10).
+- Every-5-rounds bosses (and Godzilla/Overmind/Shark) get +80% health per extra player (Shark +50%); Cleopatra, Pirate, Carnival Boss and Butcher get +60% per extra player.
+- Landmark bosses: Cleopatra 4300 hp / 30 dmg, Pirate 4600 / 32, Carnival 3300 / 26, Butcher 4000 / 56 (speed 5.0, hunts at x2.2).
+
+## Character customizer (press K)
+Level-ups unlock Vice City styles in four categories: suit colors (incl. a rainbow suit at 45), hats (Panama, fedora, headband, sailor, bucket, trucker, captain, palm crown, flamingo floatie, neon crown), sunglasses (aviators, wayfarers, round, visor, heart, neon bar, gold, rainbow lenses) and Hawaiian shirts (palm, hibiscus, flamingo, sunset grid, waves, parrot, stripes, gold palms, vice sunset, legend floral). A live rotating preview sits in the locker. Teammates see your outfit in co-op. Choices are saved in this browser; server.js needs the one-line update (passes `m.ch` on join).
+
+## Shared rides & driver aliens
+- Co-op: walk up to a car somebody is already driving and press E to ride along. Seats: segway and motorcycle 2, everything else 4. Whoever got in first drives; if the driver leaves, the next one in takes the wheel. Passengers can leave any time (a helicopter has to be landed first) and can fire the gun on the helicopter and tank. A wrecked car throws everyone out (25 damage each).
+- Alien drivers: up to 3 per round, riding vehicles that get better with the round: segway R8, motorcycle R16, coupe R21, muscle car R28, hypercar R34, monster truck R40, hovercar R45, helicopter R48, tank R51. Tank and helicopter drivers are the shooting aliens. They are faster, tougher and hit harder than normal aliens; killing one blows up the ride and pays a small bonus.
