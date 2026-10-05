@@ -154,6 +154,86 @@ const CH_BACKS=[
   {id:8,name:'GOLD CAPE',       lvl:50,kind:'cape',col:0xffc83c,glow:1,c:'#ffc83c'}
 ];
 const CH_LISTS=[CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS];
+/* ---------------- titles, badges, name colours, frames, camos, kill effects, achievements ----------------
+   Every item opens by level (lvl) or by an achievement (ach = achievement id). Items with an ach are EARNED-ONLY. */
+CH_HATS.push({id:11,name:'MEDIC CAP',lvl:999,ach:'rv10',c:'#ff2f4f'},{id:12,name:'BOSS HORNS',lvl:999,ach:'bo10',c:'#ff2040'});
+CH_SUITS.push({id:11,name:'CRIMSON GUARD',lvl:999,ach:'rv50',col:0xe0102a,c:'#e0102a'},{id:12,name:'OBSIDIAN GOLD',lvl:999,ach:'br50',col:0x16161f,glow:0xffc83c,c:'#ffc83c'});
+CH_JACKETS.push({id:11,name:'SURVIVOR JACKET',lvl:999,ach:'br30',col:0x23304a,trim:0xffc83c,glow:1,c:'#ffc83c'},{id:12,name:'BOSS HUNTER COAT',lvl:999,ach:'bo10',col:0x7a0f1f,trim:0xff9a3c,glow:1,c:'#ff4f3c'});
+CH_BACKS.push({id:9,name:'FLAME WINGS',lvl:999,ach:'br50',kind:'wings',col:0xff6a1f,glow:1,c:'#ff6a1f'},{id:10,name:'CRIMSON CAPE',lvl:999,ach:'rv50',kind:'cape',col:0xd0102a,c:'#d0102a'});
+CH_CHAINS.push({id:9,name:'ALIEN DOG TAGS',lvl:999,ach:'k2000',col:0xc8d0e0,pend:'coin',c:'#c8d0e0'});
+CH_SHOES.push({id:10,name:'ROAD RUNNERS',lvl:999,ach:'rk25',up:0x14102a,sole:0xff9a3c,glow:1,c:'#ff9a3c'});
+CH_SHIRTS.push({id:11,name:'SURVIVOR CAMO',lvl:999,ach:'br20',kind:'stripes',base:'#2f4a2a',c2:'#5a7a3a',c3:'#14201a'});
+const TITLES=[
+  {id:0,name:'NO TITLE',lvl:1},
+  {id:1,name:'NEWCOMER',lvl:1},{id:2,name:'NEON RECRUIT',lvl:5},{id:3,name:'BEACH PATROL',lvl:10},{id:4,name:'VICE VETERAN',lvl:20},{id:5,name:'MIAMI LEGEND',lvl:30},{id:6,name:'NEON ELITE',lvl:40},{id:7,name:'THE ONE',lvl:50},
+  {id:8,name:'ALIEN SLAYER',ach:'k100'},{id:9,name:'EXTERMINATOR',ach:'k2000'},{id:10,name:'ALIEN APOCALYPSE',ach:'k10000'},
+  {id:11,name:'FIELD MEDIC',ach:'rv10'},{id:12,name:'GUARDIAN ANGEL',ach:'rv50'},
+  {id:13,name:'BOSS SLAYER',ach:'bo10'},{id:14,name:'GODSLAYER',ach:'bo50'},
+  {id:15,name:'SURVIVOR',ach:'br10'},{id:16,name:'OVERRUN VETERAN',ach:'br20'},{id:17,name:'UNSTOPPABLE',ach:'br30'},{id:18,name:'LAST OF THE NEON',ach:'br50'},
+  {id:19,name:'HEADHUNTER',ach:'cr500'},{id:20,name:'ROAD RAGE',ach:'rk25'},
+  {id:21,name:'SNIPER ELITE',ach:'w5'},{id:22,name:'PYROMANIAC',ach:'w8'},{id:23,name:'TOXIC AVENGER',ach:'w9'},{id:24,name:'GATLING GOD',ach:'w6'},{id:25,name:'BRAWLER',ach:'w10'},{id:26,name:'DEMOLITION',ach:'w11'},
+  {id:27,name:'NEON ADDICT',ach:'gm100'},{id:28,name:'MARATHON RUNNER',ach:'rt500'}
+];
+const BADGES=[
+  {id:0,name:'NO BADGE',lvl:1,sym:'',c:'#4b3a7a'},
+  {id:1,name:'STAR',lvl:4,sym:'★',c:'#ffd23c'},{id:2,name:'SPADE',lvl:12,sym:'♠',c:'#9ffcff'},{id:3,name:'CLUB',lvl:24,sym:'♣',c:'#7dff9a'},{id:4,name:'YIN YANG',lvl:36,sym:'☯',c:'#ffffff'},{id:5,name:'DIAMOND',lvl:50,sym:'❖',c:'#ff2fa0'},
+  {id:6,name:'SPARKLE',ach:'k500',sym:'✦',c:'#fff3b0'},{id:7,name:'RADIATION',ach:'k10000',sym:'☢',c:'#9dff3c'},{id:8,name:'MEDIC CROSS',ach:'rv50',sym:'✚',c:'#ff2f4f'},
+  {id:9,name:'SKULL',ach:'bo1',sym:'☠',c:'#ffffff'},{id:10,name:'FLAG',ach:'br10',sym:'⚑',c:'#25f4ff'},{id:11,name:'CROWN',ach:'br50',sym:'♛',c:'#ffc83c'},
+  {id:12,name:'TARGET',ach:'cr100',sym:'✪',c:'#ff9a3c'},{id:13,name:'ARROW',ach:'rk25',sym:'➤',c:'#ff9a3c'},{id:14,name:'HEART',ach:'gm10',sym:'♥',c:'#ff3c6a'},{id:15,name:'GEM',ach:'rt100',sym:'♦',c:'#25f4ff'}
+];
+const NAME_COLS=[
+  {id:0,name:'WHITE',lvl:1,col:0xffffff},{id:1,name:'FLAMINGO',lvl:6,col:0xff5fb0},{id:2,name:'AQUA',lvl:11,col:0x25f4ff},{id:3,name:'LIME',lvl:16,col:0x9dff3c},
+  {id:4,name:'SUNSET',lvl:21,col:0xff9a3c},{id:5,name:'VIOLET',lvl:26,col:0xb58cff},{id:6,name:'GOLD',lvl:33,col:0xffd23c},{id:7,name:'ICE',lvl:39,col:0xdff6ff},{id:8,name:'RAINBOW',lvl:47,col:'rainbow'},
+  {id:9,name:'BLOOD RED',ach:'k2000',col:0xff2040}
+];
+const FRAMES=[
+  {id:0,name:'NO FRAME',lvl:1},
+  {id:1,name:'PINK LINE',lvl:5,c1:'#ff2fa0',c2:'#ff2fa0'},{id:2,name:'CYAN LINE',lvl:10,c1:'#25f4ff',c2:'#25f4ff'},{id:3,name:'PALM',lvl:15,c1:'#2fd86a',c2:'#ff5fb0'},
+  {id:4,name:'SUNSET',lvl:22,c1:'#ffb347',c2:'#ff2fa0'},{id:5,name:'CHROME',lvl:30,c1:'#ffffff',c2:'#8a94b0'},{id:6,name:'GOLD',lvl:38,c1:'#fff3b0',c2:'#d9962a'},{id:7,name:'RAINBOW',lvl:45,c1:'rainbow',c2:'rainbow'},
+  {id:8,name:'FLAMES',ach:'bo10',c1:'#ffe63c',c2:'#ff2a1a'},{id:9,name:'HAZARD',ach:'rk100',c1:'#ffd23c',c2:'#14101c'},{id:10,name:'VETERAN',ach:'br20',c1:'#7dff9a',c2:'#1a5a2a'}
+];
+const CAMOS=[
+  {id:0,name:'STANDARD',lvl:1},
+  {id:1,name:'WOODLAND',ach:'k100',k:'wood',c:['#2f4a2a','#5a7a3a','#14201a','#7a6a3a']},{id:2,name:'DIGITAL',ach:'k500',k:'dig',c:['#2a3a5a','#4a6a9a','#141c2c','#8aa0c8']},
+  {id:3,name:'TIGER STRIPE',ach:'k2000',k:'tiger',c:['#d9822a','#14101c','#f2b45a','#7a3a10']},{id:4,name:'ARCTIC',ach:'w5',k:'wood',c:['#dff6ff','#9ccfe8','#ffffff','#6aa0c0']},
+  {id:5,name:'LAVA',ach:'w8',k:'lava',c:['#1a0a0a','#ff4a1a','#ffb02a','#5a1408']},{id:6,name:'TOXIC',ach:'w9',k:'dig',c:['#16301a','#3cff6a','#9dff3c','#0a1a0c']},
+  {id:7,name:'GOLD PLATE',ach:'w6',k:'gold',c:['#8a5a10','#ffd23c','#fff3b0','#c88a1a']},{id:8,name:'GALAXY',ach:'k10000',k:'galaxy',c:['#0a0420','#5a2cff','#ff2fa0','#ffffff']},
+  {id:9,name:'NEON GRID',ach:'cr500',k:'grid',c:['#14102a','#25f4ff','#ff2fa0','#ffffff']},{id:10,name:'VICE SUNSET',ach:'br20',k:'sunset',c:['#2a0f5a','#ff2fa0','#ffb347','#25f4ff']}
+];
+const KFX=[
+  {id:0,name:'DEFAULT',lvl:1},{id:1,name:'CONFETTI',ach:'k500'},{id:2,name:'GOLD COINS',ach:'rt100'},{id:3,name:'ELECTRIC',ach:'w6'},{id:4,name:'EMBERS',ach:'w8'},
+  {id:5,name:'TOXIC SLIME',ach:'w9'},{id:6,name:'FIREWORKS',ach:'w11'},{id:7,name:'GALAXY',ach:'k10000'},{id:8,name:'INFERNO',ach:'bo50'},{id:9,name:'RAINBOW',lvl:40}
+];
+/* s: stat key (k kills, rv revives, bo bosses, br best round, cr headshot kills, rk roadkills, gm games, rt rounds cleared, w = kills with weapon i) */
+const ACH=[
+  {id:'k100',n:'FIRST BLOOD',d:'KILL 100 ALIENS',s:'k',g:100},{id:'k500',n:'BUG SQUASHER',d:'KILL 500 ALIENS',s:'k',g:500},
+  {id:'k2000',n:'EXTERMINATOR',d:'KILL 2,000 ALIENS',s:'k',g:2000},{id:'k10000',n:'ALIEN APOCALYPSE',d:'KILL 10,000 ALIENS',s:'k',g:10000},
+  {id:'rv10',n:'FIELD MEDIC',d:'REVIVE 10 TEAMMATES',s:'rv',g:10},{id:'rv50',n:'GUARDIAN ANGEL',d:'REVIVE 50 TEAMMATES',s:'rv',g:50},
+  {id:'bo1',n:'GIANT KILLER',d:'KILL A BOSS',s:'bo',g:1},{id:'bo10',n:'BOSS SLAYER',d:'KILL 10 BOSSES',s:'bo',g:10},{id:'bo50',n:'GODSLAYER',d:'KILL 50 BOSSES',s:'bo',g:50},
+  {id:'br10',n:'SURVIVOR',d:'REACH ROUND 10',s:'br',g:10},{id:'br20',n:'OVERRUN VETERAN',d:'REACH ROUND 20',s:'br',g:20},
+  {id:'br30',n:'ROUND 30 SURVIVOR',d:'REACH ROUND 30',s:'br',g:30},{id:'br50',n:'LAST OF THE NEON',d:'REACH ROUND 50',s:'br',g:50},
+  {id:'cr100',n:'SHARPSHOOTER',d:'GET 100 HEADSHOT KILLS',s:'cr',g:100},{id:'cr500',n:'HEADHUNTER',d:'GET 500 HEADSHOT KILLS',s:'cr',g:500},
+  {id:'rk25',n:'ROAD RAGE',d:'RUN OVER 25 ALIENS',s:'rk',g:25},{id:'rk100',n:'HIT AND RUN',d:'RUN OVER 100 ALIENS',s:'rk',g:100},
+  {id:'w5',n:'SNIPER ELITE',d:'100 KILLS WITH THE LONGSHOT',s:'w',i:5,g:100},{id:'w8',n:'PYROMANIAC',d:'200 KILLS WITH THE INFERNO',s:'w',i:8,g:200},
+  {id:'w9',n:'TOXIC AVENGER',d:'200 KILLS WITH THE TOXIC SPRAYER',s:'w',i:9,g:200},{id:'w6',n:'GATLING GOD',d:'300 KILLS WITH THE ARC GATLING',s:'w',i:6,g:300},
+  {id:'w10',n:'BRAWLER',d:'75 KILLS WITH BRASS KNUCKLES',s:'w',i:10,g:75},{id:'w11',n:'DEMOLITION',d:'150 KILLS WITH THE MINI-BOMBER',s:'w',i:11,g:150},
+  {id:'gm10',n:'REGULAR',d:'PLAY 10 GAMES',s:'gm',g:10},{id:'gm100',n:'NEON ADDICT',d:'PLAY 100 GAMES',s:'gm',g:100},
+  {id:'rt100',n:'ROUND TRIPPER',d:'CLEAR 100 ROUNDS IN TOTAL',s:'rt',g:100},{id:'rt500',n:'MARATHON',d:'CLEAR 500 ROUNDS IN TOTAL',s:'rt',g:500}
+];
+const ACH_IDS=ACH.map(a=>a.id);
+const EXLISTS=[TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX];   // order of the ex[] array: title, badge, name colour, frame, camo, kill effect
+const EX_NAMES=['TITLE','BADGE','NAME COLOR','FRAME','GUN CAMO','KILL EFFECT'];
+/* is this item open for a player of level lv holding achievements ach (array of ids)? */
+function itemOpen(it,lv,ach){if(!it)return false;if(it.lvl!==undefined&&it.lvl<=lv)return true;return !!(it.ach&&ach&&ach.indexOf(it.ach)>=0);}
+function achProgress(a,st){st=st||{};if(a.s==='w')return(st.wk&&st.wk[a.i])|0;return(st[a.s])|0;}
+/* everything an achievement unlocks, as [kind,name] pairs */
+function achRewards(id){
+  const out=[];
+  EXLISTS.forEach((L,i)=>{for(const it of L)if(it.ach===id)out.push([EX_NAMES[i],it.name]);});
+  CH_LISTS.forEach((L,i)=>{for(const it of L)if(it.ach===id)out.push(['STYLE',it.name]);});
+  return out;
+}
+
 const MAXUP=9;                            // every weapon has 9 upgrades (MK II ... MK X): late-game power for the long haul
 const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
@@ -647,11 +727,14 @@ class Game{
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
     return p;
   }
-  setProfile(id,lv,sk,ck,ch){
+  setProfile(id,lv,sk,ck,ch,ex,ach){
     const p=this.players.get(id);if(!p)return;
-    p.lv=clamp(lv|0,1,MAXLV);sk=sk|0;p.sk=(sk>=0&&sk<SKINS.length)?sk:0;
+    p.lv=clamp(lv|0,1,MAXLV);
+    if(Array.isArray(ach))p.ach=ach.filter(a=>typeof a==='string'&&ACH_IDS.indexOf(a)>=0).slice(0,60);else if(!p.ach)p.ach=[];
+    p.ex=EXLISTS.map((L,i)=>{const v=Array.isArray(ex)?(ex[i]|0):0;return(v>=0&&v<L.length&&itemOpen(L[v],p.lv,p.ach))?v:0;});
+    sk=sk|0;p.sk=(sk>=0&&sk<SKINS.length)?sk:0;
     ck=ck|0;p.ck=(ck>=0&&ck<CSKINS.length&&CSKINS[ck].lvl<=p.lv)?ck:0;
-    p.ch=CH_LISTS.map((L,i)=>{const v=Array.isArray(ch)?(ch[i]|0):0;return(v>=0&&v<L.length&&L[v].lvl<=p.lv)?v:0;});
+    p.ch=CH_LISTS.map((L,i)=>{const v=Array.isArray(ch)?(ch[i]|0):0;return(v>=0&&v<L.length&&itemOpen(L[v],p.lv,p.ach))?v:0;});
   }
   /* rounds this player survived while in the game (for the leaderboard) */
   credit(p){
@@ -738,7 +821,7 @@ class Game{
         this.state='rest';this.timer=5;this.round=0;this.push('go');break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
-      case 'prof':this.setProfile(id,m.lv,m.sk,m.ck,m.ch);break;
+      case 'prof':this.setProfile(id,m.lv,m.sk,m.ck,m.ch,m.ex,m.ach);break;
     }
   }
 
@@ -902,11 +985,12 @@ class Game{
     a.hp-=dmg;
     p.money+=10;
     let killed=0;
-    if(a.hp<=0){killed=1;this.killAlien(a,p);}
+    if(a.hp<=0){killed=1;this.killAlien(a,p,crit);}
     this.push('hit',p.id,r2(x),r2(y),r2(z),killed,Math.round(dmg),crit);
   }
-  killAlien(a,p){
+  killAlien(a,p,crit){
     const def=AT[a.t];
+    this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0);   // credit for the killer's own lifetime stats / achievements
     const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1);
     p.money+=Math.round(mk);p.kills++;
     for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash
@@ -924,7 +1008,7 @@ class Game{
     if(def.carni){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')q.hp=mhp(q);this.push('carnidead',p.id);}
     if(def.perch&&!def.pirate&&!def.carni){p.money+=2000;const opts=PERKS.filter(pk=>!p.perks[pk.id]&&(pk.req===undefined||p.perks[pk.req]));if(opts.length){const pk=opts[Math.floor(this.rand()*opts.length)];p.perks[pk.id]=true;if(HP_TIERS.includes(pk.id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,pk.id);}this.push('cleodead',p.id);}
     if(def.movie){p.money+=800;this.push('ammoall',p.id);this.push('ticket',p.id);}
-    this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id);
+    this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id,p.id);
   }
 
   /* ---- rounds ---- */
@@ -1260,6 +1344,22 @@ class Game{
           if(bd<90)continue;
           for(let k=0;k<12;k++){const an=this.rand()*6.283,x=tp.x+Math.cos(an)*60,z=tp.z+Math.sin(an)*60;if(Math.abs(x)>HALF-8||Math.abs(z)>HALF-8||inBuilding(x,z,1)||groundAt(x,z)>0.5)continue;a.x=x;a.z=z;a.reloc=1;break;}}
       }
+      // stuck failsafe: a ground alien that has hardly moved for ~10 s while far from everyone gets dropped back into the fight
+      this.stuckT=(this.stuckT||0)+dt;
+      if(this.stuckT>=2){
+        this.stuckT=0;
+        const al=plist.filter(p=>p.st==='alive');
+        if(al.length)for(const a of this.aliens){
+          const D=AT[a.t];if(D.boss||D.giant||D.fly||D.perch||D.loner||D.sniper||(a.t>=19&&a.t<=24)||a.dorm||a.hide||a.guard)continue;
+          let tp=al[0],bd=1e9;for(const p of al){const d=Math.hypot(a.x-p.x,a.z-p.z);if(d<bd){bd=d;tp=p;}}
+          if(a.sx===undefined||Math.hypot(a.x-a.sx,a.z-a.sz)>2.5||bd<14){a.sx=a.x;a.sz=a.z;a.stk=0;continue;}
+          if(++a.stk<5)continue;   // 5 checks x 2 s
+          a.stk=0;a.sx=a.x;a.sz=a.z;
+          for(let k=0;k<20;k++){const an=this.rand()*6.283,x=tp.x+Math.cos(an)*(45+this.rand()*30),z=tp.z+Math.sin(an)*(45+this.rand()*30);
+            if(Math.abs(x)>HALF-8||Math.abs(z)>HALF-8||inBuilding(x,z,1)||groundAt(x,z)>0.5||BLOCK[cellOf(x,z)])continue;
+            a.x=x;a.z=z;a.vx=a.vz=0;a.sx=x;a.sz=z;break;}
+        }
+      }
       const cap0=Math.min(48,22+6*(plist.length-1)),cap=this.round%5===0?Math.min(cap0,8+3*(plist.length-1)):this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
@@ -1267,7 +1367,7 @@ class Game{
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
         this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
-      if(!this.queue.length&&this.aliens.every(a=>(a.t>=19&&a.t<=24)||a.hide))this.endRound();   // hidden specials (pizza/movie/Cleopatra) never hold a round open
+      if(!this.queue.length&&this.aliens.every(a=>(a.t>=19&&a.t<=24)||a.hide||(a.t===15&&this.emptyT>150)))this.endRound();   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
         this.state='over';this.timer=14;
         this.best=Math.max(this.best,this.round);
@@ -1598,7 +1698,7 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,px:c.pax||[],sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
@@ -1610,6 +1710,6 @@ class Game{
 }
 
 const API={PERKS,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
-  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,Game};
+  genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX,ACH,EXLISTS,EX_NAMES,itemOpen,achProgress,achRewards,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);

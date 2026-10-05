@@ -249,3 +249,12 @@ Eight kinds of buildings are now fully dressed (batched decor, so it stays fast)
 
 - In a co-op room, the waiting room and the pause menu have a **COPY INVITE LINK** button. The link looks like `https://your-game-site/?room=ABCD`.
 - Opening it fills in the room code and shows "YOU WERE INVITED"; the player types a name (if new) and presses CREATE / JOIN ROOM.
+
+## Achievements & cosmetics
+CUSTOMIZE has four tabs: CHARACTER, PROFILE, WEAPONS & CARS, ACHIEVEMENTS. Titles, badges, name colours, frames, weapon camos and kill effects unlock by level or by earning achievements (kills, revives, bosses, rounds, weapon kills). Earned-only items are shown in the ACHIEVEMENTS tab. Your name chips show in the lobby, team HUD, friends list and above your head in 3D.
+
+## Controller menus
+Every menu works with a controller, including the home screen. D-pad/left stick moves, A selects, B goes back, LB/RB switch main tabs, LT/RT switch sub-tabs, left/right adjusts sliders. Text fields open an on-screen keyboard. Pressing A on the title screen with nothing focused starts solo.
+
+## Discord
+The home screen has a "JOIN THE OFFICIAL DISCORD" link at the bottom (https://discord.gg/XvD5KQjDZr).

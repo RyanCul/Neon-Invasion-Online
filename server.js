@@ -143,7 +143,7 @@ async function authed(m){
   if(!a)return null;const h=sha(m.token);
   return a.toks&&a.toks.includes(h)?a:null;
 }
-const profOf=a=>({name:a.name,xp:a.xp|0,skin:a.skin|0,car:a.car|0,ch:a.ch||[]});
+const profOf=a=>({name:a.name,xp:a.xp|0,skin:a.skin|0,car:a.car|0,ch:a.ch||[],ex:a.ex||[],ach:a.ach||[],st:a.st||null,best:a.best|0});
 function whereIs(name){
   for(const r of rooms.values())for(const [w,n] of roomAccts)if(n===name&&r.clients&&[...r.clients.values()].includes(w))return{st:'room',room:r.code,round:r.game.round|0,state:r.game.state,pl:r.clients.size};
   const p=presence.get(name);
@@ -152,7 +152,7 @@ function whereIs(name){
 }
 async function friendList(a){
   const out=[];
-  for(const n of a.friends||[]){const f=await accGet(n);if(!f)continue;out.push({n:f.name,l:lvOf(f.xp),...whereIs(f.name.toUpperCase()),best:f.best|0});}
+  for(const n of a.friends||[]){const f=await accGet(n);if(!f)continue;out.push({n:f.name,l:lvOf(f.xp),...whereIs(f.name.toUpperCase()),best:f.best|0,ex:f.ex||[]});}
   out.sort((x,y)=>(x.st==='off')-(y.st==='off')||y.l-x.l);
   return{friends:out,incoming:(a.inReq||[]).slice(0,20),outgoing:(a.outReq||[]).slice(0,20)};
 }
@@ -174,7 +174,7 @@ async function handleApi(req,res,url){
         if(pw.length<4||pw.length>40){J(400,{err:'Password must be 4-40 characters.'});return;}
         if(await accGet(name)){J(409,{err:'That name is taken.'});return;}
         const salt=crypto.randomBytes(12).toString('hex'),token=crypto.randomBytes(20).toString('hex');
-        const a={name,salt,hash:hashPw(pw,salt),toks:[sha(token)],xp:Math.max(0,Math.min(2000000,m.xp|0)),skin:m.skin|0,car:m.car|0,ch:Array.isArray(m.ch)?m.ch.slice(0,12).map(v=>v|0):[],friends:[],inReq:[],outReq:[],best:0,created:Date.now()};
+        const a={name,salt,hash:hashPw(pw,salt),toks:[sha(token)],xp:Math.max(0,Math.min(2000000,m.xp|0)),skin:m.skin|0,car:m.car|0,ch:Array.isArray(m.ch)?m.ch.slice(0,12).map(v=>v|0):[],ex:Array.isArray(m.ex)?m.ex.slice(0,6).map(v=>Math.max(0,Math.min(99,v|0))):[],ach:Array.isArray(m.ach)?m.ach.filter(x=>typeof x==='string'&&NI.ACH.some(q=>q.id===x)):[],st:null,friends:[],inReq:[],outReq:[],best:0,created:Date.now()};
         accSave(a);J(200,{token,prof:profOf(a),...await friendList(a)});return;
       }
       if(url==='/api/login'){
@@ -190,6 +190,11 @@ async function handleApi(req,res,url){
           const p=m.prof;
           if(Number.isFinite(+p.xp)&&+p.xp>(a.xp|0))a.xp=Math.min(2000000,Math.floor(+p.xp));
           a.skin=p.skin|0;a.car=p.car|0;if(Array.isArray(p.ch))a.ch=p.ch.slice(0,12).map(v=>v|0);
+          if(Array.isArray(p.ex))a.ex=p.ex.slice(0,6).map(v=>Math.max(0,Math.min(99,v|0)));
+          if(Array.isArray(p.ach)){const set=new Set(a.ach||[]);for(const x of p.ach)if(typeof x==='string'&&NI.ACH.some(q=>q.id===x))set.add(x);a.ach=[...set];}
+          if(p.st&&typeof p.st==='object'){const o=a.st||{wk:[]},c=(v,mx)=>Math.max(0,Math.min(mx,Math.floor(+v)||0));
+            for(const k of ['k','rv','bo','br','cr','rk','gm','rt'])o[k]=Math.max(o[k]|0,c(p.st[k],5e6));
+            o.wk=[];for(let i=0;i<12;i++)o.wk[i]=Math.max((a.st&&a.st.wk&&a.st.wk[i])|0,c(p.st.wk&&p.st.wk[i],5e6));a.st=o;}
           if(Number.isFinite(+p.best)&&+p.best>(a.best|0))a.best=Math.min(300,Math.floor(+p.best));
           accSave(a);
         }
@@ -267,7 +272,7 @@ wss.on('connection',ws=>{
       let pname=cleanName(m.name,pid),plv=m.lv;
       if(m.acct&&m.tok){authed({name:m.acct,token:m.tok}).then(a=>{if(!a)return;roomAccts.set(ws,a.name.toUpperCase());a.last=Date.now();}).catch(()=>{});}
       r.game.addPlayer(pid,pname);
-      r.game.setProfile(pid,plv,m.sk,m.ck,m.ch);
+      r.game.setProfile(pid,plv,m.sk,m.ck,m.ch,m.ex,m.ach);
       ws.send(JSON.stringify({t:'joined',id:pid,room:r.code}));
       console.log(`[${r.code}] player ${pid} joined (${r.clients.size} in room)`);
       return;
