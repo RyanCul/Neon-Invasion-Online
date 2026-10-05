@@ -331,7 +331,11 @@ function genWorld(seed){
   let mbox=null;
   {let best=-1,hs0=null;for(const hs of houses){const d=Math.hypot(hs.x,hs.z);if(d>best){best=d;hs0=hs;}}
    if(hs0){const k=hs0.k,lx=-10,lz=10,q=k===0?[lx,lz]:k===1?[-lz,lx]:k===2?[-lx,-lz]:[lz,-lx];mbox={x:hs0.x+q[0],z:hs0.z+q[1],name:hs0.name};}}
-  return {B,slabs,houses,loot,pads,themes,sauc,mbox};
+  /* an open-air tiki bar on the beach (solid counter; beer at the bx,bz spot) */
+  const bbar={x:-20,z:HALF+40};
+  dbox(bbar.x,bbar.z,16,2,1.25,0x7a4a22,{nomm:1});
+  bbar.bx=bbar.x+3;bbar.bz=bbar.z-3.2;
+  return {B,slabs,houses,loot,pads,themes,sauc,mbox,bbar};
 }
 const SEED=1986;
 const WORLD=genWorld(SEED);
@@ -698,7 +702,7 @@ class Game{
       else this.push('ammoall',p.id);
       this.push('mbox',p.id,w);
     }else if(m.k==='beer'){
-      const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
+      const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5)||(WORLD.bbar&&Math.hypot(WORLD.bbar.bx-p.x,WORLD.bbar.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
     }else if(m.k==='vend'){
       const h=HOUSES.find(h=>Math.hypot(h.vx-p.x,h.vz-p.z)<4);if(!h)return;
       if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);

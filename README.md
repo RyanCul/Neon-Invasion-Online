@@ -199,3 +199,6 @@ Movie Alien: round 9, then every 7. Pizza Alien: round 7, then every 7. Pirate C
 - Beach & ocean: wet sand and rolling foam at the waterline, crest lines rolling in, umbrellas and towels, beach balls, starfish, sandcastles, volleyball nets, lifeguard towers, flickering beach torches, bobbing buoys with blinking lights, drifting sailboats and jumping dolphins.
 - Tiki bar: bamboo-fronted counter (solid), thatch overhang, bottle shelf, tiki masks, neon COLD BEER sign, string lights, torches, surfboards, potted palms, and a big glowing beer bottle on the counter - [E] there for $40 to drink it (30s drunk effect).
 - TIPSY ALIEN: from round 8 (1 at first, more as rounds go on). Lobs bottles; a hit (or a touch) gives 10 seconds of the drunk effect and no damage.
+
+## Beach bar
+- An open-air BEACH BAR sits on the sand just south of the starting plaza (about x=-20, straight toward the ocean): thatch roof, bamboo counter, stools, tiki masks, neon sign, torches, surfboards and the same glowing beer bottle ([E], $40, 30s drunk effect) on the customer side of the counter.
