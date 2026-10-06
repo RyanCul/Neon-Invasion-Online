@@ -3,7 +3,7 @@ Co-op alien-wave FPS in the neon 80s city. Rounds get harder, a boss alien every
 Earn cash per kill, buy colored laser guns, upgrade them at the QUICK UPGRADE station, buy armed cars at the GARAGE.
 
 ## Play solo (no server)
-Open index.html in a browser (keep game.html, shared.js and the song files (01.mp3 ... n6.mp3) beside it) and click PLAY SOLO.
+Open index.html in a browser (keep game.html, shared.js and the song files (02.mp3 ... n6.mp3, b1.mp3 ... b6.mp3) beside it) and click PLAY SOLO.
 
 ## Play online with friends
 1. Install Node.js (nodejs.org), open this folder in VS Code's terminal.
@@ -227,7 +227,7 @@ Level-ups unlock Vice City styles in four categories: suit colors (incl. a rainb
 
 ## Shared rides & driver aliens
 - Co-op: walk up to a car somebody is already driving and press E to ride along. Seats: segway and motorcycle 2, everything else 4. Whoever got in first drives; if the driver leaves, the next one in takes the wheel. Passengers can leave any time (a helicopter has to be landed first) and can fire the gun on the helicopter and tank. A wrecked car throws everyone out (25 damage each).
-- Alien drivers: up to 3 per round, riding vehicles that get better with the round: segway R8, motorcycle R16, coupe R21, muscle car R28, hypercar R34, monster truck R40, hovercar R45, helicopter R48, tank R51. Tank and helicopter drivers are the shooting aliens. They are faster, tougher and hit harder than normal aliens; killing one blows up the ride and pays a small bonus.
+- Alien drivers: up to 6 per round, riding vehicles that get better with the round: segway R8, motorcycle R16, coupe R21, muscle car R28, hypercar R34, monster truck R40, hovercar R45, helicopter R48, tank R51. Tank and helicopter drivers are the shooting aliens. They are faster, tougher and hit harder than normal aliens; killing one blows up the ride and pays a small bonus.
 
 ## Detailed interiors
 Eight kinds of buildings are now fully dressed (batched decor, so it stays fast): a new PIZZA SHOP (checkered floor, brick oven with a fire and chimney, prep counter with pizzas, menu board, booths, pendant lamps - it replaces the second diner and the pizza alien can hide there too), ARCADE (cabinets with pixel-art screens, claw machine, dance pads, prize shelf, neon ceiling), DINER (black/white floor, chrome counter with milkshakes and pie, jukebox, kitchen window, clock), NEON CLUB (colour-cycling dance floor, DJ booth, lasers, mirror ball), VIDEO RENTAL (shelves of VHS tapes, movie posters, TV wall), RECORD SHOP (record bins, giant vinyl, album walls), HOTEL LOBBY (marble floor, red carpet, key wall, chandelier, palms, elevator) and ROLLER RINK (glowing rink lines, disco ball, rainbow wall, skate shelves). The vending machines everywhere got glowing snack fronts.
@@ -288,7 +288,7 @@ Every song is loudness-matched (about -17 LUFS) so no track jumps out, and the m
 Left stick move, right stick look, RT fire, LT aim, **A jump (and jetpack up)**, **hold Y to sprint**, **X also takes you back to base between rounds**, click the left stick (L3) for fullscreen, B crouch / hover, X use / reload, LB / RB switch weapon, D-pad radio, BACK = back to the starting area, START = pause. In a vehicle: A / RT gas, B / LT brake, Y = get out, LB = handbrake, RB = hood camera.
 
 ## Neon Palace Casino
-On the beach west of the tiki bar. Press E (X on controller) at a slot machine or the roulette table. Bets $50-$1000. Slots pay on three matching symbols (two cherries = bet back). Roulette: red/black, odd/even, 1-18/19-36 pay 1:1, a single number pays 35:1. The casino is a safe zone for whoever is inside: no damage, aliens ignore you, and you cannot shoot. Everyone else plays normally.
+In the north-east of the map, right next to the Neon Pyramid, in the converted roller rink (slots along the back wall, roulette table in the middle). Press E (X on controller) at a slot machine or the roulette table. Bets $50-$1000. Slots pay on three matching symbols (two cherries = bet back). Roulette: red/black, odd/even, 1-18/19-36 pay 1:1, a single number pays 35:1. The casino is a safe zone for whoever is inside: no damage, aliens ignore you, and you cannot shoot. Everyone else plays normally.
 
 ## Round rules
 A round only ends when every stalker and boss (including hidden ones) is dead. Bigger crews earn less cash per kill.
@@ -308,3 +308,42 @@ Casino: an ALL IN button bets all your cash on slots and roulette.
 Acid rain has been removed (blackouts and lightning storms remain).
 
 Weather now also includes Thick Fog (short sight, smaller minimap), Meteor Shower (orange circles, then blasts that leave fire for 6 s) and Neon Aurora (+50% cash per kill, aliens 20% faster). Ground aliens can now jump low ledges, so they can climb the pyramid. On controller: A jump, hold Y sprint, X = back to base between rounds. Full-map labels are one word.
+
+## Update: bosses, rounds and controller
+- **Controller:** A = hold to run, B = jump / jetpack, X = reload, Y = use (enter / leave cars and the wheel, buy, revive) and back to base between rounds. The radio controls sit under the current song.
+- **Back to base** is now handled by the server, so it works from cars, helicopters and the wheel.
+- **Levels** go to 100; XP per level keeps climbing (faster after level 50).
+- **Perks:** Neon Tank and Sprinter show as one menu row each; the next tier replaces it after you buy one. Tier III costs $10,000 and tier IV $100,000 for both.
+- **Rounds:** 12 s between rounds, 20 s once past round 20. In co-op everyone who fell gets back up the moment the last alien dies.
+- **Vehicles:** a wrecked ride can't be taken out of the garage again until the next round.
+- **Versus win:** "Switch to co-op" (everyone else revives when the round ends and the match continues as co-op) or "Back to lobby".
+- **Alien shark** now flies. It cruises over the beach until you get close or hurt it, then hunts anywhere on the map with fast lasers. Every 30th round a **giant alien shark** comes.
+- **Carnival boss** rides the Crystal Wheel (the wheel now turns on server time so everyone sees the same spin). Low health, sniper rifle: a red line charges for 1.4 s, then one heavy shot.
+- **Godzilla** has more health and damage, his blasts reach anywhere on the map, and he does a slow giant **Stomp** (red circle fills over 6 s, radius 50).
+- Weather only shows in the orange box at the top. Area and pop-up subtext was shortened.
+
+## Vehicle swarm rounds
+Rounds 17, 27, 37, 47 ... are special: 20 aliens all ride the same vehicle, getting better each time (R17 segways, R27 motorcycles, R37 coupes, R47 muscle cars, R57 hypercars, R67 monster trucks, R77 hovercars, R87 helicopters, R97 and after tanks). Normal alien drivers are off on those rounds.
+
+## Ocean
+The sea now has a shallow-to-deep colour gradient, scrolling ripple and sparkle texture and extra wave motion. The big ground plane used to run under the water and hide most of it, so it now stops at the shoreline.
+
+## Beach life
+- **Crabs** (12) scuttle around the sand and run from you; shoot one for a little cash (they respawn after about 14 s). **Seagulls** circle overhead (daytime).
+- **Boardwalk:** a pulsing retro boom box, a climbable **lifeguard tower** (perch with a cache on top) and a **pier** with string lights and a big spinning ring of lights.
+- **Sea:** jet skis zip along the shore, a lighthouse sweeps a beam, and a glitter path runs across the water (pink at sunset, blue at night). Foam now breaks on the shore with a lacy edge.
+- **Pirate ship** sits in the bay and fires cannons at players on the beach while the pirate captain is alive.
+- **Night:** bonfires on the sand, glowing jellyfish in the shallows and on the shore, and light beams over the tiki torches.
+
+- **Casino interior:** red carpet with a gold lattice, marble pillars, chandeliers, chasing marquee bulbs, JACKPOT / LUCKY 7 signs, stools at the slots, chip-covered roulette table and four blackjack tables.
+
+## Landmark changes
+- The westernmost container yard is now the **Neon Ballpark** (striped grass, dirt diamond, bases, scoreboard, dugouts and bleachers you can climb, floodlights).
+- The north-western lake is a **City Park** (paths, flower beds, pavilion fountain, swing set); the other lake is **Fountain Square** with a tiered fountain and animated jets.
+- The crashed UFO moved to the block where the middle maze was, and the old UFO park is now **The Lighthouse**: a striped stepped tower with a sweeping beam and a cache on top.
+- The **Mystery Box** moves to a different random building every 6 rounds (round 7, 13, 19...). A toast announces where, and the map marker follows.
+
+## Radio channels
+- **NEON FM 98.6** (16 songs) plays from the start. **NIGHT CHANNEL** (6 lofi tracks) unlocks when the game reaches its first night (round 6) and is then available day and night. **BEACH CHANNEL** (6 bossa nova tracks, Pixabay) unlocks the first time you step onto the beach. Unlocked channels stay unlocked for that game; each new game starts with only NEON FM.
+- Tune channels with D-pad up / down or `[` / `]`; `,` `.` and D-pad left / right change the song inside the channel, `M` mutes. Volume is only changed in the settings menu (music default 35, effects default 100).
+- "Too Soon" by Diamond Ace was removed; the title screen now plays the first NEON FM song.
