@@ -3,7 +3,7 @@ Co-op alien-wave FPS in the neon 80s city. Rounds get harder, a boss alien every
 Earn cash per kill, buy colored laser guns, upgrade them at the QUICK UPGRADE station, buy armed cars at the GARAGE.
 
 ## Play solo (no server)
-Open index.html in a browser (keep shared.js and the radio folder beside it) and click PLAY SOLO.
+Open index.html in a browser (keep shared.js and the song files (01.mp3 ... n6.mp3) beside it) and click PLAY SOLO.
 
 ## Play online with friends
 1. Install Node.js (nodejs.org), open this folder in VS Code's terminal.
@@ -273,6 +273,6 @@ The host picks CO-OP or VERSUS (V / controller Y) in the waiting room. Versus: l
 The mouse is released in the waiting room and on the YOU WIN screen. Controller: D-pad/stick to move, A to select, X hard mode, Y versus, Start to begin; on the win screen A = yes, B = no.
 
 ### NEON FM radio
-The title screen loops the original song (Too Soon). Once a game starts the radio plays through 17 tracks in order. Keyboard: `,` previous, `.` next, `[` volume down, `]` volume up, `M` mute. Controller: D-pad left = previous, right = next, up/down = volume (at the weapon and perk shops up/down scroll the list instead). Skins & locker moved to the pause menu on a controller; hood cam while driving is L3. Songs live in `radio/` (re-encoded to 64 kbps so the whole game fits in one small download); the names are made up for the untitled ones.
+The title screen loops the original song (Too Soon). Once a game starts the radio plays through 17 tracks in order. Keyboard: `,` previous, `.` next, `[` volume down, `]` volume up, `M` mute. Controller: D-pad left = previous, right = next, up/down = volume (at the weapon and perk shops up/down scroll the list instead). Skins & locker moved to the pause menu on a controller; hood cam while driving is L3. Songs sit next to index.html (a radio/ folder also works) (re-encoded to 64 kbps so the whole game fits in one small download); the names are made up for the untitled ones.
 
 The radio also has a hidden NIGHT CHANNEL (6 lofi tracks). It only exists while it is night in game (rounds 6-10, 16-20, 26-30 and so on; every 5th round it flips between day and night): scroll past the last NEON FM song and it tunes in. When day comes back the radio drops back to the first NEON FM song.

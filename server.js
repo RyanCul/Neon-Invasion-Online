@@ -38,7 +38,9 @@ const server=http.createServer((req,res)=>{
     res.writeHead(200,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});
     res.end(JSON.stringify(topLB(25)));return;
   }
-  const f=FILES[url]||(/^\/radio\/[a-z0-9]{1,3}\.mp3$/.test(url)?url.slice(1):null);
+  let f=FILES[url];
+  if(!f){const mm=/^\/(?:radio\/)?([a-z0-9]{1,3}\.mp3)$/.exec(url);   // songs can sit beside index.html or inside a radio/ folder
+    if(mm)f=fs.existsSync(path.join(__dirname,mm[1]))?mm[1]:'radio/'+mm[1];}
   if(!f){res.writeHead(404);res.end('not found');return;}
   const fp=path.join(__dirname,f);
   fs.stat(fp,(err,st)=>{
