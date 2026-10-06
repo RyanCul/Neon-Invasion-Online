@@ -38,7 +38,7 @@ const server=http.createServer((req,res)=>{
     res.writeHead(200,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});
     res.end(JSON.stringify(topLB(25)));return;
   }
-  const f=FILES[url];
+  const f=FILES[url]||(/^\/radio\/[a-z0-9]{1,3}\.mp3$/.test(url)?url.slice(1):null);
   if(!f){res.writeHead(404);res.end('not found');return;}
   const fp=path.join(__dirname,f);
   fs.stat(fp,(err,st)=>{

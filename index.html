@@ -133,6 +133,10 @@ body:not(.playing) #hint{display:none}
 #radio{position:fixed;left:22px;bottom:130px;pointer-events:none;font-weight:bold;letter-spacing:2px;color:#9ffcff;text-shadow:0 0 6px #25f4ff;font-size:12px;display:none}
 body.playing #radio{display:block}
 #radio.off{opacity:.45}
+#radio small{font-weight:normal}
+#radio{transition:opacity .4s}
+#radio:not(.pop){opacity:.55}
+#radio.off:not(.pop){opacity:.3}
 #down{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,0,40,.0),rgba(120,0,20,.55));text-align:center}
 #down h1{margin:0;font-size:clamp(34px,7vw,80px);color:#ff4060;font-style:italic;letter-spacing:4px;text-shadow:0 0 14px #ff2040}
 #down p{margin:6px 0;font-size:18px;letter-spacing:3px;color:#ffe6f6;text-shadow:0 0 8px #ff2fa0}
@@ -388,11 +392,11 @@ body.playing #pauseB{display:block}
 <div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
 <div id="contact"></div><canvas id="bigmap"></canvas><div id="wave"></div><div id="waveA"></div><div id="hitdir"></div>
 <div id="dnl"></div><div id="streak"></div><div id="wxban"></div><div id="spec"></div><div id="pkbar"></div>
-<div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M music &middot; L full map &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="bFS">FULLSCREEN</button> <button id="setClose">CLOSE (O / ESC)</button></div></div></div>
+<div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M mute &middot; , . prev/next song &middot; [ ] radio volume &middot; L full map &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="bFS">FULLSCREEN</button> <button id="setClose">CLOSE (O / ESC)</button></div></div></div>
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
 <div id="lock">CLICK TO PLAY</div>
 <button id="pauseB">II MENU (TAB)</button>
-<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pFr" class="alt">FRIENDS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
+<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pFr" class="alt">FRIENDS</button><button id="pLk" class="alt">SKINS &amp; LOCKER</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
   <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch">ACHIEVEMENTS</button></div><div id="lvnote"></div></div>
@@ -434,7 +438,7 @@ body.playing #pauseB{display:block}
       <tr><td>A</td><td>jump (gas while driving)</td></tr><tr><td>B</td><td>hover (brake while driving)</td></tr>
       <tr><td>X</td><td>use / reload</td></tr><tr><td>Y</td><td>use, or back to the starting area</td></tr>
       <tr><td>LB / RB</td><td>switch weapon</td></tr><tr><td>L3</td><td>sprint (handbrake while driving)</td></tr>
-      <tr><td>D-PAD UP / DOWN</td><td>back to base / skins locker</td></tr><tr><td>D-PAD RIGHT</td><td>hood camera</td></tr>
+      <tr><td>D-PAD LEFT / RIGHT</td><td>radio: previous / next song</td></tr><tr><td>D-PAD UP / DOWN</td><td>radio volume up / down</td></tr><tr><td>L3 (driving)</td><td>hood camera</td></tr>
       <tr><td>START</td><td>pause menu (co-op keeps running)</td></tr><tr><td>BACK</td><td>fullscreen</td></tr>
     </table></div>
   </div>
@@ -2199,9 +2203,29 @@ function proxAudio(dt){
   // danger heartbeat when several are on top of you
   if(close>=2){heartT-=dt;if(heartT<=0){heartT=Math.max(0.45,0.9-close*0.08);const v=Math.min(0.2,0.07+close*0.02);pvoice(75,40,0.18,'sine',v,0);setTimeout(()=>pvoice(65,38,0.16,'sine',v*0.8,0),160);}}
 }
-const song=new Audio('song.mp3');song.loop=true;song.volume=0.2;song.preload='auto';
+/* ---- NEON FM: the title screen loops track 1 (the original song); once a game starts the radio plays through the whole playlist ---- */
+const TRACKS=[['01','Too Soon','Diamond Ace'],['02','Chrome Horizon'],['03','Midnight Boulevard'],['04','Neon Drive'],['05','Arcade Nights'],['06','Pink Static'],['07','Palm Tree Pursuit'],['08','Laser Summit'],['09','Turbo Sunset'],['10','Vice Avenue'],['11','Grid Runner'],['12','Arp City'],['13','Night Cruiser'],['14','Tranquil Tides'],['15','Mall Hours'],['16','Infinity Drift'],['17','Fluid Motion'],['n1','Rooftop Rain'],['n2','Moonlit Static'],['n3','Funky Midnight Club'],['n4','Glow Lamp'],['n5','Last Train Home'],['n6','Window Seat']];
+const DAYN=17;   // tracks 0-16 are NEON FM; the rest are the secret NIGHT CHANNEL, which only exists at night
+const nightRound=n=>n>0&&(Math.floor((n-1)/5)%2)===1;   // rounds 1-5 day, 6-10 night, 11-15 day, 16-20 night, ... nobody can change it
+const isNight=()=>nTarget===1;
+let tIdx=0;
+const song=new Audio('radio/01.mp3');song.loop=true;song.volume=0.2;song.preload='auto';
 let radioOn=true;
-function startSong(){if(radioOn){const p=song.play();if(p&&p.catch)p.catch(()=>{});}}
+function radioLabel(extra){const t=TRACKS[tIdx],nc=tIdx>=DAYN;$('radio').innerHTML=(nc?'<span style="color:#b79bff;text-shadow:0 0 6px #7a4cff">NIGHT CHANNEL</span>':'<span style="color:#fff3b0">NEON FM 98.6</span>')+' &middot; '+t[1]+(t[2]?' &mdash; '+t[2]:'')+(extra?' &nbsp;<span style="color:#ff9fd8">'+extra+'</span>':'')+'<br><small style="opacity:.6;letter-spacing:1px">'+PB('dl')+' / '+PB('dr')+' track &nbsp; '+PB('du')+' / '+PB('dd')+' volume &nbsp; M mute</small>';}
+let radioFlashT=0;
+function radioGo(i){
+  const total=isNight()?TRACKS.length:DAYN,was=tIdx;   // by day the dial only goes around NEON FM; at night, scrolling past the last song tunes into the secret channel
+  tIdx=((i%total)+total)%total;
+  if(tIdx>=DAYN&&was<DAYN&&started)toast('NIGHT CHANNEL','SECRET FREQUENCY FOUND');
+  song.src='radio/'+TRACKS[tIdx][0]+'.mp3';song.loop=false;
+  if(radioOn){const p=song.play();if(p&&p.catch)p.catch(()=>{});}
+  radioLabel('');radioPop();
+}
+function radioPop(){const r=$('radio');r.classList.add('pop');clearTimeout(radioFlashT);radioFlashT=setTimeout(()=>r.classList.remove('pop'),2600);}
+function radioVol(d){SET.music=Math.max(0,Math.min(100,SET.music+d*10));saveSet();applySet();radioLabel('VOL '+SET.music+'%');radioPop();try{if(typeof renderSettings==='function'&&$('settings').style.display==='flex')renderSettings();}catch(e){}}
+function radioNext(d){if(!radioOn){radioOn=true;$('radio').classList.remove('off');}radioGo(tIdx+d);}
+song.addEventListener('ended',()=>{if(started)radioGo(tIdx+1);});
+function startSong(){if(radioOn){song.loop=!started&&tIdx===0;const p=song.play();if(p&&p.catch)p.catch(()=>{});}}
 /* music on the title screen: try right away; browsers block sound until the first click/key/touch, so retry on that */
 function menuMusic(){
   if(!radioOn||!song.paused)return;
@@ -2361,7 +2385,7 @@ function send(m){
 function begin(){
   started=true;stAdd('gm',1);checkAch();sessAch=[];if(acct)setTimeout(cloudSync,400);firstSnap=true;gameXP=0;lastK=0;$('menu').style.display='none';document.body.classList.add('playing');document.body.classList.toggle('solo',mode==='solo');
   $('room').textContent=mode==='online'?'ROOM '+roomCode+' - tell friends this code':'SOLO';
-  startSong();actx();
+  song.loop=false;startSong();actx();radioLabel('');radioPop();
   requestLock();
 }
 function requestLock(){try{const p=canvas.requestPointerLock();if(p&&p.catch)p.catch(()=>{});}catch(e){}}
@@ -2690,7 +2714,6 @@ function handleEvent(e){
     {const kid=e[6],kf=kid===myId?prof.ex[5]:(((remotes.get(kid)||{}).p||{}).ex||[])[5];if(kf)kfxBurst(kf,e[1],e[2],e[3]);}
   }else if(k==='round'){curRound=e[1]|0;stMax('br',curRound-(joinRound-1));checkAch();if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
     toast(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===3?'THE ULTIMATE ALIEN HAS ARRIVED - IT CALLS ITS SWARM':e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
-    if(!nManual){nTarget=e[1]>=6?1:0;}
     if(e[1]===4)setTimeout(()=>toast('RUMOR','3 NEON TAPES ARE HIDDEN: THE FAR BEACH, THE TALLEST ROOF, AND INSIDE A BUILDING'),3300);
   }else if(k==='clear'){
     toast('ROUND CLEARED','CATCH YOUR BREATH - SPEND YOUR CASH');
@@ -2866,7 +2889,7 @@ function setPause(v){
   if(v){try{document.exitPointerLock();}catch(e){}$('lock').style.display='none';}else if(started)requestLock();
 }
 $('pauseB').onclick=()=>setPause(true);$('pResume').onclick=()=>setPause(false);
-$('lbInv').onclick=e=>{e.stopPropagation();copyInvite($('lbInv'));};$('pInv').onclick=()=>copyInvite($('pInv'));$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
+$('lbInv').onclick=e=>{e.stopPropagation();copyInvite($('lbInv'));};$('pInv').onclick=()=>copyInvite($('pInv'));$('pLk').onclick=()=>{setPause(false);openLocker();};$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
 function toggleSettings(force){
   const s=$('settings'),open=s.style.display==='flex',want=force===undefined?!open:force;
   s.style.display=want?'flex':'none';
@@ -3048,8 +3071,11 @@ addEventListener('keydown',e=>{
   else if(e.code==='KeyV')hoodCam=!hoodCam;
   else if(e.code==='KeyY')goBase();
   else if(e.code==='KeyK')openLocker();
-  else if(e.code==='KeyN'){nManual=true;nTarget=nTarget?0:1;}
   else if(e.code==='KeyL'){toggleBigMap();}
+  else if(e.code==='Comma'){radioNext(-1);}
+  else if(e.code==='Period'){radioNext(1);}
+  else if(e.code==='BracketLeft'){radioVol(-1);}
+  else if(e.code==='BracketRight'){radioVol(1);}
   else if(e.code==='KeyM'){radioOn=!radioOn;$('radio').classList.toggle('off',!radioOn);if(radioOn)startSong();else song.pause();}
   else if(e.code==='KeyP'){retro=!retro;applyRes();}
   else if(e.code==='KeyG')toggleFS();
@@ -3086,6 +3112,7 @@ const PADN={
   xbox:{a:'A',b:'B',x:'X',y:'Y',lb:'LB',rb:'RB',lt:'LT',rt:'RT',start:'MENU',back:'VIEW',l3:'L3',r3:'R3'},
   ps:{a:'CROSS',b:'CIRCLE',x:'SQUARE',y:'TRIANGLE',lb:'L1',rb:'R1',lt:'L2',rt:'R2',start:'OPTIONS',back:'SHARE',l3:'L3',r3:'R3'},
   switch:{a:'B',b:'A',x:'Y',y:'X',lb:'L',rb:'R',lt:'ZL',rt:'ZR',start:'+',back:'-',l3:'L3',r3:'R3'}};
+for(const k in PADN)Object.assign(PADN[k],{dl:'D-PAD \u2190',dr:'D-PAD \u2192',du:'D-PAD \u2191',dd:'D-PAD \u2193'});
 const PB=k=>PADN[padType][k];
 function padKind(id){id=(id||'').toLowerCase();if(/054c|dualshock|dualsense|playstation|wireless controller|sony/.test(id))return'ps';if(/057e|nintendo|switch|pro controller|joy-con/.test(id))return'switch';return'xbox';}
 function PT(s){
@@ -3108,7 +3135,7 @@ function PT(s){
 }
 function padTable(){
   const R=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
-  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'jump (gas while driving)')+R(PB('b'),'hover (brake while driving)')+R(PB('x'),'use: buy, enter a car, revive (hold) / reload')+R(PB('y'),'use, or back to the starting area')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3'),'sprint (handbrake while driving)')+R('D-PAD UP / DOWN','back to base / customize')+R('D-PAD RIGHT','hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back'),'fullscreen')+R(PB('r3'),'full map');
+  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'jump (gas while driving)')+R(PB('b'),'hover (brake while driving)')+R(PB('x'),'use: buy, enter a car, revive (hold) / reload')+R(PB('y'),'use, or back to the starting area')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3'),'sprint (handbrake while driving)')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('l3'),'hood camera (while driving)')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back'),'fullscreen')+R(PB('r3'),'full map');
 }
 function refreshPadUI(){
   const key=usingPad+padType;if(lastUP===key)return;lastUP=key;
@@ -3124,12 +3151,12 @@ const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<NW;i++){w=(w+dir+NW)%NW;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
 const padK={};function setK(c,v){if(padK[c]!==v){padK[c]=v;keys[c]=v;}}
 /* ===== controller navigation for every menu (D-pad / left stick move, A select, B back, LB/RB switch tabs) ===== */
-const UI_ORDER=['osk','frp','settings','howto','locker','lbp','pauseO','menu'];
-const UI_CLOSE={frp:'frClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume'};
-const UI_DEF={menu:'#bSolo',pauseO:'#pResume',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
+const UI_ORDER=['osk','vsWin','frp','settings','howto','locker','lbp','pauseO','lobby','menu'];
+const UI_CLOSE={frp:'frClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume',lobby:'lbBack',vsWin:'vsNo'};
+const UI_DEF={menu:'#bSolo',pauseO:'#pResume',lobby:'#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
 function uiLayer(){for(const id of UI_ORDER){const el=$(id);if(!el)continue;if(id==='menu'&&started)continue;if(getComputedStyle(el).display!=='none')return el;}return null;}
 function uiFocusables(layer){
-  return [...layer.querySelectorAll('button,input,a#discord,.sk,.navtabs div,.subtabs div,#chtabs div')].filter(el=>{
+  return [...layer.querySelectorAll('button,input,label#lbHard,a#discord,.sk,.navtabs div,.subtabs div,#chtabs div')].filter(el=>{
     if(el.disabled)return false;const r=el.getBoundingClientRect();if(r.width<2||r.height<2)return false;
     const cs=getComputedStyle(el);return cs.visibility!=='hidden'&&cs.display!=='none';});
 }
@@ -3203,6 +3230,13 @@ function padNav(layer,gp,edge,lx,ly,dt){
   if(id==='osk'){
     if(edge(2))oskKey('DEL');if(edge(3))oskKey('SHIFT');if(edge(9)||edge(1)){oskClose();return;}
     if(edge(0))uiActivate(layer);return;
+  }
+  if(id==='vsWin'){if(edge(0)||edge(9))$('vsYes').click();else if(edge(1))$('vsNo').click();return;}
+  if(id==='lobby'){
+    if(edge(2)){toggleHard();return;}if(edge(3)){setVs(!S.rd.vs);return;}
+    if(edge(9)){const b=$('lbStart');if(!b.disabled)b.click();return;}
+    if(edge(0)){const cur=layer.querySelector('.padfocus');if(!cur)uiSetFocus(layer,uiDefault(layer));else uiActivate(layer);}
+    return;
   }
   if(edge(0)){
     if(id==='menu'&&!layer.querySelector('.padfocus')){const b=$('bSolo');if(b)b.click();return;}   // A on the title screen starts a solo game
@@ -3285,17 +3319,20 @@ function pollPad(dt){
   aiming=driving<0&&V(6)>0.35;
   if(edge(4)){if(myP&&myP.st==='dead')specCycle(-1);else cycleW(-1);}
   if(edge(5)){if(myP&&myP.st==='dead')specCycle(1);else cycleW(1);}
-  if(edge(12)&&!garageActive())goBase();
-  if(edge(14))menuMove(1);
-  if(edge(15))hoodCam=!hoodCam;
+  {const stn=nearStation(),shopMenu=stn&&(stn.k==='armory'||stn.k==='perks');   // D-pad = the radio (left back, right skip, up louder, down quieter); at the weapon / perk shops up and down scroll the list instead
+    if(edge(12)&&!garageActive()){if(shopMenu)menuMove(-1);else radioVol(1);}
+    if(edge(13)&&!garageActive()){if(shopMenu)menuMove(1);else radioVol(-1);}
+    if(edge(14))radioNext(-1);
+    if(edge(15))radioNext(1);}
+  if(edge(10)&&driving>=0)hoodCam=!hoodCam;
   if(edge(11))toggleBigMap();
   if(edge(8))toggleFS();
-  if(edge(9)&&(mode==='solo'||mode==='online')){setPause(!userPause);}else if((edge(13)&&!garageActive())||edge(9))openLocker();
+  if(edge(9)&&(mode==='solo'||mode==='online')){setPause(!userPause);}else if(edge(9))openLocker();
   padPrev=gp.buttons.map(b=>b.pressed);
 }
 addEventListener('gamepadconnected',e=>{padType=padKind(e.gamepad&&e.gamepad.id);usingPad=true;refreshPadUI();if(started)toast('CONTROLLER CONNECTED','LS move - RS look - '+PB('rt')+' fire - '+PB('a')+' jump - '+PB('x')+' use');});
 addEventListener('wheel',e=>{if(!started||driving>=0)return;const dir=e.deltaY>0?1:-1;cycleW(dir);});
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===canvas;if(locked)wasLocked=true;$('lock').style.display=(started&&!locked&&!userPause&&!lockerOpen&&!(S&&gameOverShown))?'flex':'none';});
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===canvas;if(locked)wasLocked=true;$('lock').style.display=(started&&!locked&&!userPause&&!lockerOpen&&!(S&&gameOverShown)&&!(mode==='online'&&S&&S.rd&&S.rd.s==='wait')&&$('vsWin').style.display!=='flex')?'flex':'none';});
 $('lock').addEventListener('click',requestLock);
 canvas.addEventListener('click',()=>{if(started&&!locked)requestLock();});
 addEventListener('contextmenu',e=>e.preventDefault());
@@ -3762,7 +3799,7 @@ function updateHUD(dt){
   // waiting room (online)
   {const lb=$('lobby'),inW=S.rd.s==='wait'&&mode==='online';
     if(inW){
-      lb.style.display='flex';$('lbCode').textContent=roomCode;
+      lb.style.display='flex';$('lock').style.display='none';if(document.pointerLockElement){try{document.exitPointerLock();}catch(e){}}$('lbCode').textContent=roomCode;
       let html='';const all=(S.p||[]).map(p=>({id:p.id,n:p.n,lv:p.lv,ex:p.ex,me:p.id===myId}));
       all.sort((a,b)=>a.id-b.id);
       for(const p of all)html+='<div class="lbRow'+(p.me?' lpme':'')+'"><span class="lpav">'+(p.lv||1)+'</span><span class="lpnm">'+nameHTML(p.n||'PLAYER',p.lv||1,p.ex,p.me?'#fff3b0':'#fff')+'</span>'+(p.id===S.rd.h?'<span class="lptag">HOST</span>':'')+(p.me?'<span class="lptag lpyou">YOU</span>':'')+'</div>';
@@ -3778,7 +3815,8 @@ function updateHUD(dt){
   }
   { const vw=$('vsWin'),show=!!(S.rd.vp&&S.rd.vw===myId&&mode==='online');
     if(show&&vw.style.display!=='flex'){vw.style.display='flex';try{document.exitPointerLock();}catch(e){}for(const k in keys)keys[k]=false;mouseDown=false;sfx.round();}
-    else if(!show&&vw.style.display==='flex')vw.style.display='none'; }
+    else if(!show&&vw.style.display==='flex')vw.style.display='none';
+    if(show){$('lock').style.display='none';if(document.pointerLockElement){try{document.exitPointerLock();}catch(e){}}} }
   // status
   const r=S.rd;let st='';
   if(r.s==='wait')st='WAITING FOR PLAYERS';
@@ -3920,7 +3958,9 @@ function updateHUD(dt){
 /* ================= main loop ================= */
 let last=performance.now(),elapsed=0;
 function applyTime(dt){
+  if(started&&S&&S.rd)nTarget=nightRound(S.rd.n|0)?1:0;
   nowN+=(nTarget-nowN)*Math.min(1,dt*0.8);
+  if(started&&tIdx>=DAYN&&nTarget===0){radioGo(0);toast('NEON FM','DAYTIME - BACK TO THE ORIGINAL STATION');}   // the night channel fades out with the night
   const a=PAL.day,b=PAL.night,n=nowN;
   skyMat.uniforms.top.value.copy(a.top).lerp(b.top,n);skyMat.uniforms.mid.value.copy(a.mid).lerp(b.mid,n);skyMat.uniforms.bot.value.copy(a.bot).lerp(b.bot,n);
   {
@@ -4193,7 +4233,7 @@ function frame(now){
   };
 })();
 
-window.__ni={get S(){return S;},get myP(){return myP;},me,cs,keys,aliensM,carsM,remotes,
+window.__ni={get S(){return S;},nightRound,setRound(n){S.rd.n=n;},get tIdx(){return tIdx;},get myP(){return myP;},me,cs,keys,aliensM,carsM,remotes,
   get driving(){return driving;},get solo(){return solo;},get mode(){return mode;},get curW(){return curW;},ammo,
   fakeLock(){locked=true;wasLocked=true;},send,interact,selectWeapon,setFire(v){mouseDown=v;mousePressed=v?0.15:0;}};
 requestAnimationFrame(frame);
