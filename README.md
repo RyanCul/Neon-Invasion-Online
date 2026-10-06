@@ -3,7 +3,7 @@ Co-op alien-wave FPS in the neon 80s city. Rounds get harder, a boss alien every
 Earn cash per kill, buy colored laser guns, upgrade them at the QUICK UPGRADE station, buy armed cars at the GARAGE.
 
 ## Play solo (no server)
-Open index.html in a browser (keep shared.js and the song files (01.mp3 ... n6.mp3) beside it) and click PLAY SOLO.
+Open index.html in a browser (keep game.html, shared.js and the song files (01.mp3 ... n6.mp3) beside it) and click PLAY SOLO.
 
 ## Play online with friends
 1. Install Node.js (nodejs.org), open this folder in VS Code's terminal.
@@ -279,3 +279,10 @@ The radio also has a hidden NIGHT CHANNEL (6 lofi tracks). It only exists while 
 
 ### Sound mix
 Every song is loudness-matched (about -17 LUFS) so no track jumps out, and the music slider is scaled to match. Walking footsteps are soft, the beach has a rolling wave swell that gets louder toward the water, and cars, the helicopter and the jetpack each have a continuous engine sound. The radio volume keys (D-pad up/down, `[` and `]`) move the sound effects along with the music.
+
+
+### Files
+`index.html` is a thin page that holds the game (`game.html`) in a frame. Fullscreen is applied to that outer page, so going back to the main menu (which reloads the frame) never drops you out of fullscreen. `game.html` also runs on its own if you open it directly.
+
+### Controller layout (on foot)
+Left stick move, right stick look, RT fire, LT aim, **Y jump (and jetpack up)**, **hold A to sprint**, click the left stick (L3) for fullscreen, B crouch / hover, X use / reload, LB / RB switch weapon, D-pad radio, BACK = back to the starting area, START = pause. In a vehicle: A / RT gas, B / LT brake, Y = get out, LB = handbrake, RB = hood camera.

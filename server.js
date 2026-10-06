@@ -7,7 +7,7 @@ const NI=require('./shared.js');
 
 const PORT=process.env.PORT||8080;
 const MAX_PER_ROOM=8,MAX_ROOMS=60;
-const FILES={'/':'index.html','/index.html':'index.html','/shared.js':'shared.js','/song.mp3':'song.mp3'};
+const FILES={'/':'index.html','/index.html':'index.html','/game.html':'game.html','/shared.js':'shared.js','/song.mp3':'song.mp3'};
 const TYPES={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.mp3':'audio/mpeg'};
 
 const scoreHits=new Map();
