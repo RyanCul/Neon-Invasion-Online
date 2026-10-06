@@ -4,6 +4,7 @@
 'use strict';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const SPEED_CAP=15;   // top speed for every alien, whatever the round or mutation
 function soft(v,k,s){return v<=k?v:k+(v-k)*s;}   // linear up to k, then keeps climbing at a slower slope (never a hard cap)
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
 const r2=v=>Math.round(v*100)/100;
@@ -316,7 +317,7 @@ const AT=[
   {name:'QUEEN',  hp:300, sp:4.8, r:2.0, cy:2.0, dmg:15, money:180, fly:false,ranged:true},
   {name:'TITAN',  hp:1600,sp:4.4, r:3.8, cy:3.8, dmg:52, money:500, fly:false,stomp:12},
   {name:'GODZILLA',hp:60000,sp:3.6,r:15, cy:22,  dmg:95, money:20000,fly:false,ranged:true,boss:true,giant:true,stomp:26},
-  {name:'KNIFER', hp:70,  sp:16, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
+  {name:'KNIFER', hp:70,  sp:12, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
   {name:'STALKER',hp:900, sp:4.6,r:1.9, cy:2.0, dmg:46, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
   {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
@@ -970,7 +971,7 @@ class Game{
       const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5)||(WORLD.bbar&&Math.hypot(WORLD.bbar.bx-p.x,WORLD.bbar.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
     }else if(m.k==='slot'){
       const C=WORLD.casino;if(!C||p.y>5||!C.slots.some(q=>Math.hypot(q.x-p.x,q.z-p.z)<4.6))return;
-      const bet=[50,100,250,500,1000,5000,10000,25000,100000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
+      const bet=m.all?Math.floor(p.money):([50,100,250,500,1000,5000,10000,25000,100000].includes(m.bet|0)?m.bet|0:0);if(!bet||p.money<bet)return;
       p.money-=bet;
       const W=[30,25,18,12,8,5],MUL=[8,12,24,40,90,250],pick=()=>{let r=this.rand()*98,i=0;while(i<5&&r>=W[i]){r-=W[i];i++;}return i;};
       const rl=[pick(),pick(),pick()];let win=0;
@@ -979,7 +980,7 @@ class Game{
       p.money+=win;this.push('slot',p.id,rl[0],rl[1],rl[2],win,bet);
     }else if(m.k==='roul'){
       const C=WORLD.casino;if(!C||!C.roul||p.y>5||Math.hypot(C.roul.x-p.x,C.roul.z-p.z)>6.2)return;
-      const bet=[50,100,250,500,1000,5000,10000,25000,100000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
+      const bet=m.all?Math.floor(p.money):([50,100,250,500,1000,5000,10000,25000,100000].includes(m.bet|0)?m.bet|0:0);if(!bet||p.money<bet)return;
       const kinds=['red','black','odd','even','low','high','num','green'];if(!kinds.includes(m.kind))return;
       const num=Math.max(0,Math.min(36,m.num|0));
       p.money-=bet;const r=Math.floor(this.rand()*37),RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
@@ -1530,6 +1531,7 @@ class Game{
       if(def.stalker)speed=(a.enr||dist<16)?a.sp*(def.saw?2.2:2.0):a.sp;
       if(a.slowT>0){a.slowT-=dt;speed*=0.5;}
       if(this.round>=6&&this.emptyT>0&&this.aliens.length<=6&&!def.loner&&!def.boss&&!def.giant&&!def.stalker)speed*=1+Math.min(0.9,this.emptyT/20);   // last few stragglers speed up so a round never drags
+      speed=Math.min(speed,SPEED_CAP);   // nothing ever outruns the cap
       if(def.beach){   // the shark prowls the sand and lunges at anyone who comes onto the beach
         const onBeach=tp.z>HALF+6&&!tp.car;
         let gx,gz,sp2;

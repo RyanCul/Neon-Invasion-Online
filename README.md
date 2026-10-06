@@ -300,3 +300,7 @@ Casino bets go up to $100,000 and roulette has a GREEN 0 bet. Cars take 20% more
 Hounds and rooftop snipers have been removed from the game.
 
 Gunship helicopter: damage 30, fire rate 6/s, armor 1000, 240 rounds. When empty, land and stay still for 30 seconds to recharge (leaving the ground resets the timer).
+
+Knifers are 25% slower, and every alien has a top speed of 15 no matter the round. On-screen banners (round, contact, toasts, streaks, loot) now sit in separate bands so they do not overlap.
+
+Casino: an ALL IN button bets all your cash on slots and roulette.
