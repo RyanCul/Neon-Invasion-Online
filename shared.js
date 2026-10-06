@@ -211,7 +211,7 @@ const ACH=[
   {id:'rv10',n:'FIELD MEDIC',d:'REVIVE 10 TEAMMATES',s:'rv',g:10},{id:'rv50',n:'GUARDIAN ANGEL',d:'REVIVE 50 TEAMMATES',s:'rv',g:50},
   {id:'bo1',n:'GIANT KILLER',d:'KILL A BOSS',s:'bo',g:1},{id:'bo10',n:'BOSS SLAYER',d:'KILL 10 BOSSES',s:'bo',g:10},{id:'bo50',n:'GODSLAYER',d:'KILL 50 BOSSES',s:'bo',g:50},
   {id:'br10',n:'SURVIVOR',d:'REACH ROUND 10',s:'br',g:10},{id:'br20',n:'OVERRUN VETERAN',d:'REACH ROUND 20',s:'br',g:20},
-  {id:'br30',n:'ROUND 30 SURVIVOR',d:'REACH ROUND 30',s:'br',g:30},{id:'br50',n:'LAST OF THE NEON',d:'REACH ROUND 50',s:'br',g:50},
+  {id:'br30',n:'ROUND 30 SURVIVOR',d:'REACH ROUND 30',s:'br',g:30},{id:'br40',n:'NEON WARDEN',d:'REACH ROUND 40',s:'br',g:40},{id:'br50',n:'LAST OF THE NEON',d:'REACH ROUND 50',s:'br',g:50},{id:'br100',n:'CENTURION',d:'REACH ROUND 100',s:'br',g:100},{id:'br150',n:'LIVING LEGEND',d:'REACH ROUND 150',s:'br',g:150},{id:'br200',n:'UNTOUCHABLE',d:'REACH ROUND 200',s:'br',g:200},
   {id:'cr100',n:'SHARPSHOOTER',d:'GET 100 HEADSHOT KILLS',s:'cr',g:100},{id:'cr500',n:'HEADHUNTER',d:'GET 500 HEADSHOT KILLS',s:'cr',g:500},
   {id:'rk25',n:'ROAD RAGE',d:'RUN OVER 25 ALIENS',s:'rk',g:25},{id:'rk100',n:'HIT AND RUN',d:'RUN OVER 100 ALIENS',s:'rk',g:100},
   {id:'w5',n:'SNIPER ELITE',d:'100 KILLS WITH THE LONGSHOT',s:'w',i:5,g:100},{id:'w8',n:'PYROMANIAC',d:'200 KILLS WITH THE INFERNO',s:'w',i:8,g:200},
@@ -220,6 +220,11 @@ const ACH=[
   {id:'gm10',n:'REGULAR',d:'PLAY 10 GAMES',s:'gm',g:10},{id:'gm100',n:'NEON ADDICT',d:'PLAY 100 GAMES',s:'gm',g:100},
   {id:'rt100',n:'ROUND TRIPPER',d:'CLEAR 100 ROUNDS IN TOTAL',s:'rt',g:100},{id:'rt500',n:'MARATHON',d:'CLEAR 500 ROUNDS IN TOTAL',s:'rt',g:500}
 ];
+/* rewards for the high-round achievements */
+TITLES.push({id:TITLES.length,name:'NEON WARDEN',ach:'br40'},{id:TITLES.length+1,name:'CENTURION',ach:'br100'},{id:TITLES.length+2,name:'LIVING LEGEND',ach:'br150'},{id:TITLES.length+3,name:'UNTOUCHABLE',ach:'br200'});
+BADGES.push({id:BADGES.length,name:'SHIELD',ach:'br40',sym:'⛨',c:'#7dff9a'},{id:BADGES.length+1,name:'CENTURION',ach:'br100',sym:'Ⅽ',c:'#ffd23c'},{id:BADGES.length+2,name:'LEGEND STAR',ach:'br150',sym:'✯',c:'#ff2fa0'},{id:BADGES.length+3,name:'INFINITY',ach:'br200',sym:'∞',c:'#25f4ff'});
+NAME_COLS.push({id:NAME_COLS.length,name:'EMERALD',ach:'br100',col:0x2fffa0},{id:NAME_COLS.length+1,name:'ROYAL PURPLE',ach:'br150',col:0xb36bff},{id:NAME_COLS.length+2,name:'PLATINUM',ach:'br200',col:0xe8f6ff});
+FRAMES.push({id:FRAMES.length,name:'WARDEN',ach:'br40',c1:'#7dff9a',c2:'#25f4ff'},{id:FRAMES.length+1,name:'LEGEND',ach:'br150',c1:'#ff2fa0',c2:'#ffd23c'},{id:FRAMES.length+2,name:'UNTOUCHABLE',ach:'br200',c1:'#ffffff',c2:'#25f4ff'});
 /* one achievement per boss: KILL THE <BOSS>; s:'bk' counts per boss type in st.bk[type] */
 const BOSS_TYPES=[[4,'BOSS',5,'♚','#ff2f4f'],[14,'STALKER',6,'✂','#c58cff'],[11,'TITAN',13,'♜','#ff9a3c'],[18,'ALIEN SHARK',13,'⚓','#25f4ff'],[23,'CARNIVAL BOSS',16,'☺','#ffe63c'],[12,'GODZILLA',20,'☄','#9dff3c'],[24,'THE BUTCHER',25,'⚔','#ff2f4f'],[22,'PIRATE CAPTAIN',26,'☠','#ffd23c'],[21,'CLEOPATRA',32,'☥','#ffc83c'],[17,'THE OVERMIND',50,'✺','#ff2fa0']];   // in order of the round each first shows up
 BOSS_TYPES.forEach(([t,nm,rd,sym,c])=>{const the=(nm.indexOf('THE ')===0||nm==='GODZILLA'||nm==='CLEOPATRA')?nm:'THE '+nm;ACH.push({id:'bk'+t,n:nm+' DOWN',d:'KILL '+the,s:'bk',i:t,g:1});TITLES.push({id:TITLES.length,name:nm+' HUNTER',ach:'bk'+t});BADGES.push({id:BADGES.length,name:nm+' TROPHY',ach:'bk'+t,sym,c});});

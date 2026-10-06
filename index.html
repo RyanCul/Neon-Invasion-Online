@@ -1425,6 +1425,45 @@ function makeAlien(t){
       const lg=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.8,0.22),dark);lg.position.y=-0.4;pv.add(lg);hd.add(pv);(front?o.arms:o.legs).push(pv);}
     return o;
   }
+  if(t===12){ // GODZILLA: an upright giant lizard - scaly green hide, pale belly, wedge head full of teeth, clawed feet, thick tapering tail, spiky back ridge
+    const hum=new THREE.Group();hum.scale.setScalar(ASCALE[12]);g.add(hum);
+    const hide=new THREE.MeshLambertMaterial({color:0x3aa84a,emissive:0x1d6a2a,emissiveIntensity:0.4}),deep=new THREE.MeshLambertMaterial({color:0x1d6a30,emissive:0x0f3a18,emissiveIntensity:0.4}),pale=new THREE.MeshLambertMaterial({color:0xe3ea9a,emissive:0x7a8a3a,emissiveIntensity:0.35});
+    const tooth=new THREE.MeshBasicMaterial({color:0xffffff}),claw=new THREE.MeshBasicMaterial({color:0xf2ecd2}),gm=new THREE.MeshBasicMaterial({color:0xff7a1a}),yel=new THREE.MeshBasicMaterial({color:0xffe63c}),blk=new THREE.MeshBasicMaterial({color:0x000000});
+    const bx=(par,w,h,d,m,x,y,z,rx,rz)=>{const q=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);q.position.set(x,y,z);if(rx)q.rotation.x=rx;if(rz)q.rotation.z=rz;par.add(q);return q;};
+    const cn=(par,r,h,m,x,y,z,rx,rz,seg)=>{const q=new THREE.Mesh(new THREE.ConeGeometry(r,h,seg||4),m);q.position.set(x,y,z);if(rx)q.rotation.x=rx;if(rz)q.rotation.z=rz;par.add(q);return q;};
+    for(const sx of[-1,1]){   // thick lizard legs: thigh, shin, big clawed foot
+      const pv=new THREE.Group();pv.position.set(sx*0.95,1.9,-0.1);
+      bx(pv,1.15,1.2,1.35,hide,sx*0.1,-0.3,0);bx(pv,0.8,1.0,0.8,deep,0,-1.1,0.2,-0.25);bx(pv,1.05,0.35,1.7,hide,0,-1.75,0.55);
+      for(let c=-1;c<=1;c++)cn(pv,0.17,0.65,claw,c*0.33,-1.72,1.55,Math.PI/2);
+      hum.add(pv);o.legs.push(pv);
+    }
+    const tor=new THREE.Group();tor.position.set(0,2.9,0);tor.rotation.x=0.3;hum.add(tor);   // long hunched torso
+    bx(tor,2.1,2.3,3.3,hide,0,0,0);bx(tor,1.7,0.28,2.9,pale,0,-1.2,0.1);
+    for(let k=0;k<5;k++){bx(tor,2.15,0.07,0.1,deep,0,-0.75+k*0.0,-1.3+k*0.65);}                   // belly bands
+    for(const [px,py,pz,r] of [[-0.8,0.6,0.6,0.42],[0.9,0.1,-0.5,0.5],[-0.7,-0.2,-1.0,0.38],[0.7,0.8,1.0,0.34]])bx(tor,r*1.4,r*1.4,0.1,deep,px,py,pz).position.x=px>0?1.06:-1.06;   // dark scale patches on the flanks
+    for(let k=0;k<8;k++){cn(tor,0.4-k*0.02,1.15,deep,0,1.35,1.3-k*0.42,-0.15,0,4);}               // back ridge
+    const nk=new THREE.Group();nk.position.set(0,0.9,1.4);nk.rotation.x=-0.75;tor.add(nk);
+    bx(nk,1.35,1.4,1.5,hide,0,0.5,0.2);bx(nk,1.0,0.25,1.2,pale,0,0.1,0.35);
+    const hd=new THREE.Group();hd.position.set(0,1.35,0.8);hd.rotation.x=0.55;nk.add(hd);   // wedge head, jaw agape
+    bx(hd,1.6,1.15,1.6,hide,0,0.1,0);bx(hd,1.15,0.7,1.9,hide,0,-0.12,1.55);bx(hd,0.95,0.12,1.7,deep,0,0.3,1.55);
+    const jw=new THREE.Group();jw.position.set(0,-0.45,0.4);jw.rotation.x=0.38;hd.add(jw);
+    bx(jw,1.0,0.28,2.3,pale,0,0,1.0);
+    for(let k=0;k<6;k++){const z=0.9+k*0.35;for(const sx of[-1,1]){cn(hd,0.12,0.42,tooth,sx*0.5,-0.55,z,Math.PI,0,4);cn(jw,0.1,0.34,tooth,sx*0.42,0.28,0.35+k*0.34,0,0,4);}}
+    const mg=new THREE.Mesh(new THREE.SphereGeometry(0.34,8,6),gm);mg.position.set(0,-0.5,1.1);hd.add(mg);o.pulse=mg;   // fire glow in the throat
+    for(const sx of[-1,1]){
+      bx(hd,0.36,0.3,0.62,yel,sx*0.78,0.45,0.55);bx(hd,0.1,0.28,0.12,blk,sx*0.93,0.45,0.75);bx(hd,0.55,0.18,0.9,deep,sx*0.7,0.78,0.5,0,sx*-0.3);   // slit-pupil eyes under a heavy brow
+      cn(hd,0.09,0.35,deep,sx*0.35,0.78,-0.55,-0.5,0,4);cn(hd,0.2,0.7,deep,sx*0.7,0.8,-0.2,-0.4,sx*-0.5,4);   // horns on the skull
+      bx(hd,0.12,0.1,0.12,blk,sx*0.22,0.12,2.45);
+    }
+    for(const sx of[-1,1]){   // tiny clawed arms
+      const av=new THREE.Group();av.position.set(sx*1.15,0.55,1.5);tor.add(av);o.arms.push(av);
+      bx(av,0.4,1.1,0.4,hide,0,-0.5,0.1,-0.5);for(let c=-1;c<=1;c++)cn(av,0.07,0.38,claw,c*0.12,-1.1,0.55,Math.PI,0,4);
+    }
+    const tl=new THREE.Group();tl.position.set(0,2.5,-1.6);hum.add(tl);o.wag=tl;   // long tapering tail that sways
+    for(let k=0;k<7;k++){const w=1.55-k*0.2,h=1.45-k*0.19;bx(tl,w,h,1.7,k%2?hide:deep,0,-k*0.2,-0.8-k*1.55,0.1+k*0.03);if(k<6)cn(tl,0.3-k*0.03,0.9-k*0.09,deep,0,h*0.5-k*0.2+0.35,-0.8-k*1.55,-0.15,0,4);}
+    cn(tl,0.3,1.8,hide,0,-1.7,-11.5,-Math.PI/2-0.1,0,5);
+    return o;
+  }
   const s=ASCALE[t],hum=new THREE.Group();hum.scale.setScalar(s);g.add(hum);
   for(const sx of[-1,1]){
     const pv=new THREE.Group();pv.position.set(sx*0.4,1.3,0);
