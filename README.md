@@ -294,3 +294,9 @@ On the beach west of the tiki bar. Press E (X on controller) at a slot machine o
 A round only ends when every stalker and boss (including hidden ones) is dead. Bigger crews earn less cash per kill.
 
 Update: every alien except roof snipers must now die to end a round (pizza, movie, shark, Cleopatra, pirate, carnival, stalker, the Butcher and all bosses). Alien cap is 40 until round 10, 60 until round 20, rising to 75 by round 30. A downed or dead teammate flashes red on the minimap with a name label and the screen edge flashes.
+
+Casino bets go up to $100,000 and roulette has a GREEN 0 bet. Cars take 20% more damage, and each player can have only one of each car out at a time. The full map (L) labels the landmarks, shops, casino and tiki bar.
+
+Hounds and rooftop snipers have been removed from the game.
+
+Gunship helicopter: damage 30, fire rate 6/s, armor 1000, 240 rounds. When empty, land and stay still for 30 seconds to recharge (leaving the ground resets the timer).

@@ -437,7 +437,7 @@ body.playing #pauseB{display:block}
   <a id="discord" href="https://discord.gg/XvD5KQjDZr" target="_blank" rel="noopener">JOIN THE OFFICIAL DISCORD</a>
 </div>
 <div id="slots"><div class="box2"><h2>NEON PALACE CASINO</h2><div style="color:#e9d7ff;font-size:13px">LUCKY SLOTS &middot; pays on 3 matching &middot; 2 cherries = bet back</div><div id="slReels"><div>?</div><div>?</div><div>?</div></div><div id="slMsg"></div><div id="slMoney"></div><div id="slBets"></div><div><button id="slSpin">SPIN</button><button id="slClose">LEAVE</button></div></div></div>
-<div id="roul"><div class="box2"><h2>NEON ROULETTE</h2><div style="color:#e9d7ff;font-size:13px">pick a bet &middot; 1:1 on colors, odd/even, halves &middot; a single number pays 35:1</div><div id="rlBall">?</div><div id="rlMsg"></div><div id="rlMoney"></div><div id="rlBets"></div><div id="rlKinds"></div><div id="rlNumRow" style="display:none"><button id="rlM">-</button> <b id="rlNum">7</b> <button id="rlP">+</button></div><div><button id="rlSpin">SPIN</button><button id="rlClose">LEAVE</button></div></div></div>
+<div id="roul"><div class="box2"><h2>NEON ROULETTE</h2><div style="color:#e9d7ff;font-size:13px">pick a bet &middot; 1:1 on colors, odd/even, halves &middot; a single number pays 35:1 &middot; GREEN 0 pays 35:1</div><div id="rlBall">?</div><div id="rlMsg"></div><div id="rlMoney"></div><div id="rlBets"></div><div id="rlKinds"></div><div id="rlNumRow" style="display:none"><button id="rlM">-</button> <b id="rlNum">7</b> <button id="rlP">+</button></div><div><button id="rlSpin">SPIN</button><button id="rlClose">LEAVE</button></div></div></div>
 <div id="howto"><div class="box2"><h2>HOW TO PLAY</h2>
   <p class="goal">Survive wave after wave of aliens. Earn cash for kills, buy guns and perks, and see how many rounds you can last.</p>
   <div class="cols">
@@ -2558,7 +2558,7 @@ function onServer(m){
   for(const c of m.c){
     cset.add(c.id);let q=carsM.get(c.id);
     if(!q){q={mesh:makeCar(c.t,c.k),x:c.x,z:c.z,h:c.h,t:c.t,k:c.k|0};q.mesh.position.set(c.x,0,c.z);scene.add(q.mesh);carsM.set(c.id,q);}
-    q.tx=c.x;q.tz=c.z;q.th=c.h;q.hp=c.hp;q.drv=c.d;q.px=c.px||[];q.sp=c.sp;q.ty=c.y||0;if(q.y===undefined)q.y=q.ty;
+    q.tx=c.x;q.tz=c.z;q.th=c.h;q.hp=c.hp;q.drv=c.d;q.px=c.px||[];q.sp=c.sp;q.ty=c.y||0;q.am=c.am;q.ch=c.ch||0;if(q.y===undefined)q.y=q.ty;
   }
   for(const [id,q] of carsM)if(!cset.has(id)){scene.remove(q.mesh);carsM.delete(id);if(driving===id)exitCarLocal(true);}
   syncClouds(m.g||[]);
@@ -2782,12 +2782,12 @@ function openLocker(ach){
   try{document.exitPointerLock();}catch(e){}
 }
 
-const SLSYM=['\u{1F352}','\u{1F34B}','\u{1F514}','\u{1F4B2}','7\uFE0F\u20E3','\u{1F48E}'],SLBETS=[50,100,250,500,1000];
+const SLSYM=['\u{1F352}','\u{1F34B}','\u{1F514}','\u{1F4B2}','7\uFE0F\u20E3','\u{1F48E}'],SLBETS=[50,100,250,500,1000,5000,10000,25000,100000];
 let slOpen=false,slBet=100,slSpinning=false,slAnim=null,slPending=null;
 function slRender(){
   const m=myP?myP.m:0;$('slMoney').textContent='CASH $'+Math.floor(m);
   $('slBets').innerHTML='';
-  SLBETS.forEach(b=>{const e=document.createElement('button');e.textContent='$'+b;if(b===slBet)e.classList.add('on');e.disabled=slSpinning;e.onclick=()=>{slBet=b;try{sfx.tick&&sfx.tick();}catch(_){}slRender();};$('slBets').appendChild(e);});
+  SLBETS.forEach(b=>{const e=document.createElement('button');e.textContent='$'+b.toLocaleString();if(b===slBet)e.classList.add('on');e.disabled=slSpinning;e.onclick=()=>{slBet=b;try{sfx.tick&&sfx.tick();}catch(_){}slRender();};$('slBets').appendChild(e);});
   $('slSpin').disabled=slSpinning||m<slBet;
 }
 function openSlots(){
@@ -2817,11 +2817,11 @@ function slFinish(R){
 }
 function slotResult(e){if(e[1]===myId&&slSpinning)slPending=e;}
 
-const RLRED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36],RLK=[['red','RED'],['black','BLACK'],['odd','ODD'],['even','EVEN'],['low','1-18'],['high','19-36'],['num','NUMBER']];
+const RLRED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36],RLK=[['red','RED'],['black','BLACK'],['odd','ODD'],['even','EVEN'],['low','1-18'],['high','19-36'],['num','NUMBER'],['green','GREEN 0']];
 let rlOpen=false,rlBet=100,rlKind='red',rlNumV=7,rlSpinning=false,rlAnim=null,rlPending=null;
 function rlRender(){
   const m=myP?myP.m:0;$('rlMoney').textContent='CASH $'+Math.floor(m);
-  $('rlBets').innerHTML='';SLBETS.forEach(b=>{const e=document.createElement('button');e.textContent='$'+b;if(b===rlBet)e.classList.add('on');e.disabled=rlSpinning;e.onclick=()=>{rlBet=b;rlRender();};$('rlBets').appendChild(e);});
+  $('rlBets').innerHTML='';SLBETS.forEach(b=>{const e=document.createElement('button');e.textContent='$'+b.toLocaleString();if(b===rlBet)e.classList.add('on');e.disabled=rlSpinning;e.onclick=()=>{rlBet=b;rlRender();};$('rlBets').appendChild(e);});
   $('rlKinds').innerHTML='';RLK.forEach(([k,n])=>{const e=document.createElement('button');e.textContent=n;if(k===rlKind)e.classList.add('on');e.disabled=rlSpinning;e.onclick=()=>{rlKind=k;rlRender();};$('rlKinds').appendChild(e);});
   $('rlNumRow').style.display=rlKind==='num'?'block':'none';$('rlNum').textContent=rlNumV;
   $('rlSpin').disabled=rlSpinning||m<rlBet;
@@ -2917,6 +2917,7 @@ function handleEvent(e){
   else if(k==='tapesall'){sfx.round();toast('ALL 3 NEON TAPES FOUND!','+$25,000 FOR EVERYONE');}
   else if(k==='stalker'){toast('THE STALKER IS HIDING','HE IS IN A BUILDING - CHECK THE MAP AND HUNT HIM DOWN');sfx.stalk();}
   else if(k==='hunt'){toast('KILL THEM TO ADVANCE',e[1].map(t=>AT[t]?AT[t].name:'').join(' + ')+' still alive');}
+  else if(k==='nocar'){if(e[1]===myId){sfx.no();toast('YOU ALREADY HAVE THAT CAR OUT','only one of each ride per person - drive or wreck it first');}}
   else if(k==='slot'){slotResult(e);}
   else if(k==='roul'){roulResult(e);}
   else if(k==='stalk'){const o=aliensM.get(e[1]);if(o&&Math.hypot(o.x-me.x,o.z-me.z)<60){sfx.stalk();}}
@@ -3818,7 +3819,7 @@ function tryFire(dt){
   fireCd-=dt;mousePressed-=dt;
   if(inLobby()){charge=0;return;}
   if(dead||!myP||myP.st!=='alive'){charge=0;chargeSnd();return;}
-  if(driving>=0){charge=0;chargeSnd();carCd-=dt;const hc=carsM.get(driving);if(hc&&CARS[hc.t].gun&&mouseDown&&carCd<=0)fireCar();return;}
+  if(driving>=0){charge=0;chargeSnd();carCd-=dt;const hc=carsM.get(driving);if(hc&&CARS[hc.t].gun&&mouseDown&&carCd<=0){if(hc.am!==undefined&&hc.am<=0){carCd=0.5;sfx.no();toast('OUT OF AMMO','land and stay still for 30 seconds to recharge');}else fireCar();}return;}
   const w=WPN[curW];
   if(w.charge){charge=clamp(charge+((mouseDown&&reloadT<=0&&ammo[curW].mag>0)?dt/w.charge:-dt*1.6),0,1);}else charge=0;
   chargeSnd();
@@ -3908,6 +3909,14 @@ function drawBig(){
   const X=x=>x-MMX0,Z=z=>z-MMZ0;
   for(const s of STATIONS){bg.fillStyle='#'+STCOL[s.k].toString(16).padStart(6,'0');bg.fillRect(X(s.x)-4,Z(s.z)-4,8,8);}
   const mb=NI.WORLD.mbox;if(mb){bg.fillStyle='#ffd23c';bg.fillRect(X(mb.x)-5,Z(mb.z)-5,10,10);bg.fillStyle='#000';bg.font='bold 12px sans-serif';bg.fillText('?',X(mb.x)-3,Z(mb.z)+4);}
+  {const LN={pyramid:'NEON PYRAMID',ferris:'CRYSTAL WHEEL',maze:'HEDGE MAZE',drivein:'DRIVE-IN',plaza:'CLOCK PLAZA',yard:'CONTAINER YARD',pond:'MIRROR LAKE',stage:'AMPHITHEATER',ufo:'CRASH SITE',marina:'MARINA'};
+    const L=(t,x,z,col)=>{bg.font='bold 13px sans-serif';bg.textAlign='center';bg.lineWidth=4;bg.strokeStyle='#000';bg.strokeText(t,X(x),Z(z));bg.fillStyle=col||'#fff';bg.fillText(t,X(x),Z(z));bg.textAlign='left';};
+    for(const t of NI.WORLD.themes)if(LN[t.k])L(LN[t.k],t.cx,t.cz-14,'#9ffcff');
+    for(const s of STATIONS)L(STNAME[s.k]==='CHARACTER BUFFS'?'PERKS':STNAME[s.k]==='QUICK UPGRADE'?'FORGE':STNAME[s.k],s.x,s.z-8,'#'+STCOL[s.k].toString(16).padStart(6,'0'));
+    const mb2=NI.WORLD.mbox;if(mb2)L('MYSTERY BOX',mb2.x,mb2.z-9,'#ffd23c');
+    const cs0=NI.WORLD.casino;if(cs0){L('NEON PALACE CASINO',cs0.x,cs0.z-14,'#ff2fa0');bg.fillStyle='#ff2fa0';bg.fillRect(X(cs0.x)-7,Z(cs0.z)-5,14,10);}
+    const bb0=NI.WORLD.bbar;if(bb0)L('TIKI BAR',bb0.x,bb0.z-8,'#ff9a3c');
+  }
   for(const [id,c] of carsM){bg.fillStyle='#ff2fa0';bg.fillRect(X(c.x)-4,Z(c.z)-3,8,6);}
   for(const o of aliensM.values()){
     if(o.t>=19&&o.t<=24){bg.fillStyle='#3cff3c';bg.strokeStyle='#fff';bg.lineWidth=3;bg.beginPath();bg.arc(X(o.x),Z(o.z),11,0,6.3);bg.fill();bg.stroke();bg.fillStyle='#000';bg.font='bold 13px sans-serif';bg.fillText((['P','M','C','K','F'][o.t-19]),X(o.x)-4,Z(o.z)+5);continue;}
@@ -4009,6 +4018,12 @@ function updateHUD(dt){
   $('hpbar').firstChild.style.width=Math.max(0,hpf*100)+'%';
   $('hpbar').classList.toggle('low',hpf<0.3);
   $('hplab').textContent=driving>=0?'CAR ARMOR':'HEALTH';
+  {let am=$('heliAm');if(!am){am=document.createElement('div');am.id='heliAm';am.style.cssText='position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:5;font:bold 15px sans-serif;letter-spacing:2px;color:#3cffb0;text-shadow:0 0 8px #000;pointer-events:none;display:none';document.body.appendChild(am);}
+    const hc=driving>=0?carsM.get(driving):null;
+    if(hc&&CARS[hc.t].gun&&hc.am!==undefined){const mx=CARS[hc.t].ammo;am.style.display='block';
+      am.style.color=hc.am<=0?'#ff2f4f':hc.am<mx*0.25?'#ffc83c':'#3cffb0';
+      am.textContent=hc.am<=0?'OUT OF AMMO - LAND AND STAY STILL '+(30-(hc.ch|0))+'s TO RECHARGE':'GUNSHIP AMMO '+hc.am+' / '+mx+(hc.am<mx&&hc.ch>0?'   (recharging '+(30-(hc.ch|0))+'s)':hc.am<mx?'   (land to recharge)':'');
+    }else am.style.display='none';}
   // team
   let h='';
   for(const p of S.p){if(p.id===myId)continue;

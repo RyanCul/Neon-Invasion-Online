@@ -279,7 +279,7 @@ const CARS=[
   {id:4,name:'SUNSET HYPER',    kind:'car',   color:0xffc83c,cost:6000, hp:850, maxS:33,acc:1.7,turn:2.0,rad:2.4,ram:2.2,body:1.2, cdist:12,chgt:5.0,eye:2.6},
   {id:5,name:'MONSTER TRUCK',   kind:'truck', color:0x7a3cff,cost:9000, hp:2600,maxS:28,acc:1.4,turn:1.7,rad:3.5,ram:5.0,body:1.5, cdist:15,chgt:6.6,eye:4.0},
   {id:6,name:'VOID HOVERCAR',   kind:'hover', color:0xb03cff,cost:14000,hp:1100,maxS:38,acc:1.9,turn:2.3,rad:2.6,ram:2.6,body:1.2, cdist:12,chgt:5.0,eye:2.6},
-  {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1400,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:44,rate:9},
+  {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1000,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:30,rate:6,ammo:240},
   {id:8,name:'BATTLE TANK',kind:'tank',color:0x6cff3c,cost:25000,hp:7000,maxS:9,acc:0.7,turn:0.95,rad:4.2,ram:6.0,body:1.8,cdist:19,chgt:8.5,eye:4.8,gun:true,dmg:130,rate:0.8,blast:8}
 ];
 const SEATS={segway:2,moto:2,car:4,truck:4,hover:4,heli:4,tank:4};CARS.forEach(c=>{c.seats=SEATS[c.kind]||2;});
@@ -873,7 +873,9 @@ class Game{
       const c=this.cars.find(c=>c.id===p.car);if(!c)return;
       const cd=CARS[c.t];
       if(!cd.gun)return;   // only the helicopter has guns - every other vehicle just rams
-      if(this.time<p.fireT)return;p.fireT=this.time+0.8/cd.rate;
+      if(c.am===undefined)c.am=cd.ammo;
+      if(c.am<=0){if(this.time-(p.noAm||-9)>1){p.noAm=this.time;this.push('noammo',p.id);}return;}
+      if(this.time<p.fireT)return;p.fireT=this.time+0.8/cd.rate;c.am--;
       def=cd.blast?{pellets:1,spread:0.0,pierce:1,range:260,br:cd.blast}:{pellets:1,spread:0.012,pierce:2,range:320};dmg=cd.dmg;col=cd.color;
     }else{
       if(p.car>=0)return;
@@ -968,7 +970,7 @@ class Game{
       const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5)||(WORLD.bbar&&Math.hypot(WORLD.bbar.bx-p.x,WORLD.bbar.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
     }else if(m.k==='slot'){
       const C=WORLD.casino;if(!C||p.y>5||!C.slots.some(q=>Math.hypot(q.x-p.x,q.z-p.z)<4.6))return;
-      const bet=[50,100,250,500,1000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
+      const bet=[50,100,250,500,1000,5000,10000,25000,100000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
       p.money-=bet;
       const W=[30,25,18,12,8,5],MUL=[8,12,24,40,90,250],pick=()=>{let r=this.rand()*98,i=0;while(i<5&&r>=W[i]){r-=W[i];i++;}return i;};
       const rl=[pick(),pick(),pick()];let win=0;
@@ -977,11 +979,11 @@ class Game{
       p.money+=win;this.push('slot',p.id,rl[0],rl[1],rl[2],win,bet);
     }else if(m.k==='roul'){
       const C=WORLD.casino;if(!C||!C.roul||p.y>5||Math.hypot(C.roul.x-p.x,C.roul.z-p.z)>6.2)return;
-      const bet=[50,100,250,500,1000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
-      const kinds=['red','black','odd','even','low','high','num'];if(!kinds.includes(m.kind))return;
+      const bet=[50,100,250,500,1000,5000,10000,25000,100000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
+      const kinds=['red','black','odd','even','low','high','num','green'];if(!kinds.includes(m.kind))return;
       const num=Math.max(0,Math.min(36,m.num|0));
       p.money-=bet;const r=Math.floor(this.rand()*37),RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-      let mul=0;if(m.kind==='num'){if(r===num)mul=36;}else if(r>0){
+      let mul=0;if(m.kind==='num'){if(r===num)mul=36;}else if(m.kind==='green'){if(r===0)mul=36;}else if(r>0){
         if(m.kind==='red'&&RED.includes(r))mul=2;else if(m.kind==='black'&&!RED.includes(r))mul=2;
         else if(m.kind==='odd'&&r%2===1)mul=2;else if(m.kind==='even'&&r%2===0)mul=2;
         else if(m.kind==='low'&&r<=18)mul=2;else if(m.kind==='high'&&r>=19)mul=2;}
@@ -1001,11 +1003,12 @@ class Game{
       const owned=(p.oc>>t)&1;
       if(!owned&&p.money<CARS[t].cost)return;
       if(this.cars.length>=8)return;
+      if(this.cars.some(c=>c.own===p.id&&c.t===t)){this.push('nocar',p.id);return;}   // only one of each car per person at a time
       const sp=GARAGE_SPAWNS[g.c];
       let z=sp.z,tries=0;
       while(this.cars.some(c=>Math.hypot(c.x-sp.x,c.z-z)<7)&&tries++<6)z+=7;
       if(!owned){p.money-=CARS[t].cost;p.oc|=1<<t;}
-      const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,pax:[],sp:0,k:p.ck|0};
+      const c={id:this.nid++,t,x:sp.x,z,h:Math.PI/2*0,hp:CARS[t].hp,drv:-1,pax:[],sp:0,k:p.ck|0,own:p.id};
       c.h=0;
       this.cars.push(c);this.push('bought',p.id,c.id);
     }
@@ -1107,6 +1110,7 @@ class Game{
     if(ultimate){q.unshift(17);}
     if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
     else if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
+    for(let i=q.length-1;i>=0;i--){if(q[i]===15)q.splice(i,1);else if(q[i]===16)q[i]=0;}   // no rooftop snipers and no hounds any more
     for(const p of this.players.values()){   // everyone who fell comes back at the start of the round
       if(p.st!=='alive'){
         p.st='alive';p.hp=mhp(p);p.rvProg=0;this.spawnPos(p);
@@ -1140,6 +1144,7 @@ class Game{
     const n=this.round+1>=8?2:1,a0=this.rand()*Math.PI*2;
     return n===1?[a0]:[a0,a0+Math.PI*(0.7+this.rand()*0.6)];
   }
+  hardCap(){const r=this.round;return r<10?40:r<20?60:r<30?Math.round(60+(r-20)*1.5):75;}   // absolute ceiling on live aliens
   spawnAlien(t,fx,fz){
     const def=AT[t],pl=[...this.players.values()].filter(p=>p.st==='alive');
     if(!pl.length)return;
@@ -1249,7 +1254,7 @@ class Game{
     if(!ok){this.spawnAlien(t);return;}
     const n=1+Math.floor(this.rand()*3);
     const list=[t];
-    for(let i=0;i<n&&this.queue.length&&!AT[this.queue[0]].fly&&!AT[this.queue[0]].boss&&!AT[this.queue[0]].support&&!AT[this.queue[0]].loner;i++)list.push(this.queue.shift());
+    for(let i=0;i<n&&this.aliens.length+list.length<this.hardCap()&&this.queue.length&&!AT[this.queue[0]].fly&&!AT[this.queue[0]].boss&&!AT[this.queue[0]].support&&!AT[this.queue[0]].loner;i++)list.push(this.queue.shift());
     let k=0;
     for(const ty of list){
       this.spawnAlien(ty,x+(this.rand()-0.5)*14,z+(this.rand()-0.5)*14);
@@ -1331,7 +1336,7 @@ class Game{
     if(p.car>=0){
       const c=this.cars.find(c=>c.id===p.car);
       if(c){
-        c.hp-=dmg*0.8;this.push('carhit',p.id,sx===undefined?0:r2(sx),sz===undefined?0:r2(sz),sx===undefined?0:1);
+        c.hp-=dmg*0.96;this.push('carhit',p.id,sx===undefined?0:r2(sx),sz===undefined?0:r2(sz),sx===undefined?0:1);
         if(c.hp<=0){
           this.wreck(c);
         }
@@ -1445,7 +1450,7 @@ class Game{
             a.x=x;a.z=z;a.vx=a.vz=0;a.sx=x;a.sz=z;break;}
         }
       }
-      const hardCap=this.round<10?40:this.round<20?60:this.round<30?Math.round(60+(this.round-20)*1.5):75,cap0=Math.min(hardCap,22+6*(plist.length-1)+Math.floor(this.round*1.5)),cap=this.round%5===0?Math.min(cap0,8+3*(plist.length-1)):this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
+      const hardCap=this.hardCap(),cap0=Math.min(hardCap,22+6*(plist.length-1)+Math.floor(this.round*1.5)),cap=this.round%5===0?Math.min(cap0,8+3*(plist.length-1)):this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
         if(((nt>=19&&nt<=24)||nt===14)&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
@@ -1655,8 +1660,8 @@ class Game{
       }
       if(def.summon){ // the Overmind calls its swarm
         a.sumT=(a.sumT===undefined?4:a.sumT)-dt;
-        if(a.sumT<=0&&this.aliens.length<46){a.sumT=13;this.push('summon',r2(a.x),r2(a.z));
-          const kinds=[0,2,5,13,3,16];for(let i=0;i<7;i++){const ang=i/7*6.283,rr=20+this.rand()*8;this.spawnAlien(kinds[i%kinds.length],a.x+Math.cos(ang)*rr,a.z+Math.sin(ang)*rr);}}
+        if(a.sumT<=0&&this.aliens.length+7<=this.hardCap()){a.sumT=13;this.push('summon',r2(a.x),r2(a.z));
+          const kinds=[0,2,5,13,3,0];for(let i=0;i<7;i++){const ang=i/7*6.283,rr=20+this.rand()*8;this.spawnAlien(kinds[i%kinds.length],a.x+Math.cos(ang)*rr,a.z+Math.sin(ang)*rr);}}
       }
       if(def.support){ // medic heals nearby aliens
         a.healT=(a.healT===undefined?2:a.healT)-dt;
@@ -1752,6 +1757,10 @@ class Game{
       if(c.drv>=0){const q=this.players.get(c.drv);if(!q||q.st!=='alive'||q.car!==c.id)c.drv=-1;}
       if(c.drv<0&&c.pax.length)c.drv=c.pax.shift();   // first one in drives
       for(const id of c.pax){const q=this.players.get(id);q.x=c.x;q.z=c.z;q.y=EYE+(c.y||0);}
+      if(CARS[c.t].kind==='heli'){   // gunship ammo: land and sit still for 30 s to recharge
+        const mx=CARS[c.t].ammo;if(c.am===undefined){c.am=mx;c.ch=0;}
+        if(c.am<mx&&(c.y||0)<=1.2&&Math.abs(c.sp||0)<2){c.ch+=dt;if(c.ch>=30){c.am=mx;c.ch=0;this.push('heliok',c.id);}}else if((c.y||0)>1.2||Math.abs(c.sp||0)>=2)c.ch=0;
+      }
       if(c.drv<0)continue;
       const p=this.players.get(c.drv);
       if(!p){c.drv=-1;continue;}
@@ -1766,7 +1775,7 @@ class Game{
             a.rt=huge?0.7:0.45;
             const crush=(cdef.kind==='truck'||cdef.kind==='tank')&&a.t===7;   // the monster truck flattens armored aliens outright
             this.damageAlien(a,crush?a.hp+1:Math.abs(c.sp)*(huge?9:big?(cdef.kind==='truck'||cdef.kind==='tank'?7:4):8)*cdef.ram,p,a.x,a.y+a.cy,a.z);
-            c.hp-=huge?35:big?(cdef.kind==='truck'||cdef.kind==='tank'?5:10):3;
+            c.hp-=1.2*(huge?35:big?(cdef.kind==='truck'||cdef.kind==='tank'?5:10):3);
             this.push('thud',r2(a.x),r2(a.z));
           }
         }
@@ -1786,7 +1795,7 @@ class Game{
         hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
-      c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,px:c.pax||[],sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0)})),
+      c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,px:c.pax||[],sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0),am:c.am,ch:c.ch?Math.round(c.ch):0})),
       g:this.clouds.map(c=>[c.id,r2(c.x),r2(c.y),r2(c.z),r2(c.r),r2(c.life)]),
       lo:this.loot.map(v=>v?1:0).join(''),
       ev
