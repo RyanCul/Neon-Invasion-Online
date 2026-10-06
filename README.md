@@ -292,3 +292,5 @@ On the beach west of the tiki bar. Press E (X on controller) at a slot machine o
 
 ## Round rules
 A round only ends when every stalker and boss (including hidden ones) is dead. Bigger crews earn less cash per kill.
+
+Update: every alien except roof snipers must now die to end a round (pizza, movie, shark, Cleopatra, pirate, carnival, stalker, the Butcher and all bosses). Alien cap is 40 until round 10, 60 until round 20, rising to 75 by round 30. A downed or dead teammate flashes red on the minimap with a name label and the screen edge flashes.

@@ -1389,7 +1389,7 @@ class Game{
           if(q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&this.time-q.rvT<0.35&&Math.hypot(q.x-p.x,q.z-p.z)<5)reviving=true;
         }
         p.rvProg=reviving?p.rvProg+dt*(plist.some(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id&&q.perks[1])?2:1):Math.max(0,p.rvProg-dt*2);
-        if(p.rvProg>=3){const rvr=plist.find(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id);if(rvr)rvr.rvd=(rvr.rvd|0)+1;p.st='alive';p.hp=55;p.rvProg=0;p.lastHit=this.time;this.push('revived',p.id);}
+        if(p.rvProg>=3){const rvr=plist.find(q=>q.id!==p.id&&q.st==='alive'&&q.rvTarget===p.id);if(rvr)rvr.rvd=(rvr.rvd|0)+1;p.st='alive';p.hp=55;p.rvProg=0;p.car=-1;p.rvTarget=0;p.lastHit=this.time;this.push('revived',p.id);}
         else if(p.bleed<=0&&this.state!=='rest'){p.st='dead';this.push('died',p.id);}
       }
     }
@@ -1416,8 +1416,8 @@ class Game{
       this.fightT=(this.fightT||0)+dt;
       if(!this.queue.length)this.emptyT=(this.emptyT||0)+dt;else this.emptyT=0;
       if(!this.queue.length&&this.emptyT>10){   // only the must-kill specials are left: tell everyone, and after a while a hiding stalker comes out to hunt
-        const must=a=>a.t===14||a.t===24||AT[a.t].boss||(a.t>=21&&a.t<=23);
-        if(this.aliens.length&&this.aliens.every(a=>must(a)||a.t===19||a.t===20)){
+        const must=a=>a.t!==15;
+        if(this.aliens.length&&this.aliens.every(a=>must(a)||a.t===15)&&this.aliens.some(must)&&this.aliens.length<=8){
           if(!this.huntNote){this.huntNote=1;this.push('hunt',[...new Set(this.aliens.filter(must).map(a=>a.t))]);}
           if(this.emptyT>45)for(const a of this.aliens)if(a.hide&&AT[a.t].stalker){a.hide=false;this.push('stalk',a.id);}
         }
@@ -1445,14 +1445,14 @@ class Game{
             a.x=x;a.z=z;a.vx=a.vz=0;a.sx=x;a.sz=z;break;}
         }
       }
-      const cap0=Math.min(48,22+6*(plist.length-1)),cap=this.round%5===0?Math.min(cap0,8+3*(plist.length-1)):this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
+      const hardCap=this.round<10?40:this.round<20?60:this.round<30?Math.round(60+(this.round-20)*1.5):75,cap0=Math.min(hardCap,22+6*(plist.length-1)+Math.floor(this.round*1.5)),cap=this.round%5===0?Math.min(cap0,8+3*(plist.length-1)):this.round>=6?Math.min(cap0,6+2*Math.floor(this.fightT/2.5)+2*(plist.length-1)):cap0;   // later rounds fill up gradually instead of one big rush
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
         if(((nt>=19&&nt<=24)||nt===14)&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
         this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
-      if(!this.queue.length&&this.aliens.every(a=>a.t===19||a.t===20||(a.t===15&&this.emptyT>150)))this.endRound();   // the stalker, the Butcher and every boss (even a hidden or perched one) must be dead before the round can end   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
+      if(!this.queue.length&&this.aliens.every(a=>a.t===15&&this.emptyT>150))this.endRound();   // the stalker, the Butcher and every boss (even a hidden or perched one) must be dead before the round can end   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
         this.state='over';this.timer=10;
         this.best=Math.max(this.best,this.round);
