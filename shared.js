@@ -544,7 +544,13 @@ function genWorld(seed){
   const bbar={x:-20,z:HALF+40};
   dbox(bbar.x,bbar.z,16,2,1.25,0x7a4a22,{nomm:1});
   bbar.bx=bbar.x+3;bbar.bz=bbar.z-3.2;
-  return {B,slabs,houses,loot,pads,themes,sauc,mbox,bbar};
+  /* NEON PALACE CASINO on the beach: three walls + roof, open front facing the city, slot machines along the back wall */
+  const casino={x:-110,z:HALF+38,slots:[]};
+  {const cx=casino.x,cz=casino.z;
+   dbox(cx,cz+9,34,1.2,9,0x2a0f4a,{nomm:1});dbox(cx-17,cz,1.2,19,9,0x2a0f4a,{nomm:1});dbox(cx+17,cz,1.2,19,9,0x2a0f4a,{nomm:1});
+   dbox(cx,cz-1,9,4.4,1.2,0x0b6b3a,{em:1,nomm:1});casino.roul={x:cx,z:cz-1};
+   for(let i=0;i<6;i++){const sx=cx-12.5+i*5,sz=cz+7.4;dbox(sx,sz,2.2,1.8,3.2,i%2?0xff2fa0:0x25f4ff,{em:1,nomm:1});casino.slots.push({x:sx,z:sz-1.8});}}
+  return {B,slabs,houses,loot,pads,themes,sauc,mbox,bbar,casino};
 }
 const SEED=1986;
 const WORLD=genWorld(SEED);
@@ -855,7 +861,7 @@ class Game{
   }
 
   onFire(p,m){
-    if(p.st!=='alive')return;
+    if(p.st!=='alive'||this.inCasino(p))return;   // no shooting inside the casino safe zone
     if(!Array.isArray(m.o)||!Array.isArray(m.d))return;
     let [ox,oy,oz]=m.o.map(Number),dl=Math.hypot(+m.d[0],+m.d[1],+m.d[2]);
     if(!(dl>0)||!isFinite(ox+oy+oz))return;
@@ -960,6 +966,26 @@ class Game{
       this.push('mbox',p.id,w);
     }else if(m.k==='beer'){
       const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5)||(WORLD.bbar&&Math.hypot(WORLD.bbar.bx-p.x,WORLD.bbar.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
+    }else if(m.k==='slot'){
+      const C=WORLD.casino;if(!C||p.y>5||!C.slots.some(q=>Math.hypot(q.x-p.x,q.z-p.z)<4.6))return;
+      const bet=[50,100,250,500,1000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
+      p.money-=bet;
+      const W=[30,25,18,12,8,5],MUL=[8,12,24,40,90,250],pick=()=>{let r=this.rand()*98,i=0;while(i<5&&r>=W[i]){r-=W[i];i++;}return i;};
+      const rl=[pick(),pick(),pick()];let win=0;
+      if(rl[0]===rl[1]&&rl[1]===rl[2])win=bet*MUL[rl[0]];
+      else if(rl.filter(v=>v===0).length>=2)win=bet;
+      p.money+=win;this.push('slot',p.id,rl[0],rl[1],rl[2],win,bet);
+    }else if(m.k==='roul'){
+      const C=WORLD.casino;if(!C||!C.roul||p.y>5||Math.hypot(C.roul.x-p.x,C.roul.z-p.z)>6.2)return;
+      const bet=[50,100,250,500,1000].includes(m.bet|0)?m.bet|0:0;if(!bet||p.money<bet)return;
+      const kinds=['red','black','odd','even','low','high','num'];if(!kinds.includes(m.kind))return;
+      const num=Math.max(0,Math.min(36,m.num|0));
+      p.money-=bet;const r=Math.floor(this.rand()*37),RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+      let mul=0;if(m.kind==='num'){if(r===num)mul=36;}else if(r>0){
+        if(m.kind==='red'&&RED.includes(r))mul=2;else if(m.kind==='black'&&!RED.includes(r))mul=2;
+        else if(m.kind==='odd'&&r%2===1)mul=2;else if(m.kind==='even'&&r%2===0)mul=2;
+        else if(m.kind==='low'&&r<=18)mul=2;else if(m.kind==='high'&&r>=19)mul=2;}
+      const win=bet*mul;p.money+=win;this.push('roul',p.id,r,win,bet);
     }else if(m.k==='vend'){
       const h=HOUSES.find(h=>Math.hypot(h.vx-p.x,h.vz-p.z)<4);if(!h)return;
       if(p.money<250||p.hp>=mhp(p)-0.5)return;p.money-=250;p.hp=mhp(p);this.push('vend',p.id);
@@ -1020,11 +1046,11 @@ class Game{
   killAlien(a,p,crit){
     const def=AT[a.t];
     this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0,a.t);   // credit for the killer's own lifetime stats / achievements
-    const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1)*(this.hard?1.25:1);
+    const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1)*(this.hard?1.25:1)/(1+0.22*(this.players.size-1));   // bigger crews fight more aliens, so each kill pays less
     p.money+=Math.round(mk);p.kills++;
     for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash
       if(q===p||q.st!=='alive')continue;
-      if(Math.hypot(q.x-a.x,q.z-a.z)<60)q.money+=Math.round(mk*0.25);
+      if(Math.hypot(q.x-a.x,q.z-a.z)<60)q.money+=Math.round(mk*0.1);
     }
     if(a.veh>=0){this.push('boom',r2(a.x),2,r2(a.z),99,0);p.money+=Math.round(CARS[a.veh].cost*0.04);}   // the wrecked ride pays a little
     if(a.mut===1){   // volatile mutant: blows up when it dies
@@ -1047,7 +1073,7 @@ class Game{
     return r<=40?(1+0.15*9)*Math.pow(1.08,r-10):r<=50?m40*Math.pow(1.006,r-40):m40*Math.pow(1.006,10)*Math.pow(1.009,r-50);}   // past round 50 it ramps a touch faster but still only slowly: extremely hard, never a wall
   startRound(){
     this.round++;
-    const npl=Math.max(1,this.players.size),mul=1+0.55*(npl-1);     // bigger crews face bigger waves: 1.0x solo, 1.55x for 2, 2.65x for 4, 3.75x for 6
+    const npl=Math.max(1,this.players.size),crewF=Math.min(1,0.65+0.35*(this.round-1)/11),mul=1+0.55*(npl-1)*crewF;   // crews of 3-8 get a bit fewer aliens in the first rounds so they are not too repetitive     // bigger crews face bigger waves: 1.0x solo, 1.55x for 2, 2.65x for 4, 3.75x for 6
     let total=Math.round(soft(5+this.round*2.4,75,0.15)*mul*(this.hard?1.25:1));
     const giant=this.round%20===0,ultimate=this.round%50===0,shark=this.round%13===0;
     const boss=this.round%5===0;
@@ -1088,7 +1114,7 @@ class Game{
         this.push('revived',p.id);
       }
     }
-    this.vehLeft=this.round>=VEH_TIERS[0][0]?3:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
+    this.vehLeft=this.round>=VEH_TIERS[0][0]?3:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.huntNote=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
     this.weather=0;
     if(this.round>=9&&this.rand()<0.45){this.weather=1+Math.floor(this.rand()*3);this.wxT=0;this.push('weather',this.weather);}
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
@@ -1097,7 +1123,7 @@ class Game{
     this.sides=null;this.state='rest';this.timer=this.round%5===0?12:9;
     if(this.weather){this.weather=0;this.bolts.length=0;this.push('weather',0);}
     for(const p of this.players.values()){
-      if(p.st==='alive')p.money+=50*this.round;
+      if(p.st==='alive')p.money+=Math.round(50*this.round/(1+0.15*(this.players.size-1)));
     }
     this.push('clear',this.round);
   }
@@ -1298,8 +1324,10 @@ class Game{
     if(p.car>=0){const c=this.cars.find(c=>c.id===p.car);if(c)return{x:c.x,z:c.z,y:1+(c.y||0),car:c};}
     return{x:p.x,z:p.z,y:p.y-EYE,car:null};
   }
+  inCasino(p){const c=WORLD.casino;return !!c&&p.car<0&&Math.abs(p.x-c.x)<17&&p.z>c.z-10.5&&p.z<c.z+9&&p.y<4;}
   hurt(p,dmg,sx,sz){
     if(p.st!=='alive')return;
+    if(this.inCasino(p))return;   // the casino is a safe zone
     if(p.car>=0){
       const c=this.cars.find(c=>c.id===p.car);
       if(c){
@@ -1387,6 +1415,13 @@ class Game{
       this.spawnT-=dt;
       this.fightT=(this.fightT||0)+dt;
       if(!this.queue.length)this.emptyT=(this.emptyT||0)+dt;else this.emptyT=0;
+      if(!this.queue.length&&this.emptyT>10){   // only the must-kill specials are left: tell everyone, and after a while a hiding stalker comes out to hunt
+        const must=a=>a.t===14||a.t===24||AT[a.t].boss||(a.t>=21&&a.t<=23);
+        if(this.aliens.length&&this.aliens.every(a=>must(a)||a.t===19||a.t===20)){
+          if(!this.huntNote){this.huntNote=1;this.push('hunt',[...new Set(this.aliens.filter(must).map(a=>a.t))]);}
+          if(this.emptyT>45)for(const a of this.aliens)if(a.hide&&AT[a.t].stalker){a.hide=false;this.push('stalk',a.id);}
+        }
+      }
       if(this.round>=6&&this.emptyT>25&&this.aliens.length<=6){   // safety net: a far-off straggler gets dropped closer so the round can finish
         const al=plist.filter(p=>p.st==='alive');
         if(al.length)for(const a of this.aliens){const D=AT[a.t];if((a.t>=19&&a.t<=24)||D.loner||D.boss||D.giant||D.fly||D.sniper||D.stalker||a.dorm||a.hide||a.reloc)continue;
@@ -1417,7 +1452,7 @@ class Game{
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
         this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
-      if(!this.queue.length&&this.aliens.every(a=>(a.t>=19&&a.t<=24)||a.hide||(a.t===15&&this.emptyT>150)))this.endRound();   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
+      if(!this.queue.length&&this.aliens.every(a=>a.t===19||a.t===20||(a.t===15&&this.emptyT>150)))this.endRound();   // the stalker, the Butcher and every boss (even a hidden or perched one) must be dead before the round can end   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
         this.state='over';this.timer=10;
         this.best=Math.max(this.best,this.round);
@@ -1465,7 +1500,7 @@ class Game{
       if(a.tT<=0){
         a.tT=0.4;
         let best=1e9,bp=null;
-        for(const p of alive){const tp=this.targetPos(p);const d=Math.hypot(tp.x-a.x,tp.z-a.z);if(d<best){best=d;bp=p;}}
+        for(const p of alive){if(this.inCasino(p))continue;const tp=this.targetPos(p);const d=Math.hypot(tp.x-a.x,tp.z-a.z);if(d<best){best=d;bp=p;}}
         if(bp){a.tgt=bp.id;
           const tp=this.targetPos(bp);
           a.los=best<70&&rayWorld(a.x,(AT[a.t].perch?a.y:0)+1.5,a.z,(tp.x-a.x)/best,0,(tp.z-a.z)/best,best)>=best-0.5;}

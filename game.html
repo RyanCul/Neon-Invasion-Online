@@ -224,6 +224,25 @@ body.playing #pauseB{display:block}
 #menu #nameLab{font-size:16px;letter-spacing:6px}
 #lvbtns{display:flex;gap:6px;flex-wrap:nowrap;width:max-content}
 #menu button.sm#bCust,#menu button.sm#bFr,#menu button.sm#bAch{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
+#roul{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.88);z-index:15;color:#fff;text-align:center}
+#roul .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 28px #25f4ff;padding:18px 28px;min-width:360px;max-width:520px}
+#roul h2{margin:0 0 4px;letter-spacing:5px;color:#ffe63c}
+#rlBall{width:90px;height:90px;border-radius:50%;margin:12px auto;font-size:40px;line-height:90px;font-weight:bold;background:#0b6b3a;border:4px solid #fff}
+#rlBets,#rlKinds{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+#roul button{font:inherit;font-weight:bold;letter-spacing:2px;padding:8px 14px;cursor:pointer;color:#fff;background:#3a1a66;border:2px solid #a56bff}
+#roul button.on{background:#a5207a;border-color:#fff}
+#roul button#rlSpin{background:#1f9a4a;font-size:18px;padding:10px 28px;margin:6px}
+#rlMsg{min-height:24px;font-weight:bold;color:#9ffcff;margin:4px}
+#slots{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.88);z-index:15;color:#fff;text-align:center}
+#slots .box2{background:#1a0b33;border:3px solid #ff2fa0;box-shadow:0 0 28px #ff2fa0;padding:18px 28px;min-width:340px}
+#slots h2{margin:0 0 4px;letter-spacing:5px;color:#ffe63c}
+#slReels{display:flex;gap:10px;justify-content:center;margin:12px 0}
+#slReels div{width:84px;height:96px;font-size:56px;line-height:96px;background:#0b0418;border:3px solid #25f4ff;box-shadow:inset 0 0 12px #25f4ff}
+#slBets{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+#slots button{font:inherit;font-weight:bold;letter-spacing:2px;padding:8px 14px;cursor:pointer;color:#fff;background:#3a1a66;border:2px solid #a56bff}
+#slots button.on{background:#a5207a;border-color:#fff}
+#slots button#slSpin{background:#1f9a4a;font-size:18px;padding:10px 28px;margin:6px}
+#slMsg{min-height:24px;font-weight:bold;color:#9ffcff;margin:4px}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
 #howto h2{margin:0 0 6px;letter-spacing:5px;color:#ff2fa0;text-align:center}
@@ -417,6 +436,8 @@ body.playing #pauseB{display:block}
   </div>
   <a id="discord" href="https://discord.gg/XvD5KQjDZr" target="_blank" rel="noopener">JOIN THE OFFICIAL DISCORD</a>
 </div>
+<div id="slots"><div class="box2"><h2>NEON PALACE CASINO</h2><div style="color:#e9d7ff;font-size:13px">LUCKY SLOTS &middot; pays on 3 matching &middot; 2 cherries = bet back</div><div id="slReels"><div>?</div><div>?</div><div>?</div></div><div id="slMsg"></div><div id="slMoney"></div><div id="slBets"></div><div><button id="slSpin">SPIN</button><button id="slClose">LEAVE</button></div></div></div>
+<div id="roul"><div class="box2"><h2>NEON ROULETTE</h2><div style="color:#e9d7ff;font-size:13px">pick a bet &middot; 1:1 on colors, odd/even, halves &middot; a single number pays 35:1</div><div id="rlBall">?</div><div id="rlMsg"></div><div id="rlMoney"></div><div id="rlBets"></div><div id="rlKinds"></div><div id="rlNumRow" style="display:none"><button id="rlM">-</button> <b id="rlNum">7</b> <button id="rlP">+</button></div><div><button id="rlSpin">SPIN</button><button id="rlClose">LEAVE</button></div></div></div>
 <div id="howto"><div class="box2"><h2>HOW TO PLAY</h2>
   <p class="goal">Survive wave after wave of aliens. Earn cash for kills, buy guns and perks, and see how many rounds you can last.</p>
   <div class="cols">
@@ -581,6 +602,21 @@ function cym(par,rt,rb,h,color,x,y,z,basic,seg){const m=new THREE.Mesh(new THREE
 })();
 
 
+(function buildCasino(){
+  const c=NI.WORLD.casino;if(!c)return;const g=new THREE.Group();g.position.set(c.x,0,c.z);scene.add(g);
+  bxm(g,34.6,0.2,19,0x3a1060,0,0.1,0);for(let i=-8;i<=8;i++)bxm(g,34,0.05,0.5,i%2?0xff2fa0:0x25f4ff,0,0.24,i*1.1,true);
+  bxm(g,37,1.2,22,0x1a0830,0,9.6,0);bxm(g,37.2,0.3,22.2,0xff2fa0,0,10.3,0,true);
+  const cv=document.createElement('canvas');cv.width=1024;cv.height=256;const x=cv.getContext('2d');x.fillStyle='#10001f';x.fillRect(0,0,1024,256);x.font='bold 110px sans-serif';x.textAlign='center';x.shadowBlur=30;x.shadowColor='#ffe63c';x.fillStyle='#ffe63c';x.fillText('NEON PALACE',512,115);x.shadowColor='#ff2fa0';x.fillStyle='#ff2fa0';x.font='bold 84px sans-serif';x.fillText('CASINO \u2605 SLOTS',512,225);
+  const sg=new THREE.Mesh(new THREE.PlaneGeometry(26,6.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv)}));sg.position.set(0,13.4,-11.2);sg.rotation.y=Math.PI;g.add(sg);
+  const bulbs=[];for(let i=0;i<22;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(0.22,6,5),new THREE.MeshBasicMaterial({color:0xffe63c}));b.position.set(-10.5+i,10.7,-11.1);g.add(b);bulbs.push(b);}
+  FX_ANIM.push(t=>{bulbs.forEach((b,i)=>b.material.color.setHex(((i+Math.floor(t*4))%2)?0xffe63c:0xff2fa0));});
+  c.slots.forEach((s,i)=>{const sc=document.createElement('canvas');sc.width=64;sc.height=64;const q=sc.getContext('2d');q.fillStyle='#000';q.fillRect(0,0,64,64);q.font='bold 40px sans-serif';q.textAlign='center';q.fillStyle='#ffe63c';q.fillText('777',32,46);
+    const sm=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc)}));sm.position.set(s.x-c.x,2.2,s.z-c.z-0.01);sm.rotation.y=Math.PI;g.add(sm);});
+  {const rc=document.createElement('canvas');rc.width=256;rc.height=128;const q=rc.getContext('2d');q.fillStyle='#0b6b3a';q.fillRect(0,0,256,128);for(let i=0;i<12;i++){q.fillStyle=i%2?'#c4152a':'#111';q.fillRect(10+i*19,30,17,40);}q.fillStyle='#fff';q.font='bold 28px sans-serif';q.fillText('ROULETTE',60,108);
+    const tp=new THREE.Mesh(new THREE.PlaneGeometry(8.6,4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(rc)}));tp.rotation.x=-Math.PI/2;tp.position.set(0,1.25,-1);g.add(tp);
+    const wh=cym(g,1.3,1.3,0.2,0xffe63c,-2.2,1.35,-1);FX_ANIM.push(t=>{wh.rotation.y=t*2;});}
+  const L=new THREE.PointLight(0xff2fa0,1.2,40);L.position.set(0,7,0);g.add(L);
+})();
 (function buildBeachBar(){
   const bb=NI.WORLD.bbar,g=new THREE.Group();g.position.set(bb.x,0,bb.z);scene.add(g);
   const WOOD=0x7a4a22,BAM=0xc9a24a,THATCH=0xb08a3c,BC=[0x3cff9e,0xff9a3c,0xff2fa0,0x25f4ff,0xffe63c,0x9d5bff];
@@ -2745,6 +2781,65 @@ function openLocker(ach){
   renderLocker();renderChar();$('locker').style.display='flex';if(!ach)startChPrev();$('lock').style.display='none';
   try{document.exitPointerLock();}catch(e){}
 }
+
+const SLSYM=['\u{1F352}','\u{1F34B}','\u{1F514}','\u{1F4B2}','7\uFE0F\u20E3','\u{1F48E}'],SLBETS=[50,100,250,500,1000];
+let slOpen=false,slBet=100,slSpinning=false,slAnim=null,slPending=null;
+function slRender(){
+  const m=myP?myP.m:0;$('slMoney').textContent='CASH $'+Math.floor(m);
+  $('slBets').innerHTML='';
+  SLBETS.forEach(b=>{const e=document.createElement('button');e.textContent='$'+b;if(b===slBet)e.classList.add('on');e.disabled=slSpinning;e.onclick=()=>{slBet=b;try{sfx.tick&&sfx.tick();}catch(_){}slRender();};$('slBets').appendChild(e);});
+  $('slSpin').disabled=slSpinning||m<slBet;
+}
+function openSlots(){
+  slOpen=true;for(const k in keys)keys[k]=false;mouseDown=false;$('slMsg').textContent='';slRender();$('slots').style.display='flex';
+  try{document.exitPointerLock();}catch(e){}
+}
+function closeSlots(){if(slSpinning)return;slOpen=false;$('slots').style.display='none';if(started)requestLock();}
+function slSpin(){
+  if(slSpinning||!myP||myP.m<slBet)return;
+  slSpinning=true;slPending=null;$('slMsg').textContent='';send({t:'buy',k:'slot',bet:slBet});slRender();
+  const R=[...$('slReels').children],t0=performance.now();
+  clearInterval(slAnim);slAnim=setInterval(()=>{
+    R.forEach(r=>r.textContent=SLSYM[Math.floor(Math.random()*6)]);try{sfx.tick&&sfx.tick();}catch(_){}
+    if(slPending&&performance.now()-t0>900){clearInterval(slAnim);slFinish(R);}
+    else if(performance.now()-t0>10000){clearInterval(slAnim);slSpinning=false;R.forEach(r=>r.textContent='?');$('slMsg').textContent='NO RESULT';slRender();}
+  },80);
+}
+function slFinish(R){
+  const e=slPending;let i=0;const stop=()=>{
+    if(i<3){R[i].textContent=SLSYM[e[2+i]];try{sfx.buy();}catch(_){}i++;setTimeout(stop,350);return;}
+    slSpinning=false;const w=e[5],b=e[6];
+    if(w>b){$('slMsg').textContent='JACKPOT! +$'+(w-b);for(let k=0;k<4;k++)setTimeout(()=>{try{sfx.buy();}catch(_){}},k*140);}
+    else if(w===b)$('slMsg').textContent='BET BACK';
+    else $('slMsg').textContent='NO LUCK -$'+b;
+    slRender();
+  };stop();
+}
+function slotResult(e){if(e[1]===myId&&slSpinning)slPending=e;}
+
+const RLRED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36],RLK=[['red','RED'],['black','BLACK'],['odd','ODD'],['even','EVEN'],['low','1-18'],['high','19-36'],['num','NUMBER']];
+let rlOpen=false,rlBet=100,rlKind='red',rlNumV=7,rlSpinning=false,rlAnim=null,rlPending=null;
+function rlRender(){
+  const m=myP?myP.m:0;$('rlMoney').textContent='CASH $'+Math.floor(m);
+  $('rlBets').innerHTML='';SLBETS.forEach(b=>{const e=document.createElement('button');e.textContent='$'+b;if(b===rlBet)e.classList.add('on');e.disabled=rlSpinning;e.onclick=()=>{rlBet=b;rlRender();};$('rlBets').appendChild(e);});
+  $('rlKinds').innerHTML='';RLK.forEach(([k,n])=>{const e=document.createElement('button');e.textContent=n;if(k===rlKind)e.classList.add('on');e.disabled=rlSpinning;e.onclick=()=>{rlKind=k;rlRender();};$('rlKinds').appendChild(e);});
+  $('rlNumRow').style.display=rlKind==='num'?'block':'none';$('rlNum').textContent=rlNumV;
+  $('rlSpin').disabled=rlSpinning||m<rlBet;
+}
+function rlColor(n){return n===0?'#0b6b3a':RLRED.includes(n)?'#c4152a':'#111';}
+function openRoul(){rlOpen=true;for(const k in keys)keys[k]=false;mouseDown=false;$('rlMsg').textContent='';rlRender();$('roul').style.display='flex';try{document.exitPointerLock();}catch(e){}}
+function closeRoul(){if(rlSpinning)return;rlOpen=false;$('roul').style.display='none';if(started)requestLock();}
+function rlSpin(){
+  if(rlSpinning||!myP||myP.m<rlBet)return;
+  rlSpinning=true;rlPending=null;$('rlMsg').textContent='';send({t:'buy',k:'roul',bet:rlBet,kind:rlKind,num:rlNumV});rlRender();
+  const B=$('rlBall'),t0=performance.now();clearInterval(rlAnim);
+  rlAnim=setInterval(()=>{const n=Math.floor(Math.random()*37);B.textContent=n;B.style.background=rlColor(n);try{sfx.tick&&sfx.tick();}catch(_){}
+    if(rlPending&&performance.now()-t0>1800){clearInterval(rlAnim);const e=rlPending;B.textContent=e[2];B.style.background=rlColor(e[2]);rlSpinning=false;
+      const w=e[3],b=e[4];if(w>0){$('rlMsg').textContent='WINNER! +$'+(w-b);for(let k=0;k<4;k++)setTimeout(()=>{try{sfx.buy();}catch(_){}},k*140);}else $('rlMsg').textContent='NO LUCK -$'+b;rlRender();}
+    else if(performance.now()-t0>10000){clearInterval(rlAnim);rlSpinning=false;$('rlMsg').textContent='NO RESULT';rlRender();}
+  },90);
+}
+function roulResult(e){if(e[1]===myId&&rlSpinning)rlPending=e;}
 function closeLocker(){
   lockerOpen=false;$('locker').style.display='none';
   if(started)requestLock();
@@ -2790,7 +2885,7 @@ function handleEvent(e){
     burst(e[1],e[2],e[3],col,big?60:24,big?26:16,big?1.6:1);burst(e[1],e[2],e[3],0xffffff,10,12,0.8);
     big?sfx.boom():sfx.kill();
     {const kid=e[6],kf=kid===myId?prof.ex[5]:(((remotes.get(kid)||{}).p||{}).ex||[])[5];if(kf)kfxBurst(kf,e[1],e[2],e[3]);}
-  }else if(k==='round'){curRound=e[1]|0;stMax('br',curRound-(joinRound-1));checkAch();if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
+  }else if(k==='round'){if((e[1]|0)===1&&!window.__introDone){window.__introDone=1;setTimeout(()=>{toast('GREEN ARROWS ARE ALIENS','Kill them all to progress');toastT=7;},1200);}curRound=e[1]|0;stMax('br',curRound-(joinRound-1));checkAch();if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
     toast(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===3?'THE ULTIMATE ALIEN HAS ARRIVED - IT CALLS ITS SWARM':e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
     if(e[1]===4)setTimeout(()=>toast('RUMOR','3 NEON TAPES ARE HIDDEN: THE FAR BEACH, THE TALLEST ROOF, AND INSIDE A BUILDING'),3300);
   }else if(k==='clear'){
@@ -2814,6 +2909,9 @@ function handleEvent(e){
   else if(k==='tape'){sfx.buy();toast('NEON TAPE '+e[2]+' / 3',e[2]<3?'MORE ARE HIDDEN AROUND THE CITY...':'');}
   else if(k==='tapesall'){sfx.round();toast('ALL 3 NEON TAPES FOUND!','+$25,000 FOR EVERYONE');}
   else if(k==='stalker'){toast('THE STALKER IS HIDING','HE IS IN A BUILDING - CHECK THE MAP AND HUNT HIM DOWN');sfx.stalk();}
+  else if(k==='hunt'){toast('KILL THEM TO ADVANCE',e[1].map(t=>AT[t]?AT[t].name:'').join(' + ')+' still alive');}
+  else if(k==='slot'){slotResult(e);}
+  else if(k==='roul'){roulResult(e);}
   else if(k==='stalk'){const o=aliensM.get(e[1]);if(o&&Math.hypot(o.x-me.x,o.z-me.z)<60){sfx.stalk();}}
   else if(k==='sniper'){if(sniperToastT<=0){toast('ROOFTOP SNIPER','ORANGE CROSSHAIR ON THE MAP - KEEP MOVING, THEN TAKE HIM OUT');sniperToastT=20;}}
   else if(k==='aim'){sniperAims.set(e[1],{pid:e[2],t:e[3]});if(e[2]===myId){const el=$('contact');el.textContent='⚠ SNIPER LOCKED ON - MOVE!';el.className='big show';contactT=1.4;tone(500,2000,e[3],'sine',0.07);}}
@@ -3054,6 +3152,8 @@ function updateRide(dt){
   if(ride.t>53&&p.y<9)stopRide(true);   // one full turn (2*PI/0.12 = ~52s), then step off at the bottom
 }
 function nearMbox(){const m=NI.WORLD.mbox;if(!m||!myP||me.y>3)return null;return Math.hypot(m.x-me.x,m.z-me.z)<4.2?m:null;}
+function nearSlot(){if(!myP||me.y>3)return false;const c=NI.WORLD.casino;return !!(c&&c.slots.some(q=>Math.hypot(q.x-me.x,q.z-me.z)<3.4));}
+function nearRoul(){if(!myP||me.y>3)return false;const c=NI.WORLD.casino;return !!(c&&c.roul&&Math.hypot(c.roul.x-me.x,c.roul.z-me.z)<5.8);}
 function nearBeer(){if(!myP||me.y>3)return null;const bb=NI.WORLD.bbar;return NI.HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-me.x,h.bz-me.z)<3.8)||(bb&&Math.hypot(bb.bx-me.x,bb.bz-me.z)<3.8?bb:null);}
 let drunkT=0,drunkD=30;
 function nearVend(){if(!myP||me.y>3)return null;return NI.HOUSES.find(h=>Math.hypot(h.vx-me.x,h.vz-me.z)<3.8)||null;}
@@ -3141,6 +3241,8 @@ addEventListener('keydown',e=>{
     if(S.rd.s==='wait'){if(e.code==='KeyV'){setVs(!S.rd.vs);return;}if(e.code==='KeyH'){toggleHard();return;}}
   }
   if(userPause)return;   // menu open (the game may still be running in co-op): ignore game keys
+  if(slOpen){if(e.code==='Escape'||e.code==='KeyE')closeSlots();return;}
+  if(rlOpen){if(e.code==='Escape'||e.code==='KeyE')closeRoul();return;}
   if(lockerOpen){if(e.code==='KeyK'||e.code==='Escape')closeLocker();return;}
   keys[e.code]=true;
   if(e.code==='Space'||e.code==='Tab')e.preventDefault();
@@ -3233,9 +3335,9 @@ const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<NW;i++){w=(w+dir+NW)%NW;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
 const padK={};function setK(c,v){if(padK[c]!==v){padK[c]=v;keys[c]=v;}}
 /* ===== controller navigation for every menu (D-pad / left stick move, A select, B back, LB/RB switch tabs) ===== */
-const UI_ORDER=['osk','vsWin','frp','settings','howto','locker','lbp','pauseO','lobby','menu'];
-const UI_CLOSE={frp:'frClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume',lobby:'lbBack',vsWin:'vsNo'};
-const UI_DEF={menu:'#bSolo',pauseO:'#pResume',lobby:'#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
+const UI_ORDER=['osk','slots','roul','vsWin','frp','settings','howto','locker','lbp','pauseO','lobby','menu'];
+const UI_CLOSE={slots:'slClose',roul:'rlClose',frp:'frClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume',lobby:'lbBack',vsWin:'vsNo'};
+const UI_DEF={slots:'#slSpin',roul:'#rlSpin',menu:'#bSolo',pauseO:'#pResume',lobby:'#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
 function uiLayer(){for(const id of UI_ORDER){const el=$(id);if(!el)continue;if(id==='menu'&&started)continue;if(getComputedStyle(el).display!=='none')return el;}return null;}
 function uiFocusables(layer){
   return [...layer.querySelectorAll('button,input,label#lbHard,#lbMode,a#discord,.sk,.navtabs div,.subtabs div,#chtabs div')].filter(el=>{
@@ -3436,7 +3538,7 @@ function pollPad(dt){
 }
 addEventListener('gamepadconnected',e=>{padType=padKind(e.gamepad&&e.gamepad.id);usingPad=true;refreshPadUI();if(started)toast('CONTROLLER CONNECTED','LS move - RS look - '+PB('rt')+' fire - '+PB('a')+' jump - '+PB('x')+' use');});
 addEventListener('wheel',e=>{if(!started||driving>=0)return;const dir=e.deltaY>0?1:-1;cycleW(dir);});
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===canvas;if(locked)wasLocked=true;$('lock').style.display=(started&&!locked&&!userPause&&!lockerOpen&&!(S&&gameOverShown)&&!(mode==='online'&&S&&S.rd&&S.rd.s==='wait')&&$('vsWin').style.display!=='flex')?'flex':'none';});
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===canvas;if(locked)wasLocked=true;$('lock').style.display=(started&&!locked&&!userPause&&!lockerOpen&&!slOpen&&!rlOpen&&!(S&&gameOverShown)&&!(mode==='online'&&S&&S.rd&&S.rd.s==='wait')&&$('vsWin').style.display!=='flex')?'flex':'none';});
 $('lock').addEventListener('click',requestLock);
 canvas.addEventListener('click',()=>{if(started&&!locked)requestLock();});
 addEventListener('contextmenu',e=>e.preventDefault());
@@ -3500,7 +3602,7 @@ function garageMove(d){menuMove(d);}
 function canInteract(){
   if(!myP||myP.st!=='alive')return false;
   const car=nearCar();
-  return !!(ride||nearWheel()||nearStation()||nearMbox()||nearVend()||nearBeer()||nearDown()||(car!==null&&carsM.get(car)&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5));
+  return !!(ride||nearWheel()||nearStation()||nearMbox()||nearVend()||nearBeer()||nearSlot()||nearRoul()||nearDown()||(car!==null&&carsM.get(car)&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5));
 }
 function interact(){
   if(inLobby())return;
@@ -3511,6 +3613,8 @@ function interact(){
   if(myP.st!=='alive')return;
   const car=nearCar(),st=nearStation();
   if(nearMbox()&&!(st&&!garageClosed)){if(myP.m<NI.MBOX_COST){sfx.no();return;}send({t:'buy',k:'mbox'});return;}
+  if(nearSlot()){openSlots();return;}
+  if(nearRoul()){openRoul();return;}
   if(nearBeer()&&!(st&&!garageClosed)){if(myP.m<40){sfx.no();return;}send({t:'buy',k:'beer'});return;}
   if(nearVend()&&!(st&&!garageClosed)){if(myP.m<250||myP.hp>=(myP.mh||100)-0.5){sfx.no();return;}send({t:'buy',k:'vend'});return;}
   if(car!==null&&(!st||true)&&carsM.get(car)&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5){send({t:'enter',id:car});return;}
@@ -3968,6 +4072,8 @@ function updateHUD(dt){
     else if(ride){txt='[E] GET OFF<small>you step off at the bottom after one full turn</small>';}
     else if(nearWheel()&&!st){txt='[E] RIDE THE CRYSTAL WHEEL<small>a slow ride with a great view</small>';}
     else if(nearMbox()&&!st){no=myP.m<NI.MBOX_COST;txt='[E] MYSTERY BOX $'+NI.MBOX_COST+'<small>a random weapon - or a free upgrade if you already own it</small>';}
+    else if(nearRoul()){txt='[E] PLAY ROULETTE<small>NEON PALACE CASINO - red, black or your lucky number</small>';}
+    else if(nearSlot()){txt='[E] PLAY THE SLOTS<small>NEON PALACE CASINO - three in a row pays big</small>';}
     else if(nearBeer()&&!st){no=myP.m<40;txt='[E] GRAB THE COLD BEER $40<small>chug it - everything gets wobbly for 30 seconds</small>';}
     else if(nearVend()&&!st){const full=myP.hp>=(myP.mh||100)-0.5;no=full||myP.m<250;txt=full?'VENDING MACHINE<small>you are at full health</small>':'[E] VENDING MACHINE - FULL HEAL $250';}
     else if(st){
@@ -4250,7 +4356,7 @@ function frame(now){
   refreshLv();$('lvnote').textContent=loadNote;
   if(!$('name').value)$('name').focus();
   $('bAch').onclick=()=>{openLocker(true);$('locker').scrollTop=0;};
-  $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;
+  $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;$('slClose').onclick=closeSlots;$('rlClose').onclick=closeRoul;$('rlSpin').onclick=rlSpin;$('rlM').onclick=()=>{rlNumV=(rlNumV+36)%37;rlRender();};$('rlP').onclick=()=>{rlNumV=(rlNumV+1)%37;rlRender();};$('slSpin').onclick=slSpin;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};

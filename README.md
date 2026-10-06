@@ -286,3 +286,9 @@ Every song is loudness-matched (about -17 LUFS) so no track jumps out, and the m
 
 ### Controller layout (on foot)
 Left stick move, right stick look, RT fire, LT aim, **Y jump (and jetpack up)**, **hold A to sprint**, click the left stick (L3) for fullscreen, B crouch / hover, X use / reload, LB / RB switch weapon, D-pad radio, BACK = back to the starting area, START = pause. In a vehicle: A / RT gas, B / LT brake, Y = get out, LB = handbrake, RB = hood camera.
+
+## Neon Palace Casino
+On the beach west of the tiki bar. Press E (X on controller) at a slot machine or the roulette table. Bets $50-$1000. Slots pay on three matching symbols (two cherries = bet back). Roulette: red/black, odd/even, 1-18/19-36 pay 1:1, a single number pays 35:1. The casino is a safe zone for whoever is inside: no damage, aliens ignore you, and you cannot shoot. Everyone else plays normally.
+
+## Round rules
+A round only ends when every stalker and boss (including hidden ones) is dead. Bigger crews earn less cash per kill.
