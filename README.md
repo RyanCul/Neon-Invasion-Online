@@ -258,3 +258,12 @@ Every menu works with a controller, including the home screen. D-pad/left stick 
 
 ## Discord
 The home screen has a "JOIN THE OFFICIAL DISCORD" link at the bottom (https://discord.gg/XvD5KQjDZr).
+
+## Hard mode & waiting room
+Hard mode: aliens have 50% more health, hit 40% harder, waves are 25% bigger, and kills pay 25% more cash. Solo: SETTINGS → HARD MODE (applies to your next game). Online: the host flips the HARD MODE switch in the full-screen waiting room (H / controller X). Nobody can move, shoot or buy until the host starts the game (enforced on the server too).
+
+## Sound
+Layered boss / Godzilla roars, heavy alien footsteps, player footsteps and landing thuds, punchier gunshots, hit / headshot / kill feedback, multi-click reload and an empty-mag click.
+
+## Versus mode
+The host picks CO-OP or VERSUS (V / controller Y) in the waiting room. Versus: last player standing wins, nobody can be revived, fallen players spectate everyone else until the game ends, and players can never hurt each other (shots, blasts and cars only affect aliens). When one player is left they get a YOU WIN screen: KEEP GOING? Yes continues solo to see how far they get; No ends the game. After any game the results show for 10 seconds, then everyone is back in the waiting room. A small door button in the bottom-left of the waiting room goes back to the main menu.

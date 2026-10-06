@@ -4,6 +4,7 @@
 'use strict';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function soft(v,k,s){return v<=k?v:k+(v-k)*s;}   // linear up to k, then keeps climbing at a slower slope (never a hard cap)
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
 const r2=v=>Math.round(v*100)/100;
 
@@ -718,7 +719,7 @@ class Game{
     this.players=new Map();
     this.aliens=[];this.orbs=[];this.cars=[];this.clouds=[];
     this.nid=1;this.ev=[];
-    this.round=0;this.state='lobby';this.timer=0;this.queue=[];this.spawnT=0;
+    this.round=0;this.state='lobby';this.timer=0;this.queue=[];this.spawnT=0;this.hard=!!(opts&&opts.hard);this.vs=false;this.vsWin=null;this.vsKeep=false;this.vsWinner=0;   // vs = versus mode: last player standing wins
     this.time=0;this.snapT=0;this.flows=new Map();this.flowT=0;
     this.rnd=mulberry32((Math.random()*1e9)|0);
     this.overStats=null;this.best=0;this.loot=LOOT.map(()=>true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts=[];this.wxT=0;
@@ -789,7 +790,7 @@ class Game{
     const p=this.players.get(id);if(!p||!m)return;
     switch(m.t){
       case 'st':{
-        if(p.st==='dead')break;
+        if(p.st==='dead'||this.state==='wait')break;   // nobody moves around the map until the host starts the game
         const x=+m.x,y=+m.y,z=+m.z;
         if(!isFinite(x+y+z))break;
         p.yaw=+m.yaw||0;p.pitch=+m.pitch||0;p.w=m.w|0;p.jfl=m.jt?1:0;
@@ -802,9 +803,16 @@ class Game{
         }
         break;
       }
-      case 'fire':this.onFire(p,m);break;
-      case 'buy':this.onBuy(p,m);break;
+      case 'fire':if(this.state==='wait')break;this.onFire(p,m);break;
+      case 'buy':if(this.state==='wait')break;this.onBuy(p,m);break;
+      case 'hard':{   // the host flips hard mode on / off from the waiting room
+        if(this.state!=='wait')break;
+        let host=1e9;for(const q of this.players.values())host=Math.min(host,q.id);
+        if(p.id===host)this.hard=!!m.on;
+        break;
+      }
       case 'enter':{
+        if(this.state==='wait')break;
         if(p.st!=='alive'||p.car>=0)break;
         const c=this.cars.find(c=>c.id===m.id);
         if(!c)break;
@@ -822,10 +830,23 @@ class Game{
         if(c){p.x=c.x+Math.cos(c.h)*3.2;p.z=c.z-Math.sin(c.h)*3.2;}
         break;
       }
+      case 'vs':{   // the host switches between co-op and versus in the waiting room
+        if(this.state!=='wait')break;
+        let host=1e9;for(const q of this.players.values())host=Math.min(host,q.id);
+        if(p.id===host)this.vs=!!m.on;
+        break;
+      }
+      case 'keep':case 'quit':{   // the versus winner chooses: keep going solo, or end the game
+        if(!this.vsWin||!this.vsWin.pend||this.vsWin.id!==p.id)break;
+        if(m.t==='keep'){this.vsWin.pend=false;this.vsKeep=true;this.push('vskeep',p.id);}else this.vsEnd();
+        break;
+      }
       case 'start':{
         if(this.state!=='wait')break;
         let host=1e9;for(const q of this.players.values())host=Math.min(host,q.id);
         if(p.id!==host)break;
+        if(this.vs&&this.players.size<2){this.push('vsmin');break;}   // versus needs at least two players
+        this.vsN=this.vs?this.players.size:0;
         this.state='rest';this.timer=5;this.round=0;this.push('go');break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
@@ -999,7 +1020,7 @@ class Game{
   killAlien(a,p,crit){
     const def=AT[a.t];
     this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0,a.t);   // credit for the killer's own lifetime stats / achievements
-    const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1);
+    const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(p.perks&&p.perks[5]?1.25:1)*(this.hard?1.25:1);
     p.money+=Math.round(mk);p.kills++;
     for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash
       if(q===p||q.st!=='alive')continue;
@@ -1023,16 +1044,18 @@ class Game{
   hpMul(){const r=this.round;   // steep early, then a gentle slope after round 40 so round 150 stays winnable
     if(r<=10)return 1+0.15*(r-1);
     const m40=(1+0.15*9)*Math.pow(1.08,30);
-    return r<=40?(1+0.15*9)*Math.pow(1.08,r-10):m40*Math.pow(1.006,r-40);}
+    return r<=40?(1+0.15*9)*Math.pow(1.08,r-10):r<=50?m40*Math.pow(1.006,r-40):m40*Math.pow(1.006,10)*Math.pow(1.009,r-50);}   // past round 50 it ramps a touch faster but still only slowly: extremely hard, never a wall
   startRound(){
     this.round++;
     const npl=Math.max(1,this.players.size),mul=1+0.55*(npl-1);     // bigger crews face bigger waves: 1.0x solo, 1.55x for 2, 2.65x for 4, 3.75x for 6
-    let total=Math.round(Math.min(5+this.round*2.4,75)*mul);
+    let total=Math.round(soft(5+this.round*2.4,75,0.15)*mul*(this.hard?1.25:1));
     const giant=this.round%20===0,ultimate=this.round%50===0,shark=this.round%13===0;
     const boss=this.round%5===0;
     if(boss)total=Math.max(4,Math.round(total*0.28));   // boss rounds: only a few escorts so the boss is the focus
     const q=[];
     const pool=[[0,1,Math.max(3,10-this.round*0.4)],[2,2,3],[1,3,3],[5,4,3],[3,5,2],[6,6,2.5],[7,7,2.5],[8,8,1.5],[9,9,1.5],[10,11,1.2],[11,13,1],[13,8,3],[16,11,3]].filter(e=>this.round>=e[1]);
+    {const late=Math.max(0,this.round-30),hm=1+Math.log(1+late)*0.7,gm=1/(1+late*0.03);   // after round 30 the tough aliens (brute, armored, queen, titan, warship) keep getting likelier and plain grunts fade, with no ceiling
+      for(const e of pool){if(e[0]===3||e[0]===7||e[0]===9||e[0]===10||e[0]===11)e[2]*=hm;else if(e[0]===0)e[2]*=Math.max(0.35,gm);}}
     const ptot=pool.reduce((sum,e)=>sum+e[2],0);
     for(let i=0;i<total;i++){
       let r=this.rand()*ptot,t=0;
@@ -1084,7 +1107,7 @@ class Game{
     for(const p of this.players.values()){
       p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.dd=0;p.rvd=0;p.dn=0;p.dt=0;p.bk=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
-    this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.push('reset');
+    this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.vsWin=null;this.vsKeep=false;this.vsWinner=0;this.vsN=0;this.push('reset');
   }
 
   pickSides(){
@@ -1141,15 +1164,15 @@ class Game{
       }
     }
     const np=Math.max(1,this.players.size);
-    let hp=def.hp*this.hpMul()*(1+0.1*(np-1));   // +10% alien health per extra player
+    let hp=def.hp*this.hpMul()*(1+0.1*(np-1))*(this.hard?1.5:1);   // +10% alien health per extra player
     if(t===4)hp=2900*(1+0.5*(this.round/5-1))*(1+0.8*(np-1));
     if(t===18)hp=3400*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
     if(t===17)hp=190000*(1+0.5*(this.round/50-1))*(1+0.8*(np-1));
     if(t===12)hp=78000*(1+0.5*(this.round/20-1))*(1+0.8*(np-1));
     if(t>=21&&t<=24)hp*=1+0.6*(np-1);   // landmark bosses are tougher in co-op too
-    const sp=def.sp*(1+Math.min(0.55,0.028*this.round))*(0.9+this.rand()*0.25);
+    const sp=def.sp*(1+soft(0.028*this.round,0.55,0.12))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
-      dmg:def.dmg*Math.min(2.5,1+0.025*this.round),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
+      dmg:def.dmg*soft(1+0.025*this.round,2.5,0.2)*(this.hard?1.4:1),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
     if(def.stalker){al.hide=true;al.stT=0;al.hh=this._hh;}
     if(t>=19&&t<=23)al.guard=true;   // every landmark boss waits at its spot until a player is in sight
     if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
@@ -1303,12 +1326,31 @@ class Game{
   }
 
   /* ---- main tick ---- */
+  vsEnd(){   // versus is over: results screen, then back to the waiting room
+    const plist=[...this.players.values()];
+    if(this.vsWin)this.vsWinner=this.vsWin.id;
+    this.vsWin=null;this.state='over';this.timer=10;
+    this.best=Math.max(this.best,this.round);
+    this.push('over',this.round);this.report(plist);
+  }
   tick(dt){
     if(!this.players.size)return;
     dt=Math.min(dt,0.1);
+    if(this.vsWin&&this.vsWin.pend){   // the whole game holds still while the winner picks YES / NO
+      this.vsWin.t-=dt;if(this.vsWin.t<=0){this.vsEnd();}
+      this.snapT-=dt;if(this.snapT<=0){this.snapT=0.05;this.out.all(this.snapshot());}
+      return;
+    }
     this.time+=dt;
     const plist=[...this.players.values()];
 
+    // versus: nobody gets back up - a fallen player is out for good and spectates the rest
+    if(this.vs)for(const p of plist)if(p.st==='down'){p.st='dead';p.hp=0;this.push('died',p.id);}
+    // versus: the last one standing wins
+    if(this.vs&&!this.vsKeep&&!this.vsWin&&(this.state==='fight'||this.state==='rest')&&this.vsN>=2){
+      const alive=plist.filter(p=>p.st==='alive');
+      if(alive.length===1){this.vsWin={id:alive[0].id,pend:true,t:30};this.vsWinner=alive[0].id;this.push('vswin',alive[0].id);}
+    }
     // player upkeep
     for(const p of plist){
       if(p.st==='alive'&&p.hp<mhp(p)&&this.time-p.lastHit>5)p.hp=Math.min(mhp(p),p.hp+28*dt);
@@ -1377,7 +1419,7 @@ class Game{
       }
       if(!this.queue.length&&this.aliens.every(a=>(a.t>=19&&a.t<=24)||a.hide||(a.t===15&&this.emptyT>150)))this.endRound();   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
-        this.state='over';this.timer=14;
+        this.state='over';this.timer=10;
         this.best=Math.max(this.best,this.round);
         this.push('over',this.round);
         this.report(plist);
@@ -1514,19 +1556,19 @@ class Game{
             a.cd=2.2;
             for(let i=-4;i<=4;i++){
               const ang=Math.atan2(dx,dz)+i*0.11;
-              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,50,30*Math.min(2.5,1+0.03*this.round));
+              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,50,30*soft(1+0.03*this.round,2.5,0.2));
             }
           }else if(a.t===12){
             a.cd=2.8;
             for(let i=-3;i<=3;i++){
               const ang=Math.atan2(dx,dz)+i*0.13;
-              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,46,26*Math.min(2.5,1+0.03*this.round));
+              this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,46,26*soft(1+0.03*this.round,2.5,0.2));
             }
           }else if(a.t===4){
             a.cd=3.0;
             for(let i=-2;i<=2;i++){
               const ang=Math.atan2(dx,dz)+i*0.16;
-              this.fireOrb(a,a.x+Math.sin(ang)*30,ty,a.z+Math.cos(ang)*30,0.04,42,20*Math.min(2.5,1+0.03*this.round));
+              this.fireOrb(a,a.x+Math.sin(ang)*30,ty,a.z+Math.cos(ang)*30,0.04,42,20*soft(1+0.03*this.round,2.5,0.2));
             }
           }else if(a.t===22){      // PIRATE CAPTAIN: cannonballs, three at a time
             a.cd=1.9+this.rand()*0.5;
@@ -1704,7 +1746,7 @@ class Game{
     const ev=this.ev;this.ev=[];
     return{
       t:'snap',tm:r2(this.time),
-      rd:{sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
+      rd:{hd:this.hard?1:0,vs:this.vs?1:0,vw:this.vsWinner|0,vp:(this.vsWin&&this.vsWin.pend)?1:0,sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
         hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0]),
