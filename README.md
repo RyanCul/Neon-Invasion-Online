@@ -347,3 +347,7 @@ The sea now has a shallow-to-deep colour gradient, scrolling ripple and sparkle 
 - **NEON FM 98.6** (16 songs) plays from the start. **NIGHT CHANNEL** (6 lofi tracks) unlocks when the game reaches its first night (round 6) and is then available day and night. **BEACH CHANNEL** (6 bossa nova tracks, Pixabay) unlocks the first time you step onto the beach. Unlocked channels stay unlocked for that game; each new game starts with only NEON FM.
 - Tune channels with D-pad up / down or `[` / `]`; `,` `.` and D-pad left / right change the song inside the channel, `M` mutes. Volume is only changed in the settings menu (music default 35, effects default 100).
 - "Too Soon" by Diamond Ace was removed; the title screen now plays the first NEON FM song.
+
+## Round rules and labels
+- A round only ends when every alien is dead: all bosses, the pirate captain, both shark bosses, the stalker, the Butcher and roof snipers included.
+- Floating name labels over landmarks (and the radio, pier, lighthouse, ship and lifeguard tower) were removed. Shop and building names stay.

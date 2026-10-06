@@ -1542,7 +1542,7 @@ class Game{
       this.fightT=(this.fightT||0)+dt;
       if(!this.queue.length)this.emptyT=(this.emptyT||0)+dt;else this.emptyT=0;
       if(!this.queue.length&&this.emptyT>10){   // only the must-kill specials are left: tell everyone, and after a while a hiding stalker comes out to hunt
-        const must=a=>a.t!==15;
+        const must=a=>true;
         if(this.aliens.length&&this.aliens.every(a=>must(a)||a.t===15)&&this.aliens.some(must)&&this.aliens.length<=8){
           if(!this.huntNote){this.huntNote=1;this.push('hunt',[...new Set(this.aliens.filter(must).map(a=>a.t))]);}
           if(this.emptyT>45)for(const a of this.aliens)if(a.hide&&AT[a.t].stalker){a.hide=false;this.push('stalk',a.id);}
@@ -1578,7 +1578,7 @@ class Game{
         if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
         this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
-      if(!this.queue.length&&this.aliens.every(a=>a.t===15&&this.emptyT>150))this.endRound();   // the stalker, the Butcher and every boss (even a hidden or perched one) must be dead before the round can end   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
+      if(!this.queue.length&&this.aliens.length===0)this.endRound();   // EVERY alien must be dead before the round ends: bosses, the pirate captain, the sharks, the stalker, the Butcher and roof snipers alike   // the stalker, the Butcher and every boss (even a hidden or perched one) must be dead before the round can end   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
       else if(plist.every(p=>p.st!=='alive')){
         this.state='over';this.timer=10;
         this.best=Math.max(this.best,this.round);
