@@ -285,7 +285,7 @@ Every song is loudness-matched (about -17 LUFS) so no track jumps out, and the m
 `index.html` is a thin page that holds the game (`game.html`) in a frame. Fullscreen is applied to that outer page, so going back to the main menu (which reloads the frame) never drops you out of fullscreen. `game.html` also runs on its own if you open it directly.
 
 ### Controller layout (on foot)
-Left stick move, right stick look, RT fire, LT aim, **Y jump (and jetpack up)**, **hold A to sprint**, click the left stick (L3) for fullscreen, B crouch / hover, X use / reload, LB / RB switch weapon, D-pad radio, BACK = back to the starting area, START = pause. In a vehicle: A / RT gas, B / LT brake, Y = get out, LB = handbrake, RB = hood camera.
+Left stick move, right stick look, RT fire, LT aim, **A jump (and jetpack up)**, **hold Y to sprint**, **X also takes you back to base between rounds**, click the left stick (L3) for fullscreen, B crouch / hover, X use / reload, LB / RB switch weapon, D-pad radio, BACK = back to the starting area, START = pause. In a vehicle: A / RT gas, B / LT brake, Y = get out, LB = handbrake, RB = hood camera.
 
 ## Neon Palace Casino
 On the beach west of the tiki bar. Press E (X on controller) at a slot machine or the roulette table. Bets $50-$1000. Slots pay on three matching symbols (two cherries = bet back). Roulette: red/black, odd/even, 1-18/19-36 pay 1:1, a single number pays 35:1. The casino is a safe zone for whoever is inside: no damage, aliens ignore you, and you cannot shoot. Everyone else plays normally.
@@ -299,8 +299,12 @@ Casino bets go up to $100,000 and roulette has a GREEN 0 bet. Cars take 20% more
 
 Hounds and rooftop snipers have been removed from the game.
 
-Gunship helicopter: damage 30, fire rate 6/s, armor 1000, 240 rounds. When empty, land and stay still for 30 seconds to recharge (leaving the ground resets the timer).
+Gunship helicopter: damage 30, fire rate 6/s, armor 1000, 240 rounds. When empty, land and stay still for 5 seconds to recharge (leaving the ground resets the timer).
 
 Knifers are 25% slower, and every alien has a top speed of 15 no matter the round. On-screen banners (round, contact, toasts, streaks, loot) now sit in separate bands so they do not overlap.
 
 Casino: an ALL IN button bets all your cash on slots and roulette.
+
+Acid rain has been removed (blackouts and lightning storms remain).
+
+Weather now also includes Thick Fog (short sight, smaller minimap), Meteor Shower (orange circles, then blasts that leave fire for 6 s) and Neon Aurora (+50% cash per kill, aliens 20% faster). Ground aliens can now jump low ledges, so they can climb the pyramid. On controller: A jump, hold Y sprint, X = back to base between rounds. Full-map labels are one word.
