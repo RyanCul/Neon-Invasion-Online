@@ -273,6 +273,9 @@ The host picks CO-OP or VERSUS (V / controller Y) in the waiting room. Versus: l
 The mouse is released in the waiting room and on the YOU WIN screen. Controller: D-pad/stick to move, A to select, X hard mode, Y versus, Start to begin; on the win screen A = yes, B = no.
 
 ### NEON FM radio
-The title screen loops the original song (Too Soon). Once a game starts the radio plays through 17 tracks in order. Keyboard: `,` previous, `.` next, `[` volume down, `]` volume up, `M` mute. Controller: D-pad left = previous, right = next, up/down = volume (at the weapon and perk shops up/down scroll the list instead). Skins & locker moved to the pause menu on a controller; hood cam while driving is L3. Songs sit next to index.html (a radio/ folder also works) (re-encoded to 64 kbps so the whole game fits in one small download); the names are made up for the untitled ones.
+The title screen loops the original song (Too Soon). Once a game starts the radio plays through 17 tracks in order. Keyboard: `,` previous, `.` next, `[` volume down, `]` volume up, `M` mute. Controller: D-pad left = previous, right = next, up/down = volume (at the weapon and perk shops up/down scroll the list instead). Hood cam while driving is L3. The Customize screen (skins, guns, cars) is only on the main menu. Songs sit next to index.html (a radio/ folder also works) (re-encoded to 64 kbps so the whole game fits in one small download); the names are made up for the untitled ones.
 
 The radio also has a hidden NIGHT CHANNEL (6 lofi tracks). It only exists while it is night in game (rounds 6-10, 16-20, 26-30 and so on; every 5th round it flips between day and night): scroll past the last NEON FM song and it tunes in. When day comes back the radio drops back to the first NEON FM song.
+
+### Sound mix
+Every song is loudness-matched (about -17 LUFS) so no track jumps out, and the music slider is scaled to match. Walking footsteps are soft, the beach has a rolling wave swell that gets louder toward the water, and cars, the helicopter and the jetpack each have a continuous engine sound. The radio volume keys (D-pad up/down, `[` and `]`) move the sound effects along with the music.
