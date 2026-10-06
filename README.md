@@ -351,3 +351,6 @@ The sea now has a shallow-to-deep colour gradient, scrolling ripple and sparkle 
 ## Round rules and labels
 - A round only ends when every alien is dead: all bosses, the pirate captain, both shark bosses, the stalker, the Butcher and roof snipers included.
 - Floating name labels over landmarks (and the radio, pier, lighthouse, ship and lifeguard tower) were removed. Shop and building names stay.
+
+- The main menu and the first game song are now "Palm Tree Pursuit". A bright red ROUND CLEARED banner flashes the moment the last enemy dies. The main menu has a CLOSE GAME button under the online leaderboard.
+- ROUND CLEARED is now a retro gradient banner (hot pink to orange with a dark band and neon lines) that stays readable on any background. Drivers on the segway and motorcycle now show their own customised character (suit, hat, shades, shirt, jacket, chain, face and back item).

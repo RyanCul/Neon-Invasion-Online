@@ -116,6 +116,11 @@ body.bigui #money,body.bigui #ammo,body.bigui #jet,body.bigui #roundnum,body.big
 #prompt.no{color:#ff7a90;text-shadow:0 0 8px #ff2040}
 #revbar{position:fixed;left:50%;top:68%;transform:translateX(-50%);width:200px;height:10px;border:2px solid #3cff9e;display:none}
 #revbar i{display:block;height:100%;width:0;background:#3cff9e}
+#clr{position:fixed;left:0;right:0;top:24%;text-align:center;padding:.14em 0 .2em;white-space:nowrap;font-size:clamp(38px,8vw,104px);font-weight:900;font-style:italic;letter-spacing:.09em;line-height:1;opacity:0;pointer-events:none;z-index:9;transform:scaleY(.2);transition:opacity .2s,transform .3s cubic-bezier(.2,1.5,.4,1);background:linear-gradient(90deg,rgba(14,0,24,0),rgba(14,0,24,.88) 14%,rgba(14,0,24,.88) 86%,rgba(14,0,24,0))}
+#clr span{display:inline-block;background:linear-gradient(#fff6c0 8%,#ffb13c 30%,#ff3a2a 52%,#ff1060 74%,#b0008a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(.035em 0 0 #14000a) drop-shadow(-.035em 0 0 #14000a) drop-shadow(0 .035em 0 #14000a) drop-shadow(0 -.035em 0 #14000a) drop-shadow(0 0 .22em rgba(255,40,110,.75))}
+#clr::before,#clr::after{content:'';position:absolute;left:6%;right:6%;height:5px;background:linear-gradient(90deg,transparent,#ff2fa0 15%,#ff2a3c 50%,#25f4ff 85%,transparent);box-shadow:0 0 14px #ff2fa0,0 0 24px #25f4ff}
+#clr::before{top:0}#clr::after{bottom:0}
+#clr.show{opacity:1;transform:scaleY(1)}
 #toast{position:fixed;left:50%;top:25%;transform:translate(-50%,0);white-space:normal;width:max-content;max-width:92vw;line-height:1.1;font-size:clamp(20px,3.4vw,42px);font-style:italic;font-weight:bold;letter-spacing:4px;opacity:0;transition:opacity .4s;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 10px #ff2fa0,0 0 28px #ff2fa0,0 2px 3px #000,0 0 3px #000;z-index:6}
 #toast.show{opacity:1}
 #toast small{display:block;font-size:.4em;letter-spacing:3px;color:#9ffcff;text-shadow:0 0 8px #25f4ff}
@@ -256,6 +261,7 @@ body.playing #pauseB{display:block}
 #menu p{margin:3px 0;font-size:clamp(12px,1.5vw,16px);color:#e9d7ff;max-width:640px}
 #menu input{font:inherit;font-size:16px;letter-spacing:2px;padding:9px 12px;background:#1a0b33;color:#fff;border:2px solid #25f4ff;box-shadow:0 0 10px rgba(37,244,255,.5);text-align:center;width:min(300px,80vw);margin:5px;outline:none;text-transform:uppercase}
 #menu input#name{border-color:#ff2fa0;box-shadow:0 0 12px #ff2fa0}
+#menu button#bQuit{background:linear-gradient(#ff4a5a,#a01428);border-color:#ffc0c8;box-shadow:0 0 14px #ff3048;color:#fff}
 #menu button#bLB{background:linear-gradient(#39ff6a,#12a83a);border-color:#c8ffd6;box-shadow:0 0 14px #39ff6a;color:#06210f}
 #menu input#url{text-transform:none;width:min(380px,90vw);font-size:13px}
 #menu button{font:inherit;font-size:18px;font-weight:bold;letter-spacing:3px;font-style:italic;padding:11px 26px;margin:6px;cursor:pointer;color:#fff;background:linear-gradient(#ff2fa0,#a5207a);border:2px solid #ffb3d9;box-shadow:0 0 14px #ff2fa0}
@@ -394,6 +400,7 @@ body.playing #pauseB{display:block}
 <div id="prompt"></div><div id="revbar"><i></i></div>
 <div id="toast"></div>
 
+<div id="clr"><span>ROUND CLEARED</span></div>
 <div id="radio"><span style="color:#fff3b0">NEON FM 98.6</span></div>
 <div id="down"><h1 id="downT">YOU'RE DOWN</h1><p id="downP"></p></div>
 <div id="lobby"><div id="lbCard">
@@ -431,7 +438,7 @@ body.playing #pauseB{display:block}
     <div style="margin-top:14px;color:#9ffcff;letter-spacing:5px;font-size:18px">ONLINE CO-OP (up to 8 players)</div>
     <input id="room_in" maxlength="6" placeholder="ROOM CODE (OPTIONAL)"><br>
     <input id="url" placeholder="server address" style="display:none">
-    <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button>
+    <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button><br><button class="c sm" id="bQuit">CLOSE GAME</button>
     <div id="msg"></div>
   </div>
   <a id="discord" href="https://discord.gg/XvD5KQjDZr" target="_blank" rel="noopener">JOIN THE OFFICIAL DISCORD</a>
@@ -1994,11 +2001,11 @@ function makeCar(type,skId){
     const vs=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.12,0.12),visor);vs.position.set(x,y+0.02,z+0.24);rider.add(vs);};
   if(cd.kind==='segway'){
     for(const sx of[-1,1]){rb_(0.22,0.85,0.26,dark,sx*0.26,1.3,-0.1);rb_(0.15,0.15,0.62,suit,sx*0.36,2.15,0.18);}
-    rb_(0.6,0.75,0.36,suit,0,2.0,-0.1);rhead(0,2.62,-0.08);
+    const slot=new THREE.Group();slot.position.set(0,0.62,-0.1);rider.add(slot);g.userData.avSlot=slot;   // the driver's own customised character stands here
     root.add(rider);g.userData.rider=rider;
   }else if(cd.kind==='moto'){
     for(const sx of[-1,1]){rb_(0.2,0.8,0.28,dark,sx*0.38,1.15,-0.35,0.9);rb_(0.15,0.15,0.9,suit,sx*0.42,1.78,0.5,0.15);}
-    rb_(0.6,0.8,0.36,suit,0,1.85,-0.65,0.6);rhead(0,2.38,-0.25);
+    const slot=new THREE.Group();slot.position.set(0,0.72,-0.62);slot.rotation.x=0.28;rider.add(slot);g.userData.avSlot=slot;   // seated, leaning into the bars
     root.add(rider);g.userData.rider=rider;
   }else if(cd.kind==='heli'){
     rb_(0.6,0.7,0.4,suit,0,1.55,1.0);rhead(0,2.15,1.05);
@@ -2579,7 +2586,7 @@ function proxAudio(dt){
   if(close>=2){heartT-=dt;if(heartT<=0){heartT=Math.max(0.45,0.9-close*0.08);const v=Math.min(0.2,0.07+close*0.02);pvoice(75,40,0.18,'sine',v,0);setTimeout(()=>pvoice(65,38,0.16,'sine',v*0.8,0),160);}}
 }
 /* ---- NEON FM: the title screen loops track 1 (the original song); once a game starts the radio plays through the whole playlist ---- */
-const TRACKS=[['02','Chrome Horizon'],['03','Midnight Boulevard'],['04','Neon Drive'],['05','Arcade Nights'],['06','Pink Static'],['07','Palm Tree Pursuit'],['08','Laser Summit'],['09','Turbo Sunset'],['10','Vice Avenue'],['11','Grid Runner'],['12','Arp City'],['13','Night Cruiser'],['14','Tranquil Tides'],['15','Mall Hours'],['16','Infinity Drift'],['17','Fluid Motion'],['n1','Rooftop Rain'],['n2','Moonlit Static'],['n3','Funky Midnight Club'],['n4','Glow Lamp'],['n5','Last Train Home'],['n6','Window Seat'],['b1','Bossa Summer','Rediskasound'],['b2','Cafe Bossa','Tatamusic'],['b3','Cocktail Lounge','Alex Morgan'],['b4','Midnight Club Bossa','Alex Morgan'],['b5','Seaside Restaurant','Alex Morgan'],['b6','Bossa Nova','Aurec']];
+const TRACKS=[['07','Palm Tree Pursuit'],['02','Chrome Horizon'],['03','Midnight Boulevard'],['04','Neon Drive'],['05','Arcade Nights'],['06','Pink Static'],['08','Laser Summit'],['09','Turbo Sunset'],['10','Vice Avenue'],['11','Grid Runner'],['12','Arp City'],['13','Night Cruiser'],['14','Tranquil Tides'],['15','Mall Hours'],['16','Infinity Drift'],['17','Fluid Motion'],['n1','Rooftop Rain'],['n2','Moonlit Static'],['n3','Funky Midnight Club'],['n4','Glow Lamp'],['n5','Last Train Home'],['n6','Window Seat'],['b1','Bossa Summer','Rediskasound'],['b2','Cafe Bossa','Tatamusic'],['b3','Cocktail Lounge','Alex Morgan'],['b4','Midnight Club Bossa','Alex Morgan'],['b5','Seaside Restaurant','Alex Morgan'],['b6','Bossa Nova','Aurec']];
 /* three channels: NEON FM (tracks 0-16), NIGHT CHANNEL (17-22, unlocked when you reach the first night, round 6) and BEACH CHANNEL (23-28, unlocked the first time you step onto the beach). An unlocked channel stays unlocked for the rest of the game. */
 const chanOf=i=>TRACKS[i][0][0]==='b'?2:TRACKS[i][0][0]==='n'?1:0;   // file names: 02..17 = NEON FM, n1..n6 = NIGHT, b1..b6 = BEACH
 const CHANS=[{name:'NEON FM 98.6',short:'NEON FM',col:'#fff3b0',glow:'#25f4ff'},{name:'NIGHT CHANNEL',short:'NIGHT',col:'#b79bff',glow:'#7a4cff'},{name:'BEACH CHANNEL',short:'BEACH',col:'#ffb07a',glow:'#ff5a8a'}];
@@ -2593,8 +2600,8 @@ const song=new Audio(trackURL(0));song.loop=true;song.volume=0;song.preload='aut
 let radioOn=true,radioResumed=false;
 try{   // coming back to the main menu reloads the page, so the song and its position are carried over instead of restarting
   const sv=JSON.parse(sessionStorage.getItem('ni_radio')||'null');sessionStorage.removeItem('ni_radio');
-  if(sv&&sv.i>=0&&sv.i<TRACKS.length){tIdx=sv.i;radioOn=sv.on!==false;radioResumed=true;song.src=trackURL(tIdx);song.loop=true;   // it stays as the main menu song (looping) until a game starts
-    song.addEventListener('loadedmetadata',()=>{try{if(sv.t>0&&sv.t<song.duration-1)song.currentTime=sv.t;}catch(e){}},{once:true});}
+  if(sv&&sv.i>=0&&sv.i<TRACKS.length){radioOn=sv.on!==false;radioResumed=true;song.src=trackURL(tIdx);song.loop=true;   // it stays as the main menu song (looping) until a game starts
+    }
 }catch(e){}
 function saveRadio(){try{sessionStorage.setItem('ni_radio',JSON.stringify({i:tIdx,t:song.currentTime||0,on:radioOn}));}catch(e){}}
 function radioLabel(extra){const t=TRACKS[tIdx],c=CHANS[chanOf(tIdx)];
@@ -2777,7 +2784,7 @@ function send(m){
 function begin(){
   started=true;stAdd('gm',1);checkAch();sessAch=[];if(acct)setTimeout(cloudSync,400);firstSnap=true;gameXP=0;lastK=0;$('menu').style.display='none';document.body.classList.add('playing');document.body.classList.toggle('solo',mode==='solo');
   $('room').textContent=mode==='online'?'ROOM '+roomCode+' - tell friends this code':'SOLO';
-  chanOpen=[true,false,false];if(chanOf(tIdx)!==0){tIdx=CHANS[0].a+Math.floor(Math.random()*(CHANS[0].b-CHANS[0].a));song.src=trackURL(tIdx);song._alt=false;}   // every new game starts on NEON FM with the other channels locked
+  chanOpen=[true,false,false];if(chanOf(tIdx)!==0){tIdx=CHANS[0].a;song.src=trackURL(tIdx);song._alt=false;}   // every new game starts on NEON FM with the other channels locked
   song.loop=false;startSong();actx();radioLabel('');radioPop();
   requestLock();
 }
@@ -3180,7 +3187,7 @@ function handleEvent(e){
     toast(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===3?'THE ULTIMATE ALIEN HAS ARRIVED - IT CALLS ITS SWARM':e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
     if(e[1]===4)setTimeout(()=>toast('RUMOR','3 NEON TAPES ARE HIDDEN'),3300);
   }else if(k==='clear'){
-    toast('ROUND CLEARED');
+    showCleared();
     const rr=e[1];
     if(rr>=joinRound&&myP){
       const kd=Math.max(0,myP.k-lastK);lastK=myP.k;
@@ -3337,6 +3344,7 @@ function updateWave(dt){
   const d=new THREE.Vector3();camera.getWorldDirection(d);const l=Math.hypot(d.x,d.z)||1,fx=d.x/l,fz=d.z/l;
   sd.forEach((a,i)=>{const dx=Math.cos(a),dz=Math.sin(a);wa.children[i].style.transform='rotate('+Math.atan2(dx*(-fz)+dz*fx,dx*fx+dz*fz)+'rad)';});
 }
+let clrT=0;function showCleared(){const el=$('clr');el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(clrT);clrT=setTimeout(()=>el.classList.remove('show'),2800);}
 function toast(t,sub,low){if(low&&(toastT>0||$('wave').style.display==='block'||$('contact').classList.contains('show')))return;   // area-name banners never interrupt a real announcement
   const el=$('toast');el.innerHTML=PT(t+(sub?'<small>'+sub+'</small>':''));el.classList.add('show');toastT=2.6;}
 
@@ -4624,6 +4632,11 @@ function frame(now){
       const dp=c.drv>=0?(c.drv===myId?myP:(remotes.get(c.drv)||{}).p):null;
       ud.rider.visible=!!dp&&!(id===driving&&hoodCam);
       if(dp&&dp.c!==undefined){ud.suit.color.setHex(dp.c);ud.suit.emissive.setHex(dp.c);}
+      if(ud.avSlot&&dp){   // segway / motorcycle: show the driver's real customised character (suit, hat, shades, shirt, jacket, chain, shoes, face, back)
+        const chA=dp.ch||(c.drv===myId?prof.ch:null)||[],key=(dp.c|0)+'|'+chA.join(',');
+        if(ud.avKey!==key){if(ud.av)ud.avSlot.remove(ud.av);const av=makePlayerMesh(dp.c||0xff2fa0,'',chA,true);av.scale.setScalar(0.95);if(av.children[3])av.children[3].visible=false;av.position.y=-0.1;ud.avSlot.add(av);ud.av=av;ud.avKey=key;}
+        cosTick(ud.av,elapsed);
+      }
     }
     ud.root.rotation.z+=(((id===driving&&!pax&&ud.rider)?-steerS*Math.min(1,Math.abs(cs.sp)/8)*0.28:0)-ud.root.rotation.z)*Math.min(1,dt*8);
     if(ud.rotor){const on=c.drv>=0;ud.rotor.rotation.y+=dt*(on?38:3);if(ud.tail)ud.tail.rotation.x+=dt*(on?40:3);
@@ -4801,6 +4814,7 @@ function frame(now){
   $('bFr').onclick=openFr;$('frClose').onclick=closeFr;
   if(acct){$('name').value=acct.name;cloudSync();}
   setInterval(()=>{if(acct&&!document.hidden)cloudSync();},15000);
+  $('bQuit').onclick=()=>{try{saveRadio();}catch(e){}try{window.close();}catch(e){}setTimeout(()=>{location.replace('about:blank');},150);};   // closes the window; browsers only allow that for windows a script opened, so otherwise the tab is blanked
   $('bLB').onclick=async()=>{
     $('lbp').style.display='flex';$('lbbody').textContent='Loading...';
     try{
