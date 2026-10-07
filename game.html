@@ -123,7 +123,7 @@ body.bigui #money,body.bigui #ammo,body.bigui #jet,body.bigui #roundnum,body.big
 #clr::before,#clr::after{content:'';position:absolute;left:6%;right:6%;height:5px;background:linear-gradient(90deg,transparent,#ff2fa0 15%,#ff2a3c 50%,#25f4ff 85%,transparent);box-shadow:0 0 14px #ff2fa0,0 0 24px #25f4ff}
 #clr::before{top:0}#clr::after{bottom:0}
 #clr.show{opacity:1;transform:scaleY(1)}
-#toast{position:fixed;left:50%;top:25%;transform:translate(-50%,0);white-space:normal;width:max-content;max-width:92vw;line-height:1.1;font-size:clamp(20px,3.4vw,42px);font-style:italic;font-weight:bold;letter-spacing:4px;opacity:0;transition:opacity .4s;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 10px #ff2fa0,0 0 28px #ff2fa0,0 2px 3px #000,0 0 3px #000;z-index:6}
+#toast{position:fixed;left:50%;top:25%;transform:translate(-50%,0);white-space:normal;width:max-content;max-width:92vw;line-height:1.1;font-size:clamp(26px,4.4vw,56px);font-style:italic;font-weight:bold;letter-spacing:4px;opacity:0;transition:opacity .4s;pointer-events:none;text-align:center;color:#fff;text-shadow:0 0 10px #ff2fa0,0 0 28px #ff2fa0,0 2px 3px #000,0 0 3px #000;z-index:6}
 #toast.show{opacity:1}
 #toast small{display:block;font-size:.4em;letter-spacing:3px;color:#9ffcff;text-shadow:0 0 8px #25f4ff}
 #feed{position:fixed;right:22px;top:14px;text-align:right;font-size:13px;letter-spacing:1px;pointer-events:none;color:#9ffcff;text-shadow:0 0 6px #25f4ff}
@@ -419,7 +419,7 @@ body.playing #pauseB{display:block}
   <div id="lbFoot"><button id="lbStart">START GAME</button><div id="lbHint"></div></div>
 </div></div></div>
 <div id="vsWin"><div class="vwb"><h1>YOU WIN!</h1><p>You are the last one standing.</p><h2>WHAT NEXT?</h2><small>Switch to co-op: everyone gets back up when this round ends and you keep going together. Back to lobby: end the match.</small><div class="vwbtns"><button id="vsYes">SWITCH TO CO-OP</button><button id="vsNo">BACK TO LOBBY</button></div><small id="vsHint">Y / A = co-op &nbsp;&middot;&nbsp; N / B = lobby</small></div></div>
-<div id="over"><h1>OVERRUN</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
+<div id="over"><h1>GAME OVER</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
 <div id="contact"></div><canvas id="bigmap"></canvas><div id="wave"></div><div id="waveA"></div><div id="hitdir"></div>
 <div id="dnl"></div><div id="streak"></div><div id="wxban"></div><div id="spec"></div><div id="pkbar"></div>
 <div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M mute &middot; , . prev/next song &middot; [ ] radio volume &middot; L full map &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="setClose">CLOSE (O / ESC)</button></div></div></div>
@@ -3187,6 +3187,7 @@ function handleEvent(e){
     big?sfx.boom():sfx.kill();
     {const kid=e[6],kf=kid===myId?prof.ex[5]:(((remotes.get(kid)||{}).p||{}).ex||[])[5];if(kf)kfxBurst(kf,e[1],e[2],e[3]);}
   }else if(k==='round'){if((e[1]|0)===1&&!window.__introDone){window.__introDone=1;setTimeout(()=>{toast('GREEN ARROWS ARE ALIENS','Kill them all to progress');toastT=7;},1200);}curRound=e[1]|0;stMax('br',curRound-(joinRound-1));checkAch();if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
+    lastRT=(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1]);lastRTsub=null;
     toast(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===3?'THE ULTIMATE ALIEN HAS ARRIVED - IT CALLS ITS SWARM':e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
     if(e[1]===4)setTimeout(()=>toast('RUMOR','3 NEON TAPES ARE HIDDEN'),3300);
   }else if(k==='clear'){
@@ -3280,7 +3281,7 @@ function handleEvent(e){
   }
   else if(k==='blast'){burst(e[1],e[2],e[3],0xffe63c,50,28,1.4);burst(e[1],e[2],e[3],0xff2040,30,20,1.2);sfx.boom();const d=Math.hypot(e[1]-me.x,e[3]-me.z);if(d<40)shake=Math.max(shake,0.35*(1-d/40));}
   else if(k==='heal'){burst(e[1],e[2],e[3],0x3cff9e,16,8,0.8);}
-  else if(k==='nest'){toast('ALIEN NEST','HUNT IT FOR BONUS CASH');}
+  else if(k==='nest'){toast(lastRT||'ROUND '+curRound,'ALIEN NEST SPOTTED');}
   else if(k==='shark'){toast(e[1]?'GIANT ALIEN SHARK':'ALIEN SHARK');sfx.round();}
   else if(k==='summon'){toast('THE OVERMIND SUMMONS ITS SWARM','KILL THEM OR BREAK THE BRAIN');sfx.round();burst(e[1],4,e[2],0xff4fd8,50,30,1.5);shake=Math.max(shake,0.5);}
   else if(k==='stomp'){const d=Math.hypot(e[1]-me.x,e[2]-me.z);if(d<170){sfx.stomp();shake=Math.max(shake,0.5*(1-d/170));}burst(e[1],0.5,e[2],0xff2fa0,40,24,1.2);}
@@ -3347,7 +3348,7 @@ function updateWave(dt){
   const d=new THREE.Vector3();camera.getWorldDirection(d);const l=Math.hypot(d.x,d.z)||1,fx=d.x/l,fz=d.z/l;
   sd.forEach((a,i)=>{const dx=Math.cos(a),dz=Math.sin(a);wa.children[i].style.transform='rotate('+Math.atan2(dx*(-fz)+dz*fx,dx*fx+dz*fz)+'rad)';});
 }
-let clrT=0;function showCleared(){const el=$('clr');el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(clrT);clrT=setTimeout(()=>el.classList.remove('show'),2800);}
+let lastRT='',lastRTsub=null;let clrT=0;function showCleared(){const el=$('clr');el.classList.remove('show');void el.offsetWidth;el.classList.add('show');clearTimeout(clrT);clrT=setTimeout(()=>el.classList.remove('show'),2800);}
 function toast(t,sub,low){if(low&&(toastT>0||$('wave').style.display==='block'||$('contact').classList.contains('show')))return;   // area-name banners never interrupt a real announcement
   const el=$('toast');el.innerHTML=PT(t+(sub?'<small>'+sub+'</small>':''));el.classList.add('show');toastT=2.6;}
 
@@ -4574,7 +4575,7 @@ function updateHUD(dt){
   else dw.style.display='none';
   // game over
   if(S.rd.s==='over'){
-    $('over').style.display='flex';$('over').querySelector('h1').textContent='OVERRUN';
+    $('over').style.display='flex';$('over').querySelector('h1').textContent='GAME OVER';
     if(S.rd.vs&&S.rd.vw){const w=(S.p||[]).find(p=>p.id===S.rd.vw);$('over').querySelector('h1').textContent=S.rd.vw===myId?'YOU WIN!':((w&&w.n)||'PLAYER')+' WINS!';}
     $('overP').textContent=(S.rd.vs?'LAST ONE STANDING SURVIVED ':'YOUR CREW SURVIVED ')+Math.max(0,S.rd.n-1)+' ROUND'+(S.rd.n-1===1?'':'S')+(S.rd.best?'  -  BEST '+Math.max(0,S.rd.best-1):'');
     {const rows=(S.p||[]).map(p=>({p,sc:(p.dd||0)+(p.k||0)*40+(p.rv||0)*600+(p.bk||0)*1500})).sort((a,b)=>b.sc-a.sc);
@@ -4860,7 +4861,7 @@ function frame(now){
   $('bFr').onclick=openFr;$('frClose').onclick=closeFr;
   if(acct){$('name').value=acct.name;cloudSync();}
   setInterval(()=>{if(acct&&!document.hidden)cloudSync();},15000);
-  $('bQuit').onclick=()=>{try{saveRadio();}catch(e){}try{window.close();}catch(e){}setTimeout(()=>{location.replace('about:blank');},150);};   // closes the window; browsers only allow that for windows a script opened, so otherwise the tab is blanked
+  $('bQuit').onclick=()=>{try{saveRadio();}catch(e){}try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen();}catch(e){}try{window.close();}catch(e){}setTimeout(()=>{location.replace('about:blank');},150);};   // closes the window; browsers only allow that for windows a script opened, so otherwise the tab is blanked
   $('bLB').onclick=async()=>{
     $('lbp').style.display='flex';$('lbbody').textContent='Loading...';
     try{
