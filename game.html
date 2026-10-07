@@ -483,7 +483,7 @@ body.playing #pauseB{display:block}
       <tr><td>X</td><td>reload</td></tr><tr><td>Y</td><td>use / enter + leave vehicles and the wheel / back to base between rounds</td></tr>
       <tr><td>LB / RB</td><td>switch weapon</td></tr><tr><td>L3 (click)</td><td>third-person view</td></tr>
       <tr><td>D-PAD LEFT / RIGHT</td><td>radio: previous / next song</td></tr><tr><td>D-PAD UP / DOWN</td><td>radio: next / previous channel</td></tr><tr><td>LB / RB (driving)</td><td>handbrake / hood camera</td></tr>
-      <tr><td>START</td><td>pause menu (co-op keeps running)</td></tr><tr><td>BACK (tap)</td><td>back to the starting area</td></tr><tr><td>BACK (hold) / SHARE</td><td>save a clip of the last 30 seconds</td></tr>
+      <tr><td>START</td><td>pause menu (co-op keeps running)</td></tr><tr><td>BACK / SHARE (touchpad on PS5)</td><td>save a clip of the last 30 seconds (see CLIPS on the main menu)</td></tr>
     </table></div>
   </div>
   <div style="text-align:center"><button id="howClose">CLOSE</button></div></div></div>
@@ -3241,7 +3241,7 @@ function handleEvent(e){
   else if(k==='tapesall'){sfx.round();toast('ALL 3 NEON TAPES FOUND!','+$25,000 FOR EVERYONE');}
   else if(k==='stalker'){toast('STALKER HIDING');sfx.stalk();}
   else if(k==='hunt'){if(curRound===1)toast('KILL THEM TO ADVANCE',e[1].map(t=>AT[t]?AT[t].name:'').join(' + ')+' still alive');}
-  else if(k==='nocar'){if(e[1]===myId){sfx.no();if(e[2])toast('THAT RIDE WAS WRECKED','back in the garage next round');else toast('YOU ALREADY HAVE THAT CAR OUT','only one of each ride per person');}}
+  else if(k==='nocar'){if(e[1]===myId){sfx.no();if(e[2]===2)toast('SOMEONE ELSE HAS YOUR RIDE','you can take it out again next round');else if(e[2])toast('THAT RIDE WAS WRECKED','back in the garage next round');else toast('YOU ALREADY HAVE THAT CAR OUT','only one of each ride per person');}}
   else if(k==='slot'){slotResult(e);}
   else if(k==='roul'){roulResult(e);}
   else if(k==='stalk'){const o=aliensM.get(e[1]);if(o&&Math.hypot(o.x-me.x,o.z-me.z)<60){sfx.stalk();}}
@@ -3693,7 +3693,7 @@ addEventListener('mousemove',e=>{
 });
 /* ---------- controller (Gamepad API, standard mapping) ----------
    Left stick move/steer | Right stick look | RT fire | LT reload/refuel | Y jump/jet up, hold A sprint | B hover
-   X use/revive | Y jump | LB/RB weapon | L3 click third-person view | D-pad: left/right=radio track, up/down=radio channel | BACK=back to base (hold = clip) | Share/touchpad=clip | Start=pause */
+   X use/revive | Y jump | LB/RB weapon | L3 click third-person view | D-pad: left/right=radio track, up/down=radio channel | BACK/Share=clip | Share/touchpad=clip | Start=pause */
 /* ---- controller awareness: the on-screen hints switch to the pad's own button names as soon as you touch it ---- */
 let usingPad=false,padType='xbox',lastUP=null;
 const PADN={
@@ -3722,7 +3722,7 @@ function PT(s){
 }
 function padTable(){
   const R=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
-  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'hold to run (gas while driving)')+R(PB('b'),'jump / jetpack (brake while driving)')+R(PB('x'),'reload (horn beep in a vehicle)')+R(PB('y'),'use: buy, enter / leave cars and the wheel, revive (hold) / back to base between rounds')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3')+' (click)','third-person view')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('lb')+' / '+PB('rb')+' (driving)','handbrake / hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back')+' (tap)','back to the starting area')+R(PB('back')+' (hold) / SHARE','save a clip of the last 30 seconds')+R(PB('r3'),'full map');
+  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'hold to run (gas while driving)')+R(PB('b'),'jump / jetpack (brake while driving)')+R(PB('x'),'reload (horn beep in a vehicle)')+R(PB('y'),'use: buy, enter / leave cars and the wheel, revive (hold) / back to base between rounds')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3')+' (click)','third-person view')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('lb')+' / '+PB('rb')+' (driving)','handbrake / hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back')+' / '+(padType==='ps'?'TOUCHPAD':'SHARE'),'save a clip of the last 30 seconds (see CLIPS on the main menu)')+R(PB('r3'),'full map');
 }
 function refreshPadUI(){
   const key=usingPad+padType;if(lastUP===key)return;lastUP=key;try{radioLabel();}catch(e){}
@@ -3935,8 +3935,7 @@ function pollPad(dt){
   if(edge(10))toggleTpv();   // click the left stick = third-person view (fullscreen is a checkbox in Settings, or G on a keyboard)
   if(edge(5)&&driving>=0)hoodCam=!hoodCam;
   if(edge(11))toggleBigMap();
-  if(edge(17))clipSave();   // Share button (Xbox Series) / touchpad click (PS5) = save a clip
-  if(B(8)){backHold+=dt;if(backHold>=0.7&&!backDone){backDone=true;clipSave();}}else{if(backHold>0&&backHold<0.7&&!backDone)goBase();backHold=0;backDone=false;}   // tap BACK / VIEW = back to the starting area, hold it = save a clip
+  if(edge(17)||edge(8))clipSave();   // Share button / touchpad and BACK / VIEW = save a clip (going back to base is Y between rounds)
   if(edge(9)&&(mode==='solo'||mode==='online')){setPause(!userPause);}
   padPrev=gp.buttons.map(b=>b.pressed);
 }

@@ -424,3 +424,10 @@ Every buff now has 4 tiers (each tier needs the previous one). Prices: $2,500 / 
 
 ## Menu icons
 - The main menu's ACHIEVEMENTS button is now a trophy icon and SETTINGS is a gear icon (both keep tooltips and screen-reader labels).
+
+## Vehicles and controller changes
+- The controller BACK / VIEW button no longer goes back to base; it saves a clip (same as the Share button and F9). Going back to base between rounds is Y (keyboard Y).
+- Heading back to base removes the vehicles you own.
+- Going back to base is only possible between rounds, so a ride sent home that way can be taken out again right away. A wrecked ride still waits until next round. Buying a ride is still a one-time cost.
+- The last person to drive a ride owns it, so someone else heading to base can no longer despawn the ride you are in.
+- If someone else takes over a ride you spawned (they become the last driver), you cannot spawn another copy of that ride until the next round.

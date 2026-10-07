@@ -922,6 +922,9 @@ class Game{
       case 'base':{   // between rounds: teleport back to the starting plaza (server-side so cars / helis / the wheel can't desync it)
         if(this.state!=='rest'||this.round<1||p.st!=='alive')break;
         if(p.car>=0)this.leaveCar(p);
+        for(let i=this.cars.length-1;i>=0;i--){const c=this.cars[i];if(c.own!==p.id)continue;   // your rides vanish when you head back to base
+          for(const id of [c.drv,...(c.pax||[])]){const q=this.players.get(id);if(q&&q.car===c.id)q.car=-1;}
+          this.cars.splice(i,1);}
         p.car=-1;p.x=-15;p.z=-15;p.y=EYE;
         this.push('tp',p.id,-15,-15);
         break;
@@ -1094,6 +1097,7 @@ class Game{
       if(!owned&&p.money<CARS[t].cost)return;
       if(this.cars.length>=8)return;
       if(p.vcd&&(p.vcd[t]|0)>this.round){this.push('nocar',p.id,1);return;}   // wrecked: one round cooldown
+      if(p.vlent&&p.vlent[t]===this.round){this.push('nocar',p.id,2);return;}   // someone else took over your ride: wait for the next round
       if(this.cars.some(c=>c.own===p.id&&c.t===t)){this.push('nocar',p.id);return;}   // only one of each car per person at a time
       const sp=GARAGE_SPAWNS[g.c];
       let z=sp.z,tries=0;
@@ -1248,7 +1252,7 @@ class Game{
     this.sides=null;
     this.aliens.length=0;this.orbs.length=0;this.cars.length=0;this.queue.length=0;this.clouds.length=0;this.crabs.length=0;this.crabT=0;
     for(const p of this.players.values()){
-      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.vcd={};p.dd=0;p.rvd=0;p.dn=0;p.dt=0;p.bk=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
+      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.vcd={};p.vlent={};p.dd=0;p.rvd=0;p.dn=0;p.dt=0;p.bk=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
     this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.fires.length=0;this.mbox=Object.assign({},WORLD.mbox0);this.mboxUsed={};this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.vsWin=null;this.vsKeep=false;this.vsWinner=0;this.vsN=0;this.push('reset');
   }
@@ -1990,6 +1994,7 @@ class Game{
       const c=this.cars[i];
       c.pax=(c.pax||[]).filter(id=>{const q=this.players.get(id);return q&&q.st==='alive'&&q.car===c.id;});
       if(c.drv>=0){const q=this.players.get(c.drv);if(!q||q.st!=='alive'||q.car!==c.id)c.drv=-1;}
+      if(c.drv>=0&&c.own!==c.drv&&this.players.has(c.drv)){const o0=this.players.get(c.own);if(o0){o0.vlent=o0.vlent||{};o0.vlent[c.t]=this.round;}c.own=c.drv;}   // the previous owner can't spawn a second copy until next round   // the last person to drive a ride owns it (so someone else heading to base won't despawn it)
       if(c.drv<0&&c.pax.length)c.drv=c.pax.shift();   // first one in drives
       for(const id of c.pax){const q=this.players.get(id);q.x=c.x;q.z=c.z;q.y=EYE+(c.y||0);}
       if(CARS[c.t].gun){   // gunship + tank ammo: land and sit still for a few seconds to recharge
