@@ -1032,7 +1032,7 @@ class Game{
 
   onBuy(p,m){
     if(p.st!=='alive'||p.car>=0)return;
-    const near=k=>SHOP.find(s=>s.k===k&&Math.hypot(s.x-p.x,s.z-p.z)<6);
+    const near=k=>SHOP.find(s=>s.k===k&&Math.hypot(s.x-p.x,s.z-p.z)<5.9);
     if(m.k==='wpn'){
       if(!near('armory'))return;
       const w=m.id|0;if(!WPN[w])return;
@@ -1961,6 +1961,14 @@ class Game{
         }
       }
     }
+    {const C=WORLD.casino;   // the casino is a safe zone: aliens (ground and flying) cannot enter it - they are pushed back out through the nearest wall
+      if(C)for(const a of this.aliens){
+        const h=C.half+a.r*0.6,dx=a.x-C.x,dz=a.z-C.z;
+        if(Math.abs(dx)<h&&Math.abs(dz)<h&&a.y<14){
+          const ex=h-Math.abs(dx),ez=h-Math.abs(dz);
+          if(ex<ez)a.x=C.x+(dx<0?-h:h);else a.z=C.z+(dz<0?-h:h);
+        }
+      }}
     for(const a of this.aliens.slice()){
       if(!(a.burn>0)||a.hp<=0)continue;
       a.burn-=dt;a.burnT=(a.burnT||0)-dt;

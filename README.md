@@ -354,3 +354,9 @@ The sea now has a shallow-to-deep colour gradient, scrolling ripple and sparkle 
 
 - The main menu and the first game song are now "Palm Tree Pursuit". A bright red ROUND CLEARED banner flashes the moment the last enemy dies. The main menu has a CLOSE GAME button under the online leaderboard.
 - ROUND CLEARED is now a retro gradient banner (hot pink to orange with a dark band and neon lines) that stays readable on any background. Drivers on the segway and motorcycle now show their own customised character (suit, hat, shades, shirt, jacket, chain, face and back item).
+
+## Shop preview box
+Hovering a weapon in the armory or a vehicle in the garage shows a spinning 3D model in a box beside the menu. Character buffs show a short label such as +HEALTH or +SPEED instead. Shop interaction range was tightened slightly (about 6.5 down to 5.4).
+
+## Casino safe zone
+Aliens (ground and flying) can no longer enter the casino; they are pushed back out through the wall. A "SAFE ZONE" banner pops up when you walk in and stays as a small badge while you are inside. The shop preview box is also larger.
