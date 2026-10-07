@@ -432,3 +432,5 @@ Every buff now has 4 tiers (each tier needs the previous one). Prices: $2,500 / 
 - The last person to drive a ride owns it, so someone else heading to base can no longer despawn the ride you are in.
 - If someone else takes over a ride you spawned (they become the last driver), you cannot spawn another copy of that ride until the next round.
 - Clip watermark is now the main-menu logo (same gradient and glow), placed near the top of the vertical video so the YouTube / TikTok title overlay at the bottom doesn't cover it.
+- Clip logo moved up a little and given a thick black outline so it reads over the sky; the mini HUD moved up out of the bottom area that video titles cover.
+- Clip layout final: the logo sits higher up and a bit smaller (72% size); the round / cash / health bar is back at the bottom where it was.

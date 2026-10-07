@@ -4705,7 +4705,8 @@ function clipMakeLogo(){   // the same gradient + glow as the main-menu title, d
   let fs=96;k.font='italic 900 '+fs+'px '+fam;try{k.letterSpacing='6px';}catch(e){}
   const tw=k.measureText('NEON INVASION').width;if(tw>W-40){fs=Math.floor(fs*(W-40)/tw);k.font='italic 900 '+fs+'px '+fam;}
   const gr=k.createLinearGradient(0,H/2-fs*0.45,0,H/2+fs*0.45);gr.addColorStop(0,'#fff3b0');gr.addColorStop(0.35,'#ff9a3c');gr.addColorStop(0.7,'#ff2fa0');gr.addColorStop(1,'#a56bff');
-  k.textAlign='center';k.textBaseline='middle';k.shadowColor='rgba(255,47,160,.85)';k.shadowBlur=18;k.fillStyle=gr;k.fillText('NEON INVASION',W/2,H/2);k.shadowBlur=0;k.fillText('NEON INVASION',W/2,H/2);
+  k.textAlign='center';k.textBaseline='middle';k.lineJoin='round';k.lineWidth=Math.round(fs*0.16);k.strokeStyle='#000';k.strokeText('NEON INVASION',W/2,H/2);   // thick black outline so it reads over the pink sky
+  k.shadowColor='rgba(255,47,160,.85)';k.shadowBlur=14;k.fillStyle=gr;k.fillText('NEON INVASION',W/2,H/2);k.shadowBlur=0;k.fillText('NEON INVASION',W/2,H/2);
   CLIP.logo=c;
 }
 function clipFrame(){
@@ -4714,7 +4715,7 @@ function clipFrame(){
   const cw=canvas.width,ch=canvas.height;let sh=ch,sw=ch*9/16;if(sw>cw){sw=cw;sh=cw*16/9;}
   const x=CLIP.cx;x.drawImage(canvas,(cw-sw)/2,(ch-sh)/2,sw,sh,0,0,720,1280);
   if(SET.clipHud&&myP&&S&&S.rd){
-    x.save();x.textAlign='left';x.font='900 40px "Arial Black",Impact,sans-serif';x.lineJoin='round';x.lineWidth=8;x.strokeStyle='#000';
+    x.save();x.textAlign='left';x.font='900 40px "Arial Black",Impact,sans-serif';x.lineJoin='round';x.lineWidth=10;x.strokeStyle='#000';
     const t='ROUND '+Math.max(1,S.rd.n|0);x.strokeText(t,28,1140);x.fillStyle='#fff3b0';x.fillText(t,28,1140);
     const m='$'+Math.round(myP.m||0).toLocaleString();x.textAlign='right';x.strokeText(m,692,1140);x.fillStyle='#3cff9e';x.fillText(m,692,1140);
     const hp=Math.max(0,Math.min(1,(myP.hp||0)/(myP.mh||100)));x.fillStyle='rgba(0,0,0,.6)';x.fillRect(28,1160,664,22);x.fillStyle=hp<0.3?'#ff2f4f':'#ff2fa0';x.fillRect(30,1162,660*hp,18);
@@ -4722,7 +4723,7 @@ function clipFrame(){
     x.restore();
   }
   if(!CLIP.logo)clipMakeLogo();
-  x.globalAlpha=0.95;x.drawImage(CLIP.logo,(720-CLIP.logo.width)/2,150);x.globalAlpha=1;   // the menu logo, up top (the bottom is covered by the video title on YouTube / TikTok)
+  x.globalAlpha=0.95;{const lw=CLIP.logo.width*0.72,lh=CLIP.logo.height*0.72;x.drawImage(CLIP.logo,(720-lw)/2,72,lw,lh);}x.globalAlpha=1;   // the menu logo, up top (the bottom is covered by the video title on YouTube / TikTok)
 }
 /* ---- saved clips (IndexedDB, newest 12 kept) ---- */
 var CLIPDB=null;
