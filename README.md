@@ -442,3 +442,10 @@ A normal (non-boss) alien with a good chunk of health that glides toward you **f
 - **Notes:** it throws glowing music notes in a rhythm (three quick, then a rest).
 - **Sound:** a synthesised high-pitched "hee-hee" yelp made from the game's own oscillators, plus note and chime sounds. Nothing sampled.
 - Snapshot alien entry gets a 15th field (move state). New events: `moon`, `moonnote`, `moonring`, `mblock`, `kb`. New orb code 10 (note). Alien types 28 (moonwalker) and 29 (backup dancer).
+
+## Local Splitscreen (Demo)
+New orange **LOCAL SPLITSCREEN (DEMO)** button on the home screen, under Create / Join Room. Two players share one screen and one game.
+- **How it works:** the page opens in "console" mode (`game.html?split=host`). It runs one shared game simulation and shows two panes (side by side on wide screens, stacked on tall ones). Each pane is a normal game client (`game.html?pane=1` and `?pane=2`) with its own camera, HUD, menus and shop, talking to the shared simulation instead of a server.
+- **Controls:** with two controllers, player 1 gets the first and player 2 the second (player 1 can also use keyboard and mouse). With one controller it goes to player 2, and player 1 plays on keyboard and mouse. Click inside the game once for player 1's mouse look.
+- **Rules:** works like online co-op: revives, shared aliens, vehicles with passengers, separate money. The game starts by itself and restarts after a game over. Opening the pause menu in either pane freezes the game. EXIT (or Quit in the pause menu) goes back to the main menu.
+- **Demo limits:** player 2 never saves XP or logs in to an account. Music only plays in pane 1. It draws the world twice, so it is heavier than normal play. Clips and the online leaderboard are off in splitscreen.

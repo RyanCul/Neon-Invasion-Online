@@ -274,6 +274,8 @@ body.playing #pauseB{display:block}
 #menu p{margin:3px 0;font-size:clamp(12px,1.5vw,16px);color:#e9d7ff;max-width:640px}
 #menu input{font:inherit;font-size:16px;letter-spacing:2px;padding:9px 12px;background:#1a0b33;color:#fff;border:2px solid #25f4ff;box-shadow:0 0 10px rgba(37,244,255,.5);text-align:center;width:min(300px,80vw);margin:5px;outline:none;text-transform:uppercase}
 #menu input#name{border-color:#ff2fa0;box-shadow:0 0 12px #ff2fa0}
+#menu button#bSplit{background:linear-gradient(#ff9a2a,#c24d00);border-color:#ffd9a8;box-shadow:0 0 14px #ff8a1a;color:#fff;font-size:clamp(14px,1.8vw,20px);letter-spacing:1px}
+body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpane #pClips{display:none!important}
 #menu button#bQuit{background:linear-gradient(#ff4a5a,#a01428);border-color:#ffc0c8;box-shadow:0 0 14px #ff3048;color:#fff}
 #menu button#bLB{background:linear-gradient(#39ff6a,#12a83a);border-color:#c8ffd6;box-shadow:0 0 14px #39ff6a;color:#06210f}
 #menu input#url{text-transform:none;width:min(380px,90vw);font-size:13px}
@@ -451,7 +453,7 @@ body.playing #pauseB{display:block}
     <div style="margin-top:14px;color:#9ffcff;letter-spacing:5px;font-size:18px">ONLINE CO-OP (up to 8 players)</div>
     <input id="room_in" maxlength="6" placeholder="ROOM CODE (OPTIONAL)"><br>
     <input id="url" placeholder="server address" style="display:none">
-    <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button><br><button class="c sm" id="bQuit">CLOSE GAME</button>
+    <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="big" id="bSplit">LOCAL SPLITSCREEN (DEMO)</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button><br><button class="c sm" id="bQuit">CLOSE GAME</button>
     <div id="msg"></div>
   </div>
   <a id="discord" href="https://discord.gg/XvD5KQjDZr" target="_blank" rel="noopener">JOIN THE OFFICIAL DISCORD</a>
@@ -505,7 +507,90 @@ body.playing #pauseB{display:block}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="shared.js"></script>
 <script>
+/* ---- LOCAL SPLITSCREEN (demo) ----
+   ?split=host  -> this page becomes the "console": it runs the one shared game simulation and shows two panes.
+   ?pane=1/2    -> a normal game client that plays one of the two players, inside a pane. Gamepads are read here in the host and forwarded. */
 (function(){
+  var paneM=/[?&]pane=(\d)/.exec(location.search);
+  if(paneM){
+    window.__PANE=+paneM[1];
+    if(window.__PANE===2){try{var gi=Storage.prototype.getItem;Storage.prototype.setItem=function(){};Storage.prototype.getItem=function(k){return /acct/.test(k)?null:gi.call(this,k);};}catch(e){}}   // player 2 never saves progress or logs into the account
+    var fp=null;
+    navigator.getGamepads=function(){return [fp,null,null,null];};
+    window.__padSet=function(d){
+      var was=!!fp;
+      if(!d){fp=null;return;}
+      fp={id:d.id,index:0,connected:true,mapping:d.mapping||'standard',timestamp:performance.now(),axes:d.axes,buttons:d.buttons.map(function(b){return {pressed:!!b[0],touched:!!b[0],value:b[1]};})};
+      if(!was){try{var ev=new Event('gamepadconnected');ev.gamepad=fp;window.dispatchEvent(ev);}catch(e){}}
+    };
+    return;
+  }
+  if(!/[?&]split=host/.test(location.search))return;
+  window.__SPLITHOST=true;
+  var NIg=window.NI;if(!NIg)return;
+  document.body.innerHTML='';document.title='Neon Invasion - Local Splitscreen';
+  var st=document.createElement('style');
+  st.textContent='html,body{margin:0;height:100%;background:#05000f;overflow:hidden;font-family:sans-serif}#shw{position:fixed;inset:0}#shw iframe{position:absolute;border:0;background:#05000f}#shw .div{position:absolute;background:linear-gradient(#ff2fa0,#25f4ff);box-shadow:0 0 12px #ff2fa0;z-index:3;pointer-events:none}#shw .tag{position:absolute;z-index:4;pointer-events:none;color:#fff;background:rgba(10,0,30,.7);border:1px solid #25f4ff;padding:4px 10px;font-size:12px;letter-spacing:2px;font-weight:bold;transition:opacity 1s}#shw .tag.p2{border-color:#ff9a2a}#shw button{position:absolute;z-index:5;background:#a01428;color:#fff;border:1px solid #ffc0c8;padding:4px 10px;font-size:11px;letter-spacing:2px;cursor:pointer}';
+  document.head.appendChild(st);
+  var root=document.createElement('div');root.id='shw';document.body.appendChild(root);
+  function mk(n){var f=document.createElement('iframe');f.id='sp'+n;f.setAttribute('allow','autoplay; gamepad; fullscreen; clipboard-write');f.src='game.html?pane='+n;root.appendChild(f);return f;}
+  var f1=mk(1),f2=mk(2);f2.style.pointerEvents='none';
+  var dv=document.createElement('div');dv.className='div';root.appendChild(dv);
+  var t1=document.createElement('div'),t2=document.createElement('div');t1.className='tag';t2.className='tag p2';root.appendChild(t1);root.appendChild(t2);
+  var ex=document.createElement('button');ex.textContent='EXIT';root.appendChild(ex);ex.onclick=function(){location.href=location.pathname;};
+  function layout(){
+    var W=innerWidth,H=innerHeight,g=4,side=W>=H;
+    function put(f,x,y,w,h){f.style.left=x+'px';f.style.top=y+'px';f.style.width=w+'px';f.style.height=h+'px';}
+    if(side){var w=Math.floor((W-g)/2);put(f1,0,0,w,H);put(f2,w+g,0,W-w-g,H);dv.style.cssText='left:'+w+'px;top:0;width:'+g+'px;height:'+H+'px';t1.style.cssText='left:8px;top:8px';t2.style.cssText='left:'+(w+g+8)+'px;top:8px';ex.style.cssText='left:'+(w-22)+'px;top:'+(H-34)+'px';}
+    else{var h=Math.floor((H-g)/2);put(f1,0,0,W,h);put(f2,0,h+g,W,H-h-g);dv.style.cssText='left:0;top:'+h+'px;width:'+W+'px;height:'+g+'px';t1.style.cssText='left:8px;top:8px';t2.style.cssText='left:8px;top:'+(h+g+8)+'px';ex.style.cssText='left:'+(W-70)+'px;top:'+(h-12)+'px';}
+  }
+  layout();addEventListener('resize',layout);
+  function focus1(){try{f1.contentWindow.focus();}catch(e){}}
+  addEventListener('mousedown',focus1);addEventListener('focus',focus1);f1.addEventListener('load',focus1);
+  var frames=[null,f1,f2],joined={},paused={1:false,2:false},startT=0,startedOnce=false;
+  function post(n,o){try{frames[n].contentWindow.postMessage(o,'*');}catch(e){}}
+  var game=new NIg.Game({all:function(m){post(1,{ni:'h2c',m:m});post(2,{ni:'h2c',m:m});
+    if(m&&m.t==='snap'&&m.rd&&m.rd.s==='wait'&&joined[1]&&joined[2]&&!startT){startT=setTimeout(function(){startT=0;game.onMsg(1,{t:'start'});},startedOnce?4000:1500);startedOnce=true;}}},{online:true});
+  window.__sg=game;
+  addEventListener('message',function(e){
+    var d=e.data;if(!d||!d.ni)return;var n=d.pane|0;
+    if(d.ni==='c2h'){
+      var m;try{m=JSON.parse(d.d);}catch(x){return;}
+      if(!m||typeof m!=='object'||(n!==1&&n!==2))return;
+      if(m.t==='join'){
+        if(joined[n])return;joined[n]=true;
+        var nm=String(m.name||'PLAYER').replace(/[^\w \-]/g,'').trim().slice(0,12).toUpperCase()||('PLAYER '+n);
+        game.addPlayer(n,nm);game.setProfile(n,m.lv,m.sk,m.ck,m.ch,m.ex,m.ach);
+        post(n,{ni:'h2c',m:{t:'joined',id:n,room:'LOCAL'}});
+        return;
+      }
+      if(joined[n])game.onMsg(n,m);
+    }else if(d.ni==='pause'){paused[n]=!!d.v;}
+    else if(d.ni==='exit'){location.href=location.pathname;}
+  });
+  var last=Date.now();
+  setInterval(function(){var now=Date.now(),dt=Math.min(0.1,(now-last)/1000);last=now;if(paused[1]||paused[2])return;try{game.tick(dt);}catch(e){console.error('tick error',e);}},33);
+  setTimeout(function(){if(!(joined[1]&&joined[2])&&!startT&&(joined[1]||joined[2])){game.onMsg(joined[1]?1:2,{t:'start'});}},20000);   // fallback: one pane never loaded
+  // forward gamepads: with two controllers each player gets one (player 1 can also use the keyboard); with one controller it goes to player 2
+  var padN=-1;
+  function ser(g){return {id:g.id,mapping:g.mapping,axes:Array.prototype.slice.call(g.axes),buttons:Array.prototype.map.call(g.buttons,function(b){return [b.pressed?1:0,b.value];})};}
+  function pump(){
+    requestAnimationFrame(pump);
+    var all=navigator.getGamepads?Array.prototype.slice.call(navigator.getGamepads()):[],pads=all.filter(function(g){return g&&g.connected;});
+    var p1=pads.length>=2?pads[0]:null,p2=pads.length>=2?pads[1]:(pads[0]||null);
+    post(1,{ni:'h2c',pad:p1?ser(p1):null});post(2,{ni:'h2c',pad:p2?ser(p2):null});
+    if(pads.length!==padN){padN=pads.length;
+      t1.textContent='P1 - KEYBOARD + MOUSE'+(padN>=2?' OR CONTROLLER':'');
+      t2.textContent=padN?'P2 - CONTROLLER':'P2 - CONNECT A CONTROLLER AND PRESS A BUTTON';
+      t1.style.opacity=t2.style.opacity=1;clearTimeout(pump.h);pump.h=setTimeout(function(){if(padN){t1.style.opacity=t2.style.opacity=0;}},9000);}
+  }
+  pump();
+})();
+</script>
+<script>
+(function(){
+if(window.__SPLITHOST)return;
+const PANE=window.__PANE|0;
 if(typeof THREE==='undefined'||typeof NI==='undefined'){document.getElementById('err').style.display='flex';return;}
 const EYE=NI.EYE;
 const {WPN,CARS,AT,B,STATIONS,GARAGE_SPAWNS,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,BOUNDS}=NI;
@@ -2974,6 +3059,7 @@ $('lbMode').onclick=()=>{if(inLobby()&&S.rd.h===myId)setVs(!S.rd.vs);};   // one
 $('lbBack').onclick=()=>returnToMenu();
 $('vsYes').onclick=()=>send({t:'keep'});$('vsNo').onclick=()=>send({t:'quit'});
 function returnToMenu(){
+  if(PANE){try{parent.postMessage({ni:'exit',pane:PANE},'*');}catch(e){}return;}   // splitscreen: the host page takes us back to the main menu
   saveRadio();
   try{commitPending();}catch(e){}
   try{if(ws)ws.onclose=null,ws.close();}catch(e){}
@@ -3492,6 +3578,7 @@ function setPause(v){
   $('pInv').style.display=mode==='online'&&roomCode?'block':'none';$('pTitle').textContent=mode==='solo'?'PAUSED':'MENU';$('pNote').style.display=(v&&mode==='online')?'block':'none';
   if(v){for(const k in keys)keys[k]=false;mouseDown=false;aiming=false;}
   if(v){try{document.exitPointerLock();}catch(e){}$('lock').style.display='none';}else if(started)requestLock();
+  if(PANE){try{parent.postMessage({ni:'pause',pane:PANE,v:userPause},'*');}catch(e){}}   // splitscreen: the shared game freezes while either player has the menu open
 }
 $('pauseB').onclick=()=>setPause(true);$('pResume').onclick=()=>setPause(false);
 $('lbInv').onclick=e=>{e.stopPropagation();copyInvite($('lbInv'));};$('pInv').onclick=()=>copyInvite($('pInv'));$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
@@ -5073,6 +5160,7 @@ function frame(now){
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;$('slClose').onclick=closeSlots;$('rlClose').onclick=closeRoul;$('rlSpin').onclick=rlSpin;$('rlM').onclick=()=>{rlNumV=(rlNumV+36)%37;rlRender();};$('rlP').onclick=()=>{rlNumV=(rlNumV+1)%37;rlRender();};$('slSpin').onclick=slSpin;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
+  $('bSplit').onclick=()=>{getName();location.href=location.pathname+'?split=host';};
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
   /* ---------- friends panel ---------- */
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -5162,6 +5250,26 @@ window.__ni={get S(){return S;},get busGain(){return _bus?+_bus.gain.value.toFix
   get driving(){return driving;},get solo(){return solo;},get mode(){return mode;},get curW(){return curW;},ammo,
   fakeLock(){locked=true;wasLocked=true;},send,interact,selectWeapon,setFire(v){mouseDown=v;mousePressed=v?0.15:0;}};
 requestAnimationFrame(frame);
+if(PANE){   // LOCAL SPLITSCREEN pane: play as player PANE through a fake connection to the host page
+  document.body.classList.add('splitpane');
+  SET.clip=false;if(PANE===2)SET.music=0;
+  mode='online';
+  const nm=PANE===1?(()=>{try{return(localStorage.getItem('ni_name')||'PLAYER').toUpperCase().slice(0,12);}catch(e){return 'PLAYER';}})():'PLAYER 2';
+  myName=nm;
+  ws={readyState:1,send:s=>{try{parent.postMessage({ni:'c2h',pane:PANE,d:s},'*');}catch(e){}},close(){}};
+  addEventListener('message',e=>{
+    const d=e.data;if(!d||d.ni!=='h2c')return;
+    if(d.pad!==undefined){
+      window.__padSet(d.pad);
+      if(d.pad&&PANE===1&&d.pad.buttons.some(b=>b[0]))$('lock').style.display='none';   // a controller press counts as "click to play"
+      return;}
+    const m=d.m;if(!m)return;
+    if(m.t==='joined'){myId=m.id;roomCode='';begin();$('room').textContent='LOCAL SPLITSCREEN - PLAYER '+PANE;
+      if(PANE===1)setTimeout(()=>{if(!locked&&!(pad.on&&performance.now()-pad.t<4000))$('lock').style.display='flex';},500);}
+    else onServer(m);
+  });
+  ws.send(JSON.stringify({t:'join',room:'LOCAL',name:nm,lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch,ex:prof.ex,ach:prof.ach}));
+}
 })();
 </script>
 </body>
