@@ -414,3 +414,13 @@ Every buff now has 4 tiers (each tier needs the previous one). Prices: $2,500 / 
 ## Small tweaks
 - Purple (rare) drops pay about 50% more than the last patch (still well under the original).
 - Mini boss pop-ups no longer have subtitle lines (Pizza Alien, Pirate, Carnival, Cleopatra, Slugger, Movie ticket); just the title shows.
+
+## Clips
+- A rolling recorder keeps your last 30-60 seconds as a vertical 9:16 video (720x1280, 30 fps, game audio + radio, optional mic). Two MediaRecorders run 30 s apart so the older one always holds at least 30 s.
+- Save a clip with F9, the Share button / PS5 touchpad (controller button 17) or by holding BACK/VIEW for 0.7 s (a tap still goes back to base). The newest 12 clips are stored in the browser (IndexedDB).
+- The main menu has a CLIPS button where the FRIENDS button was (the friends code is still there, just hidden); the pause menu has one too. The screen plays, saves (download) and shares (phone share sheet where supported) or deletes clips.
+- Settings: CLIP RECORDER (on by default only on desktops with 6+ cores), RECORD MY MIC IN CLIPS (off by default), SHOW A MINI HUD IN CLIPS. Clips carry a small NEON INVASION watermark.
+- The HOW TO PLAY and controller tables list the new buttons. Works in Chrome, Edge, Firefox and Chrome for Android; Safari support is limited.
+
+## Menu icons
+- The main menu's ACHIEVEMENTS button is now a trophy icon and SETTINGS is a gear icon (both keep tooltips and screen-reader labels).

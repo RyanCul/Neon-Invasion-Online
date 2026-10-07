@@ -220,7 +220,18 @@ body.playing #pauseB{display:block}
 #menu h2.sub{font-size:clamp(13px,1.9vw,24px);letter-spacing:4px;margin:6px 0 4px;font-style:italic;text-shadow:0 0 14px #25f4ff,0 0 30px #25f4ff}
 #menu h1{margin-top:0;font-size:clamp(32px,min(6.4vw,11vh,calc((100vw - 520px)/10.5)),120px)}
 #menu{justify-content:safe center;padding-top:16px}
-#menu button.tb#bFr{display:flex;align-items:center;justify-content:center;gap:7px;width:clamp(130px,12vw,166px);background:linear-gradient(180deg,#ff4fb4,#c01a84);border:2px solid #ffd0ee;color:#fff;box-shadow:0 0 14px rgba(255,47,160,.7)}#menu button.tb#bFr svg{filter:drop-shadow(0 0 3px #fff)}
+#menu button.tb#bClips{display:flex;align-items:center;justify-content:center;gap:7px;width:clamp(130px,12vw,166px);background:linear-gradient(180deg,#ff4fb4,#c01a84);border:2px solid #ffd0ee;color:#fff;box-shadow:0 0 14px rgba(255,47,160,.7)}#menu button.tb#bClips svg{filter:drop-shadow(0 0 3px #fff)}
+#clipsP{position:fixed;inset:0;display:none;background:rgba(10,0,25,.94);z-index:14;overflow:auto;padding:14px;text-align:center}
+#clipsP h2{margin:0 0 4px;font-size:clamp(24px,4vw,38px);font-style:italic;letter-spacing:5px;color:#fff3b0;text-shadow:0 0 10px #ff9a3c}
+#clipsP .sub{font-size:12px;letter-spacing:2px;opacity:.75;margin-bottom:10px}
+#clipsBody{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:1100px;margin:0 auto}
+#clipsP .cc{width:170px;background:#12062a;border:2px solid #6a52b0;padding:6px}
+#clipsP .cc img,#clipsP .cc video{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:#000;cursor:pointer}
+#clipsP .cm{font-size:11px;letter-spacing:1px;margin:5px 0;color:#fff3b0}
+#clipsP button{font:inherit;font-size:12px;font-weight:bold;letter-spacing:2px;padding:6px 10px;margin:2px;cursor:pointer;color:#fff;background:linear-gradient(#ff2fa0,#a5207a);border:2px solid #ffb3d9}
+#clipsP button.g{background:#2a1a50;border-color:#6a52b0}
+#clipsP button.c{background:linear-gradient(#1fa9b8,#0b5f78);border-color:#9ffcff}
+
 #topbtns{position:fixed;right:18px;top:16px;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;z-index:9;max-width:70vw}
 #menu button.tb{width:clamp(96px,9vw,126px);height:40px;margin:0;padding:0;font-size:clamp(10px,1vw,13px);font-style:normal;letter-spacing:1px;background:rgba(20,5,45,.8);border:2px solid #25f4ff;box-shadow:none}
 #nameLab{font-size:18px;letter-spacing:6px;color:#ff2fa0;text-shadow:0 0 10px rgba(255,47,160,.55);margin-bottom:2px}
@@ -230,7 +241,7 @@ body.playing #pauseB{display:block}
 #menu #lvbox .xb{height:28px;border-width:3px;margin:4px 0}
 #menu #nameLab{font-size:16px;letter-spacing:6px}
 #lvbtns{display:flex;gap:6px;flex-wrap:nowrap;width:max-content}
-#menu button.sm#bCust,#menu button.sm#bFr,#menu button.sm#bAch{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
+#menu button.sm#bAch{padding:6px 14px}#menu button.sm#bCust,#menu button.sm#bFr,#menu button.sm#bAch{margin:2px 0 6px;width:auto;margin-right:0;padding:8px 12px;font-size:12px;white-space:nowrap}
 #roul{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.88);z-index:15;color:#fff;text-align:center}
 #roul .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 28px #25f4ff;padding:18px 28px;min-width:360px;max-width:520px}
 #roul h2{margin:0 0 4px;letter-spacing:5px;color:#ffe63c}
@@ -422,15 +433,15 @@ body.playing #pauseB{display:block}
 <div id="over"><h1>GAME OVER</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
 <div id="contact"></div><canvas id="bigmap"></canvas><div id="wave"></div><div id="waveA"></div><div id="hitdir"></div>
 <div id="dnl"></div><div id="streak"></div><div id="wxban"></div><div id="spec"></div><div id="pkbar"></div>
-<div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M mute &middot; , . prev/next song &middot; [ ] radio volume &middot; L full map &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="setClose">CLOSE (O / ESC)</button></div></div></div>
+<div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M mute &middot; , . prev/next song &middot; [ ] radio volume &middot; L full map &middot; F9 save a clip &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="setClose">CLOSE (O / ESC)</button></div></div></div>
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
 <div id="lock">CLICK TO PLAY</div>
 <button id="pauseB">II MENU (TAB)</button>
-<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
+<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pClips" class="alt">CLIPS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
-  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch">ACHIEVEMENTS</button></div><div id="lvnote"></div></div>
-  <div id="topbtns"><button class="tb" id="bSet">SETTINGS</button><button class="tb" id="bHow">HOW TO PLAY</button><div style="flex-basis:100%;height:0"></div><button class="tb" id="bFr"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z"/></svg><span>FRIENDS</span></button></div>
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch" title="Achievements" aria-label="Achievements"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #fff3b0)"><path d="M7 3h10v2h3a1 1 0 0 1 1 1v1.5c0 2.5-1.9 4.6-4.4 4.9A5.5 5.5 0 0 1 13 15.9V18h3v3H8v-3h3v-2.1a5.5 5.5 0 0 1-3.6-3.5C4.9 12.1 3 10 3 7.5V6a1 1 0 0 1 1-1h3V3zm-2 4v.5c0 1.3.9 2.4 2.1 2.8A12 12 0 0 1 7 7H5zm14 0h-2c0 1.1-.1 2.2-.1 3.3A3 3 0 0 0 19 7.5V7z"/></svg></button></div><div id="lvnote"></div></div>
+  <div id="topbtns"><button class="tb" id="bSet" title="Settings" aria-label="Settings" style="width:46px"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:block;margin:auto;filter:drop-shadow(0 0 3px #25f4ff)"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.5 7.5 0 0 0-1.7-1L14.5 3a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6a7.5 7.5 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6L4.6 11a7.7 7.7 0 0 0 0 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5c.1.2.4.3.6.2l2.5-1c.5.4 1.1.7 1.7 1l.4 2.6c0 .2.2.4.5.4h4c.3 0 .5-.2.5-.4l.4-2.6c.6-.3 1.2-.6 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></button><button class="tb" id="bHow">HOW TO PLAY</button><div style="flex-basis:100%;height:0"></div><button class="tb" id="bFr" style="display:none!important"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z"/></svg><span>FRIENDS</span></button><button class="tb" id="bClips"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 5h11a2 2 0 0 1 2 2v2.6l4-2.3v9.4l-4-2.3V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg><span>CLIPS</span></button></div>
   <h1>NEON INVASION</h1>
   <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
   <div class="box">
@@ -458,7 +469,7 @@ body.playing #pauseB{display:block}
       <tr><td>TAB</td><td>pause menu (the game keeps going in co-op)</td></tr>
       <tr><td>O / G / M</td><td>settings / fullscreen / mute the radio</td></tr>
       <tr><td>, &nbsp; .</td><td>radio: previous / next song</td></tr><tr><td>[ &nbsp; ]</td><td>radio: previous / next channel (volume is in the settings menu)</td></tr>
-      <tr><td>L</td><td>full map (click the right stick on a controller)</td></tr>
+      <tr><td>L</td><td>full map (click the right stick on a controller)</td></tr><tr><td>F9</td><td>save a clip of the last 30 seconds (see CLIPS on the main menu)</td></tr>
     </table>
     <h3>DRIVING</h3><table>
       <tr><td>W / S</td><td>gas / brake and reverse</td></tr><tr><td>A / D</td><td>steer (the car drifts through turns)</td></tr>
@@ -472,12 +483,13 @@ body.playing #pauseB{display:block}
       <tr><td>X</td><td>reload</td></tr><tr><td>Y</td><td>use / enter + leave vehicles and the wheel / back to base between rounds</td></tr>
       <tr><td>LB / RB</td><td>switch weapon</td></tr><tr><td>L3 (click)</td><td>third-person view</td></tr>
       <tr><td>D-PAD LEFT / RIGHT</td><td>radio: previous / next song</td></tr><tr><td>D-PAD UP / DOWN</td><td>radio: next / previous channel</td></tr><tr><td>LB / RB (driving)</td><td>handbrake / hood camera</td></tr>
-      <tr><td>START</td><td>pause menu (co-op keeps running)</td></tr><tr><td>BACK</td><td>back to the starting area</td></tr>
+      <tr><td>START</td><td>pause menu (co-op keeps running)</td></tr><tr><td>BACK (tap)</td><td>back to the starting area</td></tr><tr><td>BACK (hold) / SHARE</td><td>save a clip of the last 30 seconds</td></tr>
     </table></div>
   </div>
   <div style="text-align:center"><button id="howClose">CLOSE</button></div></div></div>
 <div id="achPop"></div>
 <div id="osk"><div class="pv" id="oskPv"></div><div id="oskKeys"></div><small id="oskHint"></small></div>
+<div id="clipsP"><h2>YOUR CLIPS</h2><div class="sub" id="clipsSub">THE LAST 30 SECONDS OF YOUR GAME - F9 OR THE SHARE BUTTON TO SAVE ONE WHILE YOU PLAY</div><div id="clipsBody"></div><button id="clipsClose" class="c" style="margin-top:14px;font-size:14px;padding:8px 22px">CLOSE</button></div>
 <div id="frp"><div class="fbox"><h2>FRIENDS</h2><div id="frbody"></div><button id="frClose">CLOSE</button></div></div>
 <div id="lbp"><div class="lbox"><h2>LEADERBOARD</h2><div id="lbbody">Loading...</div><button id="lbClose">CLOSE</button></div></div>
 <div id="locker"><div class="lbox"><h2 id="lkh">CUSTOMIZE</h2>
@@ -2319,9 +2331,9 @@ const VM=[];let VMSHAPES=null;
 /* ================= audio ================= */
 let ac=null,sfxOn=true;
 function actx(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return ac;}
-let _bus=null,lobbyMute=false;   // the waiting room is silent: no game sound effects leak through from the world behind it
+var _comp=null,_clipDst=null;let _bus=null,lobbyMute=false;   // the waiting room is silent: no game sound effects leak through from the world behind it
 function sfxBus(a){
-  if(!_bus){const g=a.createGain();g.gain.value=lobbyMute?0:2.6*SET.sfx/100;const c=a.createDynamicsCompressor();c.threshold.value=-14;c.ratio.value=6;g.connect(c);c.connect(a.destination);_bus=g;}
+  if(!_bus){const g=a.createGain();g.gain.value=lobbyMute?0:2.6*SET.sfx/100;const c=a.createDynamicsCompressor();c.threshold.value=-14;c.ratio.value=6;g.connect(c);c.connect(a.destination);_comp=c;if(_clipDst)c.connect(_clipDst);_bus=g;}
   return _bus;
 }
 function tone(f0,f1,dur,type,vol){
@@ -3378,7 +3390,7 @@ function toast(t,sub,low){if(low&&(toastT>0||$('wave').style.display==='block'||
   const el=$('toast');el.innerHTML=PT(t+(sub?'<small>'+sub+'</small>':''));el.classList.add('show');toastT=2.6;}
 
 /* ================= settings, accessibility, feedback, weather, extras ================= */
-const SET_DEF={music:35,sfx:100,sens:100,pad:100,shake:100,flash:true,dn:true,cb:false,big:false,hard:false};
+const SET_DEF={music:35,sfx:100,sens:100,pad:100,shake:100,flash:true,dn:true,cb:false,big:false,hard:false,clip:(typeof navigator!=='undefined'&&(navigator.hardwareConcurrency||4)>=6&&!(window.matchMedia&&matchMedia('(pointer:coarse)').matches)),clipMic:false,clipHud:true};
 let SET=Object.assign({},SET_DEF);
 try{const s0=JSON.parse(localStorage.getItem('ni_set')||'{}');for(const k in SET_DEF)if(k in s0)SET[k]=s0[k];}catch(e){}
 function saveSet(){try{localStorage.setItem('ni_set',JSON.stringify(SET));}catch(e){}}
@@ -3387,9 +3399,10 @@ function applySet(){
   try{song.volume=clamp(SET.music/100*1.3,0,1);}catch(e){}   // every song is loudness-matched (about -17 LUFS), so one slider value sounds the same on all of them
   if(_bus)_bus.gain.value=lobbyMute?0:2.6*SET.sfx/100;
   document.body.classList.toggle('bigui',!!SET.big);
+  try{clipApply();}catch(e){}
 }
 const SET_ROWS=[['music','MUSIC VOLUME','range',0,100],['sfx','SOUND EFFECTS VOLUME','range',0,160],['sens','MOUSE SENSITIVITY','range',20,250],['pad','CONTROLLER LOOK SPEED','range',40,220],['shake','SCREEN SHAKE','range',0,100],
-  ['flash','FLASHING EFFECTS (lightning, damage flash)','check'],['dn','DAMAGE NUMBERS','check'],['cb','COLORBLIND-FRIENDLY MAP COLORS','check'],['big','LARGE HUD TEXT','check'],['hard','HARD MODE - SOLO (APPLIES TO YOUR NEXT GAME)','check'],['fs','FULLSCREEN (G)','fs']];
+  ['flash','FLASHING EFFECTS (lightning, damage flash)','check'],['dn','DAMAGE NUMBERS','check'],['cb','COLORBLIND-FRIENDLY MAP COLORS','check'],['big','LARGE HUD TEXT','check'],['hard','HARD MODE - SOLO (APPLIES TO YOUR NEXT GAME)','check'],['clip','CLIP RECORDER - KEEPS YOUR LAST 30 SECONDS (F9 / SHARE BUTTON)','check'],['clipMic','RECORD MY MIC IN CLIPS','check'],['clipHud','SHOW A MINI HUD IN CLIPS','check'],['fs','FULLSCREEN (G)','fs']];
 (function buildSettings(){
   const b=$('setBody');
   for(const [k,lab,type,mn,mx] of SET_ROWS){
@@ -3680,7 +3693,7 @@ addEventListener('mousemove',e=>{
 });
 /* ---------- controller (Gamepad API, standard mapping) ----------
    Left stick move/steer | Right stick look | RT fire | LT reload/refuel | Y jump/jet up, hold A sprint | B hover
-   X use/revive | Y jump | LB/RB weapon | L3 click third-person view | D-pad: left/right=radio track, up/down=radio channel | BACK=back to base | Start=pause */
+   X use/revive | Y jump | LB/RB weapon | L3 click third-person view | D-pad: left/right=radio track, up/down=radio channel | BACK=back to base (hold = clip) | Share/touchpad=clip | Start=pause */
 /* ---- controller awareness: the on-screen hints switch to the pad's own button names as soon as you touch it ---- */
 let usingPad=false,padType='xbox',lastUP=null;
 const PADN={
@@ -3709,7 +3722,7 @@ function PT(s){
 }
 function padTable(){
   const R=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
-  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'hold to run (gas while driving)')+R(PB('b'),'jump / jetpack (brake while driving)')+R(PB('x'),'reload (horn beep in a vehicle)')+R(PB('y'),'use: buy, enter / leave cars and the wheel, revive (hold) / back to base between rounds')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3')+' (click)','third-person view')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('lb')+' / '+PB('rb')+' (driving)','handbrake / hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back'),'back to the starting area')+R(PB('r3'),'full map');
+  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'hold to run (gas while driving)')+R(PB('b'),'jump / jetpack (brake while driving)')+R(PB('x'),'reload (horn beep in a vehicle)')+R(PB('y'),'use: buy, enter / leave cars and the wheel, revive (hold) / back to base between rounds')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3')+' (click)','third-person view')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('lb')+' / '+PB('rb')+' (driving)','handbrake / hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back')+' (tap)','back to the starting area')+R(PB('back')+' (hold) / SHARE','save a clip of the last 30 seconds')+R(PB('r3'),'full map');
 }
 function refreshPadUI(){
   const key=usingPad+padType;if(lastUP===key)return;lastUP=key;try{radioLabel();}catch(e){}
@@ -3720,14 +3733,14 @@ function refreshPadUI(){
 }
 for(const ev of['keydown','mousedown'])addEventListener(ev,()=>{if(usingPad){usingPad=false;refreshPadUI();}},true);
 addEventListener('mousemove',e=>{if(usingPad&&Math.abs(e.movementX||0)+Math.abs(e.movementY||0)>3){usingPad=false;refreshPadUI();}},true);
-let padPrev=[],padRT=false;
+let backHold=0,backDone=false;let padPrev=[],padRT=false;
 const dz=(v,d=0.16)=>Math.abs(v)<d?0:Math.sign(v)*(Math.abs(v)-d)/(1-d);
 function cycleW(dir){let w=curW;for(let i=0;i<NW;i++){w=(w+dir+NW)%NW;if(myP&&myP.wo[w]>=0){selectWeapon(w);break;}}}
 const padK={};function setK(c,v){if(padK[c]!==v){padK[c]=v;keys[c]=v;}}
 /* ===== controller navigation for every menu (D-pad / left stick move, A select, B back, LB/RB switch tabs) ===== */
-const UI_ORDER=['osk','slots','roul','vsWin','frp','settings','howto','locker','lbp','pauseO','lobby','menu'];
-const UI_CLOSE={slots:'slClose',roul:'rlClose',frp:'frClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume',lobby:'lbBack',vsWin:'vsNo'};
-const UI_DEF={slots:'#slSpin',roul:'#rlSpin',menu:'#bSolo',pauseO:'#pResume',lobby:'#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
+const UI_ORDER=['osk','clipsP','slots','roul','vsWin','frp','settings','howto','locker','lbp','pauseO','lobby','menu'];
+const UI_CLOSE={slots:'slClose',roul:'rlClose',frp:'frClose',clipsP:'clipsClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume',lobby:'lbBack',vsWin:'vsNo'};
+const UI_DEF={slots:'#slSpin',roul:'#rlSpin',menu:'#bSolo',pauseO:'#pResume',lobby:'#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',clipsP:'#clipsBody button,#clipsClose',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
 function uiLayer(){for(const id of UI_ORDER){const el=$(id);if(!el)continue;if(id==='menu'&&started)continue;if(getComputedStyle(el).display!=='none')return el;}return null;}
 function uiFocusables(layer){
   return [...layer.querySelectorAll('button,input,label#lbHard,#lbMode,a#discord,.sk,.navtabs div,.subtabs div,#chtabs div')].filter(el=>{
@@ -3922,7 +3935,8 @@ function pollPad(dt){
   if(edge(10))toggleTpv();   // click the left stick = third-person view (fullscreen is a checkbox in Settings, or G on a keyboard)
   if(edge(5)&&driving>=0)hoodCam=!hoodCam;
   if(edge(11))toggleBigMap();
-  if(edge(8))goBase();   // BACK / VIEW = back to the starting area (fullscreen is a checkbox in Settings)
+  if(edge(17))clipSave();   // Share button (Xbox Series) / touchpad click (PS5) = save a clip
+  if(B(8)){backHold+=dt;if(backHold>=0.7&&!backDone){backDone=true;clipSave();}}else{if(backHold>0&&backHold<0.7&&!backDone)goBase();backHold=0;backDone=false;}   // tap BACK / VIEW = back to the starting area, hold it = save a clip
   if(edge(9)&&(mode==='solo'||mode==='online')){setPause(!userPause);}
   padPrev=gp.buttons.map(b=>b.pressed);
 }
@@ -4641,6 +4655,111 @@ function updateHUD(dt){
   document.body.classList.toggle('foot',driving<0);
 }
 
+/* ================= CLIPS: rolling recorder (last ~30 s, 9:16) + saved-clips library ================= */
+var CLIP={run:false,slots:[null,null],cv:null,cx:null,ms:null,last:0,mime:'',ext:'webm',saving:false,micSrc:null,micStream:null,songTap:null};
+(function(){
+  if(!window.MediaRecorder)return;
+  for(const m of['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'])if(MediaRecorder.isTypeSupported(m)){CLIP.mime=m;CLIP.ext=m.indexOf('mp4')>=0?'mp4':'webm';break;}
+})();
+function clipDest(a){if(!_clipDst){_clipDst=a.createMediaStreamDestination();if(_comp)_comp.connect(_clipDst);}return _clipDst;}
+function clipTapSong(a){if(CLIP.songTap||a.state!=='running')return;try{const n=a.createMediaElementSource(song);n.connect(a.destination);n.connect(clipDest(a));CLIP.songTap=n;}catch(e){}}   // the radio also feeds the clip
+async function clipMicOn(){
+  if(CLIP.micSrc||!SET.clipMic)return;
+  try{const ms=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});const a=actx();CLIP.micStream=ms;CLIP.micSrc=a.createMediaStreamSource(ms);CLIP.micSrc.connect(clipDest(a));}
+  catch(e){SET.clipMic=false;saveSet();toast('MIC NOT AVAILABLE','clips will have game audio only',true);}
+}
+function clipMicOff(){if(CLIP.micSrc){try{CLIP.micSrc.disconnect();CLIP.micStream.getTracks().forEach(t=>t.stop());}catch(e){}CLIP.micSrc=null;CLIP.micStream=null;}}
+function clipSlotStart(i){
+  try{
+    const chunks=[],rec=new MediaRecorder(CLIP.ms,{mimeType:CLIP.mime,videoBitsPerSecond:3500000,audioBitsPerSecond:128000});
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    rec.start(1000);CLIP.slots[i]={rec,chunks,t0:performance.now()};
+  }catch(e){CLIP.slots[i]=null;}
+}
+function clipSlotDiscard(i){const s=CLIP.slots[i];CLIP.slots[i]=null;if(s){try{s.rec.ondataavailable=null;if(s.rec.state!=='inactive')s.rec.stop();}catch(e){}}}
+function clipBegin(){
+  const a=actx();if(!a||!CLIP.mime)return;
+  if(a.state==='suspended')a.resume().catch(()=>{});
+  if(!CLIP.cv){CLIP.cv=document.createElement('canvas');CLIP.cv.width=720;CLIP.cv.height=1280;CLIP.cx=CLIP.cv.getContext('2d');}
+  sfxBus(a);clipTapSong(a);const d=clipDest(a);
+  const vs=CLIP.cv.captureStream(30);CLIP.ms=new MediaStream([...vs.getVideoTracks(),...d.stream.getAudioTracks()]);
+  CLIP.run=true;clipSlotStart(0);clipMicOn();
+}
+function clipEnd(){CLIP.run=false;clipSlotDiscard(0);clipSlotDiscard(1);clipMicOff();CLIP.ms=null;}
+function clipApply(){   // called from applySet (settings changed)
+  if(!CLIP.run)return;
+  if(!SET.clip)clipEnd();else{if(SET.clipMic)clipMicOn();else clipMicOff();}
+}
+setInterval(()=>{
+  const want=!!(SET.clip&&started&&window.MediaRecorder&&CLIP.mime);
+  if(want&&!CLIP.run)clipBegin();else if(!want&&CLIP.run)clipEnd();
+  if(!CLIP.run)return;
+  const n=performance.now();
+  for(let i=0;i<2;i++){const s=CLIP.slots[i];if(s&&n-s.t0>=60000){clipSlotDiscard(i);clipSlotStart(i);}}   // two recorders, 30 s apart, each restarting every 60 s: the older one always holds 30-60 s
+  const o=CLIP.slots[0]||CLIP.slots[1];
+  if(!(CLIP.slots[0]&&CLIP.slots[1])&&o&&n-o.t0>=30000)clipSlotStart(CLIP.slots[0]?1:0);
+  if(!CLIP.slots[0]&&!CLIP.slots[1])clipSlotStart(0);
+},1000);
+function clipFrame(){
+  if(!CLIP.run)return;
+  const n=performance.now();if(n-CLIP.last<31)return;CLIP.last=n;
+  const cw=canvas.width,ch=canvas.height;let sh=ch,sw=ch*9/16;if(sw>cw){sw=cw;sh=cw*16/9;}
+  const x=CLIP.cx;x.drawImage(canvas,(cw-sw)/2,(ch-sh)/2,sw,sh,0,0,720,1280);
+  if(SET.clipHud&&myP&&S&&S.rd){
+    x.save();x.textAlign='left';x.font='900 40px "Arial Black",Impact,sans-serif';x.lineJoin='round';x.lineWidth=8;x.strokeStyle='#000';
+    const t='ROUND '+Math.max(1,S.rd.n|0);x.strokeText(t,28,1140);x.fillStyle='#fff3b0';x.fillText(t,28,1140);
+    const m='$'+Math.round(myP.m||0).toLocaleString();x.textAlign='right';x.strokeText(m,692,1140);x.fillStyle='#3cff9e';x.fillText(m,692,1140);
+    const hp=Math.max(0,Math.min(1,(myP.hp||0)/(myP.mh||100)));x.fillStyle='rgba(0,0,0,.6)';x.fillRect(28,1160,664,22);x.fillStyle=hp<0.3?'#ff2f4f':'#ff2fa0';x.fillRect(30,1162,660*hp,18);
+    x.strokeStyle='rgba(255,255,255,.8)';x.lineWidth=3;x.beginPath();x.moveTo(350,640);x.lineTo(370,640);x.moveTo(360,630);x.lineTo(360,650);x.stroke();
+    x.restore();
+  }
+  x.save();x.textAlign='center';x.font='900 30px "Arial Black",Impact,sans-serif';x.lineWidth=7;x.lineJoin='round';x.strokeStyle='rgba(0,0,0,.85)';x.strokeText('NEON INVASION',360,1236);x.fillStyle='#ff4fb4';x.fillText('NEON INVASION',360,1236);x.restore();   // watermark
+}
+/* ---- saved clips (IndexedDB, newest 12 kept) ---- */
+var CLIPDB=null;
+function cdb(){return new Promise((res,rej)=>{if(CLIPDB)return res(CLIPDB);try{const r=indexedDB.open('ni_clips',1);r.onupgradeneeded=()=>r.result.createObjectStore('c',{keyPath:'id'});r.onsuccess=()=>{CLIPDB=r.result;res(CLIPDB);};r.onerror=()=>rej(r.error);}catch(e){rej(e);}});}
+async function clipPut(o){const d=await cdb();return new Promise((res,rej)=>{const tx=d.transaction('c','readwrite');tx.objectStore('c').put(o);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function clipAll(){const d=await cdb();return new Promise((res,rej)=>{const q=d.transaction('c').objectStore('c').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error);});}
+async function clipDel(id){const d=await cdb();return new Promise((res,rej)=>{const tx=d.transaction('c','readwrite');tx.objectStore('c').delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function clipSave(){
+  if(!started||CLIP.saving)return;
+  if(!CLIP.run){toast('CLIP RECORDER IS OFF','turn it on in Settings',true);return;}
+  const now=performance.now();let bi=-1,age=0;CLIP.slots.forEach((s,i)=>{if(s&&now-s.t0>age){age=now-s.t0;bi=i;}});
+  if(bi<0||age<3000){toast('NOT ENOUGH FOOTAGE YET','keep playing a few seconds',true);return;}
+  CLIP.saving=true;
+  try{
+    const s=CLIP.slots[bi],thumb=(()=>{const c=document.createElement('canvas');c.width=180;c.height=320;c.getContext('2d').drawImage(CLIP.cv,0,0,180,320);return c.toDataURL('image/jpeg',0.7);})();
+    await new Promise(r=>{s.rec.onstop=r;try{s.rec.stop();}catch(e){r();}});
+    CLIP.slots[bi]=null;clipSlotStart(bi);
+    const blob=new Blob(s.chunks,{type:CLIP.mime.split(';')[0]});
+    await clipPut({id:Date.now(),t:Date.now(),dur:Math.round(age/1000),ext:CLIP.ext,mime:blob.type,size:blob.size,thumb,blob});
+    const all=(await clipAll()).sort((a,b)=>b.t-a.t);for(const o of all.slice(12))await clipDel(o.id);
+    sfx.buy();toast('CLIP SAVED - '+Math.round(age/1000)+'s','find it under CLIPS on the main menu or pause menu',true);
+  }catch(e){toast('COULD NOT SAVE THE CLIP','your browser blocked storage',true);}
+  CLIP.saving=false;
+}
+addEventListener('keydown',e=>{if(e.code==='F9'){e.preventDefault();clipSave();}else if(e.code==='Escape'&&$('clipsP').style.display==='block'){closeClips();}});
+/* ---- the CLIPS screen ---- */
+async function clipsRender(){
+  const body=$('clipsBody');let list=[];
+  try{list=(await clipAll()).sort((a,b)=>b.t-a.t);}catch(e){}
+  if(!window.MediaRecorder)$('clipsSub').textContent='THIS BROWSER CANNOT RECORD CLIPS - TRY CHROME, EDGE OR FIREFOX';
+  if(!list.length){body.innerHTML='<p style="opacity:.8;letter-spacing:2px;margin:30px 0">NO CLIPS YET.<br>PRESS F9 (OR THE SHARE BUTTON) DURING A GAME TO SAVE THE LAST 30 SECONDS.</p>';return;}
+  body.innerHTML=list.map(o=>'<div class="cc" data-id="'+o.id+'"><img src="'+o.thumb+'" data-op="play"><div class="cm">'+new Date(o.t).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+' - '+o.dur+'s - '+(o.size/1048576).toFixed(1)+' MB</div><button class="c" data-op="save">SAVE</button>'+(navigator.canShare?'<button data-op="share">SHARE</button>':'')+'<button class="g" data-op="del">DELETE</button></div>').join('');
+}
+async function openClips(){$('clipsP').style.display='block';try{document.exitPointerLock();}catch(e){}await clipsRender();}
+function closeClips(){$('clipsP').style.display='none';for(const v of $('clipsBody').querySelectorAll('video')){try{v.pause();URL.revokeObjectURL(v.src);}catch(e){}}if(started&&!userPause)requestLock();}
+$('bClips').onclick=openClips;$('pClips').onclick=openClips;$('clipsClose').onclick=closeClips;
+$('clipsBody').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-op]');if(!b)return;const card=b.closest('.cc'),id=+card.dataset.id,op=b.dataset.op;
+  let o=null;try{o=(await clipAll()).find(x=>x.id===id);}catch(x){}
+  if(!o)return;
+  if(op==='play'){const v=document.createElement('video');v.src=URL.createObjectURL(o.blob);v.controls=true;v.autoplay=true;v.loop=true;v.playsInline=true;const im=card.querySelector('img');im.replaceWith(v);}
+  else if(op==='save'){const a=document.createElement('a');a.href=URL.createObjectURL(o.blob);a.download='neon-invasion-clip-'+new Date(o.t).toISOString().slice(0,19).replace(/[:T]/g,'-')+'.'+o.ext;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),20000);}
+  else if(op==='share'){try{const f=new File([o.blob],'neon-invasion-clip.'+o.ext,{type:o.mime});if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'Neon Invasion',text:'My Neon Invasion clip'});else toast('SHARING NOT SUPPORTED','use SAVE instead',true);}catch(x){}}
+  else if(op==='del'){try{await clipDel(id);}catch(x){}clipsRender();}
+});
+
 /* ================= main loop ================= */
 let last=performance.now(),elapsed=0;
 function applyTime(dt){
@@ -4852,6 +4971,7 @@ function frame(now){
     sun.position.copy(camera.position).add(sunOffset);sky.position.copy(camera.position);stars.position.copy(camera.position);
   }
   renderer.render(scene,camera);
+  try{clipFrame();}catch(e){}
 }
 
 /* ================= menu ================= */
