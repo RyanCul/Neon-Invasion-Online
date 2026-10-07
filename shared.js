@@ -331,7 +331,8 @@ const AT=[
   {name:'CARNIVAL BOSS',hp:2000,sp:0,r:1.7,cy:1.9,dmg:30,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true},
   {name:'THE BUTCHER',hp:4000,sp:5.0,r:1.9,cy:2.0,dmg:56,money:6000,fly:false,stalker:true,loner:true,saw:true},
   {name:'TIPSY ALIEN',hp:110,sp:5.0,r:1.4,cy:1.5,dmg:0,money:120,fly:false,ranged:true,tipsy:true},
-  {name:'GIANT ALIEN SHARK',hp:9000,sp:13,r:8.5,cy:5.5,dmg:48,money:30000,fly:false,ranged:true,beach:true,loner:true,giantShark:true}
+  {name:'GIANT ALIEN SHARK',hp:9000,sp:13,r:8.5,cy:5.5,dmg:48,money:30000,fly:false,ranged:true,beach:true,loner:true,giantShark:true},
+  {name:'BASEBALL SLUGGER',hp:2400,sp:5.4,r:1.8,cy:2.0,dmg:28,money:3500,fly:false,ranged:true,ball:true,loner:true}
 ];
 
 /* ---------------- world ---------------- */
@@ -1156,6 +1157,7 @@ class Game{
     if(def.boss){p.bk=(p.bk|0)+1;this.bossDrop(a,p);}
     if(def.pizza){for(const q of this.players.values()){if(q.st==='alive'&&Math.hypot(q.x-a.x,q.z-a.z)<45)q.hp=Math.min(mhp(q),q.hp+(q===p?mhp(q)*0.4:25));}this.push('pizza',r2(a.x),r2(a.y+1),r2(a.z));}
     if(def.pirate){p.money+=2400;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('piratedead',p.id);}
+    if(def.ball){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('balldead',p.id);}
     if(def.carni){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')q.hp=mhp(q);this.push('carnidead',p.id);}
     if(def.perch&&!def.pirate&&!def.carni){p.money+=2000;const opts=PERKS.filter(pk=>!p.perks[pk.id]&&(pk.req===undefined||p.perks[pk.req]));if(opts.length){const pk=opts[Math.floor(this.rand()*opts.length)];p.perks[pk.id]=true;if(HP_TIERS.includes(pk.id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,pk.id);}this.push('cleodead',p.id);}
     if(def.movie){p.money+=800;this.push('ammoall',p.id);this.push('ticket',p.id);}
@@ -1193,6 +1195,7 @@ class Game{
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
     if(this.round>=26&&(this.round-26)%7===0&&WORLD.themes.some(q=>q.k==='marina'))q.unshift(22);   // pirate captain on the marina boardwalk: rounds 26, 33, 40, ...
+    if(this.round>=17&&(this.round-17)%10===0&&WORLD.themes.some(q=>q.k==='ballpark'))q.unshift(27);   // the baseball slugger waits in the ballpark: rounds 17, 27, 37, ...
     if(this.round>=16&&(this.round-16)%7===0&&WORLD.themes.some(q=>q.k==='ferris'))q.unshift(23);   // carnival boss under the ferris wheel: rounds 16, 22, 28, ...
     if(this.round>=32&&(this.round-32)%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 32, 43, 54, ...
     if(this.round>=8){const nT=this.round%5===0?1:Math.min(8,1+Math.floor((this.round-8)/3));for(let i=0;i<nT;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,25);}   // tipsy aliens from round 8: their bottles make you drunk (no damage)
@@ -1286,6 +1289,7 @@ class Game{
       const py=WORLD.themes.find(q=>q.k==='pyramid');
       if(py){x=py.cx;z=py.cz;yy=11.2;}
     }
+    if(t===27){const bp=WORLD.themes.find(q=>q.k==='ballpark');if(bp){x=bp.cx+(this.rand()-0.5)*6;z=bp.cz+4;}}   // the slugger waits on the pitcher's mound of the ballpark
     if(t===22){const mr=WORLD.themes.find(q=>q.k==='marina');if(mr){x=mr.cx;z=mr.cz-8;yy=0.7;}}
     if(t===23){const fw=WORLD.themes.find(q=>q.k==='ferris');if(fw){const wp=this.wheelPos(fw);x=wp.x;z=wp.z;yy=wp.y;}}   // he rides a gondola of the crystal wheel
     if(t===20){   // the movie alien steps out of the drive-in screen
@@ -1309,12 +1313,14 @@ class Game{
     if(t===26)hp=16000*(1+0.5*(this.round/30-1))*(1+0.7*(np-1));
     if(t===17)hp=190000*(1+0.5*(this.round/50-1))*(1+0.8*(np-1));
     if(t===12)hp=78000*(1+0.5*(this.round/20-1))*(1+0.8*(np-1));
-    if(t>=21&&t<=24)hp*=1+0.6*(np-1);   // landmark bosses are tougher in co-op too
+    if((t>=21&&t<=24)||t===27)hp*=1+0.6*(np-1);   // landmark bosses are tougher in co-op too
     const sp=def.sp*(1+soft(0.028*this.round,0.55,0.12))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
       dmg:def.dmg*soft(1+0.025*this.round,2.5,0.2)*(this.hard?1.4:1),cd:1+this.rand()*1.5,tT:0,tgt:tg.id,los:false,ph:this.rand()*6.28,rt:0,vx:0,vz:0,vol:0,stomp:4,dorm:false,far:false,dormT:0};
-    if(def.stalker){al.hide=true;al.stT=0;al.hh=this._hh;}
-    if(t>=19&&t<=22)al.guard=true;   // every landmark boss waits at its spot until a player is in sight
+    if(def.stalker){al.hide=true;al.stT=0;al.hh=this._hh;
+      const nApp=t===24?Math.floor((this.round-25)/7):Math.floor((this.round-6)/4);   // how many times this stalker has shown up before
+      al.spm=Math.min(1.4,1+0.05*Math.max(0,nApp));al.sp*=al.spm;}   // +5% speed (and speed cap) every appearance, up to +40%
+    if((t>=19&&t<=22)||t===27)al.guard=true;   // every landmark boss waits at its spot until a player is in sight
     if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
       al.mut=1+Math.floor(this.rand()*3);
       if(al.mut===2){al.hp*=2.6;al.mhp=al.hp;al.sp*=0.85;}
@@ -1327,6 +1333,7 @@ class Game{
     if(t===19)this.push('pizzaspawn',al.id,r2(x),r2(z));
     if(t===22)this.push('piratespawn',al.id,r2(x),r2(z));
     if(t===23)this.push('carnispawn',al.id,r2(x),r2(z));
+    if(t===27)this.push('ballspawn',al.id,r2(x),r2(z));
     if(t===21)this.push('cleospawn',al.id,r2(x),r2(z));
     if(t===20)this.push('moviespawn',al.id,r2(x),r2(z));
     if(t===15)this.push('sniper',al.id,r2(x),r2(z));
@@ -1476,7 +1483,7 @@ class Game{
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:a.t===12?10:5,sky:a.t===12?1:0,dmg,big:(a.t===18||a.t===26)?8:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:0))))))});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:a.t===12?10:5,sky:a.t===12?1:0,dmg,big:(a.t===18||a.t===26)?8:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:(a.t===27?9:0)))))))});
   }
 
   /* ---- main tick ---- */
@@ -1639,7 +1646,7 @@ class Game{
       a.yaw=Math.atan2(dx,dz);
       if(def.sniper){this.updateSniper(a,tp0,tp,dx,dz,dist,dt);continue;}
       if(a.guard){   // pizza / movie aliens stay at their spawn until someone comes near
-        if(a.los&&dist<70)a.guard=false;else{a.vx=a.vz=0;continue;}   // wakes only once a player is actually in sight
+        if(a.t===27?dist<48:(a.los&&dist<70))a.guard=false;else{a.vx=a.vz=0;continue;}   // wakes only once a player is actually in sight
       }
       if(def.stalker&&a.hide){   // hiding: stands still until a player walks into the building it is hiding in
         a.vx=a.vz=0;const hh=a.hh;
@@ -1653,7 +1660,7 @@ class Game{
       if(a.slowT>0){a.slowT-=dt;speed*=0.5;}
       if(this.round>=6&&this.emptyT>0&&this.aliens.length<=6&&!def.loner&&!def.boss&&!def.giant&&!def.stalker)speed*=1+Math.min(0.9,this.emptyT/20);   // last few stragglers speed up so a round never drags
       if(this.weather===6)speed*=1.2;   // aurora: aliens are restless
-      speed=Math.min(speed,SPEED_CAP);   // nothing ever outruns the cap
+      speed=Math.min(speed,SPEED_CAP*(a.spm||1));   // nothing ever outruns the cap (stalkers' cap rises with their speed boost)
       if(def.beach){   // the shark flies: it cruises over the beach until someone gets close or hurts it, then it hunts anywhere on the map firing lasers
         if(!a.agro&&(dist<130||a.hp<a.mhp-1))a.agro=true;
         const big=a.t===26;
@@ -1781,6 +1788,10 @@ class Game{
           }else if(a.t===25){      // TIPSY ALIEN: lobs bottles - a hit makes you drunk instead of hurting you
             a.cd=1.7+this.rand()*0.8;
             this.fireOrb(a,tp.x,ty,tp.z,0.07,30,0);
+          }else if(a.t===27){      // BASEBALL SLUGGER: fast pitches, every third throw is a three-ball spread
+            a.bn=(a.bn||0)+1;const bm=Math.min(1.6,1+0.08*Math.max(0,Math.floor((this.round-17)/10)));   // baseballs get 8% faster every appearance, up to +60%
+            if(a.bn%3===0){a.cd=2.0+this.rand()*0.4;for(let i=-1;i<=1;i++){const ang=Math.atan2(dx,dz)+i*0.13;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.03,46*bm,a.dmg*0.8);}}
+            else{a.cd=1.1+this.rand()*0.4;this.fireOrb(a,tp.x,ty,tp.z,0.025,58*bm,a.dmg);}
           }else if(a.t===19){      // PIZZA ALIEN: lobs pizzas
             a.cd=1.5+this.rand()*0.6;
             this.fireOrb(a,tp.x,ty,tp.z,0.05,32,a.dmg);

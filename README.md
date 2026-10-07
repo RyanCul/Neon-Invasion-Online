@@ -360,3 +360,12 @@ Hovering a weapon in the armory or a vehicle in the garage shows a spinning 3D m
 
 ## Casino safe zone
 Aliens (ground and flying) can no longer enter the casino; they are pushed back out through the wall. A "SAFE ZONE" banner pops up when you walk in and stays as a small badge while you are inside. The shop preview box is also larger.
+
+## Baseball Slugger (mini boss)
+Spawns every 10 rounds starting at round 17 (17, 27, 37, ...). He waits on the pitcher's mound of the ballpark and stays there until a player gets within about 48 units. Then he chases and throws fast baseballs, with a three-ball spread every third throw. Killing him pays $2,000 and refills everyone's ammo. He must be killed to finish the round.
+
+## Banner layout
+Pop-up texts (wave incoming, safe zone, contact, round cleared, round banners) now stack on screen instead of overlapping.
+
+## Repeat-appearance speed boosts
+Stalkers (and the Butcher) get +5% speed and a higher speed cap every time they show up, up to +40%. The Baseball Slugger's baseballs fly 8% faster every appearance, up to +60%.
