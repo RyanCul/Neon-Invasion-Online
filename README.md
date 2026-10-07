@@ -375,3 +375,42 @@ Press T on foot to switch between first and third person (you see your own custo
 
 ## Third person controls
 Click the left stick (L3) to switch third-person view on a controller (fullscreen is now only the Settings checkbox or the G key). The camera has a wall check and orbits around you with the mouse or right stick. X in a vehicle (X on a controller, or the X key) sounds a two-note horn beep.
+
+## Shop prices and weapon balance
+Every weapon costs $2,000 to buy (Flamingo is free). Every weapon uses the same upgrade ladder: $2,500, $5,000, $10,000, $20,000, $50,000, $100,000, $150,000, $200,000, $300,000 (about $837,500 to max a gun). Balance tweaks: Aqua-9, Arc Gatling, Neon Stars and Mini-Bomber hit harder; Inferno and Brass Knuckles hit a bit softer.
+
+## Mystery box and pacing
+- The mystery box is now **free**. Each player can open it **once per appearance** and gets the **base form (MK0)** of a random weapon they don't own yet. If you own every weapon you get an ammo refill instead.
+- It is marked on the minimap (pulsing yellow `?`, with an edge arrow when off-map) and on the full map, and a toast announces each new location. The marker dims once you've opened it.
+- Upgrade ladder is now 2,500 / 6,000 / 15,000 / 35,000 / 75,000 / 125,000 / 175,000 / 230,000 / 290,000 (about 953k total). Putting roughly 60% of income into one main gun maxes it around round 60.
+
+## Character buff tiers
+Every buff now has 4 tiers (each tier needs the previous one). Prices: $2,500 / $10,000 / $40,000 / $150,000. Effects (cumulative): Neon Tank +25/+60/+110/+175 HP; Quick Revive 1.3/1.6/2/2.5x; Fast Hands -15/25/35/45% reload; Sprinter +8/16/25/35%; Dead Eye +15/30/50/75% headshots; Cash Magnet +10/20/30/40%; Kevlar -8/15/22/30% damage; Double Tap +8/15/22/30%.
+
+## Balance pass (round 3)
+- Removed the free-perk rewards (Godzilla now gives ammo, Cleopatra gives cash only).
+- Meteor blasts, their fire and acid rain no longer hurt anyone standing under a roof/ceiling.
+- Purple loot: about half as many pickups and roughly a third of the cash.
+- Carnival Boss fires about twice as fast (shorter charge, shorter cooldown).
+- Mini bosses buffed (about +35% health, +20% damage): Stalker, Alien Shark, Cleopatra, Pirate Captain, Carnival Boss, Butcher, Baseball Slugger.
+- Sharks, giant shark, Baseball Slugger and Butcher now show as green markers / edge arrows on both maps.
+- Solo game over: the stats screen stays until you click MAIN MENU (no countdown). Online still returns to the waiting room for a rematch.
+
+## Balance pass (round 4)
+- Alien melee hits, stomp shockwaves and bomb blasts now need a clear line (no wall in between), and fast alien shots can no longer tunnel through thin walls.
+- Weapon ranges (previously almost everything reached 260): Flamingo 80, Aqua-9 90, Sunset 45, Violet Rail 160, Lime Storm 120, Arc Gatling 110, Inferno 34 (was 24). Longshot 420, Stars 90, Toxic 75, Mini-Bomber 110 unchanged.
+- Battle Tank now has 24 shells that recharge like the helicopter (it used to read as OUT OF AMMO after its first shot). Helicopter: 48 damage, 8 shots/s, 240 ammo (unchanged). The big vehicle counter shows ammo instead of altitude.
+- Upgrade tiers 3-5 are cheaper: 12,000 / 22,000 / 48,000 (full ladder 2,500 / 6,000 / 12,000 / 22,000 / 48,000 / 125,000 / 175,000 / 230,000 / 290,000).
+- Alien health scaling eased very slightly (0.15 to 0.145 per round up to round 10, 8% to 7.75% per round after), and alien damage now grows a bit faster (3% per round instead of 2.5%, same cap) so the game doesn't get easy.
+
+## Spectating and horn
+- Spectating (when you are down/dead) now smooths the other player's height and facing and eases the camera toward its goal every frame, so chase, first-person and overhead views no longer stutter with network updates.
+- The horn is now a proper two-tone car horn (detuned sawtooth pairs, flat level, short hard cut-off).
+
+## Test pass
+- Every alien type spawned and ticked 400 frames and every weapon fired with no errors; 30-round runs with four different guns hit no errors or stalls.
+- Mid-game (rounds 12-24) was the steepest part of the curve in the bot test, so upgrades 4-6 are cheaper (22,000 / 48,000 / 110,000) and health growth is a touch gentler from round 10-25 (7.1% a round, back to 7.75% after).
+
+## Small tweaks
+- Purple (rare) drops pay about 50% more than the last patch (still well under the original).
+- Mini boss pop-ups no longer have subtitle lines (Pizza Alien, Pirate, Carnival, Cleopatra, Slugger, Movie ticket); just the title shows.
