@@ -369,3 +369,9 @@ Pop-up texts (wave incoming, safe zone, contact, round cleared, round banners) n
 
 ## Repeat-appearance speed boosts
 Stalkers (and the Butcher) get +5% speed and a higher speed cap every time they show up, up to +40%. The Baseball Slugger's baseballs fly 8% faster every appearance, up to +60%.
+
+## Third-person view and jetpack row
+Press T on foot to switch between first and third person (you see your own customized character). In the garage the jetpack row turns into the fuel-tank upgrade once you own the jetpack, so there is no separate fuel row.
+
+## Third person controls
+Click the left stick (L3) to switch third-person view on a controller (fullscreen is now only the Settings checkbox or the G key). The camera has a wall check and orbits around you with the mouse or right stick. X in a vehicle (X on a controller, or the X key) sounds a two-note horn beep.
