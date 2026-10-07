@@ -330,7 +330,9 @@ const AT=[
   {name:'THE BUTCHER',hp:5400,sp:5.0,r:1.9,cy:2.0,dmg:66,money:6000,fly:false,stalker:true,loner:true,saw:true},
   {name:'TIPSY ALIEN',hp:110,sp:5.0,r:1.4,cy:1.5,dmg:0,money:120,fly:false,ranged:true,tipsy:true},
   {name:'GIANT ALIEN SHARK',hp:9000,sp:13,r:8.5,cy:5.5,dmg:48,money:30000,fly:false,ranged:true,beach:true,loner:true,giantShark:true},
-  {name:'BASEBALL SLUGGER',hp:3400,sp:5.4,r:1.8,cy:2.0,dmg:34,money:3500,fly:false,ranged:true,ball:true,loner:true}
+  {name:'BASEBALL SLUGGER',hp:3400,sp:5.4,r:1.8,cy:2.0,dmg:34,money:3500,fly:false,ranged:true,ball:true,loner:true},
+  {name:'DISCO MOONWALKER',hp:800,sp:5.6,r:1.5,cy:1.7,dmg:22,money:500,fly:false,moon:true},
+  {name:'BACKUP DANCER',hp:70,sp:7.0,r:1.2,cy:1.3,dmg:12,money:60,fly:false}
 ];
 
 /* ---------------- world ---------------- */
@@ -1128,6 +1130,7 @@ class Game{
   }
   damageAlien(a,dmg,p,x,y,z){
     if(a.hp<=0)return;
+    if(AT[a.t].moon&&a.ms===3){this.push('mblock',a.id);return;}   // the freeze pose: untouchable for a second
     if(a.dorm){for(const o of this.aliens)if(o.dorm&&Math.hypot(o.x-a.x,o.z-a.z)<30)o.dorm=false;}
     a.guard=false;
     if(a.hide){a.hide=false;this.push('stalk',a.id);}
@@ -1205,6 +1208,13 @@ class Game{
     if(this.round>=16&&(this.round-16)%7===0&&WORLD.themes.some(q=>q.k==='ferris'))q.unshift(23);   // carnival boss under the ferris wheel: rounds 16, 22, 28, ...
     if(this.round>=32&&(this.round-32)%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 32, 43, 54, ...
     if(this.round>=8){const nT=this.round%5===0?1:Math.min(8,1+Math.floor((this.round-8)/3));for(let i=0;i<nT;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,25);}   // tipsy aliens from round 8: their bottles make you drunk (no damage)
+    if(this.round>=8){   // the disco moonwalker: exactly one in round 8, after that a random chance every third round (max 3 per round)
+      let nM=0;
+      if(this.round===8)nM=1;
+      else if((this.round-8)%3===0&&this.rand()<0.55)nM=1+(this.rand()<0.5?1:0)+(this.rand()<0.25?1:0);
+      nM=Math.min(3,nM);
+      for(let i=0;i<nM;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,28);
+    }
     if(this.round>=25&&(this.round-25)%7===0)q.unshift(24);   // the chainsaw stalker: rounds 25, 32, 39, ...
     if(this.round>=9&&(this.round-9)%7===0&&WORLD.themes.some(q=>q.k==='drivein'))q.unshift(20);   // the movie alien visits the drive-in: rounds 9, 16, 23, ...
     if(this.round>=7&&(this.round-7)%7===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
@@ -1327,11 +1337,12 @@ class Game{
       const nApp=t===24?Math.floor((this.round-25)/7):Math.floor((this.round-6)/4);   // how many times this stalker has shown up before
       al.spm=Math.min(1.4,1+0.05*Math.max(0,nApp));al.sp*=al.spm;}   // +5% speed (and speed cap) every appearance, up to +40%
     if((t>=19&&t<=22)||t===27)al.guard=true;   // every landmark boss waits at its spot until a player is in sight
-    if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
+    if(this.round>=9&&!def.boss&&!def.loner&&!def.support&&!def.beach&&!def.moon&&this.rand()<Math.min(0.28,0.05+0.012*(this.round-9))){
       al.mut=1+Math.floor(this.rand()*3);
       if(al.mut===2){al.hp*=2.6;al.mhp=al.hp;al.sp*=0.85;}
       else if(al.mut===3){al.sp*=1.5;al.hp*=0.8;al.mhp=al.hp;}
     }
+    if(def.moon){al.ms=0;al.mT=2.5+this.rand()*1.5;al.nT=1.2;al.nb=0;al.sum=false;al.sdx=0;al.sdz=0;al.shit=null;al.hit=false;}
     this.mountVeh(al);
     this.aliens.push(al);
     if(def.stalker)this.push('stalker',al.id,r2(x),r2(z),t);
@@ -1478,6 +1489,45 @@ class Game{
     this.push('hurt',p.id,Math.round(dmg),sx===undefined?0:r2(sx),sz===undefined?0:r2(sz),sx===undefined?0:1);
     if(p.hp<=0){p.hp=0;p.st='down';p.bleed=25;p.car=-1;p.dn=(p.dn|0)+1;this.push('down',p.id);}
   }
+  moonTick(a,tp0,tp,dx,dz,dist,dt){   // DISCO MOONWALKER: glides toward you facing AWAY, throws notes on the beat, spins, slides and freezes
+    a.yaw=Math.atan2(-dx,-dz);
+    a.mT-=dt;
+    const alive=[...this.players.values()].filter(p=>p.st==='alive');
+    if(a.ms===0){
+      a.nT-=dt;
+      if(a.los&&dist<60&&a.nT<=0){
+        this.fireOrb(a,tp.x,tp0.y-EYE*0.35,tp.z,0.05,34,a.dmg*0.5);
+        a.nb++;a.nT=a.nb%4===0?1.7:0.42;   // da-da-da ... rest
+        this.push('moonnote',a.id);
+      }
+      if(a.mT<=0&&a.los&&dist<30){
+        const r=this.rand();
+        if(dist<9||r<0.3){a.ms=1;a.mT=1.1;a.hit=false;this.push('moon',a.id,1);}
+        else if(r<0.7){a.ms=2;a.mT=0.7;a.sdx=dx/dist;a.sdz=dz/dist;a.shit={};this.push('moon',a.id,2);}
+        else{a.ms=3;a.mT=1.0;this.push('moon',a.id,3);}
+      }
+    }else if(a.ms===1){   // spin: the blow lands halfway through and knocks everybody close away
+      if(!a.hit&&a.mT<=0.55){
+        a.hit=true;
+        for(const p of alive){const q=this.targetPos(p),d=Math.hypot(q.x-a.x,q.z-a.z)||1;
+          if(d<8.5&&p.y-EYE<4&&this.wallClear(a,q)){this.hurt(p,a.dmg*0.9,a.x,a.z);if(p.car<0)this.push('kb',p.id,r2((q.x-a.x)/d*26),r2((q.z-a.z)/d*26));}}
+      }
+      if(a.mT<=0){a.ms=0;a.mT=2.5+this.rand()*2;}
+    }else if(a.ms===2){   // slide: a fast dash along the street, hits each player once
+      if(!a.shit)a.shit={};
+      for(const p of alive){if(a.shit[p.id])continue;const q=this.targetPos(p);
+        if(Math.hypot(q.x-a.x,q.z-a.z)<a.r+1.6&&p.y-EYE<3.5){a.shit[p.id]=1;this.hurt(p,a.dmg*1.1,a.x,a.z);if(p.car<0)this.push('kb',p.id,r2(a.sdx*20),r2(a.sdz*20));}}
+      if(a.mT<=0){a.ms=0;a.mT=2.2+this.rand()*2;}
+    }else if(a.ms===3){   // freeze pose (invulnerable), ends with a ring of notes; the first one calls two backup dancers
+      if(a.mT<=0){
+        for(let i=0;i<8;i++){const ang=i/8*6.283+this.rand()*0.2;this.fireOrb(a,a.x+Math.sin(ang)*40,a.y+a.cy+0.4,a.z+Math.cos(ang)*40,0.02,26,a.dmg*0.45);}
+        this.push('moonring',a.id);
+        if(!a.sum){a.sum=true;if(this.aliens.length<this.hardCap()-2)for(let i=0;i<2;i++){const an=this.rand()*6.283;this.spawnAlien(29,a.x+Math.cos(an)*4,a.z+Math.sin(an)*4);}}
+        a.ms=0;a.mT=3+this.rand()*2;
+      }
+    }
+  }
+
   fireOrb(a,tx,ty,tz,spread,speed,dmg){
     let ox=a.x,oy=a.y+a.cy+(a.t===4?1.5:0.4),oz=a.z;
     if(a.t===12||a.t===17){const hl=Math.hypot(tx-a.x,tz-a.z)||1;ox+=(tx-a.x)/hl*13;oz+=(tz-a.z)/hl*13;oy=a.y+30;}
@@ -1485,7 +1535,7 @@ class Game{
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:a.t===12?10:5,sky:a.t===12?1:0,dmg,big:(a.t===18||a.t===26)?8:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:(a.t===27?9:0)))))))});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:a.t===12?10:5,sky:a.t===12?1:0,dmg,big:(a.t===18||a.t===26)?8:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:(a.t===27?9:(a.t===28?10:0))))))))});
   }
 
   /* ---- main tick ---- */
@@ -1583,7 +1633,7 @@ class Game{
       while(this.queue.length&&this.aliens.length<cap&&this.spawnT<=0){
         const nt=this.queue.shift();
         if(((nt>=19&&nt<=24)||nt===14)&&this.aliens.some(o=>o.t===nt))continue;   // that special is already out there waiting
-        if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
+        if(this.round>=1&&!AT[nt].fly&&!AT[nt].boss&&!AT[nt].support&&!AT[nt].loner&&!AT[nt].moon&&this.rand()<0.22)this.spawnFarGroup(nt);else this.spawnAlien(nt);
         this.spawnT=this.round>=6?Math.min((0.7+this.rand()*0.6)/(1+0.35*(plist.length-1)),Math.max(0.2,40/(this.q0||40))*(0.7+this.rand()*0.6)):Math.max(0.3,1.0-this.round*0.03)*Math.min(1,0.45+0.1*this.round);
       }
       if(!this.queue.length&&this.aliens.length===0)this.endRound();   // EVERY alien must be dead before the round ends: bosses, the pirate captain, the sharks, the stalker, the Butcher and roof snipers alike   // the stalker, the Butcher and every boss (even a hidden or perched one) must be dead before the round can end   // (a rooftop sniper nobody can find for 2.5 min stops holding the round open)   // hidden specials (pizza/movie/Cleopatra) never hold a round open
@@ -1662,6 +1712,7 @@ class Game{
       if(this.round>=6&&this.emptyT>0&&this.aliens.length<=6&&!def.loner&&!def.boss&&!def.giant&&!def.stalker)speed*=1+Math.min(0.9,this.emptyT/20);   // last few stragglers speed up so a round never drags
       if(this.weather===6)speed*=1.2;   // aurora: aliens are restless
       speed=Math.min(speed,SPEED_CAP*(a.spm||1));   // nothing ever outruns the cap (stalkers' cap rises with their speed boost)
+      if(def.moon)this.moonTick(a,tp0,tp,dx,dz,dist,dt);
       if(def.beach){   // the shark flies: it cruises over the beach until someone gets close or hurts it, then it hunts anywhere on the map firing lasers
         if(!a.agro&&(dist<130||a.hp<a.mhp-1))a.agro=true;
         const big=a.t===26;
@@ -1697,6 +1748,7 @@ class Game{
           const keep=(a.t===12||a.t===17)?4:30;
           if(a.los&&dist<keep+8)want=dist<keep-10?-0.6:0;
         }
+        if(def.moon&&a.los&&dist<7)want=0;   // close enough: it shuffles sideways instead of walking into you
         if(want!==0){
           let dirx=dx/dist,dirz=dz/dist;
           if(!(a.los&&dist<45)&&!(tp0.y-EYE>1.2&&tp0.y-EYE<14&&dist<80)||want<0){
@@ -1709,7 +1761,8 @@ class Game{
           mx=Math.cos(a.ph*0.3)*0.5;mz=Math.sin(a.ph*0.3)*0.5;
           const px=-dz/dist,pz=dx/dist;mx=px*Math.sin(a.ph*0.25)*0.6;mz=pz*Math.sin(a.ph*0.25)*0.6;
         }
-        a.vx+=(mx*speed-a.vx)*Math.min(1,dt*6);a.vz+=(mz*speed-a.vz)*Math.min(1,dt*6);
+        if(def.moon){if(a.ms===2){mx=a.sdx;mz=a.sdz;speed=24;}else if(a.ms===1||a.ms===3){mx=0;mz=0;}}
+        a.vx+=(mx*speed-a.vx)*Math.min(1,dt*(def.moon&&a.ms===2?14:6));a.vz+=(mz*speed-a.vz)*Math.min(1,dt*(def.moon&&a.ms===2?14:6));
         a.x+=a.vx*dt;a.z+=a.vz*dt;
         if(!def.giant&&!def.perch){
           // ground aliens can jump up low ledges (pyramid steps, crates, curbs) so they can chase you up the pyramid
@@ -1729,7 +1782,7 @@ class Game{
       a.x=clamp(a.x,BOUNDS.x0,BOUNDS.x1);a.z=clamp(a.z,BOUNDS.z0,BOUNDS.z1);
 
       // attacks
-      const melee=(def.fly&&!def.ranged)||(!def.ranged&&!def.support)||def.boss;
+      const melee=!def.moon&&((def.fly&&!def.ranged)||(!def.ranged&&!def.support)||def.boss);
       if(melee){
         const reach=a.r+(def.fly?1.6:1.4);
         const dy=def.fly?Math.abs(a.y-(tp0.y-EYE*0.5)):0;
@@ -2033,7 +2086,7 @@ class Game{
       rd:{mx:r2(this.mbox.x),mz:r2(this.mbox.z),mn:this.mbox.name,wa:r2(this.wheelAng()),hd:this.hard?1:0,vs:this.vs?1:0,vw:this.vsWinner|0,vp:(this.vsWin&&this.vsWin.pend)?1:0,sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
         hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
-      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0]),
+      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0,a.ms|0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       cr:this.crabs.map(c=>[c.id,r2(c.x),r2(c.z),r2(c.yaw)]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,px:c.pax||[],sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0),am:c.am,ch:c.ch?Math.round(c.ch):0})),
