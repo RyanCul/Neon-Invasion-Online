@@ -431,3 +431,4 @@ Every buff now has 4 tiers (each tier needs the previous one). Prices: $2,500 / 
 - Going back to base is only possible between rounds, so a ride sent home that way can be taken out again right away. A wrecked ride still waits until next round. Buying a ride is still a one-time cost.
 - The last person to drive a ride owns it, so someone else heading to base can no longer despawn the ride you are in.
 - If someone else takes over a ride you spawned (they become the last driver), you cannot spawn another copy of that ride until the next round.
+- Clip watermark is now the main-menu logo (same gradient and glow), placed near the top of the vertical video so the YouTube / TikTok title overlay at the bottom doesn't cover it.

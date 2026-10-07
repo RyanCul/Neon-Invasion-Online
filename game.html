@@ -4655,7 +4655,7 @@ function updateHUD(dt){
 }
 
 /* ================= CLIPS: rolling recorder (last ~30 s, 9:16) + saved-clips library ================= */
-var CLIP={run:false,slots:[null,null],cv:null,cx:null,ms:null,last:0,mime:'',ext:'webm',saving:false,micSrc:null,micStream:null,songTap:null};
+var CLIP={logo:null,run:false,slots:[null,null],cv:null,cx:null,ms:null,last:0,mime:'',ext:'webm',saving:false,micSrc:null,micStream:null,songTap:null};
 (function(){
   if(!window.MediaRecorder)return;
   for(const m of['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'])if(MediaRecorder.isTypeSupported(m)){CLIP.mime=m;CLIP.ext=m.indexOf('mp4')>=0?'mp4':'webm';break;}
@@ -4699,6 +4699,15 @@ setInterval(()=>{
   if(!(CLIP.slots[0]&&CLIP.slots[1])&&o&&n-o.t0>=30000)clipSlotStart(CLIP.slots[0]?1:0);
   if(!CLIP.slots[0]&&!CLIP.slots[1])clipSlotStart(0);
 },1000);
+function clipMakeLogo(){   // the same gradient + glow as the main-menu title, drawn once
+  const W=640,H=130,c=document.createElement('canvas');c.width=W;c.height=H;const k=c.getContext('2d');
+  const fam=getComputedStyle(document.body).fontFamily||'Arial Black,Impact,sans-serif';
+  let fs=96;k.font='italic 900 '+fs+'px '+fam;try{k.letterSpacing='6px';}catch(e){}
+  const tw=k.measureText('NEON INVASION').width;if(tw>W-40){fs=Math.floor(fs*(W-40)/tw);k.font='italic 900 '+fs+'px '+fam;}
+  const gr=k.createLinearGradient(0,H/2-fs*0.45,0,H/2+fs*0.45);gr.addColorStop(0,'#fff3b0');gr.addColorStop(0.35,'#ff9a3c');gr.addColorStop(0.7,'#ff2fa0');gr.addColorStop(1,'#a56bff');
+  k.textAlign='center';k.textBaseline='middle';k.shadowColor='rgba(255,47,160,.85)';k.shadowBlur=18;k.fillStyle=gr;k.fillText('NEON INVASION',W/2,H/2);k.shadowBlur=0;k.fillText('NEON INVASION',W/2,H/2);
+  CLIP.logo=c;
+}
 function clipFrame(){
   if(!CLIP.run)return;
   const n=performance.now();if(n-CLIP.last<31)return;CLIP.last=n;
@@ -4712,7 +4721,8 @@ function clipFrame(){
     x.strokeStyle='rgba(255,255,255,.8)';x.lineWidth=3;x.beginPath();x.moveTo(350,640);x.lineTo(370,640);x.moveTo(360,630);x.lineTo(360,650);x.stroke();
     x.restore();
   }
-  x.save();x.textAlign='center';x.font='900 30px "Arial Black",Impact,sans-serif';x.lineWidth=7;x.lineJoin='round';x.strokeStyle='rgba(0,0,0,.85)';x.strokeText('NEON INVASION',360,1236);x.fillStyle='#ff4fb4';x.fillText('NEON INVASION',360,1236);x.restore();   // watermark
+  if(!CLIP.logo)clipMakeLogo();
+  x.globalAlpha=0.95;x.drawImage(CLIP.logo,(720-CLIP.logo.width)/2,150);x.globalAlpha=1;   // the menu logo, up top (the bottom is covered by the video title on YouTube / TikTok)
 }
 /* ---- saved clips (IndexedDB, newest 12 kept) ---- */
 var CLIPDB=null;
