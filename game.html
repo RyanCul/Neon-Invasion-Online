@@ -4976,14 +4976,21 @@ setInterval(()=>{
   if(!(CLIP.slots[0]&&CLIP.slots[1])&&o&&n-o.t0>=30000)clipSlotStart(CLIP.slots[0]?1:0);
   if(!CLIP.slots[0]&&!CLIP.slots[1])clipSlotStart(0);
 },1000);
-function clipMakeLogo(){   // the same gradient + glow as the main-menu title, drawn once
-  const W=640,H=130,c=document.createElement('canvas');c.width=W;c.height=H;const k=c.getContext('2d');
-  const fam=getComputedStyle(document.body).fontFamily||'Arial Black,Impact,sans-serif';
-  let fs=96;k.font='italic 900 '+fs+'px '+fam;try{k.letterSpacing='6px';}catch(e){}
+function clipMakeLogo(){   // the same logo as the main menu (banner style): Montserrat gradient title + Orbitron subtitle, drawn once
+  const W=640,H=170,c=document.createElement('canvas');c.width=W;c.height=H;const k=c.getContext('2d');
+  const fam="Montserrat,'Arial Black',Impact,sans-serif";
+  try{if(document.fonts&&!document.fonts.check('italic 900 40px Montserrat')){Promise.all([document.fonts.load('italic 900 40px Montserrat'),document.fonts.load('700 20px Orbitron')]).then(()=>{CLIP.logo=null;}).catch(()=>{});}}catch(e){}
+  let fs=92;k.font='italic 900 '+fs+'px '+fam;try{k.letterSpacing='3px';}catch(e){}
   const tw=k.measureText('NEON INVASION').width;if(tw>W-40){fs=Math.floor(fs*(W-40)/tw);k.font='italic 900 '+fs+'px '+fam;}
-  const gr=k.createLinearGradient(0,H/2-fs*0.45,0,H/2+fs*0.45);gr.addColorStop(0,'#fff3b0');gr.addColorStop(0.35,'#ff9a3c');gr.addColorStop(0.7,'#ff2fa0');gr.addColorStop(1,'#a56bff');
-  k.textAlign='center';k.textBaseline='middle';k.lineJoin='round';k.lineWidth=Math.round(fs*0.16);k.strokeStyle='#000';k.strokeText('NEON INVASION',W/2,H/2);   // thick black outline so it reads over the pink sky
-  k.shadowColor='rgba(255,47,160,.85)';k.shadowBlur=14;k.fillStyle=gr;k.fillText('NEON INVASION',W/2,H/2);k.shadowBlur=0;k.fillText('NEON INVASION',W/2,H/2);
+  const tw2=Math.min(tw,W-40),x0=(W-tw2)/2,ty=70;
+  const gr=k.createLinearGradient(x0,0,x0+tw2,0);gr.addColorStop(0,'#ff2fa0');gr.addColorStop(0.48,'#ff9a3c');gr.addColorStop(1,'#25f4ff');
+  k.textAlign='center';k.textBaseline='middle';k.lineJoin='round';
+  k.lineWidth=Math.round(fs*0.12);k.strokeStyle='#000';k.strokeText('NEON INVASION',W/2,ty);   // black outline so it reads over the pink sky
+  k.fillStyle='#12002e';k.fillText('NEON INVASION',W/2,ty+Math.round(fs*0.05));   // dark drop shadow
+  k.shadowColor='rgba(255,47,160,.8)';k.shadowBlur=14;k.fillStyle=gr;k.fillText('NEON INVASION',W/2,ty);k.shadowBlur=0;k.fillText('NEON INVASION',W/2,ty);
+  const sf=Math.round(fs*0.27);k.font='700 '+sf+'px Orbitron,Arial,sans-serif';try{k.letterSpacing=Math.round(sf*0.28)+'px';}catch(e){}
+  k.lineWidth=Math.round(sf*0.35);k.strokeStyle='#12002e';k.strokeText('ONLINE CO-OP ALIEN WAVE SHOOTER',W/2,ty+fs*0.78);
+  k.shadowColor='#25f4ff';k.shadowBlur=8;k.fillStyle='#c8fcff';k.fillText('ONLINE CO-OP ALIEN WAVE SHOOTER',W/2,ty+fs*0.78);
   CLIP.logo=c;
 }
 function clipFrame(){
