@@ -467,4 +467,5 @@ The watermark at the top of saved clips now uses the same new logo (title plus t
 
 ## Fix: aliens ignoring a player standing right next to them
 Close-range aliens (armored, brutes, biters, flyers and so on) used to swing only at the one player they were chasing. They re-pick that target every 0.4 s, so with two players (splitscreen, or a crowd online) a player standing right beside an alien could take no damage at all. Now each swing hits every player in reach (still blocked by walls, still one swing per cooldown). Wall blocking itself was tested again over about 47,000 random street positions and never blocked an adjacent hit.
-Also fixed: drones and other flyers hover about 3 above your head and bob up and down, but only attacked when they happened to dip within 4 of your chest, so they often hovered over you without damaging you. The allowance is now wide enough to cover their whole bob.
+(Reverted: I briefly made drones/flyers attack more often; that change is removed and they attack exactly as before.)
+Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN plays a short rising neon power-up sound (it follows the sound-effects volume in Settings). Splitscreen waits about 0.4 s before switching pages so the sound is heard.

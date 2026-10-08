@@ -1789,8 +1789,8 @@ class Game{
         for(const p of alive){
           if(this.inCasino(p))continue;
           const q=p===tp0?tp:this.targetPos(p),d=Math.hypot(q.x-a.x,q.z-a.z);
-          const dy=def.fly?Math.abs(a.y-(p.y-EYE*0.5)):0;   // flyers hover about 3 above your head and bob 2.5 either way, so allow for that
-          if(d<reach+(q.car?1.8:0.4)&&dy<7.5&&(def.fly||p.y-EYE<6)&&this.wallClear(a,q))hit.push(p);
+          const dy=def.fly?Math.abs(a.y-(p.y-EYE*0.5)):0;
+          if(d<reach+(q.car?1.8:0.4)&&dy<4&&(def.fly||p.y-EYE<6)&&this.wallClear(a,q))hit.push(p);
         }
         if(hit.length){
           a.cd=def.fly?1.1:(def.biter?0.55:0.9);

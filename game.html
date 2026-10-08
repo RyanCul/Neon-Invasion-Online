@@ -2632,6 +2632,10 @@ function sfxShot(w,vol){
   else tone(760,300,0.06,'sawtooth',0.05*vol);
 }
 const sfx={
+  go(){const a=actx();if(a&&a.state==='suspended'){try{a.resume();}catch(e){}}   // menu launch: rising neon power-up sweep with a little arpeggio
+    tone(180,1500,0.38,'sawtooth',0.1);noise(0.3,0.12,5000);
+    [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,f*1.02,0.14,'square',0.07),i*65));
+    setTimeout(()=>tone(2093,2093,0.22,'triangle',0.07),280);},
   pad(){tone(220,1400,0.35,'sine',0.14);},
   crit(){tone(2600,1600,0.07,'triangle',0.09);setTimeout(()=>tone(3500,2800,0.1,'sine',0.07),45);},
   streak(n){tone(500+n*80,900+n*120,0.25,'square',0.07);},
@@ -5310,10 +5314,10 @@ function frame(now){
   $('bAch').onclick=()=>{openLocker(true);$('locker').scrollTop=0;};
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;$('slClose').onclick=closeSlots;$('rlClose').onclick=closeRoul;$('rlSpin').onclick=rlSpin;$('rlM').onclick=()=>{rlNumV=(rlNumV+36)%37;rlRender();};$('rlP').onclick=()=>{rlNumV=(rlNumV+1)%37;rlRender();};$('slSpin').onclick=slSpin;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
-  $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
+  $('bSolo').onclick=()=>{sfx.go();myName=getName().toUpperCase();startSolo(getName());};
   (function(){const N={name:{D:'bSolo'},bSolo:{U:'name',D:'room_in'},room_in:{U:'bSolo',D:'bOnline',R:'bSplit'},bOnline:{U:'room_in',R:'bSplit',D:'bLB'},bSplit:{U:'bSolo',L:'bOnline',D:'bQuit'},bLB:{U:'bOnline',R:'bQuit',D:'discord'},bQuit:{U:'bSplit',L:'bLB',D:'discord'},discord:{U:'bLB'}};
     for(const id in N){const e=$(id);if(e)for(const k in N[id])e.dataset['nav'+k]=N[id][k];}})();
-  $('bSplit').onclick=()=>{getName();location.href=location.pathname+'?split=host';};
+  $('bSplit').onclick=()=>{getName();sfx.go();setTimeout(()=>{location.href=location.pathname+'?split=host';},420);};   // short wait so the launch sound is heard before the page changes
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
   /* ---------- friends panel ---------- */
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -5393,7 +5397,7 @@ function frame(now){
   $('bOnline').onclick=()=>{
     const nm=$('name').value.trim();
     if(!nm){$('msg').textContent='Type your name first - it shows on the leaderboard!';$('name').focus();return;}
-    myName=getName().toUpperCase();
+    sfx.go();myName=getName().toUpperCase();
     const u=$('url').value.trim();try{localStorage.setItem('ni_url',u);}catch(e){}
     startOnline(u,$('room_in').value.trim(),getName());
   };
