@@ -2890,7 +2890,7 @@ function checkSights(dt){
         else{const ey=o.y+def.cy-cy,dl=Math.hypot(dx,ey,dz)||1;vis=NI.rayWorld(cx,cy,cz,dx/dl,ey/dl,dz/dl,dl)>=dl-1.2;}
       }
     }
-    if(vis){count++;o.unseenT=0;if(!o.seen){o.seen=true;try{dexFind(o.t);}catch(e){}if(d<newD){newD=d;newAlien=o;}}}
+    if(vis){count++;o.unseenT=0;if(!o.seen){o.seen=true;try{dexFind(o.t);if(o.vehT!==undefined)dexFind(30+o.vehT);}catch(e){}if(d<newD){newD=d;newAlien=o;}}}
     else if(o.seen){o.unseenT=(o.unseenT||0)+0.2;if(o.unseenT>1.5)o.seen=false;}   // must be out of sight 1.5s to be "spotted" again
   }
   seenCount=count;
@@ -3032,7 +3032,7 @@ let myName='PLAYER';
 let prof={xp:0,skin:0,car:0,ch:[0,0,0,0,0,0,0,0,0],ex:[0,0,0,0,0,0],st:{k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]},ach:[],dex:[]},pend=0,gameXP=0,lastK=0,joinRound=1,firstSnap=true,lockerOpen=false;
 function mergeSt(a,b){   // lifetime stats: every counter only ever goes up
   const o={k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,pt:0,dn:0,mn:0,dd:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]};
-  o.ak=[];for(let i=0;i<32;i++)o.ak[i]=Math.max((a&&a.ak&&a.ak[i])|0,(b&&b.ak&&b.ak[i])|0);
+  o.ak=[];for(let i=0;i<40;i++)o.ak[i]=Math.max((a&&a.ak&&a.ak[i])|0,(b&&b.ak&&b.ak[i])|0);
   for(const s of [a,b]){if(!s)continue;for(const k of ['k','rv','bo','br','cr','rk','gm','rt','pt','dn','mn','dd'])o[k]=Math.max(o[k],s[k]|0);for(let i=0;i<12;i++)o.wk[i]=Math.max(o.wk[i],(s.wk&&s.wk[i])|0);o.bk=[];for(let i=0;i<32;i++)o.bk[i]=Math.max((a&&a.bk&&a.bk[i])|0,(b&&b.bk&&b.bk[i])|0);}
   return o;
 }
@@ -3194,7 +3194,7 @@ function onServer(m){
     if(!o){o=makeAlien(a[1]);o.x=a[2];o.y=a[3];o.z=a[4];o.yaw=a[5];o.ph=Math.random()*6;scene.add(o.g);aliensM.set(a[0],o);}
     o.tx=a[2];o.ty=a[3];o.tz=a[4];o.tyaw=a[5];o.hp=a[6];o.dorm=a[8];o.burn=a[9]||0;o.hide=a[10]||0;o.mut=a[11]|0;if(o.mut&&!o.mutDone)applyMut(o);
     o.tel=a[12]||0;updTel(o);o.ms=a[14]|0;o.snk=a[15]|0;o.lz=+a[16]||0;
-    if(a[13]&&!o.vehDone){o.vehDone=1;const vt=a[13]-1,cd=CARS[vt],vm=makeCar(vt,0);vm.userData.rider&&(vm.userData.rider.visible=false);o.g.add(vm);o.vm=vm;
+    if(a[13]&&!o.vehDone){o.vehDone=1;const vt=a[13]-1;o.vehT=vt;const cd=CARS[vt],vm=makeCar(vt,0);vm.userData.rider&&(vm.userData.rider.visible=false);o.g.add(vm);o.vm=vm;
       const hum=o.g.children.find(ch=>ch.isGroup&&ch!==vm&&ch.scale.x!==1);if(hum)hum.position.y+=cd.eye*0.5;
       if(vm.userData.root)vm.userData.root.position.y=0;}
   }
@@ -3476,13 +3476,28 @@ null,
 ['APEX PREDATOR','The one the little sharks tell stories about. It rises out of the surf the size of a bus, and its jaws are sized for a car.','Hunts near the beach'],
 ['CLEANUP HITTER','Plays hardball with the human race. Every pitch is a fastball, every swing is a home run, and you are the ball.','Wanders the city alone'],
 ['GALACTIC ICON','Glides backwards across the dance floor and straight at you. Most famous alien in the galaxy.','Mid-to-late rounds'],
-['BIGGEST FAN','Never the star. It follows the Moonwalker\'s lead and strikes the exact same pose right until the end. Fan activity.','With the Moonwalker']
+['BIGGEST FAN','Never the star. It follows the Moonwalker\'s lead and strikes the exact same pose right until the end. Fan activity.','With the Moonwalker'],
+['SEGWAY SCOUT','A Foot Soldier who found a Segway and has never been happier. Leans into every turn, waves at the camera, and has never once been pulled over.','Round 8 and up, on wheels'],
+['BIKER GRUNT','Stole a motorcycle from a very confused man in a leather jacket. It rides like it has no brakes, because it never looked for them.','Round 16 and up, on wheels'],
+['COUPE CRUISER','Cruises the strip in a pink convertible with the top down and the music up. Style points matter more to it than the invasion does.','Round 21 and up, on wheels'],
+['MUSCLE MAULER','Rides a cyan muscle car with a growl you can feel in your fillings. It does not steer around anything, and that includes you.','Round 28 and up, on wheels'],
+['HYPER RACER','Drives a sunset-gold hypercar flat out down every straightaway. It has never heard the word slow and does not plan to learn it.','Round 34 and up, on wheels'],
+['TRUCK CRUSHER','Monster truck, monster ego. Rolls right over parked cars, street signs and a small pizza shop. Sunday, Sunday, Sunday.','Round 40 and up, on wheels'],
+['HOVER JOCKEY','Skims the street on a void-purple hovercar that makes no sound at all. You will only know it is there when it is already past you.','Round 45 and up, on wheels'],
+['CHOPPER GUNNER','Flies a gunship helicopter low over the rooftops, hanging out of the door with a gun far too big for it. Aliens stole the idea from the movies.','Round 48 and up, on wheels'],
+['TANK COMMANDER','Drives a battle tank that rattles windows three blocks away. Slow, stubborn and very much in charge of its own artillery.','Round 51 and up, on wheels']
 ];
+const DEXV=['NEON SEGWAY','DRIFT MOTORCYCLE','FLAMINGO COUPE','CYAN MUSCLE','SUNSET HYPER','MONSTER TRUCK','VOID HOVERCAR','GUNSHIP HELICOPTER','BATTLE TANK'];
+function dexAT(t){   // the vehicle riders (ids 30-38) are the driver alien plus its ride
+  if(t<30)return NI.AT[t];
+  const vt=t-30,cd=NI.CARS?NI.CARS[vt]:CARS[vt],b=NI.AT[vt>=7?1:0];
+  return {name:DEX[t][0],hp:Math.round(b.hp+cd.hp*0.4),sp:b.sp,dmg:b.dmg,money:b.money+Math.round(cd.cost*0.04),fly:vt===6||vt===7,ranged:!!cd.gun||!!b.ranged,boss:false,wheels:1};
+}
 function dexFind(t){
   if(!prof.dex)prof.dex=[];
-  if(DEXO.indexOf(t)>=0&&prof.dex.indexOf(t)<0){prof.dex.push(t);saveProf();try{toast('ALIEN DEX UPDATED',NI.AT[t].name,true);}catch(e){}if(acct)setTimeout(cloudSync,1500);}
+  if(DEXO.indexOf(t)>=0&&prof.dex.indexOf(t)<0){prof.dex.push(t);saveProf();try{toast('ALIEN DEX UPDATED',dexAT(t).name,true);}catch(e){}if(acct)setTimeout(cloudSync,1500);}
 }
-const DEXO=[0,2,1,5,3,4,6,14,7,19,8,13,25,28,29,9,20,10,11,18,23,27,12,24,22,26,21,17];   // the order they first show up in a run
+const DEXO=[0,2,1,5,3,4,6,14,7,19,8,13,25,28,29,30,9,20,10,11,18,23,31,27,12,32,24,22,33,26,21,34,35,36,37,17,38];   // the order they first show up in a run
 let dexOpen=false,dexSelT=-1,dexR=null,dexSpr={},dexCur=null;
 function dexRenderer(){
   if(dexR)return dexR;
@@ -3494,7 +3509,9 @@ function dexRenderer(){
   return dexR={rd,sc,cm};
 }
 function dexModel(t,dark){   // a normalised copy of the 3D model: centred, fits the frame
-  const o=makeAlien(t),g=new THREE.Group();g.add(o.g);
+  const vt=t>=30?t-30:-1,o=makeAlien(vt>=0?(vt>=7?1:0):t),g=new THREE.Group();g.add(o.g);
+  if(vt>=0){const cd=CARS[vt],vm=makeCar(vt,0);vm.userData.rider&&(vm.userData.rider.visible=false);o.g.add(vm);
+    const hum=o.g.children.find(ch=>ch.isGroup&&ch!==vm&&ch.scale.x!==1);if(hum)hum.position.y+=cd.eye*0.5;if(vm.userData.root)vm.userData.root.position.y=0;}
   if(dark)o.g.traverse(m=>{if(m.isMesh)m.material=new THREE.MeshBasicMaterial({color:0x07020f});});
   const bx=new THREE.Box3().setFromObject(g),sz=new THREE.Vector3(),ct=new THREE.Vector3();bx.getSize(sz);bx.getCenter(ct);
   const k=3.6/Math.max(sz.x,sz.y,sz.z*0.9,0.01);o.g.position.sub(ct);const w=new THREE.Group();w.add(o.g);w.scale.setScalar(k);
@@ -3532,7 +3549,7 @@ function dexBuild(){
   for(let ix=0;ix<DEXO.length;ix++){
     const t=DEXO[ix],f=have.indexOf(t)>=0,b=document.createElement('button');b.className='dxc'+(f?'':' lock');b.dataset.dex=t;
     const sp=dexSprite(t,!f),c=document.createElement('canvas');c.width=c.height=28;c.getContext('2d').drawImage(sp,0,0);b.appendChild(c);
-    const n=document.createElement('span');n.textContent=f?NI.AT[t].name:'???';b.appendChild(n);
+    const n=document.createElement('span');n.textContent=f?dexAT(t).name:'???';b.appendChild(n);
     const num=document.createElement('i');num.textContent='#'+String(ix+1).padStart(2,'0');b.appendChild(num);
     b.onmouseenter=()=>dexSel(t);b.onfocus=()=>dexSel(t);b.onclick=()=>{dexSel(t);try{sfx.tick&&sfx.tick();}catch(e){}};
     gr.appendChild(b);
@@ -3540,16 +3557,16 @@ function dexBuild(){
   $('dexCount').textContent='DISCOVERED '+have.filter(v=>DEXO.indexOf(v)>=0).length+' / '+DEXO.length;
 }
 function dexSel(t){
-  if(t===dexSelT)return;dexSelT=t;const f=(prof.dex||[]).indexOf(t)>=0,d=DEX[t],a=NI.AT[t];
+  if(t===dexSelT)return;dexSelT=t;const f=(prof.dex||[]).indexOf(t)>=0,d=DEX[t],a=dexAT(t);
   document.querySelectorAll('#dexGrid .dxc.sel').forEach(e=>e.classList.remove('sel'));
   const cell=$('dexGrid').querySelector('[data-dex="'+t+'"]');if(cell)cell.classList.add('sel');
   $('dexName').textContent=f?a.name:'???';$('dexName').style.color=f?'#fff':'#7a5aa8';
-  $('dexRole').textContent=f?d[0]:'UNKNOWN SPECIES';
+  $('dexRole').textContent=f?(a.wheels?'RIDES THE '+CARS[t-30].name:d[0]):'UNKNOWN SPECIES';
   $('dexLore').textContent=f?d[1]:'No data. Spot this alien out in the field and its file unlocks.';
   $('dexHint').textContent=f?'':('LAST RUMOUR: '+d[2]);
   const ch=[];
   if(f){ch.push('HP '+(a.hp>=1000?(a.hp/1000)+'K':a.hp));ch.push('SPEED '+a.sp);ch.push(a.dmg>0?'DMG '+a.dmg:'NO ATTACK');ch.push('BOUNTY $'+a.money.toLocaleString());
-    {const kk=((prof.st&&prof.st.ak&&prof.st.ak[t])|0);if(kk)ch.push('YOU KILLED '+kk.toLocaleString());}if(a.fly)ch.push('FLYING');if(a.ranged)ch.push('RANGED');if(a.boss)ch.push('BOSS');if(a.loner)ch.push('LONE HUNTER');if(a.support)ch.push('HEALER');if(a.bomb)ch.push('EXPLODES');}
+    {const kk=((prof.st&&prof.st.ak&&prof.st.ak[t])|0);if(kk)ch.push('YOU KILLED '+kk.toLocaleString());}if(a.wheels)ch.push('ON WHEELS');if(a.fly)ch.push('FLYING');if(a.ranged)ch.push('RANGED');if(a.boss)ch.push('BOSS');if(a.loner)ch.push('LONE HUNTER');if(a.support)ch.push('HEALER');if(a.bomb)ch.push('EXPLODES');}
   $('dexChips').innerHTML=ch.map(c=>'<b>'+c+'</b>').join('');
   const R=dexRenderer();if(!R)return;
   if(dexCur)R.sc.remove(dexCur.w);dexCur=dexModel(t,!f);R.sc.add(dexCur.w);
@@ -3578,7 +3595,7 @@ function dexStatsBuild(){
     ['BOSSES KILLED',n(s.bo),bdone+' / '+bosses.length+' different bosses beaten'],['ROUNDS CLEARED',n(s.rt),gm?(Math.round((s.rt|0)/gm*10)/10)+' per game':''],
     ['HEADSHOT KILLS',n(s.cr),k?Math.round((s.cr|0)/k*100)+'% of your kills':''],['ROADKILLS',n(s.rk),''],
     ['DAMAGE DEALT',n(s.dd),''],['CASH EARNED',"$"+n(s.mn),'all games, roughly'],['TEAMMATES REVIVED',n(s.rv),''],['TIMES DOWNED',n(s.dn),gm?(Math.round((s.dn|0)/gm*10)/10)+' per game':''],
-    ['FAVORITE WEAPON',fw>=0?NI.WPN[fw].name:'-',fw>=0?n(fwn)+' kills':''],['MOST KILLED ALIEN',fa>=0?NI.AT[fa].name:'-',fa>=0?n(fan)+' kills':''],
+    ['FAVORITE WEAPON',fw>=0?NI.WPN[fw].name:'-',fw>=0?n(fwn)+' kills':''],['MOST KILLED ALIEN',fa>=0?dexAT(fa).name:'-',fa>=0?n(fan)+' kills':''],
     ['ALIENS DISCOVERED',disc+' / '+DEXO.length,''],['ACHIEVEMENTS',(prof.ach||[]).length+' / '+NI.ACH.length,''],['LEVEL',lvInfo(prof.xp).L,'']
   ];
   $('dexStats').innerHTML=C.map(c=>'<div class="stc'+(c[3]?' big':'')+'"><small>'+c[0]+'</small><b>'+escH(String(c[1]))+'</b>'+(c[2]?'<i>'+escH(c[2])+'</i>':'')+'</div>').join('');
@@ -3723,7 +3740,7 @@ function handleEvent(e){
       stAdd('rt',1);checkAch();
     }
   }
-  else if(k==='kc'){if(e[1]===myId){stAdd('k',1);if(e[5]!==undefined&&e[5]>=0&&e[5]<32)stAdd('ak',1,e[5]);if(e[2]<0)stAdd('rk',1);else stAdd('w',1,e[2]);if(e[3])stAdd('cr',1);if(e[4])stAdd('bo',1);if(e[5]!==undefined&&NI.ACH.some(q=>q.s==='bk'&&q.i===e[5]))stAdd('bk',1,e[5]);checkAch();}}
+  else if(k==='kc'){if(e[1]===myId){stAdd('k',1);if(e[5]!==undefined&&e[5]>=0&&e[5]<40)stAdd('ak',1,(e[6]>=0&&e[6]<9)?30+e[6]:e[5]);if(e[2]<0)stAdd('rk',1);else stAdd('w',1,e[2]);if(e[3])stAdd('cr',1);if(e[4])stAdd('bo',1);if(e[5]!==undefined&&NI.ACH.some(q=>q.s==='bk'&&q.i===e[5]))stAdd('bk',1,e[5]);checkAch();}}
   else if(k==='perk'){if(e[1]===myId){sfx.buy();toast('PERK: '+PERKS[e[2]].name,PERKS[e[2]].desc);}}
   else if(k==='beer'){if(e[1]===myId){drunkT=drunkD=30;sfx.buy();toast('GLUG GLUG');}}
   else if(k==='moon'){const o=aliensM.get(e[1]);if(o){const v=nearVol(o.x,o.z,80);if(v>0.03){

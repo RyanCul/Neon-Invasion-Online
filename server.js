@@ -196,7 +196,7 @@ async function handleApi(req,res,url){
           if(Array.isArray(p.ach)){const set=new Set(a.ach||[]);for(const x of p.ach)if(typeof x==='string'&&NI.ACH.some(q=>q.id===x))set.add(x);a.ach=[...set];}
           if(Array.isArray(p.dex)){const ds=new Set(a.dex||[]);for(const v of p.dex)if(Number.isInteger(v)&&v>=0&&v<40)ds.add(v);a.dex=[...ds].sort((x,y)=>x-y);}
           if(p.st&&typeof p.st==='object'){const o=a.st||{wk:[]},c=(v,mx)=>Math.max(0,Math.min(mx,Math.floor(+v)||0));
-            for(const k of ['k','rv','bo','br','cr','rk','gm','rt','dn','dd'])o[k]=Math.max(o[k]|0,c(p.st[k],k==='dd'?5e9:5e6));o.pt=Math.max(o.pt|0,c(p.st.pt,3e8));o.mn=Math.max(o.mn|0,c(p.st.mn,5e10));o.ak=[];for(let i=0;i<32;i++)o.ak[i]=Math.max((a.st&&a.st.ak&&a.st.ak[i])|0,c(p.st.ak&&p.st.ak[i],5e6));
+            for(const k of ['k','rv','bo','br','cr','rk','gm','rt','dn','dd'])o[k]=Math.max(o[k]|0,c(p.st[k],k==='dd'?5e9:5e6));o.pt=Math.max(o.pt|0,c(p.st.pt,3e8));o.mn=Math.max(o.mn|0,c(p.st.mn,5e10));o.ak=[];for(let i=0;i<40;i++)o.ak[i]=Math.max((a.st&&a.st.ak&&a.st.ak[i])|0,c(p.st.ak&&p.st.ak[i],5e6));
             o.wk=[];for(let i=0;i<12;i++)o.wk[i]=Math.max((a.st&&a.st.wk&&a.st.wk[i])|0,c(p.st.wk&&p.st.wk[i],5e6));o.bk=[];for(let i=0;i<32;i++)o.bk[i]=Math.max((a.st&&a.st.bk&&a.st.bk[i])|0,c(p.st.bk&&p.st.bk[i],5e6));a.st=o;}
           if(Number.isFinite(+p.best)&&+p.best>(a.best|0))a.best=Math.min(300,Math.floor(+p.best));
           accSave(a);

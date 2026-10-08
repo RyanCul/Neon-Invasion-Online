@@ -1187,7 +1187,7 @@ class Game{
   }
   killAlien(a,p,crit){
     const def=AT[a.t];
-    this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0,a.t);   // credit for the killer's own lifetime stats / achievements
+    this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0,a.t,a.veh>=0?a.veh:-1);   // credit for the killer's own lifetime stats / achievements
     const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(1+perkFx(p,'cash'))*(this.hard?1.25:1)*(this.weather===6?1.5:1)/(1+0.22*(this.players.size-1));   // bigger crews fight more aliens, so each kill pays less
     p.money+=Math.round(mk);p.kills++;
     for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash

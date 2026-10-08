@@ -517,3 +517,6 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 - Round 40 spawns **two Godzillas**.
 - The two Godzillas of round 40 spawn on opposite sides of the city.
 - Controller: the Alien Dex and its Stats tab are fully pad-controlled (D-pad/stick to move, A to select, LB/RB switch Aliens/Stats, right stick scrolls, B closes; moving over an alien previews it).
+
+## Vehicle riders in the Alien Dex
+- Added the 9 alien drivers to the Dex (Segway Scout, Biker Grunt, Coupe Cruiser, Muscle Mauler, Hyper Racer, Truck Crusher, Hover Jockey, Chopper Gunner, Tank Commander): 37 entries total. Each unlocks the first time you see an alien on that vehicle, has its own 3D model and lore, and its own kill count (the kill event now carries the vehicle id; per-alien kill arrays grew from 32 to 40 slots in the client and server).
