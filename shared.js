@@ -1171,7 +1171,7 @@ class Game{
   /* ---- rounds ---- */
   wallClear(a,tp){   // true when no wall sits between this alien and the target
     if(AT[a.t].giant)return true;
-    const ay=a.y+Math.min(a.cy,2)*0.8,by=(tp.y||0)-EYE*0.5,dx=tp.x-a.x,dy=by-ay,dz=tp.z-a.z,d=Math.hypot(dx,dy,dz)||1;
+    const ay=a.y+Math.min(a.cy,2)*0.8,by=tp.car?(tp.y||1):(tp.y||0)+EYE*0.5,dx=tp.x-a.x,dy=by-ay,dz=tp.z-a.z,d=Math.hypot(dx,dy,dz)||1;
     return rayWorld(a.x,ay,a.z,dx/d,dy/d,dz/d,d)>=d-0.6;
   }
   hpMul(){const r=this.round;   // steep early, then a gentle slope after round 40 so round 150 stays winnable
@@ -1783,14 +1783,19 @@ class Game{
 
       // attacks
       const melee=!def.moon&&((def.fly&&!def.ranged)||(!def.ranged&&!def.support)||def.boss);
-      if(melee){
-        const reach=a.r+(def.fly?1.6:1.4);
-        const dy=def.fly?Math.abs(a.y-(tp0.y-EYE*0.5)):0;
-        if(dist<reach+(tp.car?1.8:0.4)&&dy<4&&a.cd<=0&&(def.fly||tp0.y-EYE<6)&&this.wallClear(a,tp)){
+      if(melee&&a.cd<=0){
+        // swing at EVERY player actually in reach, not only the one it is chasing (it re-picks its target every 0.4 s, so a second player or a crowd used to be ignored while standing right next to it)
+        const reach=a.r+(def.fly?1.6:1.4),hit=[];
+        for(const p of alive){
+          if(this.inCasino(p))continue;
+          const q=p===tp0?tp:this.targetPos(p),d=Math.hypot(q.x-a.x,q.z-a.z);
+          const dy=def.fly?Math.abs(a.y-(p.y-EYE*0.5)):0;   // flyers hover about 3 above your head and bob 2.5 either way, so allow for that
+          if(d<reach+(q.car?1.8:0.4)&&dy<7.5&&(def.fly||p.y-EYE<6)&&this.wallClear(a,q))hit.push(p);
+        }
+        if(hit.length){
           a.cd=def.fly?1.1:(def.biter?0.55:0.9);
           if(def.bomb){this.explode(a);a.cd=9;}
-          else if(def.tipsy)this.push('drunk',tp0.id,10);
-          else this.hurt(tp0,a.dmg,a.x,a.z);
+          else for(const p of hit){if(def.tipsy)this.push('drunk',p.id,10);else this.hurt(p,a.dmg,a.x,a.z);}
         }
       }
       if(a.t===23){   // CARNIVAL BOSS rides the wheel with a sniper rifle: a red line charges for 1.4 s, then one heavy shot
