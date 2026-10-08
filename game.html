@@ -4312,7 +4312,7 @@ function uiFocusables(layer){
 let uiLast={gi:0,pid:'',idx:0},uiMem={},uiPrevLayer='';
 function uiSetFocus(layer,el){
   if(!el)return;document.querySelectorAll('.padfocus').forEach(e=>e.classList.remove('padfocus'));
-  el.classList.add('padfocus');uiMem[layer.id]=el;try{el.scrollIntoView({block:'nearest',inline:'nearest'});}catch(e){}
+  el.classList.add('padfocus');uiMem[layer.id]=el;if(el.dataset&&el.dataset.dex!==undefined){try{dexSel(+el.dataset.dex);}catch(e){}}try{el.scrollIntoView({block:'nearest',inline:'nearest'});}catch(e){}
   const list=uiFocusables(layer),p=el.parentElement;
   uiLast={gi:Math.max(0,list.indexOf(el)),pid:p&&p.id||'',idx:p?[...p.children].indexOf(el):0};
 }
@@ -4416,7 +4416,7 @@ function padNav(layer,gp,edge,lx,ly,dt){
   }
   if(edge(9)){if(id==='menu'){const b=$('bSolo');if(b)b.click();}else if(id==='pauseO')setPause(false);}
   if(edge(1)&&UI_CLOSE[id]){const b=$(UI_CLOSE[id]);if(b)b.click();}
-  if(edge(4)||edge(5)){const dir=edge(5)?1:-1;if(!uiTabs(layer,dir,'.navtabs div'))uiTabs(layer,dir,'.subtabs div');}
+  if(edge(4)||edge(5)){const dir=edge(5)?1:-1;if(id==='dexP')uiTabs(layer,dir,'.dxt');else if(!uiTabs(layer,dir,'.navtabs div'))uiTabs(layer,dir,'.subtabs div');}
   if(edge(6)||edge(7)){uiTabs(layer,edge(7)?1:-1,'.lkp.on .subtabs div')||uiTabs(layer,edge(7)?1:-1,'#chtabs div');}
 }
 /* ---- on-screen keyboard so names / passwords can be typed with a controller ---- */

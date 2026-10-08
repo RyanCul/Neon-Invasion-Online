@@ -516,3 +516,4 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 - Overmind health raised (about 300,000 at round 50). Headshots only do +15% on it (no Dead Eye bonus), and you still need to be within your weapon's range of it from a rooftop, jetpack or helicopter.
 - Round 40 spawns **two Godzillas**.
 - The two Godzillas of round 40 spawn on opposite sides of the city.
+- Controller: the Alien Dex and its Stats tab are fully pad-controlled (D-pad/stick to move, A to select, LB/RB switch Aliens/Stats, right stick scrolls, B closes; moving over an alien previews it).
