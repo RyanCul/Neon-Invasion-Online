@@ -19,17 +19,17 @@ const PLAYER_COLORS=[0xff2fa0,0x25f4ff,0xfff3b0,0xa56bff,0x3cff9e,0xff9a3c,0xfff
 /* weapons: colored laser guns */
 const WPN=[
   {id:0,name:'FLAMINGO',  kind:'PINK LASER PISTOL',   color:0xff2fa0,dmg:30, rate:4.6, mag:12, res:120,cost:0,   pellets:1,spread:0.004,pierce:1,reload:1.1,range:80,auto:false,tag:'ACCURATE SIDEARM - no tricks, never runs out'},
-  {id:1,name:'AQUA-9',    kind:'CYAN LASER SMG',      color:0x25f4ff,dmg:20, rate:13,  mag:24, res:120,cost:2000,pellets:1,spread:0.02, pierce:1,reload:1.4,range:90,auto:true,chain:1,tag:'CHAIN LIGHTNING - hits arc to a nearby alien'},
-  {id:2,name:'SUNSET',    kind:'ORANGE LASER SHOTGUN',color:0xff9a3c,dmg:20, rate:1.5, mag:6,  res:54, cost:2000,pellets:8,spread:0.07, pierce:1,reload:2.0,range:45,auto:false,falloff:1,tag:'POINT-BLANK - huge up close, weak at range'},
-  {id:3,name:'VIOLET RAIL',kind:'PURPLE PIERCING RAIL',color:0xa56bff,dmg:170,rate:1.2, mag:8,  res:56, cost:2000,pellets:1,spread:0.0,  pierce:4,reload:1.8,range:160,auto:false,ramp:1,tag:'ARMOR PIERCER - every alien it passes through takes MORE'},
-  {id:4,name:'LIME STORM',kind:'GREEN LASER MINIGUN', color:0x3cff9e,dmg:24, rate:11,  mag:90, res:450,cost:2000,pellets:1,spread:0.03, pierce:1,reload:2.4,range:120,auto:true,slow:1,tag:'SUPPRESSION - hits slow aliens down'},
-  {id:5,name:'LONGSHOT',  kind:'BLUE LASER SCOPE RIFLE',color:0x3c8cff,dmg:230,rate:0.95,mag:5,  res:40, cost:2000,pellets:1,spread:0,   pierce:3,reload:2.3,auto:false,range:420,scope:true,far:1,tag:'SNIPER - damage grows with distance'},
-  {id:6,name:'ARC GATLING',kind:'RED CHARGE-UP MINIGUN',color:0xff3c4c,dmg:16, rate:20,  mag:180,res:720,cost:2000,pellets:1,spread:0.04,pierce:1,reload:3.0,range:110,auto:true,charge:0.9,spin:1,tag:'SPIN-UP - damage ramps the longer you hold fire'},
-  {id:7,name:'NEON STARS',kind:'GOLD THROWING STARS', color:0xffd23c,dmg:60, rate:3.2, mag:12, res:96, cost:2000,pellets:1,spread:0.006,pierce:5,reload:1.2,auto:false,range:90,proj:'star',bounce:1,tag:'RICOCHET - stars bounce between aliens'},
-  {id:8,name:'INFERNO',   kind:'FLAMETHROWER',        color:0xff5a1a,dmg:6,  rate:18,  mag:100,res:500,cost:2000,pellets:3,spread:0.13, pierce:6,reload:2.2,auto:true,range:34,flame:true,burn:true,tag:'BURN - sets aliens on fire'},
-  {id:9,name:'TOXIC SPRAYER',kind:'GAS CLOUD LAUNCHER',color:0xb6ff1c,dmg:30, rate:1.4, mag:6,  res:36, cost:2000,pellets:1,spread:0.01, pierce:1,reload:2.0,auto:false,range:75,gas:true,tag:'POISON CLOUD - area damage over time'},
-  {id:10,name:'BRASS KNUCKLES',kind:'CLOSE-RANGE PUNCHERS',color:0xffc83c,dmg:70,rate:3.2,mag:999,res:0,  cost:2000, pellets:1,spread:0.08,pierce:3,reload:0,auto:true,range:4.3,melee:true,tag:'MELEE - massive close damage, unlimited'},
-  {id:11,name:'MINI-BOMBER',kind:'MINI BOMB LAUNCHER',color:0xff3cf0,dmg:85,rate:2.2,mag:8,res:56,cost:2000,pellets:1,spread:0.008,pierce:1,reload:2.2,auto:false,range:110,br:5,tag:'EXPLOSIVES - mini blasts hurt everything nearby'}
+  {id:1,name:'AQUA-9',    kind:'CYAN LASER SMG',      color:0x25f4ff,dmg:20, rate:13,  mag:24, res:120,cost:1500,pellets:1,spread:0.02, pierce:1,reload:1.4,range:90,auto:true,chain:1,tag:'CHAIN LIGHTNING - hits arc to a nearby alien'},
+  {id:2,name:'SUNSET',    kind:'ORANGE LASER SHOTGUN',color:0xff9a3c,dmg:20, rate:1.5, mag:6,  res:54, cost:1500,pellets:8,spread:0.07, pierce:1,reload:2.0,range:45,auto:false,falloff:1,tag:'POINT-BLANK - huge up close, weak at range'},
+  {id:3,name:'VIOLET RAIL',kind:'PURPLE PIERCING RAIL',color:0xa56bff,dmg:170,rate:1.2, mag:8,  res:56, cost:1500,pellets:1,spread:0.0,  pierce:4,reload:1.8,range:160,auto:false,ramp:1,tag:'ARMOR PIERCER - every alien it passes through takes MORE'},
+  {id:4,name:'LIME STORM',kind:'GREEN LASER MINIGUN', color:0x3cff9e,dmg:24, rate:11,  mag:90, res:450,cost:1500,pellets:1,spread:0.03, pierce:1,reload:2.4,range:120,auto:true,slow:1,tag:'SUPPRESSION - hits slow aliens down'},
+  {id:5,name:'LONGSHOT',  kind:'BLUE LASER SCOPE RIFLE',color:0x3c8cff,dmg:230,rate:0.95,mag:5,  res:40, cost:1500,pellets:1,spread:0,   pierce:3,reload:2.3,auto:false,range:420,scope:true,far:1,tag:'SNIPER - damage grows with distance'},
+  {id:6,name:'ARC GATLING',kind:'RED CHARGE-UP MINIGUN',color:0xff3c4c,dmg:16, rate:20,  mag:180,res:720,cost:1500,pellets:1,spread:0.04,pierce:1,reload:3.0,range:110,auto:true,charge:0.9,spin:1,tag:'SPIN-UP - damage ramps the longer you hold fire'},
+  {id:7,name:'NEON STARS',kind:'GOLD THROWING STARS', color:0xffd23c,dmg:60, rate:3.2, mag:12, res:96, cost:1500,pellets:1,spread:0.006,pierce:5,reload:1.2,auto:false,range:90,proj:'star',bounce:1,tag:'RICOCHET - stars bounce between aliens'},
+  {id:8,name:'INFERNO',   kind:'FLAMETHROWER',        color:0xff5a1a,dmg:6,  rate:18,  mag:100,res:500,cost:1500,pellets:3,spread:0.13, pierce:6,reload:2.2,auto:true,range:34,flame:true,burn:true,tag:'BURN - sets aliens on fire'},
+  {id:9,name:'TOXIC SPRAYER',kind:'GAS CLOUD LAUNCHER',color:0xb6ff1c,dmg:30, rate:1.4, mag:6,  res:36, cost:1500,pellets:1,spread:0.01, pierce:1,reload:2.0,auto:false,range:75,gas:true,tag:'POISON CLOUD - area damage over time'},
+  {id:10,name:'BRASS KNUCKLES',kind:'CLOSE-RANGE PUNCHERS',color:0xffc83c,dmg:70,rate:3.2,mag:999,res:0,  cost:1500, pellets:1,spread:0.08,pierce:3,reload:0,auto:true,range:4.3,melee:true,tag:'MELEE - massive close damage, unlimited'},
+  {id:11,name:'MINI-BOMBER',kind:'MINI BOMB LAUNCHER',color:0xff3cf0,dmg:85,rate:2.2,mag:8,res:56,cost:1500,pellets:1,spread:0.008,pierce:1,reload:2.2,auto:false,range:110,br:5,tag:'EXPLOSIVES - mini blasts hurt everything nearby'}
 ];
 WPN[0].upm=0.5;WPN[1].upm=0.8;WPN[10].upm=0.6;WPN[7].upm=0.8;
 /* ---- levels & gun skins (profile is stored in the player's browser) ---- */
@@ -250,7 +250,7 @@ const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
 const UP_COST=[2500,6000,12000,22000,48000,110000,175000,230000,290000];   // cost to reach upgrade 1..9 - the same for every weapon
 // Character buffs: 8 lines x 4 tiers. Every tier I costs the same, and the price steps are shared by every line.
-const PERK_COST=[2500,10000,40000,150000];
+const PERK_COST=[1800,7000,32000,80000];
 const PERK_LINES=[   // ids per tier (ids 0-13 kept from the old layout so saved bitmasks stay valid)
   {k:'tank',  name:'NEON TANK',    ids:[0,8,9,10],   fx:[25,60,110,175],        d:v=>'+'+v+' max health (total)'},
   {k:'quick', name:'QUICK REVIVE', ids:[1,14,15,16], fx:[1.3,1.6,2,2.5],        d:v=>'revive teammates '+v+'x as fast'},
@@ -631,6 +631,8 @@ function genWorld(seed){
    loot.push({x:t.x,y:6.4+0.8+0.9,z:t.z,t:1});}
   dbox(beach.boom.x,beach.boom.z,1.8,0.8,1.1,0xff2fa0,{em:1,nomm:1});                                 // retro boom box
   {const pr=beach.pier;dbox(pr.x,pr.z,12,34,0.7,0x8a5a2a,{nomm:1});dbox(pr.x-6.3,pr.z,0.5,34,1.5,0xe8e8f4,{nomm:1});dbox(pr.x+6.3,pr.z,0.5,34,1.5,0xe8e8f4,{nomm:1});}   // pier deck + rails
+  {let k=0;for(const l of loot)if(l.t===0&&!l.roof&&k++%4===1)l.t=3;}   // every 4th ground crate is a guaranteed FULL AMMO crate (t:3)
+  loot.push({x:9.2,y:1.3,z:-1.1,t:3});   // and one right next to the base
   loot.forEach((l,i)=>l.id=i);
   return {B,slabs,houses,loot,pads,themes,sauc,mbox,mbox0:mbox&&Object.assign({},mbox),mboxSpots,bbar,casino,beach};
 }
@@ -1117,12 +1119,13 @@ class Game{
       if(this.tapes>=3){for(const q of this.players.values()){q.money+=25000;q.hp=mhp(q);}this.push('tapesall');}
       return;
     }
+    if(l.t===3){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);return;}   // ammo crate: always a full refill
     const r=this.rand();
     if(l.t===1){
       const cash=Math.round((230+this.round*21)*(0.8+0.5*this.rand()));
       p.money+=cash;p.hp=mhp(p);
       this.push('loot',p.id,'rare',cash,l.id);this.push('ammoall',p.id);
-    }else if(r<0.55){
+    }else if(r<0.5){
       const cash=Math.round((100+this.round*18)*(0.8+0.6*this.rand()));
       p.money+=cash;this.push('loot',p.id,'cash',cash,l.id);
     }else if(r<0.8){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);}
@@ -1208,6 +1211,7 @@ class Game{
     if(this.round>=16&&(this.round-16)%7===0&&WORLD.themes.some(q=>q.k==='ferris'))q.unshift(23);   // carnival boss under the ferris wheel: rounds 16, 22, 28, ...
     if(this.round>=32&&(this.round-32)%11===0&&WORLD.themes.some(q=>q.k==='pyramid'))q.unshift(21);   // Cleopatra awakens atop the pyramid: rounds 32, 43, 54, ...
     if(this.round>=8){const nT=this.round%5===0?1:Math.min(8,1+Math.floor((this.round-8)/3));for(let i=0;i<nT;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,25);}   // tipsy aliens from round 8: their bottles make you drunk (no damage)
+    if(this.round===4)q.splice(Math.floor(this.rand()*(q.length+1)),0,3);   // round 4 gets one BRUTE (big, tough) to shake things up
     if(this.round>=8){   // the disco moonwalker: exactly one in round 8, after that a random chance every third round (max 3 per round)
       let nM=0;
       if(this.round===8)nM=1;

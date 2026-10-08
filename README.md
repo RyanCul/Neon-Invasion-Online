@@ -377,7 +377,7 @@ Press T on foot to switch between first and third person (you see your own custo
 Click the left stick (L3) to switch third-person view on a controller (fullscreen is now only the Settings checkbox or the G key). The camera has a wall check and orbits around you with the mouse or right stick. X in a vehicle (X on a controller, or the X key) sounds a two-note horn beep.
 
 ## Shop prices and weapon balance
-Every weapon costs $2,000 to buy (Flamingo is free). Every weapon uses the same upgrade ladder: $2,500, $5,000, $10,000, $20,000, $50,000, $100,000, $150,000, $200,000, $300,000 (about $837,500 to max a gun). Balance tweaks: Aqua-9, Arc Gatling, Neon Stars and Mini-Bomber hit harder; Inferno and Brass Knuckles hit a bit softer.
+Every weapon costs $1,500 to buy (Flamingo is free). Every weapon uses the same upgrade ladder: $2,500, $5,000, $10,000, $20,000, $50,000, $100,000, $150,000, $200,000, $300,000 (about $837,500 to max a gun). Balance tweaks: Aqua-9, Arc Gatling, Neon Stars and Mini-Bomber hit harder; Inferno and Brass Knuckles hit a bit softer.
 
 ## Mystery box and pacing
 - The mystery box is now **free**. Each player can open it **once per appearance** and gets the **base form (MK0)** of a random weapon they don't own yet. If you own every weapon you get an ammo refill instead.
@@ -469,3 +469,9 @@ The watermark at the top of saved clips now uses the same new logo (title plus t
 Close-range aliens (armored, brutes, biters, flyers and so on) used to swing only at the one player they were chasing. They re-pick that target every 0.4 s, so with two players (splitscreen, or a crowd online) a player standing right beside an alien could take no damage at all. Now each swing hits every player in reach (still blocked by walls, still one swing per cooldown). Wall blocking itself was tested again over about 47,000 random street positions and never blocked an adjacent hit.
 (Reverted: I briefly made drones/flyers attack more often; that change is removed and they attack exactly as before.)
 Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN plays a short rising neon power-up sound (it follows the sound-effects volume in Settings). Splitscreen waits about 0.4 s before switching pages so the sound is heard.
+
+## Balance and loot update
+- Guns now cost $1,500 (was $2,000); buying ammo for a gun costs proportionally less too.
+- Early perk tiers are cheaper: tier I $1,800 (was $2,500), tier II $7,000 (was $10,000), tier III $32,000 (was $40,000). Tier IV is $80,000 (was $150,000).
+- More FULL AMMO drops: every fourth ground crate is now a green AMMO crate that always refills all weapons (green beam, green dot on the minimap), plus one right next to the base. Ordinary crates also give full ammo a little more often. All crates come back every round.
+- Round 4 now always includes one BRUTE (the big orange alien).
