@@ -26,6 +26,10 @@ body.playing .hud{display:block}
 #room{left:50%;top:8px;transform:translateX(-50%);font-size:12px;color:#d6b8ff;text-shadow:0 0 6px #7a2cff}
 #status{left:50%;top:28px;transform:translateX(-50%);text-align:center;font-size:20px;color:#fff3b0;text-shadow:0 0 8px #ff9a3c}
 #base{left:50%;top:60px;transform:translateX(-50%);font-size:22px;color:#9ffcff;text-shadow:0 0 8px #25f4ff,0 0 20px #25f4ff;animation:blink 1.1s infinite;display:none}
+#omTimer{position:fixed;left:50%;top:62%;transform:translateX(-50%);text-align:center;display:none;z-index:6;pointer-events:none;font-weight:bold;letter-spacing:6px;color:#ff2a40;text-shadow:0 0 14px #ff0030,0 0 30px #a00020;font-size:clamp(20px,3vw,34px);font-style:italic}
+#omTimer small{display:block;font-size:clamp(11px,1.2vw,15px);letter-spacing:4px;margin-top:4px;font-style:normal}
+#omFlash{position:fixed;inset:0;background:radial-gradient(circle,#ff6a78 0,#ff0020 75%);opacity:0;pointer-events:none;z-index:7}
+#omFlash.on{animation:omf 1.1s ease-out}@keyframes omf{0%{opacity:.95}100%{opacity:0}}
 #boss{left:50%;top:62px;transform:translateX(-50%);width:min(520px,60vw);text-align:center;font-size:14px;color:#ff9ee0;display:none}
 #boss .b{height:12px;border:2px solid #ff2fa0;background:rgba(0,0,0,.5);margin-top:4px;box-shadow:0 0 12px #ff2fa0}
 #boss .b i{display:block;height:100%;background:linear-gradient(90deg,#ff2fa0,#ff9a3c)}
@@ -283,6 +287,15 @@ body.playing #pauseB{display:block}
 .dxc i{position:absolute;top:2px;left:4px;font-size:8px;color:#8a6ac8;font-style:normal}
 .dxc.lock{background:#0e0620;border-color:#2c1a54;color:#6a4a9a}
 .dxc:hover,.dxc.sel{border-color:#25f4ff;box-shadow:0 0 14px #25f4ff}
+#dexTabs{display:flex;justify-content:center;gap:8px;margin:0 0 10px}
+.dxt{background:#22103f;border:2px solid #5a3a9a;color:#cdb8ff;font:inherit;font-size:13px;letter-spacing:3px;padding:6px 22px;cursor:pointer;box-shadow:none}
+.dxt.on{background:#2a0f4d;border-color:#ff2fa0;color:#fff;box-shadow:0 0 12px #ff2fa0}
+#dexStats{display:none;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;padding:2px 2px 6px}
+.stc{background:#22103f;border:2px solid #4a2c86;padding:10px 12px;text-align:left}
+.stc small{display:block;font-size:10px;letter-spacing:2px;color:#9ffcff}
+.stc b{display:block;font-size:24px;letter-spacing:1px;color:#fff;margin-top:2px}
+.stc i{display:block;font-style:normal;font-size:11px;color:#bba6e8;margin-top:2px}
+.stc.big{border-color:#ff2fa0}.stc.big b{color:#ffd23c}
 @media(max-width:700px){#dexGrid{grid-template-columns:repeat(3,92px)}}
 #howto{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,0,25,.9);z-index:14;overflow:auto;padding:14px;color:#fff}
 #howto .box2{background:#1a0b33;border:3px solid #25f4ff;box-shadow:0 0 24px #25f4ff;padding:14px 24px;max-width:960px;width:100%;max-height:94vh;overflow:auto}
@@ -340,7 +353,29 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 .lkp{display:none}.lkp.on{display:block}
 #pfprev{margin:4px 0 8px;font-size:22px;min-height:44px}
 #acsum{color:#fff3b0;letter-spacing:3px;font-size:14px;margin-bottom:4px}
-#aclist{max-height:46vh;overflow:auto;padding:2px;text-align:left}
+#aclist{max-height:56vh;overflow:auto;padding:4px;text-align:left;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#locker .lbox.wide{max-width:1020px}
+#acsum{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:16px!important;margin-bottom:10px!important}
+.acbar{width:min(420px,80%);height:12px;border:2px solid #ffd23c;background:rgba(0,0,0,.45)}.acbar i{display:block;height:100%;background:linear-gradient(90deg,#ff9a3c,#ffd23c)}
+.sm2 div{font-size:10px!important;padding:4px 10px!important}
+.ach2{display:flex;gap:12px;border:2px solid #4b3a7a;background:rgba(36,14,72,.85);padding:12px 12px;align-items:flex-start}
+.ach2 .aic{flex:none;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#8f7bc4;border:2px solid #4b3a7a;background:rgba(0,0,0,.35)}
+.ach2 .abody{flex:1;min-width:0}
+.ach2 .atop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ach2 .atop b{font-size:17px;letter-spacing:2px;color:#fff}
+.ach2 .ast{font-size:13px;letter-spacing:2px;color:#bda9f0;font-weight:bold}
+.ach2 .adesc{font-size:13px;color:#e3d6ff;letter-spacing:1px;margin:3px 0 7px}
+.ach2 .pb{height:10px;border:2px solid #6a52b0;background:rgba(0,0,0,.45);margin:0}
+.ach2 .pb i{display:block;height:100%;background:linear-gradient(90deg,#25f4ff,#3cff9e)}
+.ach2 .anum{font-size:12px;color:#bda9f0;letter-spacing:1px;margin-top:3px}
+.ach2 .arw{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.ach2 .arw span{font-size:11px;letter-spacing:1px;color:#fff3b0;border:1px solid #7a6a30;background:rgba(80,60,0,.35);padding:2px 7px}
+.ach2 .arw u{text-decoration:none;color:#c8a84a;margin-right:5px;font-size:9px;letter-spacing:2px}
+.ach2.go{border-color:#7a5ad0}.ach2.go .aic{color:#25f4ff;border-color:#25f4ff}
+.ach2.done{border-color:#3cff9e;background:rgba(14,60,40,.55);box-shadow:0 0 12px rgba(60,255,158,.35)}
+.ach2.done .aic{color:#0b2a1c;background:#3cff9e;border-color:#3cff9e}.ach2.done .ast{color:#3cff9e}.ach2.done .pb i{background:#3cff9e}
+.acnone{grid-column:1/-1;text-align:center;color:#bda9f0;letter-spacing:3px;padding:30px 0}
+@media(max-width:760px){#aclist{grid-template-columns:1fr}}
 .ach{border:2px solid #4b3a7a;background:rgba(30,10,60,.7);padding:8px 10px;margin:6px 0;position:relative}
 .ach.done{border-color:#3cff9e;box-shadow:0 0 10px rgba(60,255,158,.5)}
 .ach b{letter-spacing:2px;font-size:14px}
@@ -494,7 +529,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 </div></div></div>
 <div id="vsWin"><div class="vwb"><h1>YOU WIN!</h1><p>You are the last one standing.</p><h2>WHAT NEXT?</h2><small>Switch to co-op: everyone gets back up when this round ends and you keep going together. Back to lobby: end the match.</small><div class="vwbtns"><button id="vsYes">SWITCH TO CO-OP</button><button id="vsNo">BACK TO LOBBY</button></div><small id="vsHint">Y / A = co-op &nbsp;&middot;&nbsp; N / B = lobby</small></div></div>
 <div id="over"><h1>GAME OVER</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
-<div id="contact"></div><canvas id="bigmap"></canvas><div id="wave"></div><div id="waveA"></div><div id="hitdir"></div>
+<div id="omTimer"></div><div id="omFlash"></div><div id="contact"></div><canvas id="bigmap"></canvas><div id="wave"></div><div id="waveA"></div><div id="hitdir"></div>
 <div id="dnl"></div><div id="streak"></div><div id="wxban"></div><div id="spec"></div><div id="pkbar"></div>
 <div id="settings"><div class="box2"><h2>SETTINGS &amp; ACCESSIBILITY</h2><div id="setBody"></div><div class="ctl">KEYS: WASD move &middot; mouse aim &middot; click fire &middot; right-click aim &middot; E use &middot; F quick swap &middot; G fullscreen &middot; M mute &middot; , . prev/next song &middot; [ ] radio volume &middot; L full map &middot; F9 save a clip &middot; O this menu &middot; arrow keys switch spectate &middot; Y/X/RT/LT on a controller. In solo the game pauses while this is open.</div><div style="text-align:center"><button id="setClose">CLOSE (O / ESC)</button></div></div></div>
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
@@ -503,7 +538,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 <div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pClips" class="alt">CLIPS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
-  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bDex" title="Alien Dex" aria-label="Alien Dex"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #25f4ff)"><path d="M5 3h12a2 2 0 0 1 2 2v13H7.5A1.5 1.5 0 0 0 6 19.5 1.5 1.5 0 0 0 7.5 21H19v1H7.5A2.5 2.5 0 0 1 5 19.5V3zm2 2v10.2c.5-.2 1-.2 1.5-.2H17V5H7zm2 2h6v2H9V7z"/></svg></button><button class="c sm" id="bAch" title="Achievements" aria-label="Achievements"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #fff3b0)"><path d="M7 3h10v2h3a1 1 0 0 1 1 1v1.5c0 2.5-1.9 4.6-4.4 4.9A5.5 5.5 0 0 1 13 15.9V18h3v3H8v-3h3v-2.1a5.5 5.5 0 0 1-3.6-3.5C4.9 12.1 3 10 3 7.5V6a1 1 0 0 1 1-1h3V3zm-2 4v.5c0 1.3.9 2.4 2.1 2.8A12 12 0 0 1 7 7H5zm14 0h-2c0 1.1-.1 2.2-.1 3.3A3 3 0 0 0 19 7.5V7z"/></svg></button></div><div id="lvnote"></div></div>
+  <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch" title="Achievements" aria-label="Achievements"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #fff3b0)"><path d="M7 3h10v2h3a1 1 0 0 1 1 1v1.5c0 2.5-1.9 4.6-4.4 4.9A5.5 5.5 0 0 1 13 15.9V18h3v3H8v-3h3v-2.1a5.5 5.5 0 0 1-3.6-3.5C4.9 12.1 3 10 3 7.5V6a1 1 0 0 1 1-1h3V3zm-2 4v.5c0 1.3.9 2.4 2.1 2.8A12 12 0 0 1 7 7H5zm14 0h-2c0 1.1-.1 2.2-.1 3.3A3 3 0 0 0 19 7.5V7z"/></svg></button><button class="c sm" id="bDex" title="Alien Dex" aria-label="Alien Dex"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #25f4ff)"><path d="M5 3h12a2 2 0 0 1 2 2v13H7.5A1.5 1.5 0 0 0 6 19.5 1.5 1.5 0 0 0 7.5 21H19v1H7.5A2.5 2.5 0 0 1 5 19.5V3zm2 2v10.2c.5-.2 1-.2 1.5-.2H17V5H7zm2 2h6v2H9V7z"/></svg></button></div><div id="lvnote"></div></div>
   <div id="topbtns"><button class="tb" id="bSet" title="Settings" aria-label="Settings" style="width:46px"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:block;margin:auto;filter:drop-shadow(0 0 3px #25f4ff)"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.5 7.5 0 0 0-1.7-1L14.5 3a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6a7.5 7.5 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6L4.6 11a7.7 7.7 0 0 0 0 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5c.1.2.4.3.6.2l2.5-1c.5.4 1.1.7 1.7 1l.4 2.6c0 .2.2.4.5.4h4c.3 0 .5-.2.5-.4l.4-2.6c.6-.3 1.2-.6 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></button><button class="tb" id="bHow">HOW TO PLAY</button><div style="flex-basis:100%;height:0"></div><button class="tb" id="bFr" style="display:none!important"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z"/></svg><span>FRIENDS</span></button><button class="tb" id="bClips"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 5h11a2 2 0 0 1 2 2v2.6l4-2.3v9.4l-4-2.3V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg><span>CLIPS</span></button></div>
   <svg id="mUfo" viewBox="0 0 220 120" aria-hidden="true"><defs><linearGradient id="mUb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8e060" stop-opacity=".7"/><stop offset="1" stop-color="#e8e060" stop-opacity="0"/></linearGradient><linearGradient id="mUh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f0ff"/><stop offset=".5" stop-color="#9aa8c8"/><stop offset="1" stop-color="#5a6488"/></linearGradient><linearGradient id="mUd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ff0ff"/><stop offset="1" stop-color="#5ac8f0"/></linearGradient></defs>
     <polygon class="beam" points="92,66 128,66 190,120 30,120" fill="url(#mUb)"/>
@@ -527,7 +562,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 </div>
 <div id="slots"><div class="box2"><h2>NEON PALACE CASINO</h2><div style="color:#e9d7ff;font-size:13px">LUCKY SLOTS &middot; pays on 3 matching &middot; 2 cherries = bet back</div><div id="slReels"><div>?</div><div>?</div><div>?</div></div><div id="slMsg"></div><div id="slMoney"></div><div id="slBets"></div><div><button id="slSpin">SPIN</button><button id="slClose">LEAVE</button></div></div></div>
 <div id="roul"><div class="box2"><h2>NEON ROULETTE</h2><div style="color:#e9d7ff;font-size:13px">pick a bet &middot; 1:1 on colors, odd/even, halves &middot; a single number pays 35:1 &middot; GREEN 0 pays 35:1</div><div id="rlBall">?</div><div id="rlMsg"></div><div id="rlMoney"></div><div id="rlBets"></div><div id="rlKinds"></div><div id="rlNumRow" style="display:none"><button id="rlM">-</button> <b id="rlNum">7</b> <button id="rlP">+</button></div><div><button id="rlSpin">SPIN</button><button id="rlClose">LEAVE</button></div></div></div>
-<div id="dexP"><div class="dexbox"><h2>ALIEN DEX</h2><div class="dexsub" id="dexCount"></div><div class="dexmain">
+<div id="dexP"><div class="dexbox"><h2>ALIEN DEX</h2><div class="dexsub" id="dexCount"></div><div id="dexTabs"><button class="dxt on" id="dxtA">ALIENS</button><button class="dxt" id="dxtS">STATS</button></div><div id="dexStats"></div><div class="dexmain">
 <div class="dexleft"><canvas id="dexView" width="360" height="400"></canvas><div id="dexName"></div><div id="dexRole"></div><div id="dexChips"></div><p id="dexLore"></p><p id="dexHint"></p></div>
 <div id="dexGrid"></div></div><div style="text-align:center"><button id="dexClose" class="c" style="margin-top:10px;font-size:14px;padding:8px 22px">CLOSE</button></div></div></div>
 <div id="howto"><div class="box2"><h2>HOW TO PLAY</h2>
@@ -570,7 +605,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 <div class="lkp" id="lkp0"><div id="chwrap"><canvas id="chprev" width="400" height="520"></canvas><div id="chside"><div id="chtabs"></div><div id="chgrid"></div></div></div></div>
 <div class="lkp" id="lkp1"><div id="pfprev"></div><div id="pftabs" class="subtabs"></div><div id="pfgrid" class="grid"></div></div>
 <div class="lkp" id="lkp2"><div id="gntabs" class="subtabs"></div><div id="gngrid" class="grid"></div></div>
-<div class="lkp" id="lkp3"><div id="acsum"></div><div id="actabs" class="subtabs"></div><div id="aclist"></div></div>
+<div class="lkp" id="lkp3"><div id="acsum"></div><div id="actabs" class="subtabs"></div><div id="acfilt" class="subtabs sm2"></div><div id="aclist"></div></div>
 <button id="lkClose">CLOSE</button></div></div>
 <div id="err">Couldn&rsquo;t load a required file (Three.js or shared.js). The first run needs an internet connection for the 3D library.</div>
 
@@ -740,7 +775,7 @@ function visPerks(){   // one menu row per perk line: Neon Tank / Sprinter show 
   return PERKS.filter(pk=>pk.req===undefined).map(b=>{let c=b;for(;;){const nx=PERKS.find(q=>q.req===c.id);if(nx&&hasPk(c.id))c=nx;else break;}return c;});
 }
 const pkLocked=pk=>pk.req!==undefined&&!hasPk(pk.req);
-const hasPk=i=>!!(myP&&myP.pk&&((myP.pk>>i)&1));
+const hasPk=i=>!!(myP&&(i<32?(myP.pk&&((myP.pk>>i)&1)):(myP.pk2&&((myP.pk2>>(i-32))&1))));
 const myPerkFx=k=>{const L=NI.PERK_LINES.find(l=>l.k===k);let v=0;if(L)L.ids.forEach((id,t)=>{if(hasPk(id))v=L.fx[t];});return v;};
 const NW=WPN.length,ROM=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
 const $=id=>document.getElementById(id);
@@ -1992,7 +2027,7 @@ function updateFx(dt){
 
 /* ================= models ================= */
 const ACOL=[0x3cff9e,0xa56bff,0x25f4ff,0xff9a3c,0xff2fa0, 0xff4a3c,0xffe63c,0x7a8fb8,0xd8ffe8,0xff2040,0x6a2bd0,0xff3030,0x2fd86a,0xc0102a,0x24304f,0xffa23c,0x8a5a3a,0xb01cff,0x2fb4ff,0xffb347,0xff6a8a,0xffd23c,0x2a8fa8,0xff4fa8,0x7a5a3a,0xe8a33c,0x1fd0ff];
-const ASCALE=[0.85,0.85,1,1.5,2.8, 0.8,0.85,1.15,0.9,1.5,1.3,2.2,10.5,0.88,1.28,0.95,1,12.5,1,1,1.05,1.05,1.1,1.15,1.3,1.05];
+const ASCALE=[0.85,0.85,1,1.5,2.8, 0.8,0.85,1.15,0.9,1.5,1.3,2.2,10.5,0.88,1.28,0.95,1,26,1,1,1.05,1.05,1.1,1.15,1.3,1.05];
 ACOL[27]=0xf2f2ff;ASCALE[27]=1.15;ACOL[28]=0xb04dff;ASCALE[28]=1.15;ACOL[29]=0x25f4ff;ASCALE[29]=0.8;
 /* ---- DISCO MOONWALKER: animation + the synthesised "hee-hee" yelp ---- */
 function heeHee(vol,pitch){   // two quick bouncy squeaks built from plain oscillators
@@ -2046,7 +2081,7 @@ function makeAlien(t){
       const tip=new THREE.Mesh(new THREE.SphereGeometry(0.2,6,4),eye);tip.position.set(sx*0.8,-0.2,1.5);g.add(tip);}
     return o;
   }
-  if(t===18||t===26){ // ALIEN SHARK (26 = the giant one)
+  if(t===18||t===26){ // MUTANT SHARK (26 = the giant one)
     if(t===26){g.scale.setScalar(3.2);}
     o.fly=true;   // long armoured body, big dorsal fin, glowing gills, jaw full of teeth
     const hd=new THREE.Group();g.add(hd);
@@ -2222,7 +2257,7 @@ function makeAlien(t){
     const bl=ballMesh();bl.scale.setScalar(0.6);bl.position.set(0,-1.2,0.8);o.arms[1].add(bl);
     o.arms[1].rotation.x=-1.0;o.sniperPose=true;
   }
-  if(t===19){ // PIZZA ALIEN: chef hat, big mustache, holds a pizza out in front
+  if(t===19){ // PIZZA CHEF: chef hat, big mustache, holds a pizza out in front
     const hat=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.45,0.9,10),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x888888,emissiveIntensity:0.4}));hat.position.set(0,3.95,0);hum.add(hat);
     const puff=new THREE.Mesh(new THREE.SphereGeometry(0.62,8,6),new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x888888,emissiveIntensity:0.4}));puff.position.set(0,4.45,0);hum.add(puff);
     const mu=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.14,0.12),new THREE.MeshLambertMaterial({color:0x2a1608}));mu.position.set(0,2.85,0.6);hum.add(mu);
@@ -2252,6 +2287,15 @@ function makeAlien(t){
     const sf=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,3.6,6),gold);sf.position.set(0,-0.9,0.4);o.arms[1].add(sf);
     const orb=new THREE.Mesh(new THREE.SphereGeometry(0.28,8,6),new THREE.MeshBasicMaterial({color:0x3cff9e}));orb.position.set(0,0.9,0.4);o.arms[1].add(orb);
     o.arms[1].rotation.x=-0.5;
+    // snakes writhing out of her hair: five green snakes in a ring around the headdress (same spots the server tests shots against)
+    o.snakes=[];const sg=new THREE.MeshLambertMaterial({color:0x2fd86a,emissive:0x0a5a20,emissiveIntensity:0.7}),se=new THREE.MeshBasicMaterial({color:0xff2040});
+    for(let i=0;i<5;i++){
+      const an=i*6.2832/5+0.3,sn=new THREE.Group();sn.position.set(Math.cos(an)*1.05*1.05,3.75*1.05,Math.sin(an)*1.05*1.05);
+      const segs=[];for(let k=0;k<4;k++){const sp=new THREE.Mesh(new THREE.SphereGeometry(0.2-k*0.02,7,5),sg);sp.position.y=k*0.28;sn.add(sp);segs.push(sp);}
+      const hd=new THREE.Mesh(new THREE.SphereGeometry(0.26,8,6),sg);hd.scale.set(1,0.8,1.4);hd.position.set(0,1.15,0.1);sn.add(hd);
+      for(const sx of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(0.05,5,4),se);e.position.set(sx*0.11,1.2,0.28);sn.add(e);}
+      sn.userData={segs,hd,ph:i*1.7};g.add(sn);o.snakes.push(sn);
+    }
   }
   if(t===22){ // PIRATE CAPTAIN: tricorn hat with skull, eye patch, hook, coat
     const blk=new THREE.MeshLambertMaterial({color:0x14141c}),gld=new THREE.MeshBasicMaterial({color:0xffd23c});
@@ -2855,7 +2899,7 @@ function checkSights(dt){
     const dx=newAlien.x-cx,dz=newAlien.z-cz,d=Math.hypot(dx,dz),pan=(dx*rx+dz*rz)/Math.max(d,1);
     const big=newAlien.t===18||newAlien.t===26||newAlien.t===4||newAlien.t===12||newAlien.t===17||newAlien.t===14||newAlien.t===15;
     spotSting(newAlien,d,pan,newAlien.t===4||newAlien.t===12||newAlien.t===17||newAlien.t===14);
-    const el=$('contact');el.textContent=newAlien.t===28?'⚠ DISCO MOONWALKER':newAlien.t===27?'⚠ BASEBALL SLUGGER':newAlien.t===25?'⚠ TIPSY ALIEN':newAlien.t===24?'⚠ THE BUTCHER':newAlien.t===23?'⚠ CARNIVAL BOSS':newAlien.t===22?'⚠ PIRATE CAPTAIN':newAlien.t===21?'⚠ CLEOPATRA':newAlien.t===20?'⚠ MOVIE ALIEN':newAlien.t===19?'⚠ PIZZA DELIVERY':newAlien.t===26?'⚠ GIANT ALIEN SHARK':newAlien.t===18?'⚠ ALIEN SHARK':newAlien.t===14?'⚠ THE STALKER':newAlien.t===15?'⚠ ROOFTOP SNIPER':big?(newAlien.t===17?'⚠ THE OVERMIND IN SIGHT':newAlien.t===12?'⚠ GODZILLA ALIEN IN SIGHT':'⚠ BOSS IN SIGHT'):'⚠ CONTACT';
+    const el=$('contact');el.textContent=newAlien.t===28?'⚠ DISCO MOONWALKER':newAlien.t===27?'⚠ BASEBALL SLUGGER':newAlien.t===25?'⚠ THE BOOZER':newAlien.t===24?'⚠ THE BUTCHER':newAlien.t===23?'⚠ CARNIVAL BOSS':newAlien.t===22?'⚠ PIRATE CAPTAIN':newAlien.t===21?'⚠ CLEOPATRA':newAlien.t===20?'⚠ MOVIE ALIEN':newAlien.t===19?'⚠ PIZZA DELIVERY':newAlien.t===26?'⚠ GIANT MUTANT SHARK':newAlien.t===18?'⚠ MUTANT SHARK':newAlien.t===14?'⚠ THE STALKER':newAlien.t===15?'⚠ ROOFTOP SNIPER':big?(newAlien.t===17?'⚠ THE OVERMIND IN SIGHT':newAlien.t===12?'⚠ GODZILLA ALIEN IN SIGHT':'⚠ BOSS IN SIGHT'):'⚠ CONTACT';
     el.className=big?'big show':'show';contactT=big?2.2:1.0;
   }
 }
@@ -2987,8 +3031,9 @@ const PKEY='ni_prof_v1',PEND='ni_pend_v1';
 let myName='PLAYER';
 let prof={xp:0,skin:0,car:0,ch:[0,0,0,0,0,0,0,0,0],ex:[0,0,0,0,0,0],st:{k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]},ach:[],dex:[]},pend=0,gameXP=0,lastK=0,joinRound=1,firstSnap=true,lockerOpen=false;
 function mergeSt(a,b){   // lifetime stats: every counter only ever goes up
-  const o={k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]};
-  for(const s of [a,b]){if(!s)continue;for(const k of ['k','rv','bo','br','cr','rk','gm','rt'])o[k]=Math.max(o[k],s[k]|0);for(let i=0;i<12;i++)o.wk[i]=Math.max(o.wk[i],(s.wk&&s.wk[i])|0);o.bk=[];for(let i=0;i<32;i++)o.bk[i]=Math.max((a&&a.bk&&a.bk[i])|0,(b&&b.bk&&b.bk[i])|0);}
+  const o={k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,pt:0,dn:0,mn:0,dd:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]};
+  o.ak=[];for(let i=0;i<32;i++)o.ak[i]=Math.max((a&&a.ak&&a.ak[i])|0,(b&&b.ak&&b.ak[i])|0);
+  for(const s of [a,b]){if(!s)continue;for(const k of ['k','rv','bo','br','cr','rk','gm','rt','pt','dn','mn','dd'])o[k]=Math.max(o[k],s[k]|0);for(let i=0;i<12;i++)o.wk[i]=Math.max(o.wk[i],(s.wk&&s.wk[i])|0);o.bk=[];for(let i=0;i<32;i++)o.bk[i]=Math.max((a&&a.bk&&a.bk[i])|0,(b&&b.bk&&b.bk[i])|0);}
   return o;
 }
 function loadProf(){
@@ -3036,8 +3081,8 @@ async function cloudSync(){
 function saveProf(){try{localStorage.setItem(PKEY,JSON.stringify(prof));localStorage.setItem(PEND,String(pend));}catch(e){}}
 function lvInfo(xp){let L=1,x=xp;while(L<NI.MAXLV&&x>=NI.xpNeed(L)){x-=NI.xpNeed(L);L++;}return{L,into:x,need:L>=NI.MAXLV?1:NI.xpNeed(L),max:L>=NI.MAXLV};}
 /* ---- lifetime stats and achievements ---- */
-let statDirty=false,statSaveT=0,achQ=[],achBusy=false,sessAch=[];
-function stAdd(k,n,i){const s=prof.st;if(k==='bk'){s.bk=s.bk||[];s.bk[i]=(s.bk[i]|0)+n;}else if(k==='w')s.wk[i]=(s.wk[i]|0)+n;else s[k]=(s[k]|0)+n;statDirty=true;}
+let ptAcc=0,statDirty=false,statSaveT=0,achQ=[],achBusy=false,sessAch=[];
+function stAdd(k,n,i){const s=prof.st;if(k==='bk'){s.bk=s.bk||[];s.bk[i]=(s.bk[i]|0)+n;}else if(k==='ak'){s.ak=s.ak||[];s.ak[i]=(s.ak[i]|0)+n;}else if(k==='w')s.wk[i]=(s.wk[i]|0)+n;else s[k]=(s[k]|0)+n;statDirty=true;}
 function stMax(k,v){if(v>(prof.st[k]|0)){prof.st[k]=v;statDirty=true;}}
 function checkAch(){
   if(!statDirty)return;statDirty=false;
@@ -3048,9 +3093,9 @@ function checkAch(){
 }
 function showAch(){
   if(achBusy||!achQ.length)return;achBusy=true;
-  const a=achQ.shift(),rw=NI.achRewards(a.id).map(r=>r[1]).join(', ');
+  const a=achQ.shift(),rw=NI.achRewards(a.id).map(r=>r[1]).join(' | ');
   try{sfx.buy();}catch(e){}
-  {const el=$('achPop');el.innerHTML='<b>ACHIEVEMENT UNLOCKED</b><span>'+escH(a.n)+'</span><small>'+(rw?'REWARD: '+escH(rw)+' - ':'')+'equip it in CUSTOMIZE</small>';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
+  {const el=$('achPop');el.innerHTML='<b>ACHIEVEMENT UNLOCKED</b><span>'+escH(a.n)+'</span><small>'+(rw?'REWARD: '+escH(rw)+' | ':'')+'equip it in CUSTOMIZE</small>';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
   setTimeout(()=>{achBusy=false;showAch();},3600);
 }
 function commitPending(){if(pend>0){prof.xp+=pend;pend=0;saveProf();}}
@@ -3128,6 +3173,8 @@ function onServer(m){
     if(p.id===myId){
       const prev=myP;myP=p;
       if(prev&&p.rv>prev.rv){stAdd('rv',p.rv-prev.rv);checkAch();}
+      if(prev&&prev.st!=='down'&&p.st==='down')stAdd('dn',1);
+      if(prev&&p.m>prev.m&&p.m-prev.m<1e7)stAdd('mn',Math.round(p.m-prev.m));
       if(!prev||prev.wo.join()!==p.wo.join()){for(let w=0;w<NW;w++)if(p.wo[w]>=0&&(!prev||prev.wo[w]<0)&&(!prev||true)&&ammo[w].mag===0&&ammo[w].res===0)fillAmmo(w);}
       continue;
     }
@@ -3146,7 +3193,7 @@ function onServer(m){
     let o=aliensM.get(a[0]);
     if(!o){o=makeAlien(a[1]);o.x=a[2];o.y=a[3];o.z=a[4];o.yaw=a[5];o.ph=Math.random()*6;scene.add(o.g);aliensM.set(a[0],o);}
     o.tx=a[2];o.ty=a[3];o.tz=a[4];o.tyaw=a[5];o.hp=a[6];o.dorm=a[8];o.burn=a[9]||0;o.hide=a[10]||0;o.mut=a[11]|0;if(o.mut&&!o.mutDone)applyMut(o);
-    o.tel=a[12]||0;updTel(o);o.ms=a[14]|0;
+    o.tel=a[12]||0;updTel(o);o.ms=a[14]|0;o.snk=a[15]|0;o.lz=+a[16]||0;
     if(a[13]&&!o.vehDone){o.vehDone=1;const vt=a[13]-1,cd=CARS[vt],vm=makeCar(vt,0);vm.userData.rider&&(vm.userData.rider.visible=false);o.g.add(vm);o.vm=vm;
       const hum=o.g.children.find(ch=>ch.isGroup&&ch!==vm&&ch.scale.x!==1);if(hum)hum.position.y+=cd.eye*0.5;
       if(vm.userData.root)vm.userData.root.position.y=0;}
@@ -3238,7 +3285,7 @@ function showOverSummary(roundNum){
   if(unl.length)html+='<div class="unl">NEW SKIN UNLOCKED: '+unl.map(s=>s.name).join(', ')+'  (find it in CUSTOMIZE on the main menu)</div>';
   { const names=[];NI.CH_LISTS.forEach((l,i)=>{for(const s of l)if(s.lvl>before.L&&s.lvl<=after.L)names.push(s.name);});
     if(names.length)html+='<div class="unl">NEW STYLE UNLOCKED: '+names.join(', ')+'  (find it in CUSTOMIZE on the main menu)</div>'; }
-  if(sessAch.length)html+='<div class="unl">ACHIEVEMENTS: '+sessAch.map(a=>a.n).join(', ')+'  (ACHIEVEMENTS)</div>';
+  if(sessAch.length)html+='<div class="unl">ACHIEVEMENTS: '+sessAch.map(a=>a.n).join(' | ')+'  (ACHIEVEMENTS)</div>';
   if(unlC.length)html+='<div class="unl">NEW CAR DESIGN UNLOCKED: '+unlC.map(s=>s.name).join(', ')+'  (find it in CUSTOMIZE on the main menu)</div>';
   $('overXP').innerHTML=PT(html);
   const bar=$('overXP').querySelector('.xb i');
@@ -3345,16 +3392,24 @@ function renderGuns(){
   else if(gnTab===2)for(const s of NI.KFX){const k=s.id;add(['#2b2145','linear-gradient(90deg,#ff2fa0,#25f4ff,#ffe63c,#3cff9e,#a56bff)','linear-gradient(90deg,#8a5a10,#ffd23c,#fff3b0)','linear-gradient(90deg,#0a3a5a,#25f4ff,#fff)','linear-gradient(90deg,#5a1408,#ff6a1f,#ffc83c)','linear-gradient(90deg,#16301a,#7dff3c,#2a8a1a)','linear-gradient(90deg,#ff2fa0,#ffe63c,#25f4ff,#fff)','linear-gradient(90deg,#0a0420,#5a2cff,#ff2fa0)','linear-gradient(90deg,#ff2a1a,#ff9a3c,#ffe63c)','linear-gradient(90deg,#ff2040,#ff9a3c,#ffe63c,#3cff9e,#25f4ff,#a56bff)'][k],s,(prof.ex[5]|0)===s.id,NI.itemOpen(s,L,prof.ach),()=>{prof.ex[5]=s.id;});}
   else for(const s of NI.CSKINS)add(skSwatch({col:s.trim,body:s.body}),s,prof.car===s.id,L>=s.lvl,()=>{prof.car=s.id;});
 }
+let acFilt=0;
+const AC_GLYPH=['\u2726','\u265B','\u26E8','\u27B6','\u2699'];   // one symbol per tab: combat, bosses & team, survival, weapons, driving
 function renderAch(){
-  const done=NI.ACH.filter(a=>prof.ach.indexOf(a.id)>=0).length;
-  $('acsum').textContent=done+' / '+NI.ACH.length+' ACHIEVEMENTS UNLOCKED';
+  const done=NI.ACH.filter(a=>prof.ach.indexOf(a.id)>=0).length,tot=NI.ACH.length;
+  $('acsum').innerHTML='<span>'+done+' / '+tot+' UNLOCKED</span><div class="acbar"><i style="width:'+(done/tot*100)+'%"></i></div>';
   drawTabs($('actabs'),AC_TABS.map(x=>x[0]),acTab,i=>{acTab=i;renderAch();});
-  const el=$('aclist');el.innerHTML='';
-  for(const a of NI.ACH){
-    if(AC_TABS[acTab][1].indexOf(a.s)<0)continue;
-    const have=prof.ach.indexOf(a.id)>=0,pr=Math.min(a.g,NI.achProgress(a,prof.st)),rw=NI.achRewards(a.id).map(r=>r[0]+': '+r[1]).join('  -  ');
-    const d=document.createElement('div');d.className='ach'+(have?' done':'');
-    d.innerHTML=(have?'<span class="ck">UNLOCKED</span>':'')+'<b>'+a.n+'</b><small>'+a.d+'</small><div class="pb"><i style="width:'+(pr/a.g*100)+'%"></i></div><small>'+pr.toLocaleString()+' / '+a.g.toLocaleString()+'</small>'+(rw?'<small class="rw">REWARD - '+escH(rw)+'</small>':'');
+  drawTabs($('acfilt'),['ALL','IN PROGRESS','UNLOCKED'],acFilt,i=>{acFilt=i;renderAch();});
+  const el=$('aclist');el.innerHTML='';el.scrollTop=0;
+  const list=NI.ACH.filter(a=>AC_TABS[acTab][1].indexOf(a.s)>=0).map(a=>{const have=prof.ach.indexOf(a.id)>=0,pr=Math.min(a.g,NI.achProgress(a,prof.st));return{a,have,pr,f:pr/a.g};})
+    .filter(x=>acFilt===0||(acFilt===1?!x.have:x.have))
+    .sort((x,y)=>(x.have-y.have)||(y.f-x.f));   // what you are closest to first, finished ones last
+  if(!list.length){el.innerHTML='<div class="acnone">'+(acFilt===2?'NOTHING UNLOCKED IN THIS GROUP YET':'EVERYTHING IN THIS GROUP IS UNLOCKED')+'</div>';return;}
+  for(const x of list){
+    const a=x.a,rws=NI.achRewards(a.id);
+    const d=document.createElement('div');d.className='ach2'+(x.have?' done':(x.pr>0?' go':''));
+    d.innerHTML='<div class="aic">'+(x.have?'\u2713':AC_GLYPH[acTab])+'</div><div class="abody"><div class="atop"><b>'+escH(a.n)+'</b><span class="ast">'+(x.have?'UNLOCKED':Math.floor(x.f*100)+'%')+'</span></div>'
+      +'<div class="adesc">'+escH(a.d)+'</div><div class="pb"><i style="width:'+(x.f*100)+'%"></i></div><div class="anum">'+x.pr.toLocaleString()+' / '+a.g.toLocaleString()+'</div>'
+      +(rws.length?'<div class="arw">'+rws.map(q=>'<span><u>'+escH(q[0])+'</u>'+escH(q[1])+'</span>').join('')+'</div>':'')+'</div>';
     el.appendChild(d);
   }
 }
@@ -3392,41 +3447,42 @@ function startChPrev(){
 }
 /* ===== ALIEN DEX: every alien in the game; dark until you spot one ===== */
 const DEX=[
-['FOOT SOLDIER','The Glow Harvest\'s cheapest weapon. Grown in vats by the thousand, they charge at anything bright and warm. Loud, dumb, and everywhere - the whole invasion started with these guys.','Common from round 1'],
+['FOOT SOLDIER','The Glow Harvest\'s cheapest weapon. Grown in vats by the thousand, they charge at anything bright and warm. Loud, dumb, and everywhere. The whole invasion started with these guys.','Common from round 1'],
 ['ACID SLINGER','Its throat sac brews neon-green acid it can lob across a parking lot. It keeps its distance and lets the Grunts do the dying.','Common from round 1'],
 ['SCOUT DRONE','The hive\'s eyes in the sky. A little saucer that dive-bombs anything that moves and giggles on a frequency only dogs can hear.','Early rounds, flying'],
 ['SIEGE BRUTE','Slabs of armored muscle the hive pushes through the portal first. Slow, but one swing will rearrange your lunch.','Round 4 and up'],
-['THE WARLORD','The hive\'s field commander. It walks through gunfire, stomps the street flat and spits plasma on the way. Nobody has ever seen it blink.','A boss round'],
-['CHARGER','Lean sprinter bred for exactly one thing: reaching you before you can reload. It lowers its head and does not stop.','Round 3'],
+['THE WARLORD','The hive\'s field commander. It walks through gunfire, stomps the street flat and spits plasma on the way.','A boss round'],
+['SPRINTER','Lean sprinter that does exactly one thing: reach you before you can reload. This guy should be drafted as a quarterback.','Round 3'],
 ['BLAST BUG','A walking blasting cap with a pulsing core. It sprints in and goes off the moment you let it near. Shoot early, shoot often.','Mid rounds'],
 ['ARMORED GRUNT','Plated in chrome scavenged from the hive\'s mining moons. Shrugs off a lot of lead, so keep the trigger down and your feet moving.','Mid rounds'],
 ['FIELD MEDIC','Fights nobody, heals everybody. The hum from its crystal staff patches up the wounded around it. Pop the medic first.','Mid rounds'],
-['WARSHIP','A gunship pilot in a flying saucer too big for the job. It circles over the rooftops and rains fire down on the streets.','Mid-to-late rounds'],
-['THE QUEEN','Mother of the brood. She is slow, smug and protective, and she hurls plasma from behind her children.','Mid-to-late rounds'],
-['TITAN','A siege walker the size of a house. Every footstep is an earthquake, and it saves the best one for when you are close.','Late rounds'],
-['SEA MONSTER','Something old rose out of the bay when the invasion lit up the sky. It does not care about the aliens, or you. It just walks.','A giant boss round'],
-['KNIFER','Fast, jumpy, and fond of blades. It darts through the crowd and gets in close before you notice the glint.','Mid rounds'],
-['THE STALKER','It hunts alone and it hunts quietly. Pitch-black eyes, steady pace. If you can hear it, it is already too close.','Roams the streets alone'],
-['ROOF SNIPER','Parked on a rooftop with a clear view of the whole block. It never moves, it never misses, and it never gets bored.','Look up at the rooftops'],
-['HOUND','The invasion\'s attack dog. It is all teeth and speed, and it only knows two commands: chase, bite.','Mid rounds'],
-['THE OVERMIND','The hive\'s mind made flesh: one enormous brain that calls reinforcements out of thin air. Every alien you have fought is a thought it had. End the thought.','The final boss'],
-['ALIEN SHARK','A land shark in a chrome suit. It cruises the sand and the shallows by the beach, and it thinks you look like dinner.','Hunts near the beach'],
-['PIZZA ALIEN','Came for the cheese, stayed for the carnage. It lobs piping-hot slices at anyone who walks past its delivery route.','Wanders the city alone'],
-['MOVIE ALIEN','The invasion\'s biggest film nerd. It sits through the late show, then comes out swinging with props from the picture.','Wanders the city alone'],
-['CLEOPATRA','The queen of the Nile touched down in Miami. She perches high above, calm and furious, and rules from a throne no one has reached.','Perched in her lair'],
-['PIRATE CAPTAIN','Sailed across the stars to plunder the coast. He stays on his deck and fires broadside at anything that dares to come aboard.','Perched in his lair'],
-['CARNIVAL BOSS','The ringmaster of a show that never ends. Step right up. The prize for winning is surviving.','Perched in his lair'],
-['THE BUTCHER','Chainsaw-armed, quiet, and slow to anger - but only slow. When it finds you, you will hear it long before you see it.','Roams the streets alone'],
-['TIPSY ALIEN','Spent the last of its paycheck at the bar and now wants to share the experience. Mostly harmless, mostly.','Near the bars and clubs'],
-['GIANT ALIEN SHARK','The one the little sharks tell stories about. It rises out of the surf the size of a bus, and its jaws are sized for a car.','Hunts near the beach'],
-['BASEBALL SLUGGER','Plays hardball with the human race. Every pitch is a fastball, every swing is a home run, and you are the ball.','Wanders the city alone'],
-['DISCO MOONWALKER','Glides backwards across the dance floor and straight at you. The sequins are armor. The groove is lethal.','Mid-to-late rounds'],
-['BACKUP DANCER','Never the star, always in step. It follows the Moonwalker\'s lead and strikes the exact same pose right until the end.','With the Moonwalker']
+['GUNSHIP','A gunship pilot in a flying saucer too big for the job. It circles over the rooftops and rains fire down on the streets.','Mid-to-late rounds'],
+['MOTHER OF THEM ALL','Mother of them all. She is slow, smug and protective, and she hurls plasma from behind her children.','Mid-to-late rounds'],
+['SIEGE WALKER','A siege walker the size of a house. Every footstep is an earthquake, and it saves the best one for when you are close.','Late rounds'],
+['SEA MONSTER','Created out of a pile of alien goop. It does not care about the aliens, or you. It just walks.','A giant boss round'],
+['BLADE RUNNER','Fast, jumpy, and fond of blades. It darts through the crowd and gets in close before you notice the glint.','Mid rounds'],
+['THE STALKER','It hunts alone and it hunts quietly. Pitch-black eyes, steady pace. If you can hear it, it is already too close.','Only after dark'],
+null,
+null,
+['THE HIVE MIND','The hive\'s mind made flesh: one enormous brain that calls reinforcements out of thin air. Every alien you have fought is a thought it had. End the thought.','Hovers over the city at round 50'],
+['BEACH BITER','Was a shark until alien goop got in the water. Talk about pollution. It cruises the sand and the shallows by the beach, and it thinks you look like dinner.','Hunts near the beach'],
+['DELIVERY GUY','Came for the cheese, stayed for the carnage. It lobs piping-hot slices at anyone who walks past its delivery route.','Wanders the city alone'],
+['CINEPHILE','The invasion\'s biggest film nerd. It sits through the late show, then comes out swinging with props from the picture. Its favorite movie is The Godfather.','Wanders the city alone'],
+['QUEEN OF THE MOON NILE','The queen of the Moon Nile, or something like that. She perches high above, calm and furious, and rules from a throne no one has reached.','Perched in her lair'],
+['SPACE PIRATE','Sailed across the stars to plunder the coast. He stays on his deck and fires broadside at anything that dares to come aboard.','Perched in his lair'],
+['RINGMASTER','Really likes riding that ferris wheel. Step right up. The prize for winning is surviving.','Perched in his lair'],
+['CHAINSAW KILLER','Chainsaw-armed, quiet, and slow to anger, but only slow. When it finds you, you will hear it long before you see it.','Only after dark'],
+['PARTY CRASHER','He is not even an alien. He just wandered into the invasion looking for a party, and the aliens thought he was so much fun that they let him join. He still shows up with a bottle in each hand and tosses a round your way.','Round 8 and up'],
+['APEX PREDATOR','The one the little sharks tell stories about. It rises out of the surf the size of a bus, and its jaws are sized for a car.','Hunts near the beach'],
+['CLEANUP HITTER','Plays hardball with the human race. Every pitch is a fastball, every swing is a home run, and you are the ball.','Wanders the city alone'],
+['GALACTIC ICON','Glides backwards across the dance floor and straight at you. Most famous alien in the galaxy.','Mid-to-late rounds'],
+['BIGGEST FAN','Never the star. It follows the Moonwalker\'s lead and strikes the exact same pose right until the end. Fan activity.','With the Moonwalker']
 ];
 function dexFind(t){
   if(!prof.dex)prof.dex=[];
-  if(t>=0&&t<DEX.length&&prof.dex.indexOf(t)<0){prof.dex.push(t);saveProf();try{toast('ALIEN DEX UPDATED',NI.AT[t].name,true);}catch(e){}if(acct)setTimeout(cloudSync,1500);}
+  if(DEXO.indexOf(t)>=0&&prof.dex.indexOf(t)<0){prof.dex.push(t);saveProf();try{toast('ALIEN DEX UPDATED',NI.AT[t].name,true);}catch(e){}if(acct)setTimeout(cloudSync,1500);}
 }
+const DEXO=[0,2,1,5,3,4,6,14,7,19,8,13,25,28,29,9,20,10,11,18,23,27,12,24,22,26,21,17];   // the order they first show up in a run
 let dexOpen=false,dexSelT=-1,dexR=null,dexSpr={},dexCur=null;
 function dexRenderer(){
   if(dexR)return dexR;
@@ -3473,27 +3529,27 @@ function dexSprite(t,dark){   // 16-bit look: render small, shrink to ~28px, sna
 let dexSprRd=null;
 function dexBuild(){
   const gr=$('dexGrid');gr.innerHTML='';const have=prof.dex||[];
-  for(let t=0;t<DEX.length;t++){
-    const f=have.indexOf(t)>=0,b=document.createElement('button');b.className='dxc'+(f?'':' lock');b.dataset.dex=t;
+  for(let ix=0;ix<DEXO.length;ix++){
+    const t=DEXO[ix],f=have.indexOf(t)>=0,b=document.createElement('button');b.className='dxc'+(f?'':' lock');b.dataset.dex=t;
     const sp=dexSprite(t,!f),c=document.createElement('canvas');c.width=c.height=28;c.getContext('2d').drawImage(sp,0,0);b.appendChild(c);
     const n=document.createElement('span');n.textContent=f?NI.AT[t].name:'???';b.appendChild(n);
-    const num=document.createElement('i');num.textContent='#'+String(t+1).padStart(2,'0');b.appendChild(num);
+    const num=document.createElement('i');num.textContent='#'+String(ix+1).padStart(2,'0');b.appendChild(num);
     b.onmouseenter=()=>dexSel(t);b.onfocus=()=>dexSel(t);b.onclick=()=>{dexSel(t);try{sfx.tick&&sfx.tick();}catch(e){}};
     gr.appendChild(b);
   }
-  $('dexCount').textContent='DISCOVERED '+have.length+' / '+DEX.length;
+  $('dexCount').textContent='DISCOVERED '+have.filter(v=>DEXO.indexOf(v)>=0).length+' / '+DEXO.length;
 }
 function dexSel(t){
   if(t===dexSelT)return;dexSelT=t;const f=(prof.dex||[]).indexOf(t)>=0,d=DEX[t],a=NI.AT[t];
   document.querySelectorAll('#dexGrid .dxc.sel').forEach(e=>e.classList.remove('sel'));
-  const cell=$('dexGrid').children[t];if(cell)cell.classList.add('sel');
+  const cell=$('dexGrid').querySelector('[data-dex="'+t+'"]');if(cell)cell.classList.add('sel');
   $('dexName').textContent=f?a.name:'???';$('dexName').style.color=f?'#fff':'#7a5aa8';
   $('dexRole').textContent=f?d[0]:'UNKNOWN SPECIES';
   $('dexLore').textContent=f?d[1]:'No data. Spot this alien out in the field and its file unlocks.';
   $('dexHint').textContent=f?'':('LAST RUMOUR: '+d[2]);
   const ch=[];
   if(f){ch.push('HP '+(a.hp>=1000?(a.hp/1000)+'K':a.hp));ch.push('SPEED '+a.sp);ch.push(a.dmg>0?'DMG '+a.dmg:'NO ATTACK');ch.push('BOUNTY $'+a.money.toLocaleString());
-    if(a.fly)ch.push('FLYING');if(a.ranged)ch.push('RANGED');if(a.boss)ch.push('BOSS');if(a.loner)ch.push('LONE HUNTER');if(a.support)ch.push('HEALER');if(a.bomb)ch.push('EXPLODES');}
+    {const kk=((prof.st&&prof.st.ak&&prof.st.ak[t])|0);if(kk)ch.push('YOU KILLED '+kk.toLocaleString());}if(a.fly)ch.push('FLYING');if(a.ranged)ch.push('RANGED');if(a.boss)ch.push('BOSS');if(a.loner)ch.push('LONE HUNTER');if(a.support)ch.push('HEALER');if(a.bomb)ch.push('EXPLODES');}
   $('dexChips').innerHTML=ch.map(c=>'<b>'+c+'</b>').join('');
   const R=dexRenderer();if(!R)return;
   if(dexCur)R.sc.remove(dexCur.w);dexCur=dexModel(t,!f);R.sc.add(dexCur.w);
@@ -3504,14 +3560,38 @@ function dexTick(){
     const o=dexCur.o;if(o&&o.ring)o.ring.rotation.z=t*3;R.rd.render(R.sc,R.cm);}
   requestAnimationFrame(dexTick);
 }
+function fmtTime(sec){sec=sec|0;const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60);return h?h+'h '+m+'m':(m?m+'m':sec+'s');}
+function dexTab(w){
+  const st=w==='s';$('dxtA').classList.toggle('on',!st);$('dxtS').classList.toggle('on',st);
+  document.querySelector('#dexP .dexmain').style.display=st?'none':'flex';$('dexStats').style.display=st?'grid':'none';
+  if(st)dexStatsBuild();else $('dexCount').textContent='DISCOVERED '+(prof.dex||[]).filter(v=>DEXO.indexOf(v)>=0).length+' / '+DEXO.length;
+}
+function dexStatsBuild(){
+  const s=prof.st||{},n=v=>(v|0).toLocaleString(),k=s.k|0,gm=s.gm|0;
+  let fw=-1,fwn=0;(s.wk||[]).forEach((v,i)=>{if(v>fwn){fwn=v;fw=i;}});
+  let fa=-1,fan=0;(s.ak||[]).forEach((v,i)=>{if(v>fan&&DEXO.indexOf(i)>=0){fan=v;fa=i;}});
+  const bosses=NI.ACH.filter(a=>a.s==='bk'),bdone=bosses.filter(a=>((s.bk&&s.bk[a.i])|0)>0).length;
+  const disc=(prof.dex||[]).filter(v=>DEXO.indexOf(v)>=0).length;
+  const best=Math.max(s.br|0,bestRound|0);
+  const C=[
+    ['HIGHEST ROUND',best||'-','',1],['TOTAL PLAYTIME',fmtTime(s.pt),gm?'about '+fmtTime((s.pt|0)/gm)+' a game':'',1],['GAMES PLAYED',n(gm),'',1],['ALIEN KILLS',n(k),gm?n(Math.round(k/gm))+' per game':'',1],
+    ['BOSSES KILLED',n(s.bo),bdone+' / '+bosses.length+' different bosses beaten'],['ROUNDS CLEARED',n(s.rt),gm?(Math.round((s.rt|0)/gm*10)/10)+' per game':''],
+    ['HEADSHOT KILLS',n(s.cr),k?Math.round((s.cr|0)/k*100)+'% of your kills':''],['ROADKILLS',n(s.rk),''],
+    ['DAMAGE DEALT',n(s.dd),''],['CASH EARNED',"$"+n(s.mn),'all games, roughly'],['TEAMMATES REVIVED',n(s.rv),''],['TIMES DOWNED',n(s.dn),gm?(Math.round((s.dn|0)/gm*10)/10)+' per game':''],
+    ['FAVORITE WEAPON',fw>=0?NI.WPN[fw].name:'-',fw>=0?n(fwn)+' kills':''],['MOST KILLED ALIEN',fa>=0?NI.AT[fa].name:'-',fa>=0?n(fan)+' kills':''],
+    ['ALIENS DISCOVERED',disc+' / '+DEXO.length,''],['ACHIEVEMENTS',(prof.ach||[]).length+' / '+NI.ACH.length,''],['LEVEL',lvInfo(prof.xp).L,'']
+  ];
+  $('dexStats').innerHTML=C.map(c=>'<div class="stc'+(c[3]?' big':'')+'"><small>'+c[0]+'</small><b>'+escH(String(c[1]))+'</b>'+(c[2]?'<i>'+escH(c[2])+'</i>':'')+'</div>').join('');
+  $('dexCount').textContent='YOUR LIFETIME RECORD';
+}
 function openDex(){
-  dexOpen=true;dexSelT=-1;dexBuild();$('dexP').style.display='flex';
-  const have=prof.dex||[];dexSel(have.length?have[0]:0);
+  dexOpen=true;dexSelT=-1;dexBuild();$('dexP').style.display='flex';dexTab('a');
+  const have=(prof.dex||[]).filter(v=>DEXO.indexOf(v)>=0);dexSel(have.length?have[0]:DEXO[0]);
   dexTick();
 }
 function closeDex(){dexOpen=false;$('dexP').style.display='none';}
 function openLocker(ach){
-  lockerOpen=true;lkTab=ach?3:0;$('lkh').textContent=ach?'ACHIEVEMENTS':'CUSTOMIZE';$('lktabs').style.display=ach?'none':'';for(const k in keys)keys[k]=false;mouseDown=false;
+  lockerOpen=true;lkTab=ach?3:0;{const lb=document.querySelector('#locker .lbox');if(lb)lb.classList.toggle('wide',!!ach);}$('lkh').textContent=ach?'ACHIEVEMENTS':'CUSTOMIZE';$('lktabs').style.display=ach?'none':'';for(const k in keys)keys[k]=false;mouseDown=false;
   renderLocker();renderChar();$('locker').style.display='flex';if(!ach)startChPrev();$('lock').style.display='none';
   try{document.exitPointerLock();}catch(e){}
 }
@@ -3616,6 +3696,7 @@ function handleEvent(e){
     sfxShot(w,0.5);
   }else if(k==='hit'){
     if(e[1]===myId){
+      if(e[6]>0)stAdd('dd',e[6]|0);
       burst(e[2],e[3],e[4],e[7]?0xffe63c:0xffffff,e[5]?10:(e[7]?8:4),10,0.7);
       hitT=0.15;const x=$('xhair');x.className=e[5]?'kill':'hit';
       e[5]?sfx.kill():sfx.hit();if(e[7])sfx.crit();
@@ -3642,7 +3723,7 @@ function handleEvent(e){
       stAdd('rt',1);checkAch();
     }
   }
-  else if(k==='kc'){if(e[1]===myId){stAdd('k',1);if(e[2]<0)stAdd('rk',1);else stAdd('w',1,e[2]);if(e[3])stAdd('cr',1);if(e[4])stAdd('bo',1);if(e[5]!==undefined&&NI.ACH.some(q=>q.s==='bk'&&q.i===e[5]))stAdd('bk',1,e[5]);checkAch();}}
+  else if(k==='kc'){if(e[1]===myId){stAdd('k',1);if(e[5]!==undefined&&e[5]>=0&&e[5]<32)stAdd('ak',1,e[5]);if(e[2]<0)stAdd('rk',1);else stAdd('w',1,e[2]);if(e[3])stAdd('cr',1);if(e[4])stAdd('bo',1);if(e[5]!==undefined&&NI.ACH.some(q=>q.s==='bk'&&q.i===e[5]))stAdd('bk',1,e[5]);checkAch();}}
   else if(k==='perk'){if(e[1]===myId){sfx.buy();toast('PERK: '+PERKS[e[2]].name,PERKS[e[2]].desc);}}
   else if(k==='beer'){if(e[1]===myId){drunkT=drunkD=30;sfx.buy();toast('GLUG GLUG');}}
   else if(k==='moon'){const o=aliensM.get(e[1]);if(o){const v=nearVol(o.x,o.z,80);if(v>0.03){
@@ -3683,13 +3764,14 @@ function handleEvent(e){
   else if(k==='telwarn'){tone(220,170,0.6,'sawtooth',0.14);tone(330,250,0.6,'square',0.06);toast(e[1]===4?'SLAM!':e[1]===12?(e[2]?'STOMP!':'BEAM!'):'METEORS!',e[1]===12&&!e[2]?'GET OUT OF THE RED LANE':'RUN OUT OF THE RED');}
   else if(k==='ballspawn'){toast('BASEBALL SLUGGER');sfx.stalk();}
   else if(k==='balldead'){if(e[1]===myId){sfx.buy();toast('GAME OVER, SLUGGER');}}
-  else if(k==='pizzaspawn'){toast('PIZZA ALIEN HIDING');sfx.stalk();}
+  else if(k==='pizzaspawn'){toast('PIZZA CHEF HIDING');sfx.stalk();}
   else if(k==='moviespawn'){toast('MOVIE ALIEN AT THE DRIVE-IN');sfx.stalk();}
   else if(k==='piratespawn'){toast('A PIRATE CAPTAIN HOLDS THE MARINA');sfx.stalk();}
   else if(k==='carnispawn'){toast('CARNIVAL BOSS ON THE WHEEL');sfx.stalk();}
   else if(k==='piratedead'){if(e[1]===myId){sfx.buy();toast('PIRATE LOOT');}}
   else if(k==='carnidead'){if(e[1]===myId){sfx.buy();toast('FREE RIDE');}}
-  else if(k==='cleospawn'){toast('CLEOPATRA AWAKENS');sfx.stalk();}
+  else if(k==='cleospawn'){toast('CLEOPATRA AWAKENS','SHOOT THE SNAKES IN HER HAIR - SHE CANNOT BE HURT UNTIL THEY ARE GONE');sfx.stalk();}
+  else if(k==='snake'){tone(900,300,0.12,'sawtooth',0.12);tone(1500,500,0.08,'square',0.06);if(!e[6])toast('HER SNAKES ARE GONE','NOW SHOOT CLEOPATRA!');else toast('SNAKE DOWN',(e[6]?'KEEP SHOOTING THE REST':''),true);}
   else if(k==='cleodead'){if(e[1]===myId){sfx.buy();toast('CLEOPATRA\'S TREASURE');}}
   else if(k==='ticket'){if(e[1]===myId){sfx.buy();toast('FREE TICKET');}}
   else if(k==='pizza'){tone(520,1040,0.12,'square',0.1);setTimeout(()=>tone(660,1320,0.12,'square',0.1),110);setTimeout(()=>tone(880,1760,0.25,'triangle',0.12),220);toast('FREE SLICE!');}
@@ -3735,8 +3817,10 @@ function handleEvent(e){
   else if(k==='blast'){burst(e[1],e[2],e[3],0xffe63c,50,28,1.4);burst(e[1],e[2],e[3],0xff2040,30,20,1.2);sfx.boom();const d=Math.hypot(e[1]-me.x,e[3]-me.z);if(d<40)shake=Math.max(shake,0.35*(1-d/40));}
   else if(k==='heal'){burst(e[1],e[2],e[3],0x3cff9e,16,8,0.8);}
   else if(k==='nest'){toast(lastRT||'ROUND '+curRound,'ALIEN NEST SPOTTED');}
-  else if(k==='shark'){toast(e[1]?'GIANT ALIEN SHARK':'ALIEN SHARK');sfx.round();}
-  else if(k==='summon'){toast('THE OVERMIND SUMMONS ITS SWARM','KILL THEM OR BREAK THE BRAIN');sfx.round();burst(e[1],4,e[2],0xff4fd8,50,30,1.5);shake=Math.max(shake,0.5);}
+  else if(k==='shark'){toast(e[1]?'GIANT MUTANT SHARK':'MUTANT SHARK');sfx.round();}
+  else if(k==='omlaser'){omFire(e);}
+  else if(k==='omhigh'){if(e[1]===myId)toast('IT IS OUT OF REACH','GET ON A ROOF, USE A JETPACK OR FLY THE HELICOPTER',true);}
+  else if(k==='summon'){toast('THE OVERMIND SUMMONS ITS SWARM','KILL THEM, OR GET HIGH ENOUGH TO HIT IT',true);sfx.round();burst(e[1],4,e[2],0xff4fd8,50,30,1.5);shake=Math.max(shake,0.5);}
   else if(k==='stomp'){const d=Math.hypot(e[1]-me.x,e[2]-me.z);if(d<170){sfx.stomp();shake=Math.max(shake,0.5*(1-d/170));}burst(e[1],0.5,e[2],0xff2fa0,40,24,1.2);}
   else if(k==='thud'){burst(e[1],1.5,e[2],0xffffff,8,12,0.9);}
 }
@@ -3996,6 +4080,60 @@ const _cF=new THREE.Color(0xe9c8ff);
 const WX_TXT=['','','BLACKOUT - YOUR TORCH IS ON, WATCH THE MAP','LIGHTNING STORM - RUN FROM THE RED CIRCLES','FOG - SHORT SIGHT, SMALL MAP','METEOR SHOWER - DODGE THE CIRCLES, AVOID THE FIRE','NEON AURORA - BONUS CASH, FASTER ALIENS'];
 const WX_COL=['#fff','#b6ff1c','#ffe63c','#9ffcff','#e9c8ff','#ff9a3c','#3cffb0'];
 const _cG=new THREE.Color(0x1b5a14),_cD=new THREE.Color(0x000000),_cS=new THREE.Color(0x0c1030),_cW=new THREE.Color(0xffffff);
+/* ===== THE OVERMIND: red-and-black swirling sky, laser countdown and the laser barrage ===== */
+const omSkyMat=new THREE.ShaderMaterial({side:THREE.BackSide,transparent:true,depthWrite:false,depthTest:true,fog:false,uniforms:{t:{value:0},k:{value:0}},
+  vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:`uniform float t,k;varying vec3 vD;
+  void main(){
+    vec3 d=normalize(vD);vec3 p=d*3.2;
+    for(int i=0;i<4;i++){float f=float(i)+1.0;p+=0.55*vec3(sin(p.y*1.9+t*0.7*f),sin(p.z*2.1-t*0.6+f),sin(p.x*1.7+t*0.5*f));}
+    float v=(sin(p.x*3.0+t*1.1)+sin(p.y*4.0-t*0.8)+sin(p.z*3.5+t*0.6))/3.0;
+    float band=smoothstep(-0.25,0.55,v);
+    float rings=0.5+0.5*sin(length(p)*6.0-t*2.2);
+    vec3 red=vec3(1.0,0.04,0.07),dark=vec3(0.015,0.0,0.01);
+    vec3 col=mix(dark,red,clamp(band*0.85+rings*0.18,0.0,1.0));
+    float vein=smoothstep(0.0,0.12,abs(sin(p.x*5.5+sin(p.y*5.0+t*0.9)*2.0)));
+    col*=0.25+0.75*vein;
+    col+=vec3(0.55,0.0,0.04)*pow(max(0.0,sin(t*1.3+p.y*2.0)),6.0)*band;
+    gl_FragColor=vec4(col,k);
+  }`});
+const omSky=new THREE.Mesh(new THREE.SphereGeometry(1480,24,16),omSkyMat);omSky.renderOrder=-2.5;omSky.frustumCulled=false;omSky.visible=false;scene.add(omSky);
+const OMRED=new THREE.Color(0x7a0612),omBeamGeo=new THREE.CylinderGeometry(2.4,2.4,1,8,1,true).rotateX(Math.PI/2),omImpGeo=new THREE.SphereGeometry(1,10,8);
+let omK=0,omBeams=[],omSec=-1,omSeen=0;
+function omAddBeam(bx,by,bz,x,y,z){
+  const len=Math.hypot(x-bx,y-by,z-bz)||1;
+  const m=new THREE.Mesh(omBeamGeo,new THREE.MeshBasicMaterial({color:0xff1a3a,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+  m.scale.set(1,1,len);m.position.set((bx+x)/2,(by+y)/2,(bz+z)/2);m.lookAt(x,y,z);scene.add(m);
+  const im=new THREE.Mesh(omImpGeo,new THREE.MeshBasicMaterial({color:0xffb0b8,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending}));im.position.set(x,y+1,z);scene.add(im);
+  omBeams.push({m,im,life:1.0});
+}
+function omFire(e){
+  const bx=e[1],by=e[2],bz=e[3];
+  for(let i=4;i+2<e.length;i+=3)omAddBeam(bx,by,bz,e[i],e[i+1],e[i+2]);
+  const f=$('omFlash');f.classList.remove('on');void f.offsetWidth;f.classList.add('on');
+  shake=Math.max(shake,1.4);
+  tone(140,38,1.3,'sawtooth',0.32);tone(2600,160,0.6,'square',0.14);tone(90,30,1.6,'sine',0.3);
+}
+function omFx(dt){
+  let om=null;for(const o of aliensM.values())if(o.t===17){om=o;break;}
+  omK+=((om?1:0)-omK)*Math.min(1,dt*(om?0.45:1.2));if(!om&&omK<0.01)omK=0;
+  omSky.visible=omK>0.01;omSkyMat.uniforms.k.value=Math.min(1,omK*1.1);omSkyMat.uniforms.t.value=elapsed;
+  sun.visible=omK<0.3;stars.visible=omK<0.3;
+  if(omK>0){scene.fog.color.lerp(OMRED,0.85*omK);hemi.color.lerp(OMRED,0.55*omK);dirLight.color.lerp(OMRED,0.6*omK);hemi.intensity*=1-0.2*omK;}
+  for(let i=omBeams.length-1;i>=0;i--){const b=omBeams[i];b.life-=dt;const f=Math.max(0,b.life);
+    b.m.material.opacity=Math.min(1,f*1.4);b.m.scale.x=b.m.scale.y=0.25+f*1.1;b.im.material.opacity=f;b.im.scale.setScalar(3+(1-f)*16);
+    if(b.life<=0){scene.remove(b.m);scene.remove(b.im);b.m.material.dispose();b.im.material.dispose();omBeams.splice(i,1);}}
+  const tm=$('omTimer');
+  if(om&&started&&om.lz>0&&om.lz<=15&&myP&&myP.st==='alive'){
+    const sec=Math.ceil(om.lz),cp=camera.position,bx=om.x,by=om.y+54,bz=om.z,d=Math.hypot(bx-cp.x,by-cp.y,bz-cp.z)||1;
+    const exposed=NI.rayWorld(cp.x,cp.y,cp.z,(bx-cp.x)/d,(by-cp.y)/d,(bz-cp.z)/d,d)>=d-3;
+    tm.style.display='block';
+    tm.innerHTML='OVERMIND LASER IN '+sec+'<small style="color:'+(exposed?'#ffd0d6':'#7dffb0')+'">'+(exposed?'TAKE COVER - GET UNDER A ROOF!':'YOU ARE IN COVER')+'</small>';
+    if(sec!==omSec){omSec=sec;if(sec<=5)tone(sec<=2?1500:950,sec<=2?1500:950,0.14,'square',0.12);}
+  }else{tm.style.display='none';omSec=-1;}
+  if(om&&om.id!==omSeen){omSeen=om.id;toast('THE OVERMIND HOVERS ABOVE THE CITY','ONLY ROOFTOPS, JETPACKS AND HELICOPTERS CAN HIT IT - TAKE COVER FROM ITS LASERS EVERY 60s');}
+  if(!om)omSeen=0;
+}
 function weatherFx(dt){
   const target=(S&&S.rd&&S.rd.s==='fight')?(S.rd.w|0):0;
   if(target){wxNow=target;wxK=Math.min(1,wxK+dt*0.7);}else{wxK=Math.max(0,wxK-dt*0.9);if(wxK<=0)wxNow=0;}
@@ -4950,7 +5088,7 @@ function updateHUD(dt){
   $('status').textContent=st;
   // boss
   let boss=null;for(const o of aliensM.values())if(o.t===17)boss=o;if(!boss)for(const o of aliensM.values())if(o.t===12)boss=o;if(!boss)for(const o of aliensM.values())if(o.t===4)boss=o;if(!boss)for(const o of aliensM.values())if(o.t===26||o.t===18)boss=o;
-  $('boss').firstChild.nodeValue=boss&&boss.t===26?'GIANT ALIEN SHARK':boss&&boss.t===18?'ALIEN SHARK':boss&&boss.t===17?'THE OVERMIND':boss&&boss.t===12?'GODZILLA ALIEN':'BOSS ALIEN';
+  $('boss').firstChild.nodeValue=boss&&boss.t===26?'GIANT MUTANT SHARK':boss&&boss.t===18?'MUTANT SHARK':boss&&boss.t===17?'THE OVERMIND':boss&&boss.t===12?'GODZILLA ALIEN':'BOSS ALIEN';
   $('boss').style.display=boss?'block':'none';if(boss)$('boss').querySelector('i').style.width=boss.hp+'%';
   // ammo
   if(driving>=0){$('ammo').innerHTML=PT('<small class="wn" style="color:#'+CARS[carsM.get(driving)?carsM.get(driving).t:0].color.toString(16).padStart(6,'0')+'">'+(carsM.get(driving)?CARS[carsM.get(driving).t].name:'')+'</small>'+(carsM.get(driving)&&CARS[carsM.get(driving).t].gun?(carsM.get(driving).am===undefined||carsM.get(driving).am===null?CARS[carsM.get(driving).t].ammo:Math.max(0,carsM.get(driving).am))+'<small>AMMO - CLICK / RT = '+(CARS[carsM.get(driving).t].blast?'MAIN CANNON':'MINIGUNS')+'</small>':Math.round(Math.hypot(cs.vx,cs.vz)*2.2)+'<small>MPH - RAM THEM</small>'));}
@@ -5289,7 +5427,7 @@ function frame(now){
     o.x+=(o.tx-o.x)*k;o.y+=(o.ty-o.y)*k;o.z+=(o.tz-o.z)*k;
     let dy=o.tyaw-o.yaw;while(dy>Math.PI)dy-=6.283;while(dy<-Math.PI)dy+=6.283;o.yaw+=dy*k;
     const moved=Math.hypot(o.x-px,o.z-pz);o.ph+=moved*0.9+dt*(o.fly?3:0.5);
-    o.g.position.set(o.x,o.y+(o.fly?Math.sin(o.ph)*0.3:0),o.z);o.g.rotation.y=o.yaw;
+    o.g.position.set(o.x,o.y+(o.fly?Math.sin(o.ph)*0.3:0),o.z);o.g.rotation.y=o.yaw;if(o.snakes){const tt=performance.now()/1000;o.snakes.forEach((sn,i)=>{sn.visible=!!((o.snk|0)&(1<<i));const u=sn.userData;u.segs.forEach((sp,k)=>{sp.position.x=Math.sin(tt*4+u.ph+k*0.9)*0.12*k;});u.hd.position.x=Math.sin(tt*4+u.ph+3.6)*0.4;u.hd.rotation.y=Math.sin(tt*4+u.ph)*0.5;});}
     if(o.t===28)discoAnim(o,dt,moved);
     else if(o.dance){const sw=Math.sin(o.ph*2.2)*Math.min(0.9,moved/dt*0.12);o.legs[0].rotation.x=sw;o.legs[1].rotation.x=-sw;o.arms[0].rotation.x=-2.5+Math.sin(elapsed*9+o.x)*0.5;o.arms[1].rotation.x=-2.5-Math.sin(elapsed*9+o.x)*0.5;o.hum.position.y=Math.abs(Math.sin(elapsed*9+o.x))*0.18;}
     else if(o.legs.length&&!o.sniperPose){const sw=Math.sin(o.ph*2.2)*Math.min(0.9,moved/dt*0.12);o.legs[0].rotation.x=sw;o.legs[1].rotation.x=-sw;o.arms[0].rotation.x=-sw*0.8;o.arms[1].rotation.x=sw*0.8;}
@@ -5343,6 +5481,8 @@ function frame(now){
   for(const s of stationObjs){s.ico.rotation.y+=dt*1.5;s.ico.position.y=(s.tw?15:5.2)+Math.sin(elapsed*2)*0.3;}
   updateFx(dt);updateSnipers(dt);updateProj(dt);updateClouds(dt);updatePads(dt);updateBolts(dt);updateFeedback(dt);
   applyTime(dt);weatherFx(dt);
+  omFx(dt);
+  if(started){ptAcc+=dt;if(ptAcc>=10){stAdd('pt',10);ptAcc-=10;checkAch();}}
   // water
   const pa=waterGeo.attributes.position.array;
   if(!PANE||(frameN&1))for(let i=0;i<pa.length;i+=3){const bx=waterBase[i],by=waterBase[i+1];pa[i+2]=Math.sin(bx*0.02+elapsed*1.3)*0.5+Math.cos(by*0.03+elapsed)*0.4+Math.sin(bx*0.07+by*0.05+elapsed*2.1)*0.18;}
@@ -5458,7 +5598,7 @@ function frame(now){
   const getName=()=>{if(acct)$('name').value=acct.name;const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
   if(!$('name').value)$('name').focus();
-  $('bDex').onclick=openDex;$('dexClose').onclick=closeDex;addEventListener('keydown',e=>{if(e.code==='Escape'&&dexOpen)closeDex();});
+  $('bDex').onclick=openDex;$('dxtA').onclick=()=>dexTab('a');$('dxtS').onclick=()=>dexTab('s');$('dexClose').onclick=closeDex;addEventListener('keydown',e=>{if(e.code==='Escape'&&dexOpen)closeDex();});
   $('bAch').onclick=()=>{openLocker(true);$('locker').scrollTop=0;};
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;$('slClose').onclick=closeSlots;$('rlClose').onclick=closeRoul;$('rlSpin').onclick=rlSpin;$('rlM').onclick=()=>{rlNumV=(rlNumV+36)%37;rlRender();};$('rlP').onclick=()=>{rlNumV=(rlNumV+1)%37;rlRender();};$('slSpin').onclick=slSpin;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};

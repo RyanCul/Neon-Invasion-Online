@@ -71,7 +71,7 @@ Early rounds: aliens spawn much closer and faster in rounds 1-7, easing back to 
 After you create/join an online room you land in a **waiting room** showing the room code and who has joined. The host (first player in) presses **Space / A / the START GAME button** when everyone is in; guests see "waiting for the host". Players who join after the start drop in like before.
 
 ## The Overmind (round 50)
-On **round 50** (and every 50 after) the ultimate boss arrives alongside a normal boss: **THE OVERMIND**, a building-sized brain alien with 150,000+ health (scales with rounds and players). It fires a wide 9-orb barrage, stomps, and every ~13 seconds **summons a swarm of 7 aliens** around itself. Killing it pays $60,000.
+On **round 50** (and every 50 after) the ultimate boss arrives alongside a normal boss: **THE OVERMIND**, a building-sized brain alien with 300,000+ health (scales with rounds and players). It fires a wide 9-orb barrage, stomps, and every ~13 seconds **summons a swarm of 7 aliens** around itself. Killing it pays $60,000.
 
 ## More buildings, stalker marker, alien shark
 - About **22 enterable buildings** now (was 8), each with loot inside and counters. Pink triangles on the minimap = a door you can walk into. The stalker hides in any of them.
@@ -486,3 +486,33 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 - The box now moves to a random different building EVERY round (the every-6-rounds rule is gone), and everyone gets a fresh pull every round. Opening is still free (E next to it).
 - Contents: a new gun 60% (only guns you don't own yet), a free base-level (tier I) perk you don't have yet 25%, or money 15% in total ($1,000 7.5%, $2,000 5%, $5,000 2.5%). If a gun or perk can't be given (you already own them all) you get the other one, then a full ammo refill - never extra cash.
 - The full map (L) now shows every enemy as a plain green dot (bosses and special aliens are just bigger green dots).
+
+## Alien Dex
+- **ALIEN DEX** button on the main menu (next to CUSTOMIZE) opens a codex of all 30 aliens, 6 per row.
+- Each alien is a 16-bit style sprite (rendered from its real 3D model, shrunk and colour-snapped). Aliens you haven't spotted yet are dark silhouettes with `???`.
+- Hover (or focus with the controller, or click) an entry to see a big spinning 3D model on the left with its name, class, lore, stat chips (HP, speed, damage, bounty, flying/ranged/boss) and a lore blurb. Locked entries show a dark model and a vague rumour of where to find them.
+- An alien unlocks the first time you spot it in any mode; a "ALIEN DEX UPDATED" toast appears. Progress is saved in your profile (`prof.dex`) and syncs to your account (server.js `/api/sync` merges it as a union).
+- Controller: D-pad/stick moves between entries, B closes.
+- Lore lives in the `DEX` array in game.html - edit the text there.
+
+## Night-only hunters and renames
+- The Stalker only appears on night rounds (6-10, 16-20, 26-30 ...): rounds 6, 9, 17, 20, 28, 36, ... The Butcher (chainsaw) also only comes at night: rounds 26, 29, 37, 40, ...
+- Renamed: Pizza Alien -> Pizza Chef, Alien Shark -> Mutant Shark, Giant Alien Shark -> Giant Mutant Shark, Tipsy Alien -> The Boozer.
+- Alien Dex lore rewritten with Ryan's text (see the `DEX` array in game.html).
+
+## Tier V health, Dex stats tab, achievements page
+- NEON TANK V: +260 max health in total (360 HP), $250,000, requires NEON TANK IV. Meant as a round ~38+ purchase.
+- ALIEN DEX now has an ALIENS tab and a STATS tab: highest round, playtime, games, kills, bosses, rounds cleared, headshots, roadkills, damage, cash earned, revives, times downed, favourite weapon, most-killed alien, aliens discovered, achievements, level. Each alien entry also shows how many of it you have killed. New stats (`pt`, `dn`, `mn`, `dd`, `ak`) sync to the account via server.js.
+- Achievements page redesigned: two-column cards with icon, big title, % and progress bar, reward chips; overall completion bar; filters ALL / IN PROGRESS / UNLOCKED; closest-to-done first, finished last.
+- Cleopatra is immune until the 5 snakes in her hair are shot off.
+
+## The Overmind overhaul
+- The Overmind is now **giant** and **floats high above the city** (round 50 boss). Its hitbox is scaled to match.
+- Ground players can't damage it ("OUT OF REACH" hint). Only players on **rooftops, in a jetpack or in a helicopter** can hit it.
+- **Every 60s** it fires extremely fast lasers that can hit anywhere on the map. A big red countdown shows when the volley is coming. **Get under a roof** to be safe; anyone exposed takes ~90% max HP.
+- It summons any alien, including mini-bosses (rarer than normal aliens).
+- While it is alive the sky turns into a swirling red and black Giygas-style void.
+- Flying aliens (UFOs etc.) no longer pass through walls/buildings: they climb over or slide around them.
+- Overmind health raised (about 300,000 at round 50). Headshots only do +15% on it (no Dead Eye bonus), and you still need to be within your weapon's range of it from a rooftop, jetpack or helicopter.
+- Round 40 spawns **two Godzillas**.
+- The two Godzillas of round 40 spawn on opposite sides of the city.

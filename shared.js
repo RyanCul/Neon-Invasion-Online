@@ -10,6 +10,14 @@ function soft(v,k,s){return v<=k?v:k+(v-k)*s;}   // linear up to k, then keeps c
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
 const r2=v=>Math.round(v*100)/100;
 
+const nightRound=n=>n>0&&(Math.floor((n-1)/5)%2)===1;   // rounds 6-10, 16-20, 26-30 ... are night (the client uses the same rule)
+const nightIdx=n=>nightRound(n)?5*Math.floor((n-1)/10)+((n-1)%5)+1:0;   // 1st, 2nd, 3rd ... night round
+const OM_Y=45,OM_LASER=60;   // the Overmind hovers this high above the city and fires its laser barrage every 60 s
+const CLEO_SNAKES=5,CLEO_SC=1.05;
+function cleoSnakePos(a,i){   // snakes in Cleopatra's hair: a ring around her headdress, turning with her
+  const an=i*6.2832/CLEO_SNAKES+0.3,lx=Math.cos(an)*1.05*CLEO_SC,lz=Math.sin(an)*1.05*CLEO_SC,c=Math.cos(a.yaw||0),s=Math.sin(a.yaw||0);
+  return [a.x+lx*c+lz*s,a.y+3.75*CLEO_SC,a.z-lx*s+lz*c];
+}
 /* ---------------- constants ---------------- */
 const EYE=2.9;                 // player eye height
 const N=8,P=88,HALF=(N/2)*P;
@@ -229,7 +237,7 @@ BADGES.push({id:BADGES.length,name:'SHIELD',ach:'br40',sym:'⛨',c:'#7dff9a'},{i
 NAME_COLS.push({id:NAME_COLS.length,name:'EMERALD',ach:'br100',col:0x2fffa0},{id:NAME_COLS.length+1,name:'ROYAL PURPLE',ach:'br150',col:0xb36bff},{id:NAME_COLS.length+2,name:'PLATINUM',ach:'br200',col:0xe8f6ff});
 FRAMES.push({id:FRAMES.length,name:'WARDEN',ach:'br40',c1:'#7dff9a',c2:'#25f4ff'},{id:FRAMES.length+1,name:'LEGEND',ach:'br150',c1:'#ff2fa0',c2:'#ffd23c'},{id:FRAMES.length+2,name:'UNTOUCHABLE',ach:'br200',c1:'#ffffff',c2:'#25f4ff'});
 /* one achievement per boss: KILL THE <BOSS>; s:'bk' counts per boss type in st.bk[type] */
-const BOSS_TYPES=[[4,'BOSS',5,'♚','#ff2f4f'],[14,'STALKER',6,'✂','#c58cff'],[11,'TITAN',13,'♜','#ff9a3c'],[18,'ALIEN SHARK',13,'⚓','#25f4ff'],[23,'CARNIVAL BOSS',16,'☺','#ffe63c'],[12,'GODZILLA',20,'☄','#9dff3c'],[24,'THE BUTCHER',25,'⚔','#ff2f4f'],[22,'PIRATE CAPTAIN',26,'☠','#ffd23c'],[21,'CLEOPATRA',32,'☥','#ffc83c'],[17,'THE OVERMIND',50,'✺','#ff2fa0']];   // in order of the round each first shows up
+const BOSS_TYPES=[[4,'BOSS',5,'♚','#ff2f4f'],[14,'STALKER',6,'✂','#c58cff'],[11,'TITAN',13,'♜','#ff9a3c'],[18,'MUTANT SHARK',13,'⚓','#25f4ff'],[23,'CARNIVAL BOSS',16,'☺','#ffe63c'],[12,'GODZILLA',20,'☄','#9dff3c'],[24,'THE BUTCHER',25,'⚔','#ff2f4f'],[22,'PIRATE CAPTAIN',26,'☠','#ffd23c'],[21,'CLEOPATRA',32,'☥','#ffc83c'],[17,'THE OVERMIND',50,'✺','#ff2fa0']];   // in order of the round each first shows up
 BOSS_TYPES.forEach(([t,nm,rd,sym,c])=>{const the=(nm.indexOf('THE ')===0||nm==='GODZILLA'||nm==='CLEOPATRA')?nm:'THE '+nm;ACH.push({id:'bk'+t,n:nm+' DOWN',d:'KILL '+the,s:'bk',i:t,g:1});TITLES.push({id:TITLES.length,name:nm+' HUNTER',ach:'bk'+t});BADGES.push({id:BADGES.length,name:nm+' TROPHY',ach:'bk'+t,sym,c});});
 const ACH_IDS=ACH.map(a=>a.id);
 const EXLISTS=[TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX];   // order of the ex[] array: title, badge, name colour, frame, camo, kill effect
@@ -250,9 +258,9 @@ const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
 const UP_COST=[2500,6000,12000,22000,48000,110000,175000,230000,290000];   // cost to reach upgrade 1..9 - the same for every weapon
 // Character buffs: 8 lines x 4 tiers. Every tier I costs the same, and the price steps are shared by every line.
-const PERK_COST=[1800,4500,20000,60000];
+const PERK_COST=[1800,4500,20000,60000,250000];   // tier V only exists for NEON TANK: a very late-game buy
 const PERK_LINES=[   // ids per tier (ids 0-13 kept from the old layout so saved bitmasks stay valid)
-  {k:'tank',  name:'NEON TANK',    ids:[0,8,9,10],   fx:[25,60,110,175],        d:v=>'+'+v+' max health (total)'},
+  {k:'tank',  name:'NEON TANK',    ids:[0,8,9,10,32],   fx:[25,60,110,175,260],        d:v=>'+'+v+' max health (total)'},
   {k:'quick', name:'QUICK REVIVE', ids:[1,14,15,16], fx:[1.3,1.6,2,2.5],        d:v=>'revive teammates '+v+'x as fast'},
   {k:'hands', name:'FAST HANDS',   ids:[2,17,18,19], fx:[0.15,0.25,0.35,0.45],  d:v=>'reload '+Math.round(v*100)+'% faster'},
   {k:'sprint',name:'SPRINTER',     ids:[3,11,12,13], fx:[0.08,0.16,0.25,0.35],  d:v=>'run '+Math.round(v*100)+'% faster (total)'},
@@ -260,10 +268,10 @@ const PERK_LINES=[   // ids per tier (ids 0-13 kept from the old layout so saved
   {k:'cash',  name:'CASH MAGNET',  ids:[5,23,24,25], fx:[0.1,0.2,0.3,0.4],      d:v=>'+'+Math.round(v*100)+'% cash from kills (total)'},
   {k:'armor', name:'KEVLAR',       ids:[6,26,27,28], fx:[0.08,0.15,0.22,0.3],   d:v=>'take '+Math.round(v*100)+'% less damage (total)'},
   {k:'tap',   name:'DOUBLE TAP',   ids:[7,29,30,31], fx:[0.08,0.15,0.22,0.3],   d:v=>'+'+Math.round(v*100)+'% weapon damage (total)'}];
-const RN=['','II','III','IV'];
+const RN=['','II','III','IV','V'];
 const PERKS=[];for(const L of PERK_LINES)L.ids.forEach((id,t)=>{PERKS[id]={id,name:L.name+(t?' '+RN[t]:''),cost:PERK_COST[t],desc:L.d(L.fx[t]),req:t?L.ids[t-1]:undefined,line:L.k,tier:t};});
 const perkFx=(p,k)=>{const L=PERK_LINES.find(l=>l.k===k);if(!L||!p||!p.perks)return 0;let v=0;L.ids.forEach((id,t)=>{if(p.perks[id])v=L.fx[t];});return v;};
-const HP_TIERS=[0,8,9,10];
+const HP_TIERS=[0,8,9,10,32];
 const mhp=p=>100+perkFx(p,'tank');
 const UPCOST=(w,lv)=>UP_COST[lv];
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
@@ -320,16 +328,16 @@ const AT=[
   {name:'STALKER',hp:1300, sp:4.6,r:1.9, cy:2.0, dmg:54, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
   {name:'HOUND',  hp:42,  sp:15, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
-  {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:30,summon:true},
-  {name:'ALIEN SHARK',hp:3500,sp:15,r:3.0,cy:1.8,dmg:36,money:6000,fly:false,ranged:true,beach:true,loner:true},
-  {name:'PIZZA ALIEN',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true},
+  {name:'THE OVERMIND',hp:150000,sp:3.0,r:36,cy:54,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,summon:true},
+  {name:'MUTANT SHARK',hp:3500,sp:15,r:3.0,cy:1.8,dmg:36,money:6000,fly:false,ranged:true,beach:true,loner:true},
+  {name:'PIZZA CHEF',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true},
   {name:'MOVIE ALIEN',hp:520,sp:5.0,r:1.6,cy:1.7,dmg:16,money:700,fly:false,ranged:true,movie:true,loner:true},
   {name:'CLEOPATRA',hp:5800,sp:0,r:1.6,cy:1.8,dmg:36,money:4000,fly:false,ranged:true,perch:true,loner:true},
   {name:'PIRATE CAPTAIN',hp:6200,sp:0,r:1.6,cy:1.8,dmg:38,money:4500,fly:false,ranged:true,perch:true,pirate:true,loner:true},
   {name:'CARNIVAL BOSS',hp:3200,sp:0,r:1.7,cy:1.9,dmg:36,money:3500,fly:false,ranged:true,perch:true,carni:true,loner:true},
   {name:'THE BUTCHER',hp:5400,sp:5.0,r:1.9,cy:2.0,dmg:66,money:6000,fly:false,stalker:true,loner:true,saw:true},
-  {name:'TIPSY ALIEN',hp:110,sp:5.0,r:1.4,cy:1.5,dmg:0,money:120,fly:false,ranged:true,tipsy:true},
-  {name:'GIANT ALIEN SHARK',hp:9000,sp:13,r:8.5,cy:5.5,dmg:48,money:30000,fly:false,ranged:true,beach:true,loner:true,giantShark:true},
+  {name:'THE BOOZER',hp:110,sp:5.0,r:1.4,cy:1.5,dmg:0,money:120,fly:false,ranged:true,tipsy:true},
+  {name:'GIANT MUTANT SHARK',hp:9000,sp:13,r:8.5,cy:5.5,dmg:48,money:30000,fly:false,ranged:true,beach:true,loner:true,giantShark:true},
   {name:'BASEBALL SLUGGER',hp:3400,sp:5.4,r:1.8,cy:2.0,dmg:34,money:3500,fly:false,ranged:true,ball:true,loner:true},
   {name:'DISCO MOONWALKER',hp:800,sp:5.6,r:1.5,cy:1.7,dmg:22,money:500,fly:false,moon:true},
   {name:'BACKUP DANCER',hp:70,sp:7.0,r:1.2,cy:1.3,dmg:12,money:60,fly:false}
@@ -1008,6 +1016,13 @@ class Game{
       const hits=[];
       for(const a of this.aliens){
         const t=raySphere(ox,oy,oz,dd[0],dd[1],dd[2],a.x,a.y+a.cy,a.z,a.r+0.3);
+        if(a.t===21&&a.snk){   // Cleopatra: only the snakes in her hair can be hurt; the rest of her just deflects shots
+          let bs=-1,bt=1e9;
+          for(let i=0;i<CLEO_SNAKES;i++)if(a.snk&(1<<i)){const sp=cleoSnakePos(a,i),ts=raySphere(ox,oy,oz,dd[0],dd[1],dd[2],sp[0],sp[1],sp[2],0.7);if(ts>=0&&ts<bt){bt=ts;bs=i;}}
+          if(bs>=0&&bt<=range&&bt<wt)hits.push([bt,a,bs]);
+          else if(t>=0&&t<=range&&t<wt)hits.push([t,a,-1]);
+          continue;
+        }
         if(t>=0&&t<=range&&(t<wt||AT[a.t].giant))hits.push([t,a]);
       }
       for(const cb of this.crabs.slice()){const t=raySphere(ox,oy,oz,dd[0],dd[1],dd[2],cb.x,0.7,cb.z,1.3);if(t>=0&&t<=range&&t<wt)this.killCrab(cb,p);}
@@ -1020,6 +1035,7 @@ class Game{
         if(def.ramp&&n>1)hm=Math.pow(1.3,n-1);
         if(def.falloff)hm*=h[0]<10?1.7:h[0]>34?0.45:1.7-1.25*(h[0]-10)/24;
         if(def.far)hm*=1+Math.min(1,h[0]/160);
+        if(h[2]!==undefined){this.cleoHit(a,h[2],dmg*hm,p,ox+dd[0]*h[0],oy+dd[1]*h[0],oz+dd[2]*h[0]);continue;}
         this.damageAlien(a,dmg*hm,p,ox+dd[0]*h[0],oy+dd[1]*h[0],oz+dd[2]*h[0]);
         if(def.slow&&a.hp>0)a.slowT=0.8;
         if(def.chain||def.bounce){   // arc / ricochet to a nearby alien
@@ -1140,15 +1156,28 @@ class Game{
     }else if(r<0.84){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);}
     else{p.hp=mhp(p);this.push('loot',p.id,'med',0,l.id);}
   }
+  cleoHit(a,idx,dmg,p,x,y,z){   // a shot at Cleopatra: snake idx (or -1 = her body, which is immune while any snake is left)
+    if(a.hp<=0||!a.snk)return;
+    if(idx<0){this.push('mblock',a.id);return;}
+    if(!(a.snk&(1<<idx)))return;
+    a.snkHp[idx]-=dmg;p.money+=10;p.dd=(p.dd||0)+Math.max(0,Math.min(dmg,a.snkHp[idx]+dmg));
+    if(a.snkHp[idx]<=0){a.snk&=~(1<<idx);p.money+=250;this.push('snake',a.id,idx,r2(x),r2(y),r2(z),a.snk?1:0);}
+    else this.push('hit',p.id,r2(x),r2(y),r2(z),0,Math.round(dmg),0);
+  }
   damageAlien(a,dmg,p,x,y,z){
     if(a.hp<=0)return;
+    if(a.t===21&&a.snk)return;   // Cleopatra is immune until every snake in her hair is shot off
+    if(a.t===17&&p&&p.y<8){   // the Overmind floats high above the city: only rooftops, jetpacks and helicopters can reach it
+      if(this.time-(p.omMsg||-9)>4){p.omMsg=this.time;this.push('omhigh',p.id);}
+      return;
+    }
     if(AT[a.t].moon&&a.ms===3){this.push('mblock',a.id);return;}   // the freeze pose: untouchable for a second
     if(a.dorm){for(const o of this.aliens)if(o.dorm&&Math.hypot(o.x-a.x,o.z-a.z)<30)o.dorm=false;}
     a.guard=false;
     if(a.hide){a.hide=false;this.push('stalk',a.id);}
     if(AT[a.t].stalker)a.enr=1;
     let crit=0;
-    if(y!==undefined){const df=AT[a.t];if(y>a.y+a.cy+df.r*(df.giant?0.12:0.4)){crit=1;dmg*=(df.giant?2.5:2)*(1+perkFx(p,'eye'));}}
+    if(y!==undefined){const df=AT[a.t];if(y>a.y+a.cy+df.r*(df.giant?0.12:0.4)){crit=1;dmg*=(a.t===17?1.15:(df.giant?2.5:2))*(1+(a.t===17?0:perkFx(p,'eye')));}}
     p.dd=(p.dd||0)+Math.max(0,Math.min(dmg,a.hp));
     a.hp-=dmg;
     p.money+=10;
@@ -1213,7 +1242,7 @@ class Game{
       if(this.round===3)while(seen<2&&q.length>=2){const k=Math.floor(this.rand()*q.length);if(q[k]!==5&&q[k]!==13){q[k]=5;seen++;}}
     }
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
-    if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
+    if(nightRound(this.round)&&(nightIdx(this.round)-1)%3===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: night rounds only (6, 9, 17, 20, 28, ...)
     if(this.round>=16){const nn=Math.min(4,1+Math.floor((this.round-16)/5));for(let i=0;i<nn;i++)q.unshift(15);}        // rooftop snipers from round 16
     if(this.round>=26&&(this.round-26)%7===0&&WORLD.themes.some(q=>q.k==='marina'))q.unshift(22);   // pirate captain on the marina boardwalk: rounds 26, 33, 40, ...
     if(this.round>=17&&(this.round-17)%10===0&&WORLD.themes.some(q=>q.k==='ballpark'))q.unshift(27);   // the baseball slugger waits in the ballpark: rounds 17, 27, 37, ...
@@ -1228,13 +1257,13 @@ class Game{
       nM=Math.min(3,nM);
       for(let i=0;i<nM;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,28);
     }
-    if(this.round>=25&&(this.round-25)%7===0)q.unshift(24);   // the chainsaw stalker: rounds 25, 32, 39, ...
+    if(this.round>=26&&nightRound(this.round)&&(nightIdx(this.round)-11)%3===0)q.unshift(24);   // the chainsaw stalker: night rounds only (26, 29, 37, 40, ...)
     if(this.round>=9&&(this.round-9)%7===0&&WORLD.themes.some(q=>q.k==='drivein'))q.unshift(20);   // the movie alien visits the drive-in: rounds 9, 16, 23, ...
     if(this.round>=7&&(this.round-7)%7===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
     if(this.round%30===0)q.unshift(26);   // every 30th round a GIANT alien shark
     if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
     if(ultimate){q.unshift(17);}
-    if(giant){const ng=1+Math.floor(this.round/100);for(let i=0;i<ng;i++)q.unshift(12);}
+    if(giant){const ng=1+Math.floor(this.round/100)+(this.round===40?1:0);for(let i=0;i<ng;i++)q.unshift(12);}
     else if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
     for(let i=q.length-1;i>=0;i--){if(q[i]===15)q.splice(i,1);else if(q[i]===16)q[i]=0;}   // no rooftop snipers and no hounds any more
     for(const p of this.players.values()){   // everyone who fell comes back at the start of the round
@@ -1300,6 +1329,10 @@ class Game{
     }
     if(!ok){x=(this.rand()<0.5?-1:1)*88*(1+Math.floor(this.rand()*3));z=(this.rand()-0.5)*300;
       if(x===0)x=88;}
+    if(t===12&&fx===undefined){   // a second Godzilla always comes in from the opposite side of the city from the first
+      const og=this.aliens.find(o=>o.t===12);
+      if(og){const cx=(BOUNDS.x0+BOUNDS.x1)/2,cz=(BOUNDS.z0+BOUNDS.z1)/2;x=clamp(2*cx-og.x,BOUNDS.x0+8,BOUNDS.x1-8);z=clamp(2*cz-og.z,BOUNDS.z0+8,BOUNDS.z1-38);}
+    }
     if(fx!==undefined){x=fx;z=fz;}
     let yy=def.fly?9+this.rand()*6:0;
     if(def.stalker){   // hide inside one of the enterable buildings
@@ -1336,12 +1369,13 @@ class Game{
         x=clamp(cx+Math.cos(ang)*((b.x1-b.x0)/2-2.2),b.x0+2,b.x1-2);z=clamp(cz+Math.sin(ang)*((b.z1-b.z0)/2-2.2),b.z0+2,b.z1-2);yy=topOf(b);
       }
     }
+    if(t===17)yy=OM_Y;
     const np=Math.max(1,this.players.size);
     let hp=def.hp*this.hpMul()*(1+0.1*(np-1))*(this.hard?1.5:1);   // +10% alien health per extra player
     if(t===4)hp=2900*(1+0.5*(this.round/5-1))*(1+0.8*(np-1));
     if(t===18)hp=3400*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
     if(t===26)hp=16000*(1+0.5*(this.round/30-1))*(1+0.7*(np-1));
-    if(t===17)hp=190000*(1+0.5*(this.round/50-1))*(1+0.8*(np-1));
+    if(t===17)hp=300000*(1+0.5*(this.round/50-1))*(1+0.8*(np-1));
     if(t===12)hp=78000*(1+0.5*(this.round/20-1))*(1+0.8*(np-1));
     if((t>=21&&t<=24)||t===27)hp*=1+0.6*(np-1);   // landmark bosses are tougher in co-op too
     const sp=def.sp*(1+soft(0.028*this.round,0.55,0.12))*(0.9+this.rand()*0.25);
@@ -1365,7 +1399,7 @@ class Game{
     if(t===22)this.push('piratespawn',al.id,r2(x),r2(z));
     if(t===23)this.push('carnispawn',al.id,r2(x),r2(z));
     if(t===27)this.push('ballspawn',al.id,r2(x),r2(z));
-    if(t===21)this.push('cleospawn',al.id,r2(x),r2(z));
+    if(t===21){al.snk=(1<<CLEO_SNAKES)-1;al.snkHp=[];for(let i=0;i<CLEO_SNAKES;i++)al.snkHp.push(110+this.round*4);this.push('cleospawn',al.id,r2(x),r2(z));}
     if(t===20)this.push('moviespawn',al.id,r2(x),r2(z));
     if(t===15)this.push('sniper',al.id,r2(x),r2(z));
   }
@@ -1443,6 +1477,17 @@ class Game{
       }
       if(hit)this.hurt(p,dmg,a.x,a.z);
     }
+  }
+  omLaser(a,alive){   // the Overmind's barrage: instant red beams all over the map. Anyone with a roof (or wall) between them and the Overmind is safe.
+    const bx=a.x,by=a.y+a.cy,bz=a.z,pts=[];
+    for(let i=0;i<16;i++)pts.push(r2(BOUNDS.x0+this.rand()*(BOUNDS.x1-BOUNDS.x0)),0,r2(BOUNDS.z0+this.rand()*(BOUNDS.z1-BOUNDS.z0)));
+    for(const p of alive){
+      if(this.inCasino(p))continue;
+      const py=Math.max(p.y,1.5),d=Math.hypot(bx-p.x,by-py,bz-p.z)||1;
+      const clear=rayWorld(p.x,py,p.z,(bx-p.x)/d,(by-py)/d,(bz-p.z)/d,d)>=d-3;
+      if(clear){pts.push(r2(p.x),r2(Math.max(0,p.y-EYE)),r2(p.z));this.hurt(p,mhp(p)*0.9,bx,bz);}
+    }
+    this.push('omlaser',r2(bx),r2(by),r2(bz),...pts);
   }
   bossDrop(a,killer){
     const all=[...this.players.values()];
@@ -1544,7 +1589,7 @@ class Game{
 
   fireOrb(a,tx,ty,tz,spread,speed,dmg){
     let ox=a.x,oy=a.y+a.cy+(a.t===4?1.5:0.4),oz=a.z;
-    if(a.t===12||a.t===17){const hl=Math.hypot(tx-a.x,tz-a.z)||1;ox+=(tx-a.x)/hl*13;oz+=(tz-a.z)/hl*13;oy=a.y+30;}
+    if(a.t===12||a.t===17){const hl=Math.hypot(tx-a.x,tz-a.z)||1,k=a.t===17?27:13;ox+=(tx-a.x)/hl*k;oz+=(tz-a.z)/hl*k;oy=a.y+(a.t===17?64:30);}
     let dx=tx-ox,dy=ty-oy,dz=tz-oz;const l=Math.hypot(dx,dy,dz)||1;
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
@@ -1749,18 +1794,23 @@ class Game{
         if(!a.agro)a.z=clamp(a.z,HALF+16,HALF+62);
         a.yaw=Math.atan2(a.vx,a.vz);
       }else if(def.fly){
-        const ty=(tp0.y)+(def.ranged?9:3)+Math.sin(a.ph*0.7)*2.5;
+        let ty=(tp0.y)+(def.ranged?9:3)+Math.sin(a.ph*0.7)*2.5;
+        {const la=a.r+7,lx=a.x+dx/dist*la,lz=a.z+dz/dist*la;   // UFOs look ahead and climb over buildings instead of flying through them
+          const hgt=Math.max(groundAt(a.x,a.z,300,a.r),groundAt(lx,lz,300,a.r));
+          if(hgt>0)ty=Math.max(ty,hgt+a.r+2.5);}
         a.y+=(ty-a.y)*Math.min(1,dt*2);
         let fw=1;
         if(def.ranged&&dist<34)fw=dist<22?-0.7:0;
         if(fw!==0){mx=dx/dist*fw;mz=dz/dist*fw;if(!def.ranged&&dist<4){mx=0;mz=0;}}
         else{const px=-dz/dist,pz=dx/dist;mx=px*Math.sin(a.ph*0.25)*0.7;mz=pz*Math.sin(a.ph*0.25)*0.7;}
         a.x+=mx*speed*dt;a.z+=mz*speed*dt;
+        pushOut(a,a.r*0.9,a.y-a.r);   // solid walls: slide along them
       }else{
         let want=1;
         if(def.ranged||def.support){
-          const keep=(a.t===12||a.t===17)?4:30;
-          if(a.los&&dist<keep+8)want=dist<keep-10?-0.6:0;
+          const keep=(a.t===12)?4:30;
+          if(a.t===17){want=dist>120?1:dist<80?-0.6:0;}   // hovers about 50 m out, high above the street
+          else if(a.los&&dist<keep+8)want=dist<keep-10?-0.6:0;
         }
         if(def.moon&&a.los&&dist<7)want=0;   // close enough: it shuffles sideways instead of walking into you
         if(want!==0){
@@ -1796,7 +1846,7 @@ class Game{
       a.x=clamp(a.x,BOUNDS.x0,BOUNDS.x1);a.z=clamp(a.z,BOUNDS.z0,BOUNDS.z1);
 
       // attacks
-      const melee=!def.moon&&((def.fly&&!def.ranged)||(!def.ranged&&!def.support)||def.boss);
+      const melee=!def.moon&&a.t!==17&&((def.fly&&!def.ranged)||(!def.ranged&&!def.support)||def.boss);
       if(melee&&a.cd<=0){
         // swing at EVERY player actually in reach, not only the one it is chasing (it re-picks its target every 0.4 s, so a second player or a crowd used to be ignored while standing right next to it)
         const reach=a.r+(def.fly?1.6:1.4),hit=[];
@@ -1820,7 +1870,7 @@ class Game{
       if(def.ranged&&a.t!==23&&a.cd<=0&&(dist<60||a.t===12||(def.beach&&dist<190))){
         const ty=tp0.y-EYE*0.35;
         let seen=a.los;
-        if(a.t===12)seen=true;   // Godzilla's blasts reach anywhere on the map
+        if(a.t===12||a.t===17)seen=true;   // Godzilla's blasts / the Overmind's orbs reach anywhere on the map
         if(def.fly||def.beach){const d3=Math.hypot(dx,a.y+0.5-ty,dz)||1;seen=rayWorld(a.x,a.y+0.5,a.z,dx/d3,(ty-a.y-0.5)/d3,dz/d3,d3)>=d3-0.5;}
         if(seen){
           if(a.t===17){
@@ -1829,7 +1879,7 @@ class Game{
               const ang=Math.atan2(dx,dz)+i*0.11;
               this.fireOrb(a,a.x+Math.sin(ang)*60,ty,a.z+Math.cos(ang)*60,0.04,50,30*soft(1+0.03*this.round,2.5,0.2));
             }
-          }else if(a.t===18||a.t===26){   // ALIEN SHARK: fast lasers
+          }else if(a.t===18||a.t===26){   // MUTANT SHARK: fast lasers
             const big=a.t===26;
             if(!a.agro)a.cd=1;
             else{
@@ -1865,7 +1915,7 @@ class Game{
             a.bn=(a.bn||0)+1;const bm=Math.min(1.6,1+0.08*Math.max(0,Math.floor((this.round-17)/10)));   // baseballs get 8% faster every appearance, up to +60%
             if(a.bn%3===0){a.cd=2.0+this.rand()*0.4;for(let i=-1;i<=1;i++){const ang=Math.atan2(dx,dz)+i*0.13;this.fireOrb(a,a.x+Math.sin(ang)*40,ty,a.z+Math.cos(ang)*40,0.03,46*bm,a.dmg*0.8);}}
             else{a.cd=1.1+this.rand()*0.4;this.fireOrb(a,tp.x,ty,tp.z,0.025,58*bm,a.dmg);}
-          }else if(a.t===19){      // PIZZA ALIEN: lobs pizzas
+          }else if(a.t===19){      // PIZZA CHEF: lobs pizzas
             a.cd=1.5+this.rand()*0.6;
             this.fireOrb(a,tp.x,ty,tp.z,0.05,32,a.dmg);
           }else if(a.t===10){
@@ -1898,10 +1948,23 @@ class Game{
         if(a.stomp<=0&&dist<R){a.stomp=6;this.push('stomp',r2(a.x),r2(a.z));
           for(const p of alive){const q=this.targetPos(p);if(Math.hypot(q.x-a.x,q.z-a.z)<R&&p.y<5&&this.wallClear(a,q))this.hurt(p,a.t===17?95:a.t===12?70:a.t===4?35:30,a.x,a.z);}}
       }
-      if(def.summon){ // the Overmind calls its swarm
+      if(def.summon){ // the Overmind: hovers over the city, calls any alien (and now and then a mini boss), and fires its laser barrage every 45 s
+        a.y=OM_Y+Math.sin(this.time*0.6)*3;
         a.sumT=(a.sumT===undefined?4:a.sumT)-dt;
-        if(a.sumT<=0&&this.aliens.length+7<=this.hardCap()){a.sumT=13;this.push('summon',r2(a.x),r2(a.z));
-          const kinds=[0,2,5,13,3,0];for(let i=0;i<7;i++){const ang=i/7*6.283,rr=20+this.rand()*8;this.spawnAlien(kinds[i%kinds.length],a.x+Math.cos(ang)*rr,a.z+Math.sin(ang)*rr);}}
+        if(a.sumT<=0&&this.aliens.length+6<=this.hardCap()){
+          a.sumT=7+this.rand()*3;this.push('summon',r2(a.x),r2(a.z));
+          const n=3+Math.min(4,Math.floor(this.round/25)),common=[0,0,1,2,5,6,7,8,9,10,13,3,25,29,1,2],mini=[11,4];
+          for(let i=0;i<n;i++){
+            const minis=this.aliens.filter(o=>mini.indexOf(o.t)>=0&&o.hp>0).length;
+            const t=(this.rand()<0.12&&minis<2)?mini[Math.floor(this.rand()*mini.length)]:common[Math.floor(this.rand()*common.length)];
+            let x,z,ok=false;
+            for(let k=0;k<14&&!ok;k++){const an=this.rand()*6.283,rr=18+this.rand()*30;x=a.x+Math.cos(an)*rr;z=a.z+Math.sin(an)*rr;
+              if(Math.abs(x)<HALF-8&&Math.abs(z)<HALF-8&&!inBuilding(x,z,1)&&!BLOCK[cellOf(x,z)]&&groundAt(x,z)<0.5)ok=true;}
+            if(ok)this.spawnAlien(t,x,z);else this.spawnAlien(t);
+          }
+        }
+        a.lzT=(a.lzT===undefined?OM_LASER:a.lzT)-dt;
+        if(a.lzT<=0){a.lzT=OM_LASER;this.omLaser(a,alive);}
       }
       if(def.support){ // medic heals nearby aliens
         a.healT=(a.healT===undefined?2:a.healT)-dt;
@@ -2104,8 +2167,8 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{mx:r2(this.mbox.x),mz:r2(this.mbox.z),mn:this.mbox.name,wa:r2(this.wheelAng()),hd:this.hard?1:0,vs:this.vs?1:0,vw:this.vsWinner|0,vp:(this.vsWin&&this.vsWin.pend)?1:0,sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>m|(v?1<<i:0),0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
-      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0,a.ms|0]),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>i<32?(m|(v?1<<i:0)):m,0),pk2:p.perks.reduce((m,v,i)=>i>=32?(m|(v?1<<(i-32):0)):m,0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
+      a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0,a.ms|0,a.snk|0,a.t===17?r2(Math.max(0,a.lzT===undefined?OM_LASER:a.lzT)):0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       cr:this.crabs.map(c=>[c.id,r2(c.x),r2(c.z),r2(c.yaw)]),
       c:this.cars.map(c=>({id:c.id,t:c.t,x:r2(c.x),z:r2(c.z),h:r2(c.h),hp:Math.round(c.hp),d:c.drv,px:c.pax||[],sp:r2(c.sp||0),k:c.k|0,y:r2(c.y||0),am:c.am,ch:c.ch?Math.round(c.ch):0})),
