@@ -472,6 +472,17 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 
 ## Balance and loot update
 - Guns now cost $1,500 (was $2,000); buying ammo for a gun costs proportionally less too.
-- Early perk tiers are cheaper: tier I $1,800 (was $2,500), tier II $7,000 (was $10,000), tier III $32,000 (was $40,000). Tier IV is $80,000 (was $150,000).
+- Perk prices were lowered (see the later balance update for the current numbers).
 - More FULL AMMO drops: every fourth ground crate is now a green AMMO crate that always refills all weapons (green beam, green dot on the minimap), plus one right next to the base. Ordinary crates also give full ammo a little more often. All crates come back every round.
 - Round 4 now always includes one BRUTE (the big orange alien).
+
+## Balance update (rushers, caps, perks, crates)
+- Rusher nerf: charger (45 to 34 health, speed 12 to 10), knifer (70 to 52, 12 to 10), hound (55 to 42, 18 to 15), bomber (40 to 32, 9.5 to 8.2). They also show up less often (about 20-30% fewer per wave). Round 3 still has exactly two red chargers.
+- Live alien cap is now 65 (was 75): 40 before round 10, 60 until round 20, then eases up to 65 by round 30.
+- Perk prices: tier I $1,800, tier II $4,500, tier III $20,000, tier IV $60,000.
+- Yellow crates now give money 68% of the time (was 50%), full ammo 16%, health 16%. Their cash payout grows faster each round (about 3.5x at round 50 on top of the existing growth); rare purple caches grow too.
+
+## Mystery box update
+- The box now moves to a random different building EVERY round (the every-6-rounds rule is gone), and everyone gets a fresh pull every round. Opening is still free (E next to it).
+- Contents: a new gun 60% (only guns you don't own yet), a free base-level (tier I) perk you don't have yet 25%, or money 15% in total ($1,000 7.5%, $2,000 5%, $5,000 2.5%). If a gun or perk can't be given (you already own them all) you get the other one, then a full ammo refill - never extra cash.
+- The full map (L) now shows every enemy as a plain green dot (bosses and special aliens are just bigger green dots).

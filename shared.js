@@ -250,7 +250,7 @@ const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
 const UP_COST=[2500,6000,12000,22000,48000,110000,175000,230000,290000];   // cost to reach upgrade 1..9 - the same for every weapon
 // Character buffs: 8 lines x 4 tiers. Every tier I costs the same, and the price steps are shared by every line.
-const PERK_COST=[1800,7000,32000,80000];
+const PERK_COST=[1800,4500,20000,60000];
 const PERK_LINES=[   // ids per tier (ids 0-13 kept from the old layout so saved bitmasks stay valid)
   {k:'tank',  name:'NEON TANK',    ids:[0,8,9,10],   fx:[25,60,110,175],        d:v=>'+'+v+' max health (total)'},
   {k:'quick', name:'QUICK REVIVE', ids:[1,14,15,16], fx:[1.3,1.6,2,2.5],        d:v=>'revive teammates '+v+'x as fast'},
@@ -308,18 +308,18 @@ const AT=[
   {name:'DRONE',  hp:34,  sp:13,  r:1.5, cy:0,   dmg:10, money:70,  fly:true},
   {name:'BRUTE',  hp:420, sp:4.6, r:2.7, cy:2.7, dmg:38, money:200, fly:false},
   {name:'BOSS',   hp:3500,sp:5.4, r:5.2, cy:5.2, dmg:55, money:1500,fly:false,ranged:true,boss:true,stomp:10},
-  {name:'CHARGER',hp:45,  sp:12,  r:1.3, cy:1.4, dmg:22, money:80,  fly:false},
-  {name:'BOMBER', hp:40,  sp:9.5, r:1.4, cy:1.5, dmg:30, money:90,  fly:false,bomb:true},
+  {name:'CHARGER',hp:34,  sp:10,  r:1.3, cy:1.4, dmg:22, money:80,  fly:false},
+  {name:'BOMBER', hp:32,  sp:8.2, r:1.4, cy:1.5, dmg:30, money:90,  fly:false,bomb:true},
   {name:'ARMORED',hp:240, sp:5.8, r:1.8, cy:1.8, dmg:26, money:140, fly:false},
   {name:'MEDIC',  hp:90,  sp:6,   r:1.4, cy:1.5, dmg:0,  money:120, fly:false,support:true},
   {name:'WARSHIP',hp:190, sp:9,   r:2.4, cy:0,   dmg:16, money:160, fly:true,ranged:true},
   {name:'QUEEN',  hp:300, sp:4.8, r:2.0, cy:2.0, dmg:15, money:180, fly:false,ranged:true},
   {name:'TITAN',  hp:1600,sp:4.4, r:3.8, cy:3.8, dmg:52, money:500, fly:false,stomp:12},
   {name:'GODZILLA',hp:60000,sp:3.9,r:15, cy:22,  dmg:140, money:20000,fly:false,ranged:true,boss:true,giant:true},
-  {name:'KNIFER', hp:70,  sp:12, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
+  {name:'KNIFER', hp:52,  sp:10, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
   {name:'STALKER',hp:1300, sp:4.6,r:1.9, cy:2.0, dmg:54, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
-  {name:'HOUND',  hp:55,  sp:18, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
+  {name:'HOUND',  hp:42,  sp:15, r:1.2, cy:0.8, dmg:15, money:90,  fly:false,biter:true},
   {name:'THE OVERMIND',hp:150000,sp:3.0,r:17,cy:26,dmg:120,money:60000,fly:false,ranged:true,boss:true,giant:true,stomp:30,summon:true},
   {name:'ALIEN SHARK',hp:3500,sp:15,r:3.0,cy:1.8,dmg:36,money:6000,fly:false,ranged:true,beach:true,loner:true},
   {name:'PIZZA ALIEN',hp:260,sp:5.2,r:1.5,cy:1.6,dmg:14,money:300,fly:false,ranged:true,pizza:true,loner:true},
@@ -1060,9 +1060,18 @@ class Game{
       const mb=this.mbox;if(!mb||Math.hypot(mb.x-p.x,mb.z-p.z)>4.5)return;
       if(this.mboxUsed[p.id]){this.push('mboxused',p.id);return;}
       const free=[];for(let i=1;i<WPN.length;i++)if(p.wo[i]<0)free.push(i);
+      const base=PERK_LINES.map(L=>L.ids[0]).filter(id=>!p.perks[id]);   // base-level (tier I) perks the player does not have yet
       this.mboxUsed[p.id]=1;
-      if(free.length){const w=free[Math.floor(this.rand()*free.length)];p.wo[w]=0;this.push('gave',p.id,w);this.push('mbox',p.id,w);}
-      else{this.push('ammoall',p.id);this.push('mbox',p.id,-1);}
+      // what's inside: money is rare (15% in total: $1,000 7.5%, $2,000 5%, $5,000 2.5%), otherwise a new gun (60%) or a base-level perk (25%)
+      const opts=[['cash',1000,7.5],['cash',2000,5],['cash',5000,2.5],['gun',0,60],['perk',0,25]];
+      let roll=this.rand()*100,pick=opts[opts.length-1];
+      for(const o of opts){if(roll<o[2]){pick=o;break;}roll-=o[2];}
+      if(pick[0]==='perk'&&!base.length)pick=['gun',0,0];   // nothing left to give of that kind: try the other, then a full ammo refill (never extra cash)
+      if(pick[0]==='gun'&&!free.length)pick=base.length?['perk',0,0]:['ammo',0,0];
+      if(pick[0]==='gun'){const w=free[Math.floor(this.rand()*free.length)];p.wo[w]=0;this.push('gave',p.id,w);this.push('mbox',p.id,w);}
+      else if(pick[0]==='perk'){const id=base[Math.floor(this.rand()*base.length)];p.perks[id]=true;if(HP_TIERS.includes(id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);this.push('mbox',p.id,-3,id);}
+      else if(pick[0]==='ammo'){this.push('ammoall',p.id);this.push('mbox',p.id,-1);}
+      else{p.money+=pick[1];this.push('mbox',p.id,-2,pick[1]);}
     }else if(m.k==='beer'){
       const h=HOUSES.find(h=>h.bx!==undefined&&Math.hypot(h.bx-p.x,h.bz-p.z)<4.5)||(WORLD.bbar&&Math.hypot(WORLD.bbar.bx-p.x,WORLD.bbar.bz-p.z)<4.5);if(!h||p.money<40)return;p.money-=40;this.push('beer',p.id);
     }else if(m.k==='slot'){
@@ -1122,13 +1131,13 @@ class Game{
     if(l.t===3){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);return;}   // ammo crate: always a full refill
     const r=this.rand();
     if(l.t===1){
-      const cash=Math.round((230+this.round*21)*(0.8+0.5*this.rand()));
+      const cash=Math.round((230+this.round*21)*(1+this.round*0.04)*(0.8+0.5*this.rand()));   // rare caches pay more and more as the game goes on
       p.money+=cash;p.hp=mhp(p);
       this.push('loot',p.id,'rare',cash,l.id);this.push('ammoall',p.id);
-    }else if(r<0.5){
-      const cash=Math.round((100+this.round*18)*(0.8+0.6*this.rand()));
+    }else if(r<0.68){   // yellow crates: mostly money
+      const cash=Math.round((100+this.round*18)*(1+this.round*0.05)*(0.8+0.6*this.rand()));   // and the payout keeps climbing round after round
       p.money+=cash;this.push('loot',p.id,'cash',cash,l.id);
-    }else if(r<0.8){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);}
+    }else if(r<0.84){this.push('loot',p.id,'ammo',0,l.id);this.push('ammoall',p.id);}
     else{p.hp=mhp(p);this.push('loot',p.id,'med',0,l.id);}
   }
   damageAlien(a,dmg,p,x,y,z){
@@ -1189,7 +1198,7 @@ class Game{
     const boss=this.round%5===0;
     if(boss)total=Math.max(4,Math.round(total*0.28));   // boss rounds: only a few escorts so the boss is the focus
     const q=[];
-    const pool=[[0,1,Math.max(3,10-this.round*0.4)],[2,2,3],[1,3,3],[5,4,3],[3,5,2],[6,6,2.5],[7,7,2.5],[8,8,1.5],[9,9,1.5],[10,11,1.2],[11,13,1],[13,8,3],[16,11,3]].filter(e=>this.round>=e[1]);
+    const pool=[[0,1,Math.max(3,10-this.round*0.4)],[2,2,3],[1,3,3],[5,4,2],[3,5,2],[6,6,1.6],[7,7,2.5],[8,8,1.5],[9,9,1.5],[10,11,1.2],[11,13,1],[13,8,2],[16,11,2]].filter(e=>this.round>=e[1]);
     {const late=Math.max(0,this.round-30),hm=1+Math.log(1+late)*0.7,gm=1/(1+late*0.03);   // after round 30 the tough aliens (brute, armored, queen, titan, warship) keep getting likelier and plain grunts fade, with no ceiling
       for(const e of pool){if(e[0]===3||e[0]===7||e[0]===9||e[0]===10||e[0]===11)e[2]*=hm;else if(e[0]===0)e[2]*=Math.max(0.35,gm);}}
     const ptot=pool.reduce((sum,e)=>sum+e[2],0);
@@ -1198,10 +1207,10 @@ class Game{
       for(const e of pool){r-=e[2];if(r<=0){t=e[0];break;}}
       q.push(t);
     }
-    if(this.round<=5){   // early rounds: just ONE red blade-wielder (charger / knifer) at a time
-      let seen=0;
-      for(let i=0;i<q.length;i++)if(q[i]===5||q[i]===13){if(++seen>1)q[i]=0;}
-      if(this.round===3&&!seen)q[Math.floor(this.rand()*q.length)]=5;
+    if(this.round<=5){   // early rounds: just ONE red blade-wielder (charger / knifer) at a time - except round 3, which has exactly TWO
+      const lim=this.round===3?2:1;let seen=0;
+      for(let i=0;i<q.length;i++)if(q[i]===5||q[i]===13){if(++seen>lim)q[i]=0;}
+      if(this.round===3)while(seen<2&&q.length>=2){const k=Math.floor(this.rand()*q.length);if(q[k]!==5&&q[k]!==13){q[k]=5;seen++;}}
     }
     for(const t of q.slice())if(t===16)q.push(16,16);     // hounds come in packs of three
     if(this.round>=6&&(this.round-6)%4===0){const ns=1+Math.floor(this.round/24);for(let i=0;i<ns;i++)q.unshift(14);}   // the stalker: rounds 6, 10, 14, ...
@@ -1245,10 +1254,11 @@ class Game{
     this.vehLeft=this.vehSwarm>=0?0:this.round>=VEH_TIERS[0][0]?6:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.huntNote=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
     this.weather=0;
     if(this.round>=9&&this.rand()<0.45){this.weather=[2,3,4,5,6][Math.floor(this.rand()*5)];this.wxT=0;this.push('weather',this.weather);}
-    if(this.round>1&&(this.round-1)%6===0&&WORLD.mboxSpots&&WORLD.mboxSpots.length>1){   // every 6 rounds the mystery box turns up in another building
+    if(this.round>1&&WORLD.mboxSpots&&WORLD.mboxSpots.length>1){   // every round the mystery box turns up in another random building
       let sp=null;for(let t=0;t<20;t++){const c=WORLD.mboxSpots[Math.floor(this.rand()*WORLD.mboxSpots.length)];if(Math.hypot(c.x-this.mbox.x,c.z-this.mbox.z)>6){sp=c;break;}}
-      if(sp){this.mbox={x:sp.x,z:sp.z,name:sp.name};this.mboxUsed={};this.push('mboxmove',sp.name);}
+      if(sp){this.mbox={x:sp.x,z:sp.z,name:sp.name};this.push('mboxmove',sp.name);}
     }
+    if(this.round>1)this.mboxUsed={};   // a fresh pull for everyone every round, always
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
   }
   endRound(){
@@ -1275,7 +1285,7 @@ class Game{
     const n=this.round+1>=8?2:1,a0=this.rand()*Math.PI*2;
     return n===1?[a0]:[a0,a0+Math.PI*(0.7+this.rand()*0.6)];
   }
-  hardCap(){const r=this.round;return r<10?40:r<20?60:r<30?Math.round(60+(r-20)*1.5):75;}   // absolute ceiling on live aliens
+  hardCap(){const r=this.round;return r<10?40:r<20?60:r<30?Math.round(60+(r-20)*0.5):65;}   // absolute ceiling on live aliens
   spawnAlien(t,fx,fz){
     const def=AT[t],pl=[...this.players.values()].filter(p=>p.st==='alive');
     if(!pl.length)return;
