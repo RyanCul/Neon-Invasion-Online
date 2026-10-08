@@ -449,3 +449,12 @@ New orange **LOCAL SPLITSCREEN (DEMO)** button on the home screen, under Create 
 - **Controls:** with two controllers, player 1 gets the first and player 2 the second (player 1 can also use keyboard and mouse). With one controller it goes to player 2, and player 1 plays on keyboard and mouse. Click inside the game once for player 1's mouse look.
 - **Rules:** works like online co-op: revives, shared aliens, vehicles with passengers, separate money. The game starts by itself and restarts after a game over. Opening the pause menu in either pane freezes the game. EXIT (or Quit in the pause menu) goes back to the main menu.
 - **Demo limits:** player 2 never saves XP or logs in to an account. Music only plays in pane 1. It draws the world twice, so it is heavier than normal play. Clips and the online leaderboard are off in splitscreen.
+
+## Fix: aliens sometimes did no damage
+The "no hits through walls" check (`wallClear`) aimed at a point below the floor for anyone standing on the ground, so the line was blocked by the ground itself and close-range hits (melee, stomps, bomber blasts, the moonwalker's spin) often did nothing. It now aims at the middle of the body (or the car). Walls still block hits. This was not related to third person or splitscreen: third person only moves the camera.
+
+## Splitscreen speed-ups
+Each pane now draws at 80% resolution at most (never above 1 pixel per CSS pixel), updates the water waves and the minimap every other frame, and skips other extra work. The two panes share one browser thread, so splitscreen is always heavier than normal play: the world is drawn twice.
+
+## Splitscreen setup screen
+Clicking LOCAL SPLITSCREEN (DEMO) now opens a setup screen first: pick CO-OP or VERSUS, turn HARD MODE on or off, connect controllers (press any button), then both players press READY (Enter / click for Player 1, A on the controller for Player 2). The game starts once both are ready. Changing a setting un-readies both players. Controller shortcuts: X = hard mode, Y = co-op/versus, B = un-ready. The same screen returns after every game. MAIN MENU button goes back to the title screen.
