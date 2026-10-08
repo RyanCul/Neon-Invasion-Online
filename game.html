@@ -416,8 +416,9 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 #chwrap{display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 #chprev{width:200px;height:260px;border:2px solid #a56bff;background:radial-gradient(circle at 50% 80%,#5a1a7a,#14062a);box-shadow:0 0 14px #a56bff}
 #chside{flex:1;min-width:280px}
-#chtabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-#chtabs div{flex:1 1 auto;padding:5px 7px;border:2px solid #4b3a7a;cursor:pointer;font-size:11px;letter-spacing:1px;font-weight:bold;color:#e3c8ff;background:rgba(30,10,60,.7)}
+#chtabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(54px,1fr));gap:4px;margin-bottom:8px}   /* every tab the same size, BACK included */
+#chtabs div{text-align:center;white-space:nowrap;padding:5px 2px;border:2px solid #4b3a7a;cursor:pointer;font-size:11px;letter-spacing:1px;font-weight:bold;color:#e3c8ff;background:rgba(30,10,60,.7)}
+#chtabs div{font-size:10px!important;letter-spacing:.5px!important;overflow:hidden}
 #chtabs div.on{border-color:#ff2fa0;color:#fff;background:rgba(255,47,160,.3);box-shadow:0 0 10px #ff2fa0}
 #chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;max-height:230px;overflow:auto;padding:2px}
 #chgrid .sk{padding:6px}
@@ -551,10 +552,10 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
     <button id="bSolo" class="big">PLAY SOLO</button>
     <input id="url" placeholder="server address" style="display:none">
     <div id="mCards">
-      <div class="mc on"><div class="mt">ONLINE CO-OP</div><div class="ms">up to 8 players</div><input id="room_in" maxlength="6" placeholder="ROOM CODE (OPTIONAL)"><button class="c big" id="bOnline">CREATE / JOIN ROOM</button></div>
+      <div class="mc on"><div class="mt">ONLINE CO-OP</div><div class="ms">up to 8 players &middot; the host runs the game</div><input id="room_in" maxlength="6" placeholder="FRIEND'S ROOM CODE (EMPTY = HOST)"><button class="c big" id="bOnline">HOST A NEW ROOM</button></div>
       <div class="mc lo"><div class="mt">LOCAL SPLITSCREEN</div><div class="ms">2 players &middot; 1 screen &middot; demo</div><div class="md">Co-op or versus on one device, with a controller each.</div><button class="big" id="bSplit">PLAY SPLITSCREEN</button></div>
     </div>
-    <div id="mLinks"><button class="c sm" id="bLB">ONLINE LEADERBOARD</button><span>&middot;</span><button class="c sm" id="bQuit">CLOSE GAME</button></div>
+    <div id="mLinks"><button class="c sm" id="bQuit">CLOSE GAME</button></div>
     <div id="msg"></div>
   </div>
   <div id="mStage"><canvas id="mStageCv" width="240" height="340"></canvas><div class="pad"></div></div>
@@ -3027,7 +3028,8 @@ function levelColor(w,lv,t,sk){
   return c;
 }
 /* ================= profile: level, XP, skins (saved in this browser) ================= */
-const PKEY='ni_prof_v1',PEND='ni_pend_v1';
+const DEV_ON=(()=>{try{return /[?&]dev=1/.test(location.search)||localStorage.getItem('ni_dev')==='1';}catch(e){return false;}})();   // dev mode keeps its own save, so testing never touches your real progress
+const PKEY=DEV_ON?'ni_prof_dev_v1':'ni_prof_v1',PEND=DEV_ON?'ni_pend_dev_v1':'ni_pend_v1';
 let myName='PLAYER';
 let prof={xp:0,skin:0,car:0,ch:[0,0,0,0,0,0,0,0,0],ex:[0,0,0,0,0,0],st:{k:0,rv:0,bo:0,br:0,cr:0,rk:0,gm:0,rt:0,wk:[0,0,0,0,0,0,0,0,0,0,0,0]},ach:[],dex:[]},pend=0,gameXP=0,lastK=0,joinRound=1,firstSnap=true,lockerOpen=false;
 function mergeSt(a,b){   // lifetime stats: every counter only ever goes up
@@ -3046,7 +3048,7 @@ function loadProf(){
 }
 const AKEY='ni_acct_v1';
 let acct=null,curRound=1,bestRound=0,frData=null,frTimer=0;
-try{acct=JSON.parse(localStorage.getItem(AKEY)||'null');if(!acct||!acct.name||!acct.token)acct=null;}catch(e){acct=null;}
+acct=null;   // desktop version: no online accounts - progress is saved on this computer
 try{bestRound=parseInt(localStorage.getItem('ni_best_v1')||'0',10)||0;}catch(e){}
 function apiBase(){let u=($('url').value||'').trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');}
 async function api(path,body){
@@ -3105,16 +3107,18 @@ function hex6(c){return '#'+c.toString(16).padStart(6,'0');}
 function fixChar(){const L=myLevel();prof.ch=NI.CH_LISTS.map((l,i)=>{const v=prof.ch[i]|0;return(l[v]&&NI.itemOpen(l[v],L,prof.ach))?v:0;});
   prof.ex=NI.EXLISTS.map((l,i)=>{const v=prof.ex[i]|0;return(l[v]&&NI.itemOpen(l[v],L,prof.ach))?v:0;});}
 function profMsg(){return{t:'prof',lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch,ex:prof.ex,ach:prof.ach};}
-function inviteLink(){let L=location;try{if(window.parent&&window.parent!==window&&window.parent.location.href)L=window.parent.location;}catch(e){}const b=L.href.split('#')[0].split('?')[0];return b+'?room='+encodeURIComponent(roomCode);}
+const INV_CODE=!!window.NI_DESKTOP||!/^https?:$/.test(location.protocol);   // the desktop app has no web link to share: copy the room code instead
+function inviteLink(){if(INV_CODE)return roomCode;let L=location;try{if(window.parent&&window.parent!==window&&window.parent.location.href)L=window.parent.location;}catch(e){}const b=L.href.split('#')[0].split('?')[0];return b+'?room='+encodeURIComponent(roomCode);}
 function copyInvite(btn){
   const url=inviteLink(),old=btn.textContent;
-  const ok=()=>{btn.textContent='LINK COPIED!';setTimeout(()=>{btn.textContent=old;},1800);};
+  const ok=()=>{btn.textContent=INV_CODE?'CODE COPIED!':'LINK COPIED!';setTimeout(()=>{btn.textContent=old;},1800);};
   const fb=()=>{try{const ta=document.createElement('textarea');ta.value=url;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();const r=document.execCommand('copy');ta.remove();if(r){ok();return;}}catch(e){}prompt('Copy this invite link:',url);};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,fb);else fb();
 }
 function acctJoin(){return acct?{acct:acct.name,tok:acct.token}:{};}
 function fixSkin(){fixChar();if(skinOf(prof.skin).lvl>myLevel())prof.skin=0;if(!NI.CSKINS[prof.car]||NI.CSKINS[prof.car].lvl>myLevel())prof.car=0;}
 loadProf();
+if(INV_CODE)for(const id of ['lbInv','pInv']){const b=$(id);if(b)b.textContent='COPY ROOM CODE';}
 let loadNote='';
 (function(){
   if(pend>0){const b=lvInfo(prof.xp),earned=pend;commitPending();const a=lvInfo(prof.xp);
@@ -3130,12 +3134,125 @@ function startSolo(name){
   solo=new NI.Game({all:m=>onServer(m)},{hard:!!SET.hard});
   solo.addPlayer(1,name);
   solo.setProfile(1,myLevel(),prof.skin,prof.car,prof.ch,prof.ex,prof.ach);
+  if(devOn){const me=solo.players.get(1);me.money=99999999;if(devStart>1)solo.round=devStart-1;}   // dev mode: max money, start on the chosen round
   begin();
 }
-function startOnline(url,room,name){
+
+/* ---------- host-run multiplayer: the host's computer runs the game, friends connect straight to it (WebRTC) ----------
+   A tiny matchmaking service (/sig on the game server) only introduces guests to the host by room code; no game traffic goes through it. */
+const ICE_CFG={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const P2P_BAD=['FUCK','SHIT','BITCH','CUNT','NIGGER','NIGGA','FAGGOT','RAPE','NAZI','HITLER','WHORE','SLUT'];
+function p2pName(n,pid){
+  n=String(n||'').replace(/[^\w \-]/g,'').trim().slice(0,12).toUpperCase();
+  const sq=n.replace(/[^A-Z]/g,'');
+  if(!n||P2P_BAD.some(b=>sq.includes(b)))return 'PLAYER'+pid;
+  return n;
+}
+function sigUrl(base){return String(base||'').trim().replace(/\/+$/,'').replace(/^http:/,'ws:').replace(/^https:/,'wss:')+'/sig';}
+class HostRoom{   // the same room logic the dedicated server used to run, now living inside the host's game
+  constructor(code){
+    this.code=code;this.clients=new Map();this.nid=1;this.dead=false;
+    this.game=new NI.Game({all:m=>{const s=JSON.stringify(m);for(const c of this.clients.values())c.send(s);}},{online:true});
+    this.last=performance.now();
+    this.timer=setInterval(()=>{const n=performance.now(),dt=Math.min(0.1,(n-this.last)/1000);this.last=n;try{this.game.tick(dt);}catch(e){console.error('tick error',e);}},33);
+  }
+  attach(conn){   // returns the function to call with every raw message the connection receives
+    let pid=0;
+    const hnd=raw=>{
+      if(this.dead)return;
+      let m;try{m=JSON.parse(raw);}catch(e){return;}
+      if(!m||typeof m!=='object')return;
+      if(!pid){
+        if(m.t!=='join')return;
+        if(this.clients.size>=8){conn.send(JSON.stringify({t:'err',msg:'That room is full (8 players max).'}));return;}
+        pid=this.nid++;this.clients.set(pid,conn);
+        this.game.addPlayer(pid,p2pName(m.name,pid));
+        this.game.setProfile(pid,m.lv,m.sk,m.ck,m.ch,m.ex,m.ach);
+        conn.send(JSON.stringify({t:'joined',id:pid,room:this.code}));
+        return;
+      }
+      this.game.onMsg(pid,m);
+    };
+    hnd.leave=()=>{if(pid&&this.clients.has(pid)){this.clients.delete(pid);try{this.game.removePlayer(pid);}catch(e){}}pid=0;};
+    return hnd;
+  }
+  close(){this.dead=true;clearInterval(this.timer);for(const c of this.clients.values())try{c.close();}catch(e){}this.clients.clear();}
+}
+let hostRoom=null;
+function p2pHost(url,onHosting,onErr){   // open a room: register with matchmaking, then answer every guest that shows up
+  let sig;try{sig=new WebSocket(sigUrl(url));}catch(e){onErr('Bad server address.');return null;}
+  const peers=new Map();let opened=false,hosted=false;
+  sig.onopen=()=>{opened=true;sig.send(JSON.stringify({t:'host'}));};
+  sig.onerror=()=>{if(!opened)onErr('Could not reach the matchmaking server. Check your internet connection and try again.');};
+  sig.onclose=()=>{if(!hosted&&opened)onErr('Matchmaking connection closed.');};
+  sig.onmessage=async ev=>{
+    let m;try{m=JSON.parse(ev.data);}catch(e){return;}
+    if(m.t==='err'){onErr(m.msg);return;}
+    if(m.t==='hosting'){hosted=true;hostRoom=new HostRoom(m.code);onHosting(m.code,hostRoom);return;}
+    if(!hostRoom)return;
+    if(m.t==='guest'){
+      const gid=m.gid,pc=new RTCPeerConnection(ICE_CFG),dc=pc.createDataChannel('g');let h=null;
+      peers.set(gid,pc);setTimeout(()=>{if(!h&&peers.get(gid)===pc){try{pc.close();}catch(e){}peers.delete(gid);}},30000);   // a guest that never finishes connecting is dropped
+      const conn={readyState:1,send:s=>{if(dc.readyState==='open'&&dc.bufferedAmount<1.5e6)dc.send(s);},close:()=>{try{dc.close();}catch(e){}try{pc.close();}catch(e){}}};
+      dc.onopen=()=>{h=hostRoom.attach(conn);};
+      dc.onmessage=e=>{if(h)h(e.data);};
+      const gone=()=>{if(h)h.leave();h=null;peers.delete(gid);try{pc.close();}catch(e){}};
+      dc.onclose=gone;pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'||pc.connectionState==='closed')gone();};
+      pc.onicecandidate=e=>{if(e.candidate)sig.send(JSON.stringify({t:'sig',to:gid,d:{ice:e.candidate}}));};
+      try{const off=await pc.createOffer();await pc.setLocalDescription(off);sig.send(JSON.stringify({t:'sig',to:gid,d:{sdp:pc.localDescription}}));}catch(e){gone();}
+    }else if(m.t==='sig'){
+      const pc=peers.get(m.from);if(!pc)return;
+      try{if(m.d.sdp)await pc.setRemoteDescription(m.d.sdp);else if(m.d.ice)await pc.addIceCandidate(m.d.ice);}catch(e){}
+    }
+  };
+  return {sig,stop(){try{sig.close();}catch(e){}peers.forEach(pc=>{try{pc.close();}catch(e){}});if(hostRoom){hostRoom.close();hostRoom=null;}}};
+}
+function p2pGuestSocket(url,code){   // a WebSocket-shaped object that talks to the host through a WebRTC data channel
+  const w={readyState:0,onopen:null,onmessage:null,onerror:null,onclose:null,
+    send(s){if(dc&&dc.readyState==='open')dc.send(s);},
+    close(){closed=true;try{if(dc)dc.close();}catch(e){}try{pc.close();}catch(e){}try{sig.close();}catch(e){}w.readyState=3;}};
+  let dc=null,pc=null,sig=null,closed=false,up=false,errMsg='',lastRx=0;
+  const fail=msg=>{if(up||closed)return;errMsg=msg;w.err=msg;try{if(pc)pc.close();}catch(e){}try{sig&&sig.close();}catch(e){}w.readyState=3;if(w.onerror)w.onerror();if(w.onclose)w.onclose();};
+  try{sig=new WebSocket(sigUrl(url));}catch(e){setTimeout(()=>fail('Bad server address.'),0);return w;}
+  setTimeout(()=>fail('Could not connect to the host. They may be behind a strict network. Ask them to try a different connection.'),20000);
+  sig.onopen=()=>sig.send(JSON.stringify({t:'guest',code}));
+  sig.onerror=()=>fail('Could not reach the matchmaking server. Check your internet connection and try again.');
+  sig.onmessage=async ev=>{
+    let m;try{m=JSON.parse(ev.data);}catch(e){return;}
+    if(m.t==='err'){fail(m.msg);return;}
+    if(m.t==='guestok'){
+      pc=new RTCPeerConnection(ICE_CFG);
+      pc.onicecandidate=e=>{if(e.candidate&&sig.readyState===1)sig.send(JSON.stringify({t:'sig',d:{ice:e.candidate}}));};
+      pc.ondatachannel=e=>{
+        dc=e.channel;
+        dc.onopen=()=>{up=true;w.readyState=1;lastRx=performance.now();try{sig.close();}catch(x){}if(w.onopen)w.onopen();
+          const wd=setInterval(()=>{if(closed||w.readyState!==1){clearInterval(wd);return;}if(performance.now()-lastRx>8000){clearInterval(wd);w.readyState=3;try{pc.close();}catch(x){}if(w.onclose)w.onclose();}},1000);};   // the host sends updates 20 times a second: 8 s of silence means it is gone
+        dc.onmessage=x=>{lastRx=performance.now();if(w.onmessage)w.onmessage({data:x.data});};
+        dc.onclose=()=>{w.readyState=3;if(w.onclose&&!closed)w.onclose();};
+      };
+      return;
+    }
+    if(m.t==='sig'&&pc){
+      try{
+        if(m.d.sdp){await pc.setRemoteDescription(m.d.sdp);const ans=await pc.createAnswer();await pc.setLocalDescription(ans);sig.send(JSON.stringify({t:'sig',d:{sdp:pc.localDescription}}));}
+        else if(m.d.ice)await pc.addIceCandidate(m.d.ice);
+      }catch(e){}
+    }
+  };
+  sig.onclose=()=>{if(!up&&!closed&&!errMsg&&pc===null)fail('No room with that code.');};
+  return w;
+}
+function p2pLoopback(room){   // the host plays through a loopback connection into its own room
+  const w={readyState:1,onopen:null,onmessage:null,onerror:null,onclose:null,send:s=>{h(s);},close(){w.readyState=3;h.leave();}};
+  const conn={readyState:1,send:s=>{queueMicrotask(()=>{if(w.onmessage)w.onmessage({data:s});});},close(){if(w.onclose&&w.readyState!==3){w.readyState=3;w.onclose();}}};
+  const h=room.attach(conn);
+  return w;
+}
+function startOnline(url,room,name,mk){
   mode='online';$('msg').textContent='Connecting...';
-  try{ws=new WebSocket(url);}catch(e){$('msg').textContent='Bad server address.';return;}
+  try{ws=mk?mk():new WebSocket(url);}catch(e){$('msg').textContent='Bad server address.';return;}
   let opened=false;
+  const p2p=!!mk;
   ws.onopen=()=>{opened=true;ws.send(JSON.stringify(Object.assign({t:'join',room:room,name:name,lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch,ex:prof.ex,ach:prof.ach},acctJoin())));};
   ws.onmessage=e=>{
     let m;try{m=JSON.parse(e.data);}catch(x){return;}
@@ -3143,8 +3260,9 @@ function startOnline(url,room,name){
     else if(m.t==='err'){$('msg').textContent=m.msg;ws.close();}
     else onServer(m);
   };
-  ws.onerror=()=>{if(!opened)$('msg').textContent='Could not reach the server at '+url;};
-  ws.onclose=()=>{if(started){$('over').style.display='flex';$('over').querySelector('h1').textContent='DISCONNECTED';$('overP').textContent='Lost connection to the server.';$('overQ').textContent='Refresh the page to rejoin.';}else if(opened)$('msg').textContent='Connection closed.';};
+  ws.onerror=()=>{if(!opened)$('msg').textContent=p2p?(ws.err||'Could not connect to the host.'):'Could not reach the server at '+url;};
+  ws.onclose=()=>{if(started){$('over').style.display='flex';$('over').querySelector('h1').textContent='DISCONNECTED';$('overP').textContent=p2p?'The host left the game, or the connection dropped.':'Lost connection to the server.';$('overQ').textContent=p2p?'Click anywhere to go back to the menu and host or join again.':'Refresh the page to rejoin.';if(p2p)setTimeout(()=>{$('over').onclick=returnToMenu;},600);}else if(opened)$('msg').textContent='Connection closed.';};
+  if(p2p&&ws.readyState===1)ws.onopen();   // the host's own loopback connection is already open
 }
 function send(m){
   if(mode==='solo')solo.onMsg(myId,m);
@@ -3261,6 +3379,7 @@ function returnToMenu(){
   location.reload();
 }
 function postSoloScore(rounds,kills){
+  return;   // no online leaderboard in the desktop version
   if(!(rounds>0))return;
   let base=($('url').value||'').trim().replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');
   if(!/^https?:/.test(base))return;
@@ -4301,7 +4420,7 @@ function PT(s){
 }
 function padTable(){
   const R=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
-  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'hold to run (gas while driving)')+R(PB('b'),'jump / jetpack (brake while driving)')+R(PB('x'),'reload (horn beep in a vehicle)')+R(PB('y'),'use: buy, enter / leave cars and the wheel, revive (hold) / back to base between rounds')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3')+' (click)','third-person view')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('lb')+' / '+PB('rb')+' (driving)','handbrake / hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back')+' / '+(padType==='ps'?'TOUCHPAD':'SHARE'),'save a clip of the last 30 seconds (see CLIPS on the main menu)')+R(PB('r3'),'full map');
+  return R('LEFT STICK','move / steer')+R('RIGHT STICK','aim / look around the car')+R(PB('rt'),'fire (gas while driving)')+R(PB('lt'),'aim down sights (brake while driving)')+R(PB('a'),'hold to run (gas while driving)')+R(PB('b'),'jump / jetpack (brake while driving)')+R(PB('x'),'reload (horn beep in a vehicle, fires the tank cannon)')+R(PB('y'),'use: buy, enter / leave cars and the wheel, revive (hold) / back to base between rounds')+R(PB('lb')+' / '+PB('rb'),'switch weapon')+R(PB('l3')+' (click)','third-person view')+R('D-PAD LEFT / RIGHT','radio: previous / next song')+R('D-PAD UP / DOWN','radio volume up / down')+R(PB('lb')+' / '+PB('rb')+' (driving)','handbrake / hood camera')+R(PB('start'),'pause menu (co-op keeps running)')+R(PB('back')+' / '+(padType==='ps'?'TOUCHPAD':'SHARE'),'save a clip of the last 30 seconds (see CLIPS on the main menu)')+R(PB('r3'),'full map');
 }
 function refreshPadUI(){
   const key=usingPad+padType;if(lastUP===key)return;lastUP=key;try{radioLabel();}catch(e){}
@@ -4501,9 +4620,10 @@ function pollPad(dt){
   else{ me.yaw-=rx*dt*3.0*fast*(SET.pad/100); me.pitch=clamp(me.pitch-ry*dt*2.3*(SET.pad/100),-1.5,1.5); }
   const hel=driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli';
   setK('Space',(driving<0||hel)&&B(1));setK('KeyC',false);setK('KeyE',B(3));setK('ShiftLeft',driving<0?B(0):(B(4)||(hel&&B(0))));   // on foot: hold A to run, B jumps (and flies the jetpack)
-  const rt=(driving<0||hel)&&V(7)>0.35;
+  const tnk=driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='tank';
+  const rt=((driving<0||hel)&&V(7)>0.35)||(tnk&&B(2));   // the tank fires its cannon with X (RT is the gas)
   if(rt!==padRT){padRT=rt;mouseDown=rt;if(rt)mousePressed=0.15;}
-  if(edge(2)){if(driving>=0)honk();else startReload();}   // X: reload on foot, horn in a vehicle
+  if(edge(2)&&!tnk){if(driving>=0)honk();else startReload();}   // X: reload on foot, horn in a vehicle
   if(edge(3)){if(driving>=0||ride||garageActive()||canInteract())interact();else if(canBase())goBase();}   // Y: use / enter + leave vehicles and the wheel / between rounds back to base
   aiming=driving<0&&V(6)>0.35;
   if(edge(4)&&driving<0){if(myP&&myP.st==='dead')specCycle(-1);else cycleW(-1);}   // in a vehicle LB is the handbrake and RB the hood camera
@@ -4812,6 +4932,7 @@ function alienHitT(ox,oy,oz,d,maxT){
   let best=maxT;
   for(const o of aliensM.values()){
     const def=AT[o.t];
+    if(o.t===12){for(const sp of NI.godzSpheres(o)){const ts=NI.raySphere(ox,oy,oz,d[0],d[1],d[2],sp[0],sp[1],sp[2],sp[3]);if(ts>=0&&ts<best)best=ts;}continue;}
     const t=NI.raySphere(ox,oy,oz,d[0],d[1],d[2],o.x,o.y+def.cy,o.z,def.r+0.3);
     if(t>=0&&t<best)best=t;
   }
@@ -5132,7 +5253,7 @@ function updateHUD(dt){
   const pr=$('prompt');let txt='',no=false;
   let st_garage_open=false,vp=null;
   {const s0=nearStation();if(!s0||(s0.k!=='garage'&&s0.k!=='armory'&&s0.k!=='perks'))garageClosed=false;}
-  if(driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli')txt=pax?'[E] EXIT<small>You are a passenger - click to fire the gun when it is free</small>':cs.y>3?'LAND TO EXIT<small>WASD fly - MOUSE aim - SPACE up - C down - CLICK fire</small>':'[E] EXIT<small>SPACE lift off - MOUSE aims - CLICK fire</small>';
+  if(driving>=0&&carsM.get(driving)&&CARS[carsM.get(driving).t].kind==='heli')txt=pax?'[E] EXIT<small>You are a passenger - click to fire the gun when it is free</small>':(cs.y-NI.groundAt(cs.x,cs.z,cs.y,CARS[carsM.get(driving).t].rad))>3?'LAND TO EXIT<small>WASD fly - MOUSE aim - SPACE up - C down - CLICK fire</small>':'[E] EXIT<small>SPACE lift off - MOUSE aims - CLICK fire</small>';
   else if(driving>=0&&pax)txt='[E] EXIT<small>RIDING ALONG - the first one in drives</small>';
   else if(driving>=0)txt='[E] EXIT<small>W/S gas &amp; brake - A/D steer - SHIFT handbrake - MOUSE look - V camera  |  PAD: hold RT/A gas, LT/B brake, left stick steer</small>';
   else if(myP.st==='alive'){
@@ -5610,7 +5731,7 @@ function frame(now){
   try{nm=localStorage.getItem('ni_name')||'';url=localStorage.getItem('ni_url')||'';}catch(e){}
   $('name').value=nm;
   const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&!/netlify|github\.io/.test(location.host);
-  const def=onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:(location.protocol==='file:'?'ws://localhost:8080':'wss://neon-invasion-online.onrender.com');
+  const def=window.NI_SIGNAL?window.NI_SIGNAL:onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:(location.protocol==='file:'?'ws://localhost:8080':'wss://neon-invasion-online.onrender.com');
   $('url').value=def;   // the address box is hidden now: always use the right server automatically
   const getName=()=>{if(acct)$('name').value=acct.name;const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
@@ -5620,7 +5741,7 @@ function frame(now){
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;$('slClose').onclick=closeSlots;$('rlClose').onclick=closeRoul;$('rlSpin').onclick=rlSpin;$('rlM').onclick=()=>{rlNumV=(rlNumV+36)%37;rlRender();};$('rlP').onclick=()=>{rlNumV=(rlNumV+1)%37;rlRender();};$('slSpin').onclick=slSpin;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{sfx.go();myName=getName().toUpperCase();startSolo(getName());};
-  (function(){const N={name:{D:'bSolo'},bSolo:{U:'name',D:'room_in'},room_in:{U:'bSolo',D:'bOnline',R:'bSplit'},bOnline:{U:'room_in',R:'bSplit',D:'bLB'},bSplit:{U:'bSolo',L:'bOnline',D:'bQuit'},bLB:{U:'bOnline',R:'bQuit',D:'discord'},bQuit:{U:'bSplit',L:'bLB',D:'discord'},discord:{U:'bLB'}};
+  (function(){const N={name:{D:'bSolo'},bSolo:{U:'name',D:'room_in'},room_in:{U:'bSolo',D:'bOnline',R:'bSplit'},bOnline:{U:'room_in',R:'bSplit',D:'bQuit'},bSplit:{U:'bSolo',L:'bOnline',D:'bQuit'},bLB:{U:'bOnline',R:'bQuit',D:'discord'},bQuit:{U:'bSplit',L:'bOnline',D:'discord'},discord:{U:'bQuit'}};
     for(const id in N){const e=$(id);if(e)for(const k in N[id])e.dataset['nav'+k]=N[id][k];}})();
   $('bSplit').onclick=()=>{getName();sfx.go();setTimeout(()=>{location.href=location.pathname+'?split=host';},420);};   // short wait so the launch sound is heard before the page changes
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
@@ -5685,7 +5806,7 @@ function frame(now){
   if(acct){$('name').value=acct.name;cloudSync();}
   setInterval(()=>{if(acct&&!document.hidden)cloudSync();},15000);
   $('bQuit').onclick=()=>{try{saveRadio();}catch(e){}try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen();}catch(e){}try{window.close();}catch(e){}setTimeout(()=>{location.replace('about:blank');},150);};   // closes the window; browsers only allow that for windows a script opened, so otherwise the tab is blanked
-  $('bLB').onclick=async()=>{
+  if($('bLB'))$('bLB').onclick=async()=>{
     $('lbp').style.display='flex';$('lbbody').textContent='Loading...';
     try{
       let j=null;
@@ -5699,14 +5820,99 @@ function frame(now){
     }catch(e){$('lbbody').textContent='Could not reach the server at '+lbBase()+'. Check the address (or wait a minute if it is waking up) and try again.';}
   };
   $('lbClose').onclick=()=>{$('lbp').style.display='none';};
+  const syncOnlineBtn=()=>{const c=$('room_in').value.trim();$('bOnline').textContent=c?'JOIN ROOM '+c.toUpperCase():'HOST A NEW ROOM';};
+  $('room_in').addEventListener('input',syncOnlineBtn);syncOnlineBtn();
   $('bOnline').onclick=()=>{
     const nm=$('name').value.trim();
-    if(!nm){$('msg').textContent='Type your name first - it shows on the leaderboard!';$('name').focus();return;}
+    if(!nm){$('msg').textContent='Type your name first!';$('name').focus();return;}
     sfx.go();myName=getName().toUpperCase();
     const u=$('url').value.trim();try{localStorage.setItem('ni_url',u);}catch(e){}
-    startOnline(u,$('room_in').value.trim(),getName());
+    const code=$('room_in').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+    if(code){startOnline(u,code,getName(),()=>p2pGuestSocket(u,code));return;}   // join a friend's room
+    $('msg').textContent='Opening your room...';
+    window.__hostCtl=p2pHost(u,(c,room)=>{startOnline(u,c,getName(),()=>p2pLoopback(room));},msg=>{$('msg').textContent=msg;});
   };
 })();
+
+
+/* ================= DEV MODE (for testing): Ctrl+Shift+D on the main menu turns it on/off, or add ?dev=1 to the address.
+   In a solo game (or a room you host) press F8 for the dev panel: max money, every gun and perk maxed, god mode, jump to any round, spawn any alien or boss. ================= */
+let devOn=DEV_ON,devGod=false,devStart=1;
+if(devOn){   // everything unlocked: max level, every achievement, the whole Dex
+  let xp=0;for(let L=1;L<NI.MAXLV;L++)xp+=NI.xpNeed(L);
+  prof.xp=Math.max(prof.xp,xp);prof.ach=NI.ACH.map(a=>a.id);prof.dex=DEXO.slice();saveProf();
+  try{refreshLv();}catch(e){}
+  (function(){   // main menu: a start-round picker under SOLO and a DEV badge
+    const b=$('bSolo');if(!b)return;const row=document.createElement('div');
+    row.style.cssText='display:flex;gap:6px;align-items:center;justify-content:center;margin-top:8px;font:bold 12px Inter,sans-serif;color:#39ff6a;letter-spacing:2px';
+    const bt=t=>'<button data-ds="'+t+'" style="background:#12361f;color:#d9ffe4;border:1px solid #39ff6a;border-radius:6px;padding:4px 8px;cursor:pointer;font:bold 12px Inter,sans-serif">'+t+'</button>';
+    row.innerHTML='START ROUND '+bt('-10')+bt('-1')+'<b id="dsR" style="min-width:34px;text-align:center;color:#ffe63c;font-size:16px">1</b>'+bt('+1')+bt('+10');
+    row.onclick=e=>{const x=e.target.closest('button');if(!x)return;e.preventDefault();devStart=Math.max(1,Math.min(200,devStart+(+x.dataset.ds)));$('dsR').textContent=devStart;};
+    b.insertAdjacentElement('afterend',row);
+    const bd=document.createElement('div');bd.textContent='DEV MODE  ·  F8 = DEV PANEL IN GAME  ·  CTRL+SHIFT+D TO TURN OFF';
+    bd.style.cssText='position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:50;background:#12361f;border:1px solid #39ff6a;color:#39ff6a;font:bold 11px Inter,sans-serif;letter-spacing:2px;padding:4px 12px;border-radius:12px';
+    $('menu').appendChild(bd);
+  })();
+}
+function devGame(){return mode==='solo'?solo:(hostRoom&&hostRoom.game)||null;}
+function devMe(){const g=devGame();return g&&g.players.get(myId);}
+function devPanel(){
+  let d=$('devP');if(d)return d;
+  d=document.createElement('div');d.id='devP';
+  d.style.cssText='position:fixed;right:14px;top:70px;z-index:60;width:300px;max-height:calc(100vh - 90px);overflow:auto;background:rgba(14,2,32,.94);border:2px solid #39ff6a;border-radius:10px;padding:12px;color:#e8fff0;font:12px/1.4 Inter,Montserrat,sans-serif;display:none;box-shadow:0 0 18px rgba(57,255,106,.35)';
+  const AT=NI.AT,opts=AT.map((a,i)=>a&&!/^(ROOF SNIPER|HOUND)$/.test(a.name)?'<option value="'+i+'">'+(a.boss||a.giant?'★ ':'')+a.name+' (#'+i+')</option>':'').join('');
+  d.innerHTML='<div style="font-weight:bold;letter-spacing:3px;color:#39ff6a;margin-bottom:8px">DEV PANEL <span style="float:right;color:#9fb">F8 closes</span></div>'+
+   '<div class="dvr"><button data-dv="money">MAX MONEY</button><button data-dv="guns">MAX GUNS + PERKS</button></div>'+
+   '<div class="dvr"><button data-dv="god" id="dvGod">GOD MODE: OFF</button><button data-dv="heal">FULL HEALTH</button></div>'+
+   '<div class="dvr"><button data-dv="kill">KILL ALL ALIENS</button><button data-dv="skip">END ROUND</button></div>'+
+   '<div class="dvl">JUMP TO ROUND</div><div class="dvr"><button data-dv="r-10">-10</button><button data-dv="r-1">-1</button><b id="dvRound" style="min-width:40px;text-align:center;font-size:16px;color:#ffe63c">1</b><button data-dv="r1">+1</button><button data-dv="r10">+10</button><button data-dv="go">GO</button></div>'+
+   '<div class="dvr"><button data-dv="q20">20</button><button data-dv="q30">30</button><button data-dv="q40">40</button><button data-dv="q50">50</button><button data-dv="q100">100</button></div>'+
+   '<div class="dvl">SPAWN ALIEN / BOSS</div><div class="dvr"><select id="dvSel" style="flex:1;background:#1a0638;color:#fff;border:1px solid #39ff6a;padding:4px">'+opts+'</select><button data-dv="spawn">SPAWN</button></div>'+
+   '<div class="dvr"><button data-dv="s12">GODZILLA</button><button data-dv="s17">OVERMIND</button><button data-dv="s21">CLEOPATRA</button></div>'+
+   '<div class="dvr"><button data-dv="s26">GIANT SHARK</button><button data-dv="s4">WARLORD</button><button data-dv="s24">BUTCHER</button></div>'+
+   '<div class="dvr"><button data-dv="s22">PIRATE</button><button data-dv="s23">CARNIVAL</button><button data-dv="s27">SLUGGER</button></div>'+
+   '<div class="dvr"><button data-dv="laser">OVERMIND LASER IN 5s</button></div>'+
+   '<div class="dvr"><button data-dv="dex">UNLOCK WHOLE DEX</button></div>'+
+   '<div id="dvMsg" style="color:#9fb;min-height:16px;margin-top:6px"></div>';
+  const st=document.createElement('style');st.textContent='#devP .dvr{display:flex;gap:6px;margin:5px 0;align-items:center}#devP .dvl{margin-top:10px;color:#39ff6a;letter-spacing:2px;font-size:11px}#devP button{flex:1;background:#12361f;color:#d9ffe4;border:1px solid #39ff6a;border-radius:6px;padding:6px 4px;font:bold 11px Inter,sans-serif;cursor:pointer}#devP button:hover{background:#1d5a33}';
+  document.head.appendChild(st);document.body.appendChild(d);
+  let rn=1;const rr=()=>{$('dvRound').textContent=rn;};
+  const msg=t=>{$('dvMsg').textContent=t;};
+  const spawn=t=>{const g=devGame(),me=devMe();if(!g||!me)return msg('Start a solo game (or host a room) first.');
+    const fixed=[17,18,19,20,21,22,23,26,27].includes(t);
+    if(fixed)g.spawnAlien(t);else{const a=me.yaw||0;g.spawnAlien(t,me.x-Math.sin(a)*45,me.z-Math.cos(a)*45);}
+    if(g.state!=='fight'){g.state='fight';g.timer=999;}
+    msg('Spawned '+NI.AT[t].name);};
+  d.addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;const k=b.dataset.dv,g=devGame(),me=devMe();
+    if(k&&k[0]==='r'){rn=Math.max(1,rn+(+k.slice(1)));rr();return;}
+    if(k&&k[0]==='q'){rn=+k.slice(1);rr();return;}
+    if(k==='dex'){prof.dex=DEXO.slice();saveProf();msg('Whole Dex unlocked.');return;}
+    if(!g||!me){msg('Start a solo game (or host a room) first.');return;}
+    if(k==='money'){me.money=99999999;msg('Money set to $99,999,999');}
+    else if(k==='guns'){for(let w=0;w<NI.WPN.length;w++){if(me.wo[w]<0)g.push('gave',me.id,w);me.wo[w]=NI.MAXUP;}me.perks=me.perks.map(()=>true);me.hp=NI.mhp(me);g.push('ammoall',me.id);msg('Every gun MK X, every perk owned.');}
+    else if(k==='god'){devGod=!devGod;b.textContent='GOD MODE: '+(devGod?'ON':'OFF');
+      if(!g._devHurt){g._devHurt=g.hurt;g.hurt=function(q,...r){if(devGod&&q&&q.id===myId)return;return g._devHurt.call(this,q,...r);};}
+      msg(devGod?'You cannot take damage.':'Damage back on.');}
+    else if(k==='heal'){me.hp=NI.mhp(me);if(me.st!=='alive'){me.st='alive';me.rvProg=0;}msg('Healed.');}
+    else if(k==='kill'){for(const a of g.aliens.slice()){if(a.hp>0){a.hp=0;try{g.killAlien(a,me,0);}catch(x){}}}g.aliens=g.aliens.filter(a=>a.hp>0);g.queue=[];msg('Everything is dead.');}
+    else if(k==='skip'){g.aliens=[];g.queue=[];msg('Round cleared.');}
+    else if(k==='go'){g.aliens=[];g.queue=[];g.round=rn-1;g.startRound();me.money=Math.max(me.money,500);msg('Now on round '+g.round+'.');}
+    else if(k==='spawn')spawn(+$('dvSel').value);
+    else if(k&&k[0]==='s')spawn(+k.slice(1));
+    else if(k==='laser'){const om=g.aliens.find(a=>a.t===17);if(!om)return msg('Spawn the Overmind first.');om.lzT=5;msg('Laser volley in 5 seconds.');}
+  });
+  return d;
+}
+function devToggle(){
+  if(!devOn)return;const d=devPanel(),open=d.style.display!=='block';
+  d.style.display=open?'block':'none';
+  if(open){try{document.exitPointerLock();}catch(e){}}
+}
+addEventListener('keydown',e=>{
+  if(e.code==='KeyD'&&e.ctrlKey&&e.shiftKey&&!started){e.preventDefault();devOn=!devOn;try{localStorage.setItem('ni_dev',devOn?'1':'0');}catch(x){}setTimeout(()=>location.reload(),150);return;}   // dev mode uses its own save, so reload to switch
+  if(e.code==='F8'&&devOn&&started){e.preventDefault();devToggle();}
+});
 
 window.__ni={get S(){return S;},get busGain(){return _bus?+_bus.gain.value.toFixed(2):null;},get driving(){return driving;},get ENG(){return ENG;},eng:engineAudio,setDriving(v){driving=v;},setJet(v){jetting=v;},get song(){return song;},nightRound,setRound(n){S.rd.n=n;},get tIdx(){return tIdx;},get myP(){return myP;},me,cs,keys,aliensM,carsM,remotes,
   get driving(){return driving;},get solo(){return solo;},get mode(){return mode;},get curW(){return curW;},ammo,

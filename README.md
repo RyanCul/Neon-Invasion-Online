@@ -520,3 +520,23 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 
 ## Vehicle riders in the Alien Dex
 - Added the 9 alien drivers to the Dex (Segway Scout, Biker Grunt, Coupe Cruiser, Muscle Mauler, Hyper Racer, Truck Crusher, Hover Jockey, Chopper Gunner, Tank Commander): 37 entries total. Each unlocks the first time you see an alien on that vehicle, has its own 3D model and lore, and its own kill count (the kill event now carries the vehicle id; per-alien kill arrays grew from 32 to 40 slots in the client and server).
+
+## Desktop version and host-run multiplayer
+- **Desktop app** (`desktop/`): an Electron wrapper that runs the game offline (three.js is bundled) with the neon UFO icon (`desktop/build/icon.png`). To build on your own computer: install Node, then `cd desktop`, `npm install`, `npm start` (run it) or `npm run dist` (make the installer in `desktop/dist`). The GitHub workflow `.github/workflows/desktop.yml` builds Windows, Mac and Linux installers: GitHub > Actions > "Build desktop app" > Run workflow, then download the files from the run's artifacts. Installers are unsigned, so Windows/Mac show an "unknown publisher" warning.
+- **Host-run games:** "HOST A NEW ROOM" now runs the game on the host's computer. Friends type the 4-letter room code to join and connect straight to the host over WebRTC (up to 8 players). If the host leaves, the room ends and guests are sent back to the menu. The host should keep the window open (the desktop app keeps running even when it is behind other windows).
+- **Matchmaking server:** `server.js` now has a small `/sig` service that only introduces guests to hosts by room code. No game traffic goes through it, so it fits on Render's cheapest (or free) plan. The desktop app reads the server address from `desktop/config.json` (`signal`). The old server-hosted rooms still exist in `server.js` but the menu no longer uses them.
+- **Removed online features:** accounts, friends, cloud sync and the online leaderboard are gone from the menu. Progress, Dex, achievements and stats are saved on the player's own computer. Clearing the app's data erases them.
+- Players on very strict networks may fail to connect directly (this needs a relay server, which is not set up).
+
+## Dev mode (testing)
+- Open the game with `?dev=1` on the end of the address (for example `https://<your-site>/?dev=1`), or press **Ctrl+Shift+D** on the main menu (press it again to turn dev mode off).
+- Dev mode uses its own save, so your real progress is never touched. In it you are max level, with every achievement, every customization and the whole Alien Dex unlocked.
+- Main menu: a **START ROUND** picker under Play Solo. Solo games in dev mode start with $99,999,999.
+- In game (solo, or a room you host) press **F8** for the dev panel: max money, every gun MK X plus every perk, god mode, full health, kill all aliens, end the round, jump to any round, spawn any alien or boss (quick buttons for Godzilla, the Overmind, Cleopatra, the Giant Shark, the Warlord, the Butcher, the Pirate, the Carnival Boss and the Slugger), and fire the Overmind's laser in 5 seconds.
+- Anyone who knows `?dev=1` can use it too. It only affects solo games and rooms that person hosts, and there is no online leaderboard any more, so nothing can be faked for other players.
+
+## Balance and vehicle fixes (Oct 8)
+- **Tank:** fires its cannon with **X** on a controller (RT stays the gas). Faster: top speed 9 to 15, quicker acceleration and turning.
+- **Helicopter:** can land on any rooftop and you can get out there. It also recharges its ammo when landed on a roof.
+- **Godzilla:** about 18% less health (64,000 base at round 20, was 78,000). New hitbox that matches the model: legs, torso and head are all hittable (before, the upper body and head could not be hit). Headshots only count on the head.
+- **Overmind rounds (50, 100, ...):** the Overmind starts alone (no escorts, Warlords, Godzillas or vehicles), there is never weather, and it summons 5 random aliens every 30 seconds (mini bosses sometimes).

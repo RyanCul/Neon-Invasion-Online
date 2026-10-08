@@ -288,7 +288,7 @@ const CARS=[
   {id:5,name:'MONSTER TRUCK',   kind:'truck', color:0x7a3cff,cost:9000, hp:2600,maxS:28,acc:1.4,turn:1.7,rad:3.5,ram:5.0,body:1.5, cdist:15,chgt:6.6,eye:4.0},
   {id:6,name:'VOID HOVERCAR',   kind:'hover', color:0xb03cff,cost:14000,hp:1100,maxS:38,acc:1.9,turn:2.3,rad:2.6,ram:2.6,body:1.2, cdist:12,chgt:5.0,eye:2.6},
   {id:7,name:'GUNSHIP HELICOPTER',kind:'heli',color:0x3cffb0,cost:15000,hp:1000,maxS:32,acc:1.5,turn:2.0,rad:2.6,ram:0,body:1.0, cdist:15,chgt:5.5,eye:2.4,gun:true,dmg:48,rate:8,ammo:240},
-  {id:8,name:'BATTLE TANK',kind:'tank',color:0x6cff3c,cost:25000,hp:7000,maxS:9,acc:0.7,turn:0.95,rad:4.2,ram:6.0,body:1.8,cdist:19,chgt:8.5,eye:4.8,gun:true,dmg:130,rate:0.8,blast:8,ammo:24}
+  {id:8,name:'BATTLE TANK',kind:'tank',color:0x6cff3c,cost:25000,hp:7000,maxS:15,acc:1.05,turn:1.25,rad:4.2,ram:6.0,body:1.8,cdist:19,chgt:8.5,eye:4.8,gun:true,dmg:130,rate:0.8,blast:8,ammo:24}
 ];
 const SEATS={segway:2,moto:2,car:4,truck:4,hover:4,heli:4,tank:4};CARS.forEach(c=>{c.seats=SEATS[c.kind]||2;});
 /* alien drivers: [first round, vehicle id] - weaker rides first, the tank arrives at round 51 */
@@ -323,7 +323,7 @@ const AT=[
   {name:'WARSHIP',hp:190, sp:9,   r:2.4, cy:0,   dmg:16, money:160, fly:true,ranged:true},
   {name:'QUEEN',  hp:300, sp:4.8, r:2.0, cy:2.0, dmg:15, money:180, fly:false,ranged:true},
   {name:'TITAN',  hp:1600,sp:4.4, r:3.8, cy:3.8, dmg:52, money:500, fly:false,stomp:12},
-  {name:'GODZILLA',hp:60000,sp:3.9,r:15, cy:22,  dmg:140, money:20000,fly:false,ranged:true,boss:true,giant:true},
+  {name:'GODZILLA',hp:64000,sp:3.9,r:18, cy:30,  dmg:140, money:20000,fly:false,ranged:true,boss:true,giant:true},
   {name:'KNIFER', hp:52,  sp:10, r:1.3, cy:1.4, dmg:26, money:110, fly:false},
   {name:'STALKER',hp:1300, sp:4.6,r:1.9, cy:2.0, dmg:54, money:1500,fly:false,stalker:true,loner:true},
   {name:'ROOF SNIPER',hp:200,sp:0,r:1.3,cy:1.6,dmg:34,money:700,fly:false,sniper:true,loner:true},
@@ -691,6 +691,11 @@ function pushOut(p,r,fy){
   }
 }
 /* height of the floor/roof under (x,z) that a body at feet height fy can stand on */
+function godzSpheres(a){   // Godzilla's body is tall with a head out front: one sphere for the legs, one for the torso, one for the head (headshots)
+  const fx=Math.sin(a.yaw||0),fz=Math.cos(a.yaw||0),y=a.y||0;
+  return [[a.x,y+9,a.z,13,0],[a.x+fx*4,y+31,a.z+fz*4,18,0],[a.x+fx*31,y+50,a.z+fz*31,10,1]];
+}
+function heliAGL(c){const y=c.y||0;return y-groundAt(c.x,c.z,y,(CARS[c.t]&&CARS[c.t].rad)||2.6);}   // helicopter height above whatever is under it (street or rooftop)
 function groundAt(x,z,fy,r){
   r=r||0.3;let g=0;
   for(let i=0;i<B.length;i++){
@@ -926,7 +931,7 @@ class Game{
       case 'exit':{
         if(p.car<0)break;
         const c=this.cars.find(c=>c.id===p.car);
-        if(c&&(c.y||0)>3)break;   // land the helicopter first
+        if(c&&heliAGL(c)>3)break;   // land the helicopter first (the street or any rooftop)
         this.leaveCar(p);
         if(c){p.x=c.x+Math.cos(c.h)*3.2;p.z=c.z-Math.sin(c.h)*3.2;}
         break;
@@ -1023,6 +1028,7 @@ class Game{
           else if(t>=0&&t<=range&&t<wt)hits.push([t,a,-1]);
           continue;
         }
+        if(a.t===12){let bt=-1;for(const sp of godzSpheres(a)){const ts=raySphere(ox,oy,oz,dd[0],dd[1],dd[2],sp[0],sp[1],sp[2],sp[3]);if(ts>=0&&(bt<0||ts<bt))bt=ts;}if(bt>=0&&bt<=range)hits.push([bt,a]);continue;}
         if(t>=0&&t<=range&&(t<wt||AT[a.t].giant))hits.push([t,a]);
       }
       for(const cb of this.crabs.slice()){const t=raySphere(ox,oy,oz,dd[0],dd[1],dd[2],cb.x,0.7,cb.z,1.3);if(t>=0&&t<=range&&t<wt)this.killCrab(cb,p);}
@@ -1177,7 +1183,7 @@ class Game{
     if(a.hide){a.hide=false;this.push('stalk',a.id);}
     if(AT[a.t].stalker)a.enr=1;
     let crit=0;
-    if(y!==undefined){const df=AT[a.t];if(y>a.y+a.cy+df.r*(df.giant?0.12:0.4)){crit=1;dmg*=(a.t===17?1.15:(df.giant?2.5:2))*(1+(a.t===17?0:perkFx(p,'eye')));}}
+    if(y!==undefined){const df=AT[a.t];if(a.t===12?y>a.y+42:y>a.y+a.cy+df.r*(df.giant?0.12:0.4)){crit=1;dmg*=(a.t===17?1.15:(df.giant?2.5:2))*(1+(a.t===17?0:perkFx(p,'eye')));}}
     p.dd=(p.dd||0)+Math.max(0,Math.min(dmg,a.hp));
     a.hp-=dmg;
     p.money+=10;
@@ -1262,9 +1268,9 @@ class Game{
     if(this.round>=7&&(this.round-7)%7===0){const np2=1+Math.floor((this.round-7)/20)+(this.players.size>3?1:0);for(let i=0;i<np2;i++)q.unshift(19);}   // the pizza alien: rounds 7, 12, 17, ...
     if(this.round%30===0)q.unshift(26);   // every 30th round a GIANT alien shark
     if(shark){const nsh=1+Math.floor(this.round/39);for(let i=0;i<nsh;i++)q.unshift(18);}   // an alien shark on the beach every 13 rounds
-    if(ultimate){q.unshift(17);}
     if(giant){const ng=1+Math.floor(this.round/100)+(this.round===40?1:0);for(let i=0;i<ng;i++)q.unshift(12);}
     else if(boss){const nb=1+Math.floor(this.round/20);for(let i=0;i<nb;i++)q.unshift(4);}
+    if(ultimate){q.length=0;q.push(17);}   // the Overmind fight starts with the Overmind alone; everything else comes from its summons
     for(let i=q.length-1;i>=0;i--){if(q[i]===15)q.splice(i,1);else if(q[i]===16)q[i]=0;}   // no rooftop snipers and no hounds any more
     for(const p of this.players.values()){   // everyone who fell comes back at the start of the round
       if(p.st!=='alive'&&!this.vs){
@@ -1274,15 +1280,15 @@ class Game{
       }
     }
     this.vehSwarm=-1;this.vehSwarmN=0;
-    if(this.round>=17&&(this.round-17)%10===0){   // special rounds 17, 27, 37 ...: 20 aliens all riding the same vehicle, a better one each time
+    if(!ultimate&&this.round>=17&&(this.round-17)%10===0){   // special rounds 17, 27, 37 ...: 20 aliens all riding the same vehicle, a better one each time
       const vt=Math.min(CARS.length-1,(this.round-17)/10);
       this.vehSwarm=vt;this.vehSwarmN=20;
       for(let i=0;i<20;i++)q.splice(Math.floor(this.rand()*(q.length+1)),0,vt>=7?1:0);
       this.push('vehswarm',vt);
     }
-    this.vehLeft=this.vehSwarm>=0?0:this.round>=VEH_TIERS[0][0]?6:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.huntNote=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
+    this.vehLeft=(this.vehSwarm>=0||ultimate)?0:this.round>=VEH_TIERS[0][0]?6:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.huntNote=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
     this.weather=0;
-    if(this.round>=9&&this.rand()<0.45){this.weather=[2,3,4,5,6][Math.floor(this.rand()*5)];this.wxT=0;this.push('weather',this.weather);}
+    if(this.round>=9&&!ultimate&&this.rand()<0.45){this.weather=[2,3,4,5,6][Math.floor(this.rand()*5)];this.wxT=0;this.push('weather',this.weather);}
     if(this.round>1&&WORLD.mboxSpots&&WORLD.mboxSpots.length>1){   // every round the mystery box turns up in another random building
       let sp=null;for(let t=0;t<20;t++){const c=WORLD.mboxSpots[Math.floor(this.rand()*WORLD.mboxSpots.length)];if(Math.hypot(c.x-this.mbox.x,c.z-this.mbox.z)>6){sp=c;break;}}
       if(sp){this.mbox={x:sp.x,z:sp.z,name:sp.name};this.push('mboxmove',sp.name);}
@@ -1376,7 +1382,7 @@ class Game{
     if(t===18)hp=3400*(1+0.35*(this.round/13-1))*(1+0.5*(np-1));
     if(t===26)hp=16000*(1+0.5*(this.round/30-1))*(1+0.7*(np-1));
     if(t===17)hp=300000*(1+0.5*(this.round/50-1))*(1+0.8*(np-1));
-    if(t===12)hp=78000*(1+0.5*(this.round/20-1))*(1+0.8*(np-1));
+    if(t===12)hp=64000*(1+0.5*(this.round/20-1))*(1+0.8*(np-1));   // a bit less than before (was 78,000)
     if((t>=21&&t<=24)||t===27)hp*=1+0.6*(np-1);   // landmark bosses are tougher in co-op too
     const sp=def.sp*(1+soft(0.028*this.round,0.55,0.12))*(0.9+this.rand()*0.25);
     const al={id:this.nid++,t,x,y:yy,z,yaw:0,hp,mhp:hp,sp,r:def.r,cy:def.cy,
@@ -1950,10 +1956,10 @@ class Game{
       }
       if(def.summon){ // the Overmind: hovers over the city, calls any alien (and now and then a mini boss), and fires its laser barrage every 45 s
         a.y=OM_Y+Math.sin(this.time*0.6)*3;
-        a.sumT=(a.sumT===undefined?4:a.sumT)-dt;
-        if(a.sumT<=0&&this.aliens.length+6<=this.hardCap()){
-          a.sumT=7+this.rand()*3;this.push('summon',r2(a.x),r2(a.z));
-          const n=3+Math.min(4,Math.floor(this.round/25)),common=[0,0,1,2,5,6,7,8,9,10,13,3,25,29,1,2],mini=[11,4];
+        a.sumT=(a.sumT===undefined?30:a.sumT)-dt;   // every 30 s it calls in 5 random aliens
+        if(a.sumT<=0&&this.aliens.length+5<=this.hardCap()){
+          a.sumT=30;this.push('summon',r2(a.x),r2(a.z));
+          const n=5,common=[0,0,1,2,5,6,7,8,9,10,13,3,25,29,1,2],mini=[11,4];
           for(let i=0;i<n;i++){
             const minis=this.aliens.filter(o=>mini.indexOf(o.t)>=0&&o.hp>0).length;
             const t=(this.rand()<0.12&&minis<2)?mini[Math.floor(this.rand()*mini.length)]:common[Math.floor(this.rand()*common.length)];
@@ -2134,7 +2140,7 @@ class Game{
       for(const id of c.pax){const q=this.players.get(id);q.x=c.x;q.z=c.z;q.y=EYE+(c.y||0);}
       if(CARS[c.t].gun){   // gunship + tank ammo: land and sit still for a few seconds to recharge
         const mx=CARS[c.t].ammo;if(c.am===undefined){c.am=mx;c.ch=0;}
-        if(c.am<mx&&(c.y||0)<=1.2&&Math.abs(c.sp||0)<2){c.ch+=dt;if(c.ch>=HELI_RECHARGE){c.am=mx;c.ch=0;this.push('heliok',c.id);}}else if((c.y||0)>1.2||Math.abs(c.sp||0)>=2)c.ch=0;
+        if(c.am<mx&&heliAGL(c)<=1.2&&Math.abs(c.sp||0)<2){c.ch+=dt;if(c.ch>=HELI_RECHARGE){c.am=mx;c.ch=0;this.push('heliok',c.id);}}else if(heliAGL(c)>1.2||Math.abs(c.sp||0)>=2)c.ch=0;
       }
       if(c.drv<0)continue;
       const p=this.players.get(c.drv);
@@ -2179,7 +2185,7 @@ class Game{
   }
 }
 
-const API={PERKS,PERK_LINES,PERK_COST,perkFx,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={heliAGL,godzSpheres,PERKS,PERK_LINES,PERK_COST,perkFx,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX,ACH,EXLISTS,EX_NAMES,itemOpen,achProgress,achRewards,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);
