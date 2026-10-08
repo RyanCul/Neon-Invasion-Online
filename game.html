@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,900&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 <title>Neon Invasion</title>
 <style>
 *{box-sizing:border-box}
@@ -392,6 +393,43 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 #nameLab{font-size:12px;letter-spacing:3px;color:#ff2fa0;text-shadow:0 0 10px rgba(255,47,160,.55);margin-top:2px}
 @keyframes blink{50%{opacity:.25}}
 #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0a0418;color:#ffb3d9;text-align:center;padding:30px;z-index:20;font-size:18px}
+/* ===== main menu redesign ===== */
+#menu{background:radial-gradient(ellipse at 50% 38%,rgba(20,0,40,.15),rgba(10,0,25,.82) 85%)}
+#menu::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(5,0,15,.55) 100%)}
+#menu>*{position:relative;z-index:2}#menu #lvbox,#menu #topbtns,#menu a#discord{position:fixed}
+#mUfo{width:clamp(90px,11vw,150px);height:auto;margin:0 0 -6px;overflow:visible;filter:drop-shadow(0 0 12px rgba(37,244,255,.7))}
+#mUfo .hov{animation:ufoHov 3.2s ease-in-out infinite}#mUfo .beam{animation:ufoBeam 3.2s ease-in-out infinite;transform-origin:110px 66px}
+#mUfo .lt{animation:ufoLt 1.2s steps(2) infinite}#mUfo .lt.a{fill:#ff2fa0}#mUfo .lt.b{fill:#ffe45c;animation-delay:.4s}#mUfo .lt.c{fill:#25f4ff;animation-delay:.8s}
+@keyframes ufoHov{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-6px) rotate(1.5deg)}}
+@keyframes ufoBeam{0%,100%{opacity:.35;transform:rotate(-5deg)}50%{opacity:.9;transform:rotate(5deg)}}
+@keyframes ufoLt{0%{opacity:1}50%{opacity:.35}}
+@keyframes titleGlow{0%,100%{filter:drop-shadow(.025em 0 0 #000) drop-shadow(-.025em 0 0 #000) drop-shadow(0 .025em 0 #000) drop-shadow(0 -.025em 0 #000) drop-shadow(0 .05em 0 #12002e) drop-shadow(0 0 10px rgba(255,47,160,.6))}50%{filter:drop-shadow(.025em 0 0 #000) drop-shadow(-.025em 0 0 #000) drop-shadow(0 .025em 0 #000) drop-shadow(0 -.025em 0 #000) drop-shadow(0 .05em 0 #12002e) drop-shadow(0 0 22px rgba(255,47,160,.9)) drop-shadow(0 0 38px rgba(37,244,255,.4))}}
+#menu h1{font-family:'Montserrat','Arial Black',sans-serif;font-weight:900;font-style:italic;letter-spacing:3px;font-size:clamp(28px,min(5.4vw,10vh,calc((100vw - 520px)/11.5)),104px);background:linear-gradient(90deg,#ff2fa0 0%,#ff9a3c 48%,#25f4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(.025em 0 0 #000) drop-shadow(-.025em 0 0 #000) drop-shadow(0 .025em 0 #000) drop-shadow(0 -.025em 0 #000) drop-shadow(0 .05em 0 #12002e) drop-shadow(0 0 14px rgba(255,47,160,.7));white-space:nowrap}
+#menu h2.sub{font-family:'Orbitron','Arial',sans-serif;font-weight:700;font-style:normal;font-size:clamp(11px,min(1.5vw,2.6vh),22px);letter-spacing:.28em;margin:10px 0 4px;color:#c8fcff;text-shadow:0 0 14px #25f4ff;-webkit-text-stroke:.2em #12002e;paint-order:stroke fill}
+#menu h1{animation:titleGlow 3.4s ease-in-out infinite}
+#mPanel{margin-top:10px;padding:clamp(10px,2vh,18px) clamp(14px,2vw,28px);border-radius:22px;background:radial-gradient(ellipse at center,rgba(18,0,46,.78) 0%,rgba(18,0,46,.5) 62%,rgba(18,0,46,0) 100%);width:min(640px,94vw)}
+#mPanel #nameLab{font-size:13px;letter-spacing:6px;color:#ff7fc8}
+#menu #mPanel button#bSolo{width:min(520px,90%);font-size:clamp(22px,3vw,32px);padding:clamp(12px,2.2vh,18px) 10px;margin:8px auto 14px;display:block;animation:soloPulse 2.6s ease-in-out infinite}
+@keyframes soloPulse{0%,100%{box-shadow:0 0 14px #ff2fa0}50%{box-shadow:0 0 28px #ff2fa0,0 0 8px #fff3}}
+#mCards{display:flex;gap:12px;align-items:stretch;justify-content:center;flex-wrap:wrap}
+#mCards .mc{flex:1 1 230px;max-width:300px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 12px 10px;border-radius:14px;background:rgba(10,0,30,.55);border:1.5px solid #25f4ff;box-shadow:0 0 12px rgba(37,244,255,.3)}
+#mCards .mc.lo{border-color:#ff9a2a;box-shadow:0 0 12px rgba(255,138,26,.3)}
+#mCards .mt{font-size:15px;font-weight:bold;letter-spacing:4px;color:#fff}#mCards .ms{font-size:11px;letter-spacing:2px;color:#9ffcff;margin-top:-4px}#mCards .lo .ms{color:#ffcf99}
+#mCards .md{font-size:11px;color:#d6c4f0;line-height:1.4;min-height:30px;max-width:230px;margin:2px 0 0}
+#menu #mCards input#room_in{font-size:13px;padding:7px 6px;width:100%;box-sizing:border-box;margin:2px 0}
+#menu #mCards button.big{width:100%;margin:auto 0 0;font-size:clamp(13px,1.5vw,16px);letter-spacing:1px;padding:11px 6px}
+#mLinks{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;color:#6b5a9a}
+#menu #mLinks button,#menu #mLinks button:hover{background:none;border:none;box-shadow:none;padding:4px 8px;margin:0;font-size:11px;letter-spacing:3px;font-style:normal;color:#9ffcff}
+#menu #mLinks button#bQuit{color:#ff8a98}#menu #mLinks button:hover{color:#fff;text-decoration:underline}
+#menu button{transition:transform .12s,filter .12s,box-shadow .12s}
+#menu button:not(.tb):not(.sm):hover{transform:translateY(-2px) scale(1.02)}
+#menu button.tb#bClips{animation:clipsGlow 2.2s ease-in-out infinite;font-size:clamp(11px,1.1vw,14px);letter-spacing:2px;height:44px;width:clamp(140px,13vw,176px)}
+@keyframes clipsGlow{0%,100%{box-shadow:0 0 12px rgba(255,47,160,.7)}50%{box-shadow:0 0 26px #ff2fa0,0 0 8px #fff5}}
+#mStage{position:fixed;left:clamp(10px,4vw,70px);bottom:clamp(40px,8vh,90px);width:240px;height:340px;z-index:2;pointer-events:none}
+#mStage canvas{position:absolute;inset:0;width:240px;height:340px}
+#mStage .pad{position:absolute;left:30px;right:30px;bottom:34px;height:26px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,47,160,.75),rgba(37,244,255,.25) 60%,transparent 72%);box-shadow:0 0 30px rgba(255,47,160,.6)}
+@media (max-width:1100px),(max-height:700px){#mStage{display:none}}
+@media (prefers-reduced-motion:reduce){#menu h1,#mUfo .hov,#mUfo .beam,#mUfo .lt,#menu button.tb#bClips,#menu #mPanel button#bSolo{animation:none}}
 </style>
 </head>
 <body>
@@ -445,18 +483,24 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 <div id="menu">
   <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch" title="Achievements" aria-label="Achievements"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #fff3b0)"><path d="M7 3h10v2h3a1 1 0 0 1 1 1v1.5c0 2.5-1.9 4.6-4.4 4.9A5.5 5.5 0 0 1 13 15.9V18h3v3H8v-3h3v-2.1a5.5 5.5 0 0 1-3.6-3.5C4.9 12.1 3 10 3 7.5V6a1 1 0 0 1 1-1h3V3zm-2 4v.5c0 1.3.9 2.4 2.1 2.8A12 12 0 0 1 7 7H5zm14 0h-2c0 1.1-.1 2.2-.1 3.3A3 3 0 0 0 19 7.5V7z"/></svg></button></div><div id="lvnote"></div></div>
   <div id="topbtns"><button class="tb" id="bSet" title="Settings" aria-label="Settings" style="width:46px"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:block;margin:auto;filter:drop-shadow(0 0 3px #25f4ff)"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2.1-1.6a.5.5 0 0 0 .1-.6l-2-3.5a.5.5 0 0 0-.6-.2l-2.5 1a7.5 7.5 0 0 0-1.7-1L14.5 3a.5.5 0 0 0-.5-.4h-4a.5.5 0 0 0-.5.4l-.4 2.6a7.5 7.5 0 0 0-1.7 1l-2.5-1a.5.5 0 0 0-.6.2l-2 3.5a.5.5 0 0 0 .1.6L4.6 11a7.7 7.7 0 0 0 0 2l-2.1 1.6a.5.5 0 0 0-.1.6l2 3.5c.1.2.4.3.6.2l2.5-1c.5.4 1.1.7 1.7 1l.4 2.6c0 .2.2.4.5.4h4c.3 0 .5-.2.5-.4l.4-2.6c.6-.3 1.2-.6 1.7-1l2.5 1c.2.1.5 0 .6-.2l2-3.5a.5.5 0 0 0-.1-.6L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg></button><button class="tb" id="bHow">HOW TO PLAY</button><div style="flex-basis:100%;height:0"></div><button class="tb" id="bFr" style="display:none!important"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z"/></svg><span>FRIENDS</span></button><button class="tb" id="bClips"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 5h11a2 2 0 0 1 2 2v2.6l4-2.3v9.4l-4-2.3V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg><span>CLIPS</span></button></div>
+  <svg id="mUfo" viewBox="0 0 220 120" aria-hidden="true"><defs><linearGradient id="mUb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8e060" stop-opacity=".7"/><stop offset="1" stop-color="#e8e060" stop-opacity="0"/></linearGradient><linearGradient id="mUh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f0ff"/><stop offset=".5" stop-color="#9aa8c8"/><stop offset="1" stop-color="#5a6488"/></linearGradient><linearGradient id="mUd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ff0ff"/><stop offset="1" stop-color="#5ac8f0"/></linearGradient></defs>
+    <polygon class="beam" points="92,66 128,66 190,120 30,120" fill="url(#mUb)"/>
+    <g class="hov"><path d="M72 40 Q80 8 110 8 Q140 8 148 40 Z" fill="url(#mUd)"/><path d="M80 40 Q86 20 110 20 Q134 20 140 40 Z" fill="#fff" opacity=".28"/><ellipse cx="110" cy="46" rx="70" ry="17" fill="url(#mUh)" stroke="#e8f8ff" stroke-width="1.5"/><circle cx="62" cy="50" r="3.6" class="lt a"/><circle cx="86" cy="56" r="3.6" class="lt b"/><circle cx="110" cy="58" r="3.6" class="lt c"/><circle cx="134" cy="56" r="3.6" class="lt b"/><circle cx="158" cy="50" r="3.6" class="lt a"/></g></svg>
   <h1>NEON INVASION</h1>
-  <h2 class="sub">HOW MANY ROUNDS CAN YOU SURVIVE?</h2>
-  <div class="box">
+  <h2 class="sub">ONLINE CO-OP ALIEN WAVE SHOOTER</h2>
+  <div id="mPanel">
     <div id="nameLab">NAME</div>
     <input id="name" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false"><br>
     <button id="bSolo" class="big">PLAY SOLO</button>
-    <div style="margin-top:14px;color:#9ffcff;letter-spacing:5px;font-size:18px">ONLINE CO-OP (up to 8 players)</div>
-    <input id="room_in" maxlength="6" placeholder="ROOM CODE (OPTIONAL)"><br>
     <input id="url" placeholder="server address" style="display:none">
-    <button class="c big" id="bOnline">CREATE / JOIN ROOM</button><br><button class="big" id="bSplit">LOCAL SPLITSCREEN (DEMO)</button><br><button class="c sm" id="bLB">ONLINE LEADERBOARD</button><br><button class="c sm" id="bQuit">CLOSE GAME</button>
+    <div id="mCards">
+      <div class="mc on"><div class="mt">ONLINE CO-OP</div><div class="ms">up to 8 players</div><input id="room_in" maxlength="6" placeholder="ROOM CODE (OPTIONAL)"><button class="c big" id="bOnline">CREATE / JOIN ROOM</button></div>
+      <div class="mc lo"><div class="mt">LOCAL SPLITSCREEN</div><div class="ms">2 players &middot; 1 screen &middot; demo</div><div class="md">Co-op or versus on one device, with a controller each.</div><button class="big" id="bSplit">PLAY SPLITSCREEN</button></div>
+    </div>
+    <div id="mLinks"><button class="c sm" id="bLB">ONLINE LEADERBOARD</button><span>&middot;</span><button class="c sm" id="bQuit">CLOSE GAME</button></div>
     <div id="msg"></div>
   </div>
+  <div id="mStage"><canvas id="mStageCv" width="240" height="340"></canvas><div class="pad"></div></div>
   <a id="discord" href="https://discord.gg/XvD5KQjDZr" target="_blank" rel="noopener">JOIN THE OFFICIAL DISCORD</a>
 </div>
 <div id="slots"><div class="box2"><h2>NEON PALACE CASINO</h2><div style="color:#e9d7ff;font-size:13px">LUCKY SLOTS &middot; pays on 3 matching &middot; 2 cherries = bet back</div><div id="slReels"><div>?</div><div>?</div><div>?</div></div><div id="slMsg"></div><div id="slMoney"></div><div id="slBets"></div><div><button id="slSpin">SPIN</button><button id="slClose">LEAVE</button></div></div></div>
@@ -572,15 +616,15 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 
   // ---- setup screen: mode, hard mode, controllers, both players press READY ----
   var sst=document.createElement('style');
-  sst.textContent='#sup{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#3a0a5c 0%,#12002e 60%,#05000f 100%);color:#fff;font-family:Orbitron,Montserrat,sans-serif;overflow:auto}#sup.off{display:none}#sup .cd{width:min(960px,94vw);padding:clamp(14px,2.4vw,30px);background:rgba(14,3,40,.85);border:2px solid #ff9a2a;border-radius:18px;box-shadow:0 0 30px rgba(255,138,26,.45);text-align:center;box-sizing:border-box}#sup h1{margin:0 0 4px;font-size:clamp(20px,3.4vw,38px);letter-spacing:6px;color:#ffd9a8;text-shadow:0 0 14px #ff8a1a}#sup .sb{font-size:12px;letter-spacing:3px;color:#9ffcff;margin-bottom:16px}#sup .row{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}#sup .opt{flex:1 1 300px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:rgba(255,255,255,.06);border:1.5px solid #3a2d63;border-radius:14px;cursor:pointer;text-align:left;user-select:none}#sup .opt:hover{background:rgba(255,255,255,.13);border-color:#ff9fd8}#sup .opt b{letter-spacing:4px;font-size:15px;display:block}#sup .opt small{font-size:11px;color:#c9b6ee;letter-spacing:1px;display:block;margin-top:4px}#sup .seg{display:flex;border:1.5px solid #3a2d63;border-radius:10px;overflow:hidden}#sup .seg span{padding:8px 14px;font-size:12px;letter-spacing:2px;background:#1a0b33;color:#9a88c8}#sup .seg span.on{background:#25f4ff;color:#05000f;font-weight:bold;box-shadow:0 0 12px #25f4ff}#sup .tg{width:56px;height:30px;border-radius:15px;background:#2a1b4a;border:2px solid #5b4a8a;position:relative;flex:none}#sup .tg:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#9a88c8;transition:.15s}#sup .tg.on{background:#a5207a;border-color:#ff2fa0;box-shadow:0 0 14px #ff2fa0}#sup .tg.on:after{left:29px;background:#fff}#sup .pl{display:flex;gap:14px;flex-wrap:wrap}#sup .pc{flex:1 1 300px;padding:16px;border:2px solid #25f4ff;border-radius:14px;background:rgba(37,244,255,.07);box-sizing:border-box}#sup .pc.b{border-color:#ff9a2a;background:rgba(255,154,42,.08)}#sup .pc h2{margin:0;font-size:clamp(16px,2.2vw,22px);letter-spacing:4px}#sup .pc .nm{font-size:12px;letter-spacing:2px;color:#ffe9a0;margin:2px 0 10px}#sup .dv{min-height:38px;font-size:12px;letter-spacing:2px;color:#cfe;display:flex;align-items:center;justify-content:center;gap:8px}#sup .dv i{width:10px;height:10px;border-radius:50%;background:#555;display:inline-block}#sup .dv.ok i{background:#4cff8a;box-shadow:0 0 8px #4cff8a}#sup .rb{margin-top:10px;width:100%;padding:14px;font-size:clamp(14px,1.8vw,20px);letter-spacing:4px;font-weight:bold;border-radius:12px;border:2px solid #fff;background:#3a2d63;color:#fff;cursor:pointer;font-family:inherit}#sup .rb.dis{opacity:.45;cursor:not-allowed}#sup .rb.on{background:linear-gradient(#27d86a,#0c8a3c);border-color:#b8ffd0;box-shadow:0 0 18px #27d86a}#sup .ft{margin-top:14px;font-size:12px;letter-spacing:3px;color:#ffd9a8;min-height:18px}#sup .cd{position:relative;padding-bottom:clamp(70px,10vh,84px)}#sup .ex{position:absolute;left:clamp(14px,3vw,36px);bottom:clamp(12px,3vh,24px);display:flex;align-items:center;gap:7px;font:inherit;font-size:11px;font-weight:bold;letter-spacing:2px;padding:8px 12px;color:#d6b8ff;background:rgba(20,6,45,.8);border:1.5px solid #4b3a7a;border-radius:8px;cursor:pointer}#sup .ex:hover{color:#fff;border-color:#ff2fa0}#sup .hn{font-size:11px;color:#a99ad0;letter-spacing:1px;margin-top:8px}';
+  sst.textContent='#sup{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#3a0a5c 0%,#12002e 60%,#05000f 100%);color:#fff;font-family:Orbitron,Montserrat,sans-serif;overflow:auto}#sup.off{display:none}#sup .cd{width:min(960px,94vw);padding:clamp(14px,2.4vw,30px);background:rgba(14,3,40,.85);border:2px solid #ff9a2a;border-radius:18px;box-shadow:0 0 30px rgba(255,138,26,.45);text-align:center;box-sizing:border-box}#sup h1{margin:0 0 4px;font-size:clamp(20px,3.4vw,38px);letter-spacing:6px;color:#ffd9a8;text-shadow:0 0 14px #ff8a1a}#sup .sb{font-size:12px;letter-spacing:3px;color:#9ffcff;margin-bottom:16px}#sup .row{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}#sup .opt{flex:1 1 300px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:rgba(255,255,255,.06);border:1.5px solid #3a2d63;border-radius:14px;cursor:pointer;text-align:left;user-select:none}#sup .opt:hover{background:rgba(255,255,255,.13);border-color:#ff9fd8}#sup .opt b{letter-spacing:4px;font-size:15px;display:block}#sup .opt small{font-size:11px;color:#c9b6ee;letter-spacing:1px;display:block;margin-top:4px}#sup .seg{display:flex;border:1.5px solid #3a2d63;border-radius:10px;overflow:hidden}#sup .seg span{padding:8px 14px;font-size:12px;letter-spacing:2px;background:#1a0b33;color:#9a88c8}#sup .seg span.on{background:#25f4ff;color:#05000f;font-weight:bold;box-shadow:0 0 12px #25f4ff}#sup .tg{width:56px;height:30px;border-radius:15px;background:#2a1b4a;border:2px solid #5b4a8a;position:relative;flex:none}#sup .tg:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#9a88c8;transition:.15s}#sup .tg.on{background:#a5207a;border-color:#ff2fa0;box-shadow:0 0 14px #ff2fa0}#sup .tg.on:after{left:29px;background:#fff}#sup .pl{display:flex;gap:14px;flex-wrap:wrap}#sup .pc{flex:1 1 300px;padding:16px;border:2px solid #25f4ff;border-radius:14px;background:rgba(37,244,255,.07);box-sizing:border-box}#sup .pc.b{border-color:#ff9a2a;background:rgba(255,154,42,.08)}#sup .pc h2{margin:0;font-size:clamp(16px,2.2vw,22px);letter-spacing:4px}#sup .pc .nm{font-size:12px;letter-spacing:2px;color:#ffe9a0;margin:2px 0 10px}#sup .dv{min-height:38px;font-size:12px;letter-spacing:2px;color:#cfe;display:flex;align-items:center;justify-content:center;gap:8px}#sup .dv i{width:10px;height:10px;border-radius:50%;background:#555;display:inline-block}#sup .dv.ok i{background:#4cff8a;box-shadow:0 0 8px #4cff8a}#sup .rb{margin-top:10px;width:100%;padding:14px;font-size:clamp(14px,1.8vw,20px);letter-spacing:4px;font-weight:bold;border-radius:12px;border:2px solid #fff;background:#3a2d63;color:#fff;cursor:pointer;font-family:inherit}#sup .rb.dis{opacity:.45;cursor:not-allowed}#sup .rb.on{background:linear-gradient(#27d86a,#0c8a3c);border-color:#b8ffd0;box-shadow:0 0 18px #27d86a}#sup .ft{margin-top:14px;font-size:12px;letter-spacing:3px;color:#ffd9a8;min-height:18px}#sup .cd{position:relative;padding-bottom:clamp(70px,10vh,84px)}#sup .ex{position:absolute;left:clamp(14px,3vw,36px);bottom:clamp(12px,3vh,24px);display:flex;align-items:center;gap:7px;font:inherit;font-size:11px;font-weight:bold;letter-spacing:2px;padding:8px 12px;color:#d6b8ff;background:rgba(20,6,45,.8);border:1.5px solid #4b3a7a;border-radius:8px;cursor:pointer}#sup .ex:hover{color:#fff;border-color:#ff2fa0}#sup .f1{outline:3px solid #25f4ff;outline-offset:2px;box-shadow:0 0 16px #25f4ff}#sup .f2{outline:3px solid #ff9a2a;outline-offset:2px;box-shadow:0 0 16px #ff9a2a}#sup .f1.f2{outline-offset:2px;box-shadow:0 0 0 5px #05000f,0 0 0 8px #ff9a2a}#sup .hn{font-size:11px;color:#a99ad0;letter-spacing:1px;margin-top:8px}';
   document.head.appendChild(sst);
   var sup=document.createElement('div');sup.id='sup';
   sup.innerHTML='<div class="cd"><h1>LOCAL SPLITSCREEN</h1><div class="sb">PICK YOUR GAME, PLUG IN YOUR CONTROLLERS, THEN BOTH PLAYERS PRESS READY</div>'
    +'<div class="row"><div class="opt" id="sMode"><span><b>GAME MODE</b><small id="sModeSub">work together and survive</small></span><div class="seg"><span data-m="0">CO-OP</span><span data-m="1">VERSUS</span></div></div>'
    +'<div class="opt" id="sHard"><span><b>HARD MODE</b><small>tougher aliens, bigger waves, +25% cash</small></span><i class="tg"></i></div></div>'
-   +'<div class="pl"><div class="pc" id="sP1"><h2>PLAYER 1</h2><div class="nm" id="sN1"></div><div class="dv" id="sD1"><i></i><span></span></div><button class="rb" id="sR1">READY</button><div class="hn">Enter / A button</div></div>'
+   +'<div class="pl"><div class="pc" id="sP1"><h2>PLAYER 1</h2><div class="nm" id="sN1"></div><div class="dv" id="sD1"><i></i><span></span></div><button class="rb" id="sR1">READY</button><div class="hn">Enter, or A button</div></div>'
    +'<div class="pc b" id="sP2"><h2>PLAYER 2</h2><div class="nm" id="sN2"></div><div class="dv" id="sD2"><i></i><span></span></div><button class="rb" id="sR2">READY</button><div class="hn">A button on the controller</div></div></div>'
-   +'<div class="ft" id="sFt"></div><div class="hn">Controller: X = hard mode &middot; Y = co-op / versus &middot; B = un-ready. With one controller, it goes to Player 2 and Player 1 uses keyboard + mouse.</div><button class="ex" id="sEx" title="Back to main menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 21V4a1 1 0 0 1 1-1h9l4 2v16"/><path d="M3 21h18"/><circle cx="12.5" cy="12.5" r=".9" fill="currentColor"/><path d="M9 6h6v15"/></svg><span>MAIN MENU</span></button></div>';
+   +'<div class="ft" id="sFt"></div><div class="hn">Controller: D-pad or stick moves, A selects, B = un-ready, hold Back / Select = main menu (X = hard mode, Y = co-op / versus also work). With one controller, it goes to Player 2 and Player 1 uses keyboard + mouse.</div><button class="ex" id="sEx" title="Back to main menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 21V4a1 1 0 0 1 1-1h9l4 2v16"/><path d="M3 21h18"/><circle cx="12.5" cy="12.5" r=".9" fill="currentColor"/><path d="M9 6h6v15"/></svg><span>MAIN MENU</span></button></div>';
   document.body.appendChild(sup);
   function q(id){return document.getElementById(id);}
   function p2ok(){return padCnt>=1;}
@@ -594,6 +638,8 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
     d1.className='dv ok';d1.querySelector('span').textContent=padCnt>=2?'CONTROLLER 1 CONNECTED (keyboard + mouse also works)':'KEYBOARD + MOUSE';
     d2.className='dv'+(p2ok()?' ok':'');d2.querySelector('span').textContent=p2ok()?'CONTROLLER CONNECTED':'PRESS ANY BUTTON ON A CONTROLLER';
     [1,2].forEach(function(n){var b=q('sR'+n);b.classList.toggle('on',rdy[n]);b.classList.toggle('dis',n===2&&!p2ok()&&!rdy[n]);b.textContent=rdy[n]?'READY \u2713':(n===2&&!p2ok()?'CONNECT A CONTROLLER':'READY');});
+    var all=[q('sMode'),q('sHard'),q('sR1'),q('sR2'),q('sEx')];all.forEach(function(e){e.classList.remove('f1','f2');});
+    [1,2].forEach(function(n){var c=cur[n],e=c==='m'?q('sMode'):c==='h'?q('sHard'):c==='x'?q('sEx'):q('sR'+n);if(padOf[n])e.classList.add('f'+n);});
     q('sFt').textContent=(joined[1]&&joined[2])?(rdy[1]&&rdy[2]?'STARTING...':(rdy[1]||rdy[2]?'WAITING FOR THE OTHER PLAYER...':'')):'LOADING...';
   }
   function setRdy(n,v){if(!setupOn||goT)return;if(v&&n===2&&!p2ok())return;rdy[n]=v;paintSetup();checkGo();}
@@ -604,19 +650,35 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
       game.onMsg(1,{t:'vs',on:vsOn});game.onMsg(1,{t:'hard',on:hardOn});game.onMsg(1,{t:'start'});
       setupOn=false;startedOnce=true;paintSetup();focus1();},900);
   }
-  function showSetup(){rdy[1]=rdy[2]=false;if(goT){clearTimeout(goT);goT=0;}setupOn=true;try{document.activeElement&&document.activeElement.blur();window.focus();}catch(e){}paintSetup();}
+  function showSetup(){cur={1:'r',2:'r'};rdy[1]=rdy[2]=false;if(goT){clearTimeout(goT);goT=0;}setupOn=true;try{document.activeElement&&document.activeElement.blur();window.focus();}catch(e){}paintSetup();}
   function togVs(){if(!setupOn||goT)return;vsOn=!vsOn;rdy[1]=rdy[2]=false;paintSetup();}
   function togHard(){if(!setupOn||goT)return;hardOn=!hardOn;rdy[1]=rdy[2]=false;paintSetup();}
   q('sMode').onclick=togVs;q('sHard').onclick=togHard;
   q('sR1').onclick=function(){setRdy(1,!rdy[1]);};q('sR2').onclick=function(){setRdy(2,!rdy[2]);};
   q('sEx').onclick=function(){location.href=location.pathname;};
   addEventListener('keydown',function(e){if(!setupOn)return;if(e.code==='Enter'||e.code==='Space'){e.preventDefault();setRdy(1,!rdy[1]);}else if(e.code==='KeyV')togVs();else if(e.code==='KeyH')togHard();else if(e.code==='Escape'){location.href=location.pathname;}});
-  var sprev={};
+  var sprev={},cur={1:'r',2:'r'},padOf={1:false,2:false},selT=0;
+  function nav(n,d){var c=cur[n],t={m:{r:'h',d:'r'},h:{l:'m',d:'r'},r:{u:'m',d:'x'},x:{u:'r'}}[c];if(t&&t[d])cur[n]=t[d];}
+  function act(n){var c=cur[n];if(c==='m')togVs();else if(c==='h')togHard();else if(c==='x')location.href=location.pathname;else setRdy(n,!rdy[n]);}
   function setupPads(p1,p2){
-    if(!setupOn){sprev={};return;}
+    if(!setupOn){sprev={};selT=0;return;}
+    padOf[1]=!!p1;padOf[2]=!!p2;
     function edge(g,k,i){var v=!!(g&&g.buttons[i]&&g.buttons[i].pressed),w=sprev[k];sprev[k]=v;return v&&!w;}
-    var a1=edge(p1,'a1',0),a2=edge(p2,'a2',0),b1=edge(p1,'b1',1),b2=edge(p2,'b2',1),x=edge(p1||p2,'x',2)||edge(p2,'x2',2),y=edge(p1||p2,'y',3)||edge(p2,'y2',3);
-    if(a1)setRdy(1,true);if(a2)setRdy(2,true);if(b1)setRdy(1,false);if(b2)setRdy(2,false);if(x)togHard();if(y)togVs();
+    function ax(g,k,i,neg){var v=!!(g&&g.axes[i]!==undefined&&(neg?g.axes[i]<-0.6:g.axes[i]>0.6)),w=sprev[k];sprev[k]=v;return v&&!w;}
+    [[1,p1],[2,p2]].forEach(function(pp){
+      var n=pp[0],g=pp[1];if(!g)return;
+      var k='p'+n;
+      if(edge(g,k+'u',12)|ax(g,k+'au',1,true))nav(n,'u');
+      if(edge(g,k+'d',13)|ax(g,k+'ad',1,false))nav(n,'d');
+      if(edge(g,k+'l',14)|ax(g,k+'al',0,true))nav(n,'l');
+      if(edge(g,k+'r',15)|ax(g,k+'ar',0,false))nav(n,'r');
+      if(edge(g,k+'a',0))act(n);
+      if(edge(g,k+'b',1))setRdy(n,false);
+      if(edge(g,k+'x',2))togHard();
+      if(edge(g,k+'y',3))togVs();
+    });
+    var back=(p1&&p1.buttons[8]&&p1.buttons[8].pressed)||(p2&&p2.buttons[8]&&p2.buttons[8].pressed);   // hold Back / Select for 1 second = main menu
+    if(back){if(!selT)selT=Date.now();else if(Date.now()-selT>1000){location.href=location.pathname;}}else selT=0;
     paintSetup();
   }
   paintSetup();
@@ -3994,6 +4056,8 @@ function uiMove(layer,dx,dy){
     const mn=+cur.min||0,mx=+cur.max||100,step=Math.max(1,Math.round((mx-mn)/20));
     cur.value=Math.max(mn,Math.min(mx,(+cur.value)+dx*step));cur.dispatchEvent(new Event('input',{bubbles:true}));navTick();return;
   }
+  const nd=cur.dataset&&cur.dataset[dx?(dx>0?'navR':'navL'):(dy>0?'navD':'navU')];   // hand-set neighbours (main menu)
+  if(nd){const t=$(nd);if(t&&list.includes(t)){uiSetFocus(layer,t);navTick();return;}}
   const cr=uiRect(cur),cx=cr.left+cr.width/2,cy=cr.top+cr.height/2;let best=null,bs=1e9;
   for(const el of list){
     if(el===cur)continue;const r=uiRect(el),ddx=r.left+r.width/2-cx,ddy=r.top+r.height/2-cy;
@@ -4983,6 +5047,32 @@ $('clipsBody').addEventListener('click',async e=>{
   else if(op==='del'){try{await clipDel(id);}catch(x){}clipsRender();}
 });
 
+
+/* ===== main-menu character stage (its own tiny renderer, only draws while the menu is showing) ===== */
+const mStage={rd:null,sc:null,cm:null,g:null,key:''};
+function mStageFrame(){
+  requestAnimationFrame(mStageFrame);
+  const menuEl=$('menu'),cv=$('mStageCv');
+  if(started||lockerOpen||!cv||!menuEl||menuEl.style.display==='none'||document.hidden||innerWidth<=1100||innerHeight<=700||PANE)return;
+  if(!mStage.rd){
+    try{mStage.rd=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true});}catch(e){mStage.rd=false;return;}
+    mStage.rd.setSize(240,340,false);mStage.rd.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+    mStage.sc=new THREE.Scene();mStage.cm=new THREE.PerspectiveCamera(33,240/340,0.1,50);mStage.cm.position.set(0,1.6,7.0);mStage.cm.lookAt(0,1.5,0);
+    mStage.sc.add(new THREE.AmbientLight(0xffffff,0.9));const dl=new THREE.DirectionalLight(0xffd0f0,0.85);dl.position.set(3,4,5);mStage.sc.add(dl);
+    const rl=new THREE.DirectionalLight(0x25f4ff,0.6);rl.position.set(-4,2,-3);mStage.sc.add(rl);
+  }
+  if(!mStage.rd)return;
+  const key=JSON.stringify(prof.ch);
+  if(!mStage.g||mStage.key!==key){
+    if(mStage.g)mStage.sc.remove(mStage.g);
+    mStage.g=makePlayerMesh((myP&&myP.c)||0xff2fa0,'',prof.ch,true);mStage.g.scale.setScalar(1.0);mStage.g.position.y=0;mStage.sc.add(mStage.g);
+    try{applyCos(mStage.g,prof.ch);}catch(e){}mStage.key=key;
+  }
+  const t=performance.now()/1000;mStage.g.rotation.y=Math.sin(t*0.6)*0.9+0.3;mStage.g.position.y=Math.sin(t*1.6)*0.04;
+  try{cosTick(mStage.g,t);}catch(e){}
+  mStage.rd.render(mStage.sc,mStage.cm);
+}
+requestAnimationFrame(mStageFrame);
 /* ================= main loop ================= */
 let last=performance.now(),elapsed=0,frameN=0;
 function applyTime(dt){
@@ -5214,6 +5304,8 @@ function frame(now){
   $('bCust').onclick=()=>{openLocker();const l=$('locker');l.scrollTop=0;};$('lkClose').onclick=closeLocker;$('slClose').onclick=closeSlots;$('rlClose').onclick=closeRoul;$('rlSpin').onclick=rlSpin;$('rlM').onclick=()=>{rlNumV=(rlNumV+36)%37;rlRender();};$('rlP').onclick=()=>{rlNumV=(rlNumV+1)%37;rlRender();};$('slSpin').onclick=slSpin;
   $('bSet').onclick=()=>toggleSettings(true);$('bHow').onclick=()=>{$('howto').style.display='flex';};addEventListener('keydown',e=>{if(e.code==='Escape')$('howto').style.display='none';});$('howClose').onclick=()=>{$('howto').style.display='none';};
   $('bSolo').onclick=()=>{myName=getName().toUpperCase();startSolo(getName());};
+  (function(){const N={name:{D:'bSolo'},bSolo:{U:'name',D:'room_in'},room_in:{U:'bSolo',D:'bOnline',R:'bSplit'},bOnline:{U:'room_in',R:'bSplit',D:'bLB'},bSplit:{U:'bSolo',L:'bOnline',D:'bQuit'},bLB:{U:'bOnline',R:'bQuit',D:'discord'},bQuit:{U:'bSplit',L:'bLB',D:'discord'},discord:{U:'bLB'}};
+    for(const id in N){const e=$(id);if(e)for(const k in N[id])e.dataset['nav'+k]=N[id][k];}})();
   $('bSplit').onclick=()=>{getName();location.href=location.pathname+'?split=host';};
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
   /* ---------- friends panel ---------- */
