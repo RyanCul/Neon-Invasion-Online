@@ -1086,10 +1086,18 @@ class Game{
       const free=[];for(let i=1;i<WPN.length;i++)if(p.wo[i]<0)free.push(i);
       const base=PERK_LINES.map(L=>L.ids[0]).filter(id=>!p.perks[id]);   // base-level (tier I) perks the player does not have yet
       this.mboxUsed[p.id]=1;
-      // what's inside: money is rare (15% in total: $1,000 7.5%, $2,000 5%, $5,000 2.5%), otherwise a new gun (60%) or a base-level perk (25%)
-      const opts=[['cash',1000,7.5],['cash',2000,5],['cash',5000,2.5],['gun',0,60],['perk',0,25]];
+      // what's inside: money is rare (15% in total: $1,000 7.5%, $2,000 5%, $5,000 2.5%), a new gun (52%), a base-level perk (23%), or a free UPGRADE (10%: one MK level on a gun you own, or the next tier of a perk you have)
+      const opts=[['cash',1000,7.5],['cash',2000,5],['cash',5000,2.5],['gun',0,52],['perk',0,23],['up',0,10]];
       let roll=this.rand()*100,pick=opts[opts.length-1];
       for(const o of opts){if(roll<o[2]){pick=o;break;}roll-=o[2];}
+      const upW=[];for(let i=0;i<WPN.length;i++)if(p.wo[i]>=0&&p.wo[i]<MAXUP)upW.push(i);
+      const upP=[];for(const L of PERK_LINES){let t=-1;L.ids.forEach((id,i)=>{if(p.perks[id])t=i;});if(t>=0&&t<L.ids.length-1)upP.push(L.ids[t+1]);}
+      if(pick[0]==='up'&&!upW.length&&!upP.length)pick=['gun',0,0];
+      if(pick[0]==='up'){
+        if(upP.length&&(!upW.length||this.rand()<0.5)){const id=upP[Math.floor(this.rand()*upP.length)];p.perks[id]=true;if(HP_TIERS.includes(id))p.hp=Math.min(mhp(p),p.hp+50);this.push('perk',p.id,id);this.push('mbox',p.id,-5,id);}
+        else{const w=upW[Math.floor(this.rand()*upW.length)];p.wo[w]++;this.push('upg',p.id,w,p.wo[w]);this.push('mbox',p.id,-4,w,p.wo[w]);}
+        return;
+      }
       if(pick[0]==='perk'&&!base.length)pick=['gun',0,0];   // nothing left to give of that kind: try the other, then a full ammo refill (never extra cash)
       if(pick[0]==='gun'&&!free.length)pick=base.length?['perk',0,0]:['ammo',0,0];
       if(pick[0]==='gun'){const w=free[Math.floor(this.rand()*free.length)];p.wo[w]=0;this.push('gave',p.id,w);this.push('mbox',p.id,w);}
@@ -1304,11 +1312,12 @@ class Game{
     this.vehLeft=(this.vehSwarm>=0||ultimate)?0:this.round>=VEH_TIERS[0][0]?6:0;this.nested=false;this.queue=q;this.q0=q.length;this.emptyT=0;this.huntNote=0;this.state='fight';this.spawnT=1.5;this.fightT=0;this.loot.fill(true);LOOT.forEach((l,i)=>{if(l.t===2&&this.tapeTaken[i])this.loot[i]=false;});
     this.weather=0;
     if(this.round>=9&&!ultimate&&this.rand()<0.45){this.weather=[2,3,4,5,6][Math.floor(this.rand()*5)];this.wxT=0;this.push('weather',this.weather);}
-    if(this.round>1&&WORLD.mboxSpots&&WORLD.mboxSpots.length>1){   // every round the mystery box turns up in another random building
+    const mbMove=this.round>1&&(this.round-1)%3===0;   // the mystery box moves (and refills) every 3 rounds: rounds 4, 7, 10...
+    if(mbMove&&WORLD.mboxSpots&&WORLD.mboxSpots.length>1){
       let sp=null;for(let t=0;t<20;t++){const c=WORLD.mboxSpots[Math.floor(this.rand()*WORLD.mboxSpots.length)];if(Math.hypot(c.x-this.mbox.x,c.z-this.mbox.z)>6){sp=c;break;}}
       if(sp){this.mbox={x:sp.x,z:sp.z,name:sp.name};this.push('mboxmove',sp.name);}
     }
-    if(this.round>1)this.mboxUsed={};   // a fresh pull for everyone every round, always
+    if(mbMove)this.mboxUsed={};   // one pull per player each time it appears (every 3 rounds)
     this.push('round',this.round,ultimate?3:giant?2:(boss?1:0));
   }
   endRound(){

@@ -701,12 +701,13 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
     [1,2].forEach(function(n){var b=q('sR'+n);b.classList.toggle('on',rdy[n]);b.classList.toggle('dis',n===2&&!p2ok()&&!rdy[n]);b.textContent=rdy[n]?'READY \u2713':(n===2&&!p2ok()?'CONNECT A CONTROLLER':'READY');});
     var all=[q('sMode'),q('sHard'),q('sR1'),q('sR2'),q('sEx')];all.forEach(function(e){e.classList.remove('f1','f2');});
     [1,2].forEach(function(n){var c=cur[n],e=c==='m'?q('sMode'):c==='h'?q('sHard'):c==='x'?q('sEx'):q('sR'+n);if(padOf[n])e.classList.add('f'+n);});
-    q('sFt').textContent=(joined[1]&&joined[2])?(rdy[1]&&rdy[2]?'STARTING...':(rdy[1]||rdy[2]?'WAITING FOR THE OTHER PLAYER...':'')):'LOADING...';
+    q('sFt').textContent=(joined[1]&&joined[2])?(rdy[1]&&rdy[2]?'STARTING...':(rdy[1]||rdy[2]?'WAITING FOR THE OTHER PLAYER...':'')):('LOADING '+(!joined[1]&&!joined[2]?'BOTH SCREENS':!joined[1]?'PLAYER 1\'S SCREEN':'PLAYER 2\'S SCREEN')+'...');
   }
   function setRdy(n,v){if(!setupOn||goT)return;if(v&&n===2&&!p2ok())return;rdy[n]=v;paintSetup();checkGo();}
   function checkGo(){
     if(!setupOn||goT||!(rdy[1]&&rdy[2]))return;
-    if(!(joined[1]&&joined[2])){setTimeout(checkGo,300);return;}
+    if(!(joined[1]&&joined[2])){if(!checkGo.t0)checkGo.t0=Date.now();else if(Date.now()-checkGo.t0>6000){checkGo.t0=Date.now();[1,2].forEach(function(n){if(!joined[n])try{frames[n].src='game.html?pane='+n+'&r='+Date.now();}catch(e){}});}setTimeout(checkGo,300);return;}   // a screen that never loaded gets reloaded
+    checkGo.t0=0;
     goT=setTimeout(function(){goT=0;
       game.onMsg(1,{t:'vs',on:vsOn});game.onMsg(1,{t:'hard',on:hardOn});game.onMsg(1,{t:'start'});
       setupOn=false;startedOnce=true;paintSetup();focus1();},900);
@@ -745,12 +746,13 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
   paintSetup();
   window.__setup={get on(){return setupOn;},rdy:rdy};
   var last=Date.now();
-  setInterval(function(){var now=Date.now(),dt=Math.min(0.1,(now-last)/1000);last=now;if(paused[1]||paused[2])return;try{game.tick(dt);}catch(e){console.error('tick error',e);}},33);
+  function step(){var now=Date.now(),raw=(now-last)/1000;if(raw<0.025)return;last=now;if(paused[1]||paused[2])return;var dt=Math.min(0.25,raw);try{game.tick(dt);}catch(e){console.error('tick error',e);}}   // runs from a timer AND every frame, so a busy computer can't stall the shared game
+  setInterval(step,33);
   // forward gamepads: with two controllers each player gets one (player 1 can also use the keyboard); with one controller it goes to player 2
   var padN=-1;
   function ser(g){return {id:g.id,mapping:g.mapping,axes:Array.prototype.slice.call(g.axes),buttons:Array.prototype.map.call(g.buttons,function(b){return [b.pressed?1:0,b.value];})};}
   function pump(){
-    requestAnimationFrame(pump);
+    requestAnimationFrame(pump);step();
     var all=navigator.getGamepads?Array.prototype.slice.call(navigator.getGamepads()):[],pads=all.filter(function(g){return g&&g.connected;});
     var p1=pads.length>=2?pads[0]:null,p2=pads.length>=2?pads[1]:(pads[0]||null);
     padCnt=pads.length;setupPads(p1,p2);
@@ -2686,7 +2688,7 @@ function noise(dur,vol,lp){
   s.connect(f);f.connect(g);g.connect(sfxBus(a));s.start();
 }
 function sfxShot(w,vol){
-  vol=vol||1;
+  vol=vol||1;if(w===6)vol*=0.45;   // the Arc Gatling fires 20 times a second: keep each shot quieter so it isn't grating
   if(w!==8&&w!==9&&w!==7){const hv=(w===2||w===3||w===5||w===6||w===11)?1:0;noise(0.03,(0.14+0.08*hv)*vol,6500);tone(135-20*hv,42,0.09+0.05*hv,'sine',(0.1+0.1*hv)*vol);}   // punchy crack + thump under every shot
   if(w===-1)tone(500,120,0.12,'sawtooth',0.07*vol);
   else if(w===0)tone(950,220,0.12,'sawtooth',0.09*vol);
@@ -3845,7 +3847,7 @@ function handleEvent(e){
     burst(e[1],e[2],e[3],col,big?60:24,big?26:16,big?1.6:1);burst(e[1],e[2],e[3],0xffffff,10,12,0.8);
     big?sfx.boom():sfx.kill();
     {const kid=e[6],kf=kid===myId?prof.ex[5]:(((remotes.get(kid)||{}).p||{}).ex||[])[5];if(kf)kfxBurst(kf,e[1],e[2],e[3]);}
-  }else if(k==='round'){mboxOpened=false;if((e[1]|0)===1&&!window.__introDone){window.__introDone=1;setTimeout(()=>{toast('GREEN ARROWS ARE ALIENS','Kill them all to progress');toastT=7;},1200);}curRound=e[1]|0;stMax('br',curRound-(joinRound-1));checkAch();if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
+  }else if(k==='round'){if((e[1]|0)===1&&!window.__introDone){window.__introDone=1;setTimeout(()=>{toast('GREEN ARROWS ARE ALIENS','Kill them all to progress');toastT=7;},1200);}curRound=e[1]|0;stMax('br',curRound-(joinRound-1));checkAch();if(curRound-1>bestRound){bestRound=curRound-1;try{localStorage.setItem('ni_best_v1',String(bestRound));}catch(e){}}
     lastRT=(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1]);lastRTsub=null;
     toast(e[2]===3?'ROUND '+e[1]+' - THE OVERMIND':e[2]===2?'ROUND '+e[1]+' - GODZILLA':e[2]?'BOSS ROUND '+e[1]:'ROUND '+e[1],e[2]===3?'THE ULTIMATE ALIEN HAS ARRIVED - IT CALLS ITS SWARM':e[2]===2?'A BUILDING-SIZED ALIEN IS COMING':e[2]?'A GIANT ALIEN APPROACHES':'THEY KEEP COMING');sfx.round();
     if(e[1]===4)setTimeout(()=>toast('RUMOR','3 NEON TAPES ARE HIDDEN'),3300);
@@ -3927,7 +3929,7 @@ function handleEvent(e){
   else if(k==='telhit'){shake=Math.max(shake,0.45);}
   else if(k==='bossdrop'){sfx.buy();setTimeout(()=>sfx.buy(),160);toast('BOSS DROP: '+(e[1]===4?'FULL RESTOCK':e[1]===12?'FULL AMMO':'WEAPON UPGRADE'),e[1]===4?'everyone healed, revived, reloaded +$1000':e[1]===12?'every player gets a random perk':'every gun you own goes up one level');}
   else if(k==='mboxmove'){mboxOpened=false;toast('MYSTERY BOX APPEARED',e[1]+' - marked on your map');}
-  else if(k==='mbox'){if(e[1]===myId){mboxOpened=true;setTimeout(()=>sfx.buy(),200);if(e[2]===-2){toast('MYSTERY BOX','+$'+(e[3]|0).toLocaleString()+' CASH');sfx.buy();}else if(e[2]===-3)toast('MYSTERY BOX','a free perk!');else if(e[2]===-1)toast('MYSTERY BOX','ammo refilled');}}
+  else if(k==='mbox'){if(e[1]===myId){mboxOpened=true;setTimeout(()=>sfx.buy(),200);if(e[2]===-2){toast('MYSTERY BOX','+$'+(e[3]|0).toLocaleString()+' CASH');sfx.buy();}else if(e[2]===-3)toast('MYSTERY BOX','a free perk!');else if(e[2]===-1)toast('MYSTERY BOX','ammo refilled');else if(e[2]===-4){toast('MYSTERY BOX - UPGRADE!',WPN[e[3]].name+' is now MK '+ROM[e[4]|0]);sfx.buy();}else if(e[2]===-5){toast('MYSTERY BOX - UPGRADE!',PERKS[e[3]].name);}}}
   else if(k==='mboxused'){if(e[1]===myId)mboxOpened=true;}
   else if(k==='down'){if(e[1]===myId)toast('YOU\'RE DOWN','');else{const r=remotes.get(e[1]);if(r)r.al=8;const nm=(r&&r.p&&r.p.n)||'A TEAMMATE';toast(nm+' IS DOWN!','run to the flashing red marker on your map and HOLD [E] to revive');sfx.no();setTimeout(()=>sfx.no(),180);flashEdge();}}
   else if(k==='revived'){if(e[1]===myId){toast('REVIVED','');unstick();}else{const r=remotes.get(e[1]);if(r)r.al=0;}}
@@ -4973,7 +4975,7 @@ function chargeSnd(){
   const a=actx();if(!a||!sfxOn)return;
   if(charge>0.02){
     if(!chgOsc){const o=a.createOscillator(),g=a.createGain();o.type='sawtooth';g.gain.value=0;o.connect(g);g.connect(sfxBus(a));o.start();chgOsc={o,g};}
-    chgOsc.o.frequency.setTargetAtTime(80+charge*300,a.currentTime,0.05);chgOsc.g.gain.setTargetAtTime(0.02+charge*0.05,a.currentTime,0.05);
+    chgOsc.o.frequency.setTargetAtTime(80+charge*300,a.currentTime,0.05);chgOsc.g.gain.setTargetAtTime(0.012+charge*0.03,a.currentTime,0.05);
   }else if(chgOsc){const c=chgOsc;chgOsc=null;c.g.gain.setTargetAtTime(0,a.currentTime,0.05);setTimeout(()=>{try{c.o.stop();}catch(e){}},300);}
 }
 function tryFire(dt){
@@ -5262,7 +5264,7 @@ function updateHUD(dt){
     else if(car!==null&&Math.hypot(carsM.get(car).x-me.x,carsM.get(car).z-me.z)<5.5)txt='[E] ENTER '+CARS[carsM.get(car).t].name;
     else if(ride){txt='[E] GET OFF<small>you step off at the bottom after one full turn</small>';}
     else if(nearWheel()&&!st){txt='[E] RIDE THE CRYSTAL WHEEL<small>a slow ride with a great view</small>';}
-    else if(nearMbox()&&!st){no=mboxOpened;txt=mboxOpened?'MYSTERY BOX EMPTY<small>you already opened this one - it moves next round</small>':'[E] OPEN MYSTERY BOX - FREE<small>a random weapon you do not own yet (base form)</small>';}
+    else if(nearMbox()&&!st){no=mboxOpened;txt=mboxOpened?'MYSTERY BOX EMPTY<small>one pull each time it appears - it moves every 3 rounds</small>':'[E] OPEN MYSTERY BOX - FREE<small>a random weapon, perk or cash - and a 10% chance of a free upgrade</small>';}
     else if(nearRoul()){txt='[E] PLAY ROULETTE<small>NEON PALACE CASINO - red, black or your lucky number</small>';}
     else if(nearSlot()){txt='[E] PLAY THE SLOTS<small>NEON PALACE CASINO - three in a row pays big</small>';}
     else if(nearBeer()&&!st){no=myP.m<40;txt='[E] GRAB THE COLD BEER $40<small>chug it - everything gets wobbly for 30 seconds</small>';}
@@ -5730,7 +5732,7 @@ function frame(now){
   let nm='',url='',rm='';
   try{nm=localStorage.getItem('ni_name')||'';url=localStorage.getItem('ni_url')||'';}catch(e){}
   $('name').value=nm;
-  const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&!/netlify|github\.io/.test(location.host);
+  const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&/onrender\.com$|^localhost$|^127\.|^192\.168\.|^10\./.test(location.hostname);   // the page is served by our own server; anywhere else (Cloudflare Pages, GitHub Pages...) uses the Render matchmaking server
   const def=window.NI_SIGNAL?window.NI_SIGNAL:onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:(location.protocol==='file:'?'ws://localhost:8080':'wss://neon-invasion-online.onrender.com');
   $('url').value=def;   // the address box is hidden now: always use the right server automatically
   const getName=()=>{if(acct)$('name').value=acct.name;const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
