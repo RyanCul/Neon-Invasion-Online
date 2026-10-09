@@ -557,3 +557,6 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 - **Render now only does matchmaking:** opening the old onrender.com address redirects to the Cloudflare site, so Render's bandwidth is only spent on room codes (the /sig WebSocket is not redirected). Set the environment variable GAME_SITE to an empty value on Render to turn this off.
 - **Gunship upgrades:** a garage row that appears right under the Gunship Helicopter once you own it: GUNSHIP GUNS MK II ($20,000) and MK III ($45,000). Each adds +25% damage per bullet (48 -> 60 -> 72). Per player, need the helicopter first, reset each game. Dev mode's MAX GUNS + PERKS also maxes them.
 - Garage: the Jetpack row now shows its price in red when you can't afford it, like the vehicles.
+- Dev mode: Play Solo gives 30 seconds before the first wave.
+- **Helicopter rooftop landing (fixed for real):** the helicopter's ground check used a point 1 m below the skids, so on a roof it counted as "inside" the building, got pushed off the edge and fell through. It now lands on whatever was under it the frame before and only taller walls push it sideways.
+- **Overmind laser:** every volley now hits everyone who is not inside a building (a roof over your head). Standing on a rooftop, in a vehicle or in the open street all count as outside.

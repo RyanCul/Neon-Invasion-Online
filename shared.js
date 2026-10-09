@@ -1512,14 +1512,14 @@ class Game{
       if(hit)this.hurt(p,dmg,a.x,a.z);
     }
   }
-  omLaser(a,alive){   // the Overmind's barrage: instant red beams all over the map. Anyone with a roof (or wall) between them and the Overmind is safe.
+  omLaser(a,alive){   // the Overmind's barrage: instant red beams all over the map. Everyone who is not inside a building gets hit.
     const bx=a.x,by=a.y+a.cy,bz=a.z,pts=[];
     for(let i=0;i<16;i++)pts.push(r2(BOUNDS.x0+this.rand()*(BOUNDS.x1-BOUNDS.x0)),0,r2(BOUNDS.z0+this.rand()*(BOUNDS.z1-BOUNDS.z0)));
     for(const p of alive){
       if(this.inCasino(p))continue;
-      const py=Math.max(p.y,1.5),d=Math.hypot(bx-p.x,by-py,bz-p.z)||1;
-      const clear=rayWorld(p.x,py,p.z,(bx-p.x)/d,(by-py)/d,(bz-p.z)/d,d)>=d-3;
-      if(clear){pts.push(r2(p.x),r2(Math.max(0,p.y-EYE)),r2(p.z));this.hurt(p,mhp(p)*0.9,bx,bz);}
+      const tp=this.targetPos(p),fy=p.car>=0?(tp.y||0):Math.max(0,p.y-EYE);
+      const covered=ceilAt(tp.x,tp.z,fy)<Infinity;   // only a roof over your head (inside a building) saves you - everyone else outside gets hit
+      if(!covered){pts.push(r2(p.x),r2(Math.max(0,p.y-EYE)),r2(p.z));this.hurt(p,mhp(p)*0.9,bx,bz);}
     }
     this.push('omlaser',r2(bx),r2(by),r2(bz),...pts);
   }

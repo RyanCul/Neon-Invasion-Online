@@ -3136,7 +3136,7 @@ function startSolo(name){
   solo=new NI.Game({all:m=>onServer(m)},{hard:!!SET.hard});
   solo.addPlayer(1,name);
   solo.setProfile(1,myLevel(),prof.skin,prof.car,prof.ch,prof.ex,prof.ach);
-  if(devOn){const me=solo.players.get(1);me.money=99999999;if(devStart>1)solo.round=devStart-1;}   // dev mode: max money, start on the chosen round
+  if(devOn){const me=solo.players.get(1);me.money=99999999;if(devStart>1)solo.round=devStart-1;solo.timer=30;}   // dev mode: 30 s to get set up before the first wave   // dev mode: max money, start on the chosen round
   begin();
 }
 
@@ -4920,10 +4920,11 @@ function updateHeli(dt,cd){
   cs.vx+=(tx-cs.vx)*k;cs.vz+=(tz-cs.vz)*k;
   const up=(keys.Space?1:0)-((keys.KeyC||keys.ShiftLeft)?1:0);
   cs.vy+=(up*17-cs.vy)*(1-Math.exp(-3*dt));
+  const py0=cs.y;
   cs.x+=cs.vx*dt;cs.z+=cs.vz*dt;cs.y+=cs.vy*dt;
-  NI.pushOut(cs,cd.rad,cs.y-1);
-  const gy=NI.groundAt(cs.x,cs.z,cs.y-1,cd.rad);
+  const gy=NI.groundAt(cs.x,cs.z,Math.max(py0,cs.y),cd.rad);   // land on whatever was below us last frame: the street or a rooftop
   if(cs.y<gy){cs.y=gy;if(cs.vy<0)cs.vy=0;}
+  NI.pushOut(cs,cd.rad,cs.y);   // only walls taller than the helicopter's skids push it sideways
   cs.y=clamp(cs.y,0,90);
   cs.x=clamp(cs.x,BOUNDS.x0,BOUNDS.x1);cs.z=clamp(cs.z,BOUNDS.z0,BOUNDS.z1);
   cs.sp=cs.vx*fx+cs.vz*fz;steerS=0;
