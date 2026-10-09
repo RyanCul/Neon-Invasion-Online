@@ -7,7 +7,7 @@ const NI=require('./shared.js');
 
 const PORT=process.env.PORT||8080;
 const MAX_PER_ROOM=8,MAX_ROOMS=60;
-const FILES={'/':'index.html','/index.html':'index.html','/game.html':'game.html','/shared.js':'shared.js','/song.mp3':'song.mp3'};
+const FILES={'/':'index.html','/index.html':'index.html','/game.html':'game.html','/shared.js':'shared.js','/song.mp3':'song.mp3','/three.min.js':'three.min.js'};
 const TYPES={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.mp3':'audio/mpeg'};
 
 const scoreHits=new Map();
@@ -37,6 +37,9 @@ const server=http.createServer((req,res)=>{
   if(url==='/leaderboard'){
     res.writeHead(200,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*','Cache-Control':'no-cache'});
     res.end(JSON.stringify(topLB(25)));return;
+  }
+  if(url==='/three.min.js'&&!fs.existsSync(path.join(__dirname,'three.min.js'))){   // a game.html copied from the offline build asks for a local three.js: send it to the CDN copy
+    res.writeHead(302,{Location:'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'});res.end();return;
   }
   let f=FILES[url];
   if(!f){const mm=/^\/(?:radio\/)?([a-z0-9]{1,3}\.mp3)$/.exec(url);   // songs can sit beside index.html or inside a radio/ folder
@@ -229,7 +232,56 @@ async function handleApi(req,res,url){
   });
 }
 
-const wss=new WebSocketServer({server,maxPayload:8192});
+const wss=new WebSocketServer({noServer:true,maxPayload:8192});
+
+/* ---------- peer-to-peer matchmaking ("signaling") ----------
+   The host's own computer runs the game. This tiny service only introduces a guest to the host with a room code:
+   it relays the WebRTC offer / answer / ICE messages and then gets out of the way (no game traffic goes through here). */
+const sigWss=new WebSocketServer({noServer:true,maxPayload:16384});
+const sigHosts=new Map();   // code -> {ws, guests:Map(gid->ws), nid}
+function sigCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ';for(let k=0;k<50;k++){let c='';for(let i=0;i<4;i++)c+=A[Math.floor(Math.random()*A.length)];if(!sigHosts.has(c))return c;}return null;}
+sigWss.on('connection',ws=>{
+  let role='',code='',gid=0,alive=true;
+  ws.on('pong',()=>{alive=true;});
+  const sj=(w,o)=>{try{if(w&&w.readyState===1)w.send(JSON.stringify(o));}catch(e){}};
+  ws.on('message',data=>{
+    let m;try{m=JSON.parse(data);}catch(e){return;}
+    if(!m||typeof m!=='object')return;
+    if(!role){
+      if(m.t==='host'){
+        if(sigHosts.size>=500){sj(ws,{t:'err',msg:'The matchmaking service is full. Try again in a minute.'});return;}
+        let c=String(m.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+        if(!c||sigHosts.has(c))c=sigCode();
+        if(!c){sj(ws,{t:'err',msg:'Could not make a room code. Try again.'});return;}
+        role='host';code=c;sigHosts.set(c,{ws,guests:new Map(),nid:1});sj(ws,{t:'hosting',code:c});
+      }else if(m.t==='guest'){
+        const c=String(m.code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6),h=sigHosts.get(c);
+        if(!h){sj(ws,{t:'err',msg:'No room with that code. Check it, or ask your friend to host again.'});return;}
+        if(h.guests.size>=16){sj(ws,{t:'err',msg:'That room is busy right now.'});return;}
+        role='guest';code=c;gid=h.nid++;h.guests.set(gid,ws);sj(ws,{t:'guestok',gid});sj(h.ws,{t:'guest',gid});
+      }
+      return;
+    }
+    const h=sigHosts.get(code);if(!h)return;
+    if(m.t==='sig'&&m.d!==undefined){
+      if(role==='host')sj(h.guests.get(m.to|0),{t:'sig',d:m.d});
+      else sj(h.ws,{t:'sig',from:gid,d:m.d});
+    }
+  });
+  ws.on('close',()=>{
+    const h=sigHosts.get(code);if(!h)return;
+    if(role==='host'){for(const g of h.guests.values())try{g.close();}catch(e){}sigHosts.delete(code);}
+    else if(role==='guest'){h.guests.delete(gid);sj(h.ws,{t:'gone',gid});}
+  });
+  ws.on('error',()=>{});
+  ws._ka=setInterval(()=>{if(!alive){try{ws.terminate();}catch(e){}return;}alive=false;try{ws.ping();}catch(e){}},25000);
+  ws.on('close',()=>clearInterval(ws._ka));
+});
+server.on('upgrade',(req,sock,head)=>{
+  const u=(req.url||'').split('?')[0];
+  if(u==='/sig')sigWss.handleUpgrade(req,sock,head,w=>sigWss.emit('connection',w,req));
+  else wss.handleUpgrade(req,sock,head,w=>wss.emit('connection',w,req));
+});
 const rooms=new Map();   // code -> {code, game, clients:Map(id->ws), nid}
 
 function makeCode(){
