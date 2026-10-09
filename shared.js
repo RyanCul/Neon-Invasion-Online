@@ -342,6 +342,7 @@ const AT=[
   {name:'DISCO MOONWALKER',hp:800,sp:5.6,r:1.5,cy:1.7,dmg:22,money:500,fly:false,moon:true},
   {name:'BACKUP DANCER',hp:70,sp:7.0,r:1.2,cy:1.3,dmg:12,money:60,fly:false}
 ];
+const KILL_PAY=1.55;AT.forEach(a=>{if(a)a.money=Math.round(a.money*KILL_PAY);});   // every alien pays 55% more than its base bounty: enough for a maxed gun and three maxed perks by round 49
 
 /* ---------------- world ---------------- */
 /* city districts: they change the colours and the feel of each part of town */
@@ -1216,7 +1217,13 @@ class Game{
   }
 
   /* ---- rounds ---- */
+  godzClear(a,q){   // Godzilla's attacks are stopped by buildings: is there open air between it and this spot? (checked low, where the blasts travel)
+    const dx=q.x-a.x,dz=q.z-a.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d,st=Math.min(8,d*0.5);
+    if(inBuilding(q.x,q.z,1.2))return false;
+    return rayWorld(a.x+ux*st,1.6,a.z+uz*st,ux,0,uz,d-st)>=d-st-0.8;
+  }
   wallClear(a,tp){   // true when no wall sits between this alien and the target
+    if(a.t===12)return this.godzClear(a,tp);
     if(AT[a.t].giant)return true;
     const ay=a.y+Math.min(a.cy,2)*0.8,by=tp.car?(tp.y||1):(tp.y||0)+EYE*0.5,dx=tp.x-a.x,dy=by-ay,dz=tp.z-a.z,d=Math.hypot(dx,dy,dz)||1;
     return rayWorld(a.x,ay,a.z,dx/d,dy/d,dz/d,d)>=d-0.6;
@@ -1463,7 +1470,7 @@ class Game{
     else if(a.t===12){
       a.tn=(a.tn|0)+1;
       if(a.tn%2===0&&L<90){tel=[{k:'c',x:a.x,z:a.z,r:50,st:1}];T=6;}                      // STOMP: a giant circle that fills slowly - run out of it
-      else{tel=[{k:'l',x:a.x,z:a.z,dx:dx/L,dz:dz/L,w:10,len:500}];T=2.0;}                  // BEAM: a long lane
+      else{const ux=dx/L,uz=dz/L,bl=6+rayWorld(a.x+ux*6,3,a.z+uz*6,ux,0,uz,494);tel=[{k:'l',x:a.x,z:a.z,dx:ux,dz:uz,w:10,len:Math.max(14,bl)}];T=2.0;}   // BEAM: a long lane that stops at the first building
     }
     else{for(const p of alive){const q=this.targetPos(p);tel.push({k:'c',x:q.x,z:q.z,r:10});for(let i=0;i<2;i++){const an=this.rand()*6.28,rr=8+this.rand()*14;tel.push({k:'c',x:q.x+Math.cos(an)*rr,z:q.z+Math.sin(an)*rr,r:10});}}tel=tel.slice(0,9);T=2.4;}   // METEORS
     a.tel=tel;a.telT=T;a.telD=T;this.push('telwarn',a.t,(a.t===12&&tel[0]&&tel[0].st)?1:0);
@@ -1478,8 +1485,8 @@ class Game{
       const q=this.targetPos(p);if(p.y-EYE>5)continue;
       let hit=false;
       for(const sh of a.tel){
-        if(sh.k==='c'){if(Math.hypot(q.x-sh.x,q.z-sh.z)<sh.r+1)hit=true;}
-        else{const rx=q.x-sh.x,rz=q.z-sh.z,al=rx*sh.dx+rz*sh.dz,pe=Math.abs(rx*sh.dz-rz*sh.dx);if(al>0&&al<sh.len&&pe<sh.w/2+1)hit=true;}
+        if(sh.k==='c'){if(Math.hypot(q.x-sh.x,q.z-sh.z)<sh.r+1&&(!stm||this.godzClear(a,q)))hit=true;}   // a building between you and Godzilla shields you from the stomp
+        else{const rx=q.x-sh.x,rz=q.z-sh.z,al=rx*sh.dx+rz*sh.dz,pe=Math.abs(rx*sh.dz-rz*sh.dx);if(al>0&&al<sh.len&&pe<sh.w/2+1&&(a.t!==12||this.godzClear(a,q)))hit=true;}
       }
       if(hit)this.hurt(p,dmg,a.x,a.z);
     }
@@ -1600,7 +1607,7 @@ class Game{
     dx/=l;dy/=l;dz/=l;
     dx+=(this.rand()-0.5)*spread;dz+=(this.rand()-0.5)*spread;dy+=(this.rand()-0.5)*spread*0.5;
     const l2=Math.hypot(dx,dy,dz);
-    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:a.t===12?10:5,sky:a.t===12?1:0,dmg,big:(a.t===18||a.t===26)?8:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:(a.t===27?9:(a.t===28?10:0))))))))});
+    this.orbs.push({id:this.nid++,x:ox,y:oy,z:oz,vx:dx/l2*speed,vy:dy/l2*speed,vz:dz/l2*speed,life:a.t===12?10:5,sky:0,dmg,big:(a.t===18||a.t===26)?8:(a.t===4||a.t===12||a.t===17)?1:(a.t===19?2:(a.t===20?3:(a.t===21?4:(a.t===22?5:(a.t===23?6:(a.t===25?7:(a.t===27?9:(a.t===28?10:0))))))))});
   }
 
   /* ---- main tick ---- */

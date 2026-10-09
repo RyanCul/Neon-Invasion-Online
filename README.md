@@ -540,3 +540,13 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 - **Helicopter:** can land on any rooftop and you can get out there. It also recharges its ammo when landed on a roof.
 - **Godzilla:** about 18% less health (64,000 base at round 20, was 78,000). New hitbox that matches the model: legs, torso and head are all hittable (before, the upper body and head could not be hit). Headshots only count on the head.
 - **Overmind rounds (50, 100, ...):** the Overmind starts alone (no escorts, Warlords, Godzillas or vehicles), there is never weather, and it summons 5 random aliens every 30 seconds (mini bosses sometimes).
+- **Godzilla vs buildings:** its beam stops at the first building (the warning lane is shortened to match), its stomp and close attacks can't hit you through a building, and its fireballs now hit walls and roofs instead of passing through.
+- **Splitscreen start:** the shared game clock now also runs every frame (it used to rely on a timer alone, which a busy computer could starve so the round never counted down), and a player screen that never finished loading is reloaded automatically. The setup footer says which screen it is still waiting for.
+
+## Hosting without running out of bandwidth
+- Render's free plan includes only 5 GB of bandwidth a month. Serving the game files and the radio songs from Render is what uses it up.
+- **Put the game files on Cloudflare Pages (free, bandwidth isn't capped):** Cloudflare dashboard > Workers & Pages > Create > Pages > Connect to Git > pick this repo. Framework preset: None, build command: empty, output directory: `/`. Players then use the `*.pages.dev` address.
+- **Keep Render only for matchmaking** (room codes). The game automatically connects to `wss://neon-invasion-online.onrender.com` when it is opened from anywhere other than Render, so no settings change is needed. Matchmaking uses very little bandwidth because game traffic goes directly between players.
+- `server.js` now lets browsers reuse files they already downloaded (ETag + 304 responses) and caches songs for a week, so anything still served from Render costs far less.
+- **Arc Gatling sound:** each shot is about 55% quieter and the spin-up hum is softer.
+- **Economy:** every alien's bounty is 55% higher (KILL_PAY in shared.js). Solo, killing everything, that is about $1.17M earned by round 49: enough for one MK X gun ($897,000) plus three perk lines maxed at tier IV ($86,300 each).
