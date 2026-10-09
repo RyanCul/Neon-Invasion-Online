@@ -3944,6 +3944,7 @@ function handleEvent(e){
     else if(t==='ammo')lootMsg('ammo','AMMO REFILLED','ALL WEAPONS');
     else lootMsg('med','HEALTH PACK','FULLY HEALED');}}
   else if(k==='ammoall'){if(e[1]===myId){for(let w=0;w<NW;w++)if(myP.wo[w]>=0)fillAmmo(w);}}
+  else if(k==='heliup'){if(e[1]===myId){sfx.buy();toast('GUNSHIP GUNS MK '+ROM[e[2]|0],Math.round(CARS[7].dmg*NI.heliMul(e[2]))+' DAMAGE PER BULLET');}}
   else if(k==='gotjet'){if(e[1]===myId){sfx.buy();toast('JETPACK','HOLD SPACE TO FLY');setTimeout(()=>{if(myP)jetFuel=NI.jetMax(myP.jl);},400);}}
   else if(k==='reset'){
     gameXP=0;lastK=0;joinRound=1;$('overXP').innerHTML='';$('overLB').innerHTML='';
@@ -4734,7 +4735,7 @@ let honkT=0;function honk(){const n=performance.now();if(n-honkT<380)return;honk
   for(const f of [392,396,494,499,784]){const o=a.createOscillator(),og=a.createGain();o.type=f>700?'square':'sawtooth';o.frequency.value=f;og.gain.value=f>700?0.12:0.5;o.connect(og);og.connect(g);o.start(t);o.stop(t+dur+0.02);}
   g.connect(lp);lp.connect(sfxBus(a));}
 function toggleTpv(){if(driving<0&&myP&&myP.st!=='dead'){tpv=!tpv;toast(tpv?'THIRD PERSON':'FIRST PERSON','press T (keyboard) or click the left stick',true);}}
-function garItems(){return NI.GARAGE_ITEMS.filter(it=>it.k!=='jetup').map(it=>it.k==='jet'&&myP&&myP.jo?{k:'jetup'}:it);}   // the jetpack row turns into the fuel-tank upgrade once you own the jetpack
+function garItems(){const out=[];for(const it0 of NI.GARAGE_ITEMS){if(it0.k==='jetup')continue;const it=it0.k==='jet'&&myP&&myP.jo?{k:'jetup'}:it0;out.push(it);if(it.k==='car'&&it.id===7&&myP&&((myP.oc>>7)&1))out.push({k:'heliup'});}return out;}   // the jetpack row turns into the fuel upgrade once owned; the gunship's gun upgrade appears right under it once you own the helicopter   // the jetpack row turns into the fuel-tank upgrade once you own the jetpack
 /* ---------- interaction ---------- */
 function nearStation(){
   let best=null,bd=5.4;
@@ -4799,7 +4800,8 @@ function interact(){
     else if(st.k==='forge'){const w=curW,lv=myP.wo[w];if(lv>=NI.MAXUP||myP.m<NI.UPCOST(w,lv)){sfx.no();return;}send({t:'buy',k:'upg',id:w});}
     else if(st.k==='garage'){if(garageClosed){garageClosed=false;return;}
       const it=garItems()[stSel%garItems().length];
-      if(it.k==='jetup'){const l=myP.jl|0;if(!myP.jo||l>=NI.JET_UP.length||myP.m<NI.JET_UP[l]){sfx.no();return;}send({t:'buy',k:'jetup'});}
+      if(it.k==='heliup'){const l=myP.hl|0;if(!((myP.oc>>7)&1)||l>=NI.HELI_UP.length||myP.m<NI.HELI_UP[l]){sfx.no();return;}send({t:'buy',k:'heliup'});}
+      else if(it.k==='jetup'){const l=myP.jl|0;if(!myP.jo||l>=NI.JET_UP.length||myP.m<NI.JET_UP[l]){sfx.no();return;}send({t:'buy',k:'jetup'});}
       else if(it.k==='jet'){if(myP.jo||myP.m<NI.JET_COST){sfx.no();return;}send({t:'buy',k:'jet'});}
       else{if(!((myP.oc>>it.id)&1)&&myP.m<CARS[it.id].cost){sfx.no();return;}send({t:'buy',k:'car',id:it.id});}}
   }
@@ -5315,13 +5317,17 @@ function updateHUD(dt){
         st_garage_open=true;
         const items=garItems(),n=items.length,gi=((stSel%n)+n)%n;let rows='';
         items.forEach((it,i)=>{
+          if(it.k==='heliup'){const l=myP.hl|0,mx=l>=NI.HELI_UP.length,bad=!((myP.oc>>7)&1)||mx||myP.m<NI.HELI_UP[l];
+            rows+='<div class="gl'+(i===gi?' sel':'')+(bad?' bad':'')+'"><span>GUNSHIP GUNS '+(mx?'MAX':'MK '+ROM[l+1])+'</span><span>'+(mx?'MAXED':'$'+NI.HELI_UP[l].toLocaleString())+'</span></div>';return;}
           if(it.k==='jetup'){const l=myP.jl|0,mx=l>=NI.JET_UP.length,bad=!myP.jo||mx||myP.m<NI.JET_UP[l];
             rows+='<div class="gl'+(i===gi?' sel':'')+(bad?' bad':'')+'"><span>JETPACK FUEL +2s</span><span>'+(mx?'MAXED':'$'+NI.JET_UP[l].toLocaleString())+'</span></div>';return;}
           const jet=it.k==='jet',nm=jet?'JETPACK':CARS[it.id].name,cost=jet?NI.JET_COST:CARS[it.id].cost,own=jet?myP.jo:((myP.oc>>it.id)&1);
-          rows+='<div class="gl'+(i===gi?' sel':'')+((jet?own:(!own&&myP.m<cost))?' bad':'')+'"><span>'+nm+'</span><span>'+(own?(jet?'OWNED':'OWNED - FREE'):'$'+cost.toLocaleString())+'</span></div>';
+          rows+='<div class="gl'+(i===gi?' sel':'')+((jet?(own||myP.m<cost):(!own&&myP.m<cost))?' bad':'')+'"><span>'+nm+'</span><span>'+(own?(jet?'OWNED':'OWNED - FREE'):'$'+cost.toLocaleString())+'</span></div>';
         });
-        const it=items[gi],jet=it.k==='jet';vp=it.k==='car'?{t:'car',k:'c'+it.id+'_'+(prof.car|0),id:it.id,n:CARS[it.id].name}:{t:'txt',k:'j'+it.k,x:jet?'JETPACK':'+FUEL',n:jet?'JETPACK':'FUEL TANK'};
-        if(it.k==='jetup'){const l=myP.jl|0,mx=l>=NI.JET_UP.length;no=!myP.jo||mx||myP.m<NI.JET_UP[l];
+        const it=items[gi],jet=it.k==='jet';if(it.k==='heliup')vp={t:'car',k:'c7_'+(prof.car|0),id:7,n:'GUNSHIP GUNS'};else vp=it.k==='car'?{t:'car',k:'c'+it.id+'_'+(prof.car|0),id:it.id,n:CARS[it.id].name}:{t:'txt',k:'j'+it.k,x:jet?'JETPACK':'+FUEL',n:jet?'JETPACK':'FUEL TANK'};
+        if(it.k==='heliup'){const l=myP.hl|0,mx=l>=NI.HELI_UP.length,own=(myP.oc>>7)&1;no=!own||mx||myP.m<NI.HELI_UP[l];
+          txt='GARAGE<div class="glist">'+rows+'</div><span class="act">'+(!own?'BUY THE GUNSHIP HELICOPTER FIRST':mx?'GUNSHIP GUNS MAXED':'[E] UPGRADE GUNSHIP GUNS $'+NI.HELI_UP[l].toLocaleString())+'</span><small>damage per bullet: '+Math.round(CARS[7].dmg*NI.heliMul(l))+(mx?'':' -> '+Math.round(CARS[7].dmg*NI.heliMul(l+1)))+'  -  UP/DOWN choose  -  B close</small>';}
+        else if(it.k==='jetup'){const l=myP.jl|0,mx=l>=NI.JET_UP.length;no=!myP.jo||mx||myP.m<NI.JET_UP[l];
           txt='GARAGE<div class="glist">'+rows+'</div><span class="act">'+(!myP.jo?'BUY THE JETPACK FIRST':mx?'JETPACK FUEL MAXED':'[E] UPGRADE FUEL TANK $'+NI.JET_UP[l].toLocaleString())+'</span><small>fuel: '+NI.jetMax(l)+'s'+(mx?'':' -> '+NI.jetMax(l+1)+'s')+'  -  UP/DOWN choose  -  B close</small>';}
         else if(jet){no=myP.jo||myP.m<NI.JET_COST;
           txt='GARAGE<div class="glist">'+rows+'</div><span class="act">'+(myP.jo?'JETPACK OWNED':'[E] BUY JETPACK $'+NI.JET_COST)+'</span><small>hold SPACE to fly, C to hover - 4 seconds of fuel to start, upgradeable - R refuels on the ground  -  UP/DOWN choose  -  B close</small>';}
@@ -5892,7 +5898,7 @@ function devPanel(){
     if(k==='dex'){prof.dex=DEXO.slice();saveProf();msg('Whole Dex unlocked.');return;}
     if(!g||!me){msg('Start a solo game (or host a room) first.');return;}
     if(k==='money'){me.money=99999999;msg('Money set to $99,999,999');}
-    else if(k==='guns'){for(let w=0;w<NI.WPN.length;w++){if(me.wo[w]<0)g.push('gave',me.id,w);me.wo[w]=NI.MAXUP;}me.perks=me.perks.map(()=>true);me.hp=NI.mhp(me);g.push('ammoall',me.id);msg('Every gun MK X, every perk owned.');}
+    else if(k==='guns'){for(let w=0;w<NI.WPN.length;w++){if(me.wo[w]<0)g.push('gave',me.id,w);me.wo[w]=NI.MAXUP;}me.perks=me.perks.map(()=>true);me.hl=NI.HELI_UP.length;me.jl=NI.JET_UP.length;me.hp=NI.mhp(me);g.push('ammoall',me.id);msg('Every gun MK X, every perk owned.');}
     else if(k==='god'){devGod=!devGod;b.textContent='GOD MODE: '+(devGod?'ON':'OFF');
       if(!g._devHurt){g._devHurt=g.hurt;g.hurt=function(q,...r){if(devGod&&q&&q.id===myId)return;return g._devHurt.call(this,q,...r);};}
       msg(devGod?'You cannot take damage.':'Damage back on.');}

@@ -277,6 +277,7 @@ const UPCOST=(w,lv)=>UP_COST[lv];
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
 const AMMO_ALL=p=>200+100*p.wo.filter((v,i)=>v>=0&&!WPN[i].melee).length;
 const MBOX_COST=0,JET_COST=2500,JET_UP=[1500,3000,5000],jetMax=l=>4+2*(l|0);
+const HELI_UP=[20000,45000],heliMul=l=>1+0.25*(l|0);   // two gunship upgrades: each one +25% damage (48 -> 60 -> 72 per bullet)
 const AMMO_COST=w=>Math.max(250,Math.round(WPN[w].cost/2/50)*50);
 
 const CARS=[
@@ -835,7 +836,7 @@ class Game{
     const p={id,name:String(name||'PLAYER').replace(/[^\w \-]/g,'').slice(0,12).toUpperCase()||'PLAYER',
       color:PLAYER_COLORS[(id-1)%PLAYER_COLORS.length],
       x:0,y:EYE,z:0,yaw:0,pitch:0,hp:100,st:'alive',money:500+Math.max(0,this.round-1)*250,kills:0,
-      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,ch:[0,0,0,0,0,0,0,0,0],jet:false,jl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
+      joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,ch:[0,0,0,0,0,0,0,0,0],jet:false,jl:0,hl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
     this.spawnPos(p);
     this.players.set(id,p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
@@ -988,7 +989,7 @@ class Game{
       if(c.am===undefined)c.am=cd.ammo;
       if(c.am<=0){if(this.time-(p.noAm||-9)>1){p.noAm=this.time;this.push('noammo',p.id);}return;}
       if(this.time<p.fireT)return;p.fireT=this.time+0.8/cd.rate;c.am--;
-      def=cd.blast?{pellets:1,spread:0.0,pierce:1,range:260,br:cd.blast}:{pellets:1,spread:0.012,pierce:2,range:320};dmg=cd.dmg;col=cd.color;
+      def=cd.blast?{pellets:1,spread:0.0,pierce:1,range:260,br:cd.blast}:{pellets:1,spread:0.012,pierce:2,range:320};dmg=cd.dmg*(cd.kind==='heli'?heliMul(p.hl):1);col=cd.color;
     }else{
       if(p.car>=0)return;
       const w=m.w|0;if(!WPN[w]||p.wo[w]<0)return;
@@ -1135,6 +1136,9 @@ class Game{
     }else if(m.k==='jetup'){
       if(!near('garage')||!p.jet||(p.jl|0)>=JET_UP.length||p.money<JET_UP[p.jl|0])return;
       p.money-=JET_UP[p.jl|0];p.jl=(p.jl|0)+1;this.push('gotjet',p.id);
+    }else if(m.k==='heliup'){
+      if(!near('garage')||!((p.oc>>7)&1)||(p.hl|0)>=HELI_UP.length||p.money<HELI_UP[p.hl|0])return;
+      p.money-=HELI_UP[p.hl|0];p.hl=(p.hl|0)+1;this.push('heliup',p.id,p.hl);
     }else if(m.k==='car'){
       const g=near('garage');if(!g)return;
       const t=m.id|0;if(!CARS[t])return;
@@ -1335,7 +1339,7 @@ class Game{
     this.sides=null;
     this.aliens.length=0;this.orbs.length=0;this.cars.length=0;this.queue.length=0;this.clouds.length=0;this.crabs.length=0;this.crabT=0;
     for(const p of this.players.values()){
-      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.oc=0;p.vcd={};p.vlent={};p.dd=0;p.rvd=0;p.dn=0;p.dt=0;p.bk=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
+      p.wo=newWo();p.perks=PERKS.map(()=>false);p.joinRound=1;p.w=0;p.jet=false;p.jl=0;p.hl=0;p.oc=0;p.vcd={};p.vlent={};p.dd=0;p.rvd=0;p.dn=0;p.dt=0;p.bk=0;p.money=500;p.kills=0;p.hp=100;p.st='alive';p.car=-1;this.spawnPos(p);
     }
     this.loot.fill(true);this.tapeTaken={};this.tapes=0;this.weather=0;this.bolts.length=0;this.fires.length=0;this.mbox=Object.assign({},WORLD.mbox0);this.mboxUsed={};this.round=0;this.state=this.online?'wait':'rest';this.timer=6;this.vsWin=null;this.vsKeep=false;this.vsWinner=0;this.vsN=0;this.push('reset');
   }
@@ -2197,7 +2201,7 @@ class Game{
       t:'snap',tm:r2(this.time),
       rd:{mx:r2(this.mbox.x),mz:r2(this.mbox.z),mn:this.mbox.name,wa:r2(this.wheelAng()),hd:this.hard?1:0,vs:this.vs?1:0,vw:this.vsWinner|0,vp:(this.vsWin&&this.vsWin.pend)?1:0,sd:(this.sides&&(this.state==='rest'||this.state==='fight'))?this.sides.map(r2):0,w:this.weather|0,tp:this.tapes|0,h:Math.min(...this.players.keys()),n:this.round,s:this.state,tm:Math.max(0,Math.round(this.timer*10)/10),left:this.queue.length+this.aliens.length,best:this.best},
       p:[...this.players.values()].map(p=>({id:p.id,n:p.name,c:p.color,x:r2(p.x),y:r2(p.y),z:r2(p.z),yw:r2(p.yaw),pt:r2(p.pitch),
-        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>i<32?(m|(v?1<<i:0)):m,0),pk2:p.perks.reduce((m,v,i)=>i>=32?(m|(v?1<<(i-32):0)):m,0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
+        hp:Math.round(p.hp),mh:mhp(p),pk:p.perks.reduce((m,v,i)=>i<32?(m|(v?1<<i:0)):m,0),pk2:p.perks.reduce((m,v,i)=>i>=32?(m|(v?1<<(i-32):0)):m,0),st:p.st,m:p.money,k:p.kills,lv:p.lv,sk:p.sk,ch:p.ch,ex:p.ex,wo:p.wo,w:p.w,jo:p.jet?1:0,jl:p.jl|0,hl:p.hl|0,oc:p.oc|0,j:p.jfl,car:p.car,rp:r2(p.rvProg),bl:r2(p.bleed),dd:Math.round(p.dd||0),rv:p.rvd|0,dn:p.dn|0,bk:p.bk|0})),
       a:this.aliens.map(a=>[a.id,a.t,r2(a.x),r2(a.y),r2(a.z),r2(a.yaw),Math.max(0,Math.round(a.hp/a.mhp*100)),Math.round(a.vx*10)/10,a.dorm?1:0,a.burn>0?1:0,a.hide?1:0,a.mut|0,a.tel?{T:r2(a.telT),D:a.telD,s:a.tel.map(q=>q.k==='c'?[0,r2(q.x),r2(q.z),q.r]:[1,r2(q.x),r2(q.z),r2(q.dx),r2(q.dz),q.w,q.len])}:0,a.veh>=0?a.veh+1:0,a.ms|0,a.snk|0,a.t===17?r2(Math.max(0,a.lzT===undefined?OM_LASER:a.lzT)):0]),
       o:this.orbs.map(o=>[o.id,r2(o.x),r2(o.y),r2(o.z),o.big]),
       cr:this.crabs.map(c=>[c.id,r2(c.x),r2(c.z),r2(c.yaw)]),
@@ -2209,7 +2213,7 @@ class Game{
   }
 }
 
-const API={heliAGL,godzSpheres,PERKS,PERK_LINES,PERK_COST,perkFx,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
+const API={HELI_UP,heliMul,heliAGL,godzSpheres,PERKS,PERK_LINES,PERK_COST,perkFx,mhp,PADS,MAXLV,xpNeed,SKINS,CSKINS,GARAGE_ITEMS,MAXUP,UPCOST,AMMO_ALL,newWo,EYE,clamp,mulberry32,N,P,HALF,BOUNDS,PLAYER_COLORS,CH_SUITS,CH_HATS,CH_SHADES,CH_SHIRTS,CH_JACKETS,CH_CHAINS,CH_SHOES,CH_FACES,CH_BACKS,CH_LISTS,WPN,DMG_MULT,MAG_MULT,UP_COST,AMMO_COST,CARS,AT,
   genWorld,DISTRICTS,distAt,SEED,WORLD,B,LOOT,HOUSES,JET_COST,MBOX_COST,JET_UP,jetMax,topOf,groundAt,ceilAt,STATIONS:SHOP,GARAGE_SPAWNS,pushOut,inBuilding,rayWorld,raySphere,spreadDirs,BLOCK,cellOf,buildFlow,flowStep,TITLES,BADGES,NAME_COLS,FRAMES,CAMOS,KFX,ACH,EXLISTS,EX_NAMES,itemOpen,achProgress,achRewards,Game};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.NI=API;
 })(typeof self!=='undefined'?self:this);
