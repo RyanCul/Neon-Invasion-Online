@@ -257,21 +257,21 @@ const MAXUP=9;                            // every weapon has 9 upgrades (MK II 
 const DMG_MULT=[1,1.5,2.1,2.8,3.7,4.8,6.2,8.0,10.2,13.0];
 const MAG_MULT=[1,1.2,1.4,1.65,1.9,2.3,2.6,2.9,3.2,3.5];
 const UP_COST=[2500,6000,12000,22000,48000,110000,175000,230000,290000];   // cost to reach upgrade 1..9 - the same for every weapon
-// Character buffs: 8 lines x 4 tiers. Every tier I costs the same, and the price steps are shared by every line.
-const PERK_COST=[1800,4500,20000,60000,250000];   // tier V only exists for NEON TANK: a very late-game buy
+// Character buffs: 8 lines x 5 tiers (NEON TANK has 6). Every tier I costs the same, and the price steps are shared by every line.
+const PERK_COST=[1800,4500,20000,60000,250000,400000];   // tier V is the late-game buy for every line; tier VI only exists for NEON TANK
 const PERK_LINES=[   // ids per tier (ids 0-13 kept from the old layout so saved bitmasks stay valid)
-  {k:'tank',  name:'NEON TANK',    ids:[0,8,9,10,32],   fx:[25,60,110,175,260],        d:v=>'+'+v+' max health (total)'},
-  {k:'quick', name:'QUICK REVIVE', ids:[1,14,15,16], fx:[1.3,1.6,2,2.5],        d:v=>'revive teammates '+v+'x as fast'},
-  {k:'hands', name:'FAST HANDS',   ids:[2,17,18,19], fx:[0.15,0.25,0.35,0.45],  d:v=>'reload '+Math.round(v*100)+'% faster'},
-  {k:'sprint',name:'SPRINTER',     ids:[3,11,12,13], fx:[0.08,0.16,0.25,0.35],  d:v=>'run '+Math.round(v*100)+'% faster (total)'},
-  {k:'eye',   name:'DEAD EYE',     ids:[4,20,21,22], fx:[0.15,0.3,0.5,0.75],    d:v=>'headshots / weak spots do '+Math.round(v*100)+'% more (total)'},
-  {k:'cash',  name:'CASH MAGNET',  ids:[5,23,24,25], fx:[0.1,0.2,0.3,0.4],      d:v=>'+'+Math.round(v*100)+'% cash from kills (total)'},
-  {k:'armor', name:'KEVLAR',       ids:[6,26,27,28], fx:[0.08,0.15,0.22,0.3],   d:v=>'take '+Math.round(v*100)+'% less damage (total)'},
-  {k:'tap',   name:'DOUBLE TAP',   ids:[7,29,30,31], fx:[0.08,0.15,0.22,0.3],   d:v=>'+'+Math.round(v*100)+'% weapon damage (total)'}];
-const RN=['','II','III','IV','V'];
+  {k:'tank',  name:'NEON TANK',    ids:[0,8,9,10,32,33],   fx:[25,60,110,175,260,360],        d:v=>'+'+v+' max health (total)'},
+  {k:'quick', name:'QUICK REVIVE', ids:[1,14,15,16,34], fx:[1.3,1.6,2,2.5,3],        d:v=>'revive teammates '+v+'x as fast'},
+  {k:'hands', name:'FAST HANDS',   ids:[2,17,18,19,35], fx:[0.15,0.25,0.35,0.45,0.55],  d:v=>'reload '+Math.round(v*100)+'% faster'},
+  {k:'sprint',name:'SPRINTER',     ids:[3,11,12,13,36], fx:[0.08,0.16,0.25,0.35,0.45],  d:v=>'run '+Math.round(v*100)+'% faster (total)'},
+  {k:'eye',   name:'DEAD EYE',     ids:[4,20,21,22,37], fx:[0.15,0.3,0.5,0.75,1],    d:v=>'headshots / weak spots do '+Math.round(v*100)+'% more (total)'},
+  {k:'cash',  name:'CASH MAGNET',  ids:[5,23,24,25,38], fx:[0.1,0.2,0.3,0.4,0.5],      d:v=>'+'+Math.round(v*100)+'% cash from kills (total)'},
+  {k:'armor', name:'KEVLAR',       ids:[6,26,27,28,39], fx:[0.08,0.15,0.22,0.3,0.38],   d:v=>'take '+Math.round(v*100)+'% less damage (total)'},
+  {k:'tap',   name:'DOUBLE TAP',   ids:[7,29,30,31,40], fx:[0.08,0.15,0.22,0.3,0.4],   d:v=>'+'+Math.round(v*100)+'% weapon damage (total)'}];
+const RN=['','II','III','IV','V','VI'];
 const PERKS=[];for(const L of PERK_LINES)L.ids.forEach((id,t)=>{PERKS[id]={id,name:L.name+(t?' '+RN[t]:''),cost:PERK_COST[t],desc:L.d(L.fx[t]),req:t?L.ids[t-1]:undefined,line:L.k,tier:t};});
 const perkFx=(p,k)=>{const L=PERK_LINES.find(l=>l.k===k);if(!L||!p||!p.perks)return 0;let v=0;L.ids.forEach((id,t)=>{if(p.perks[id])v=L.fx[t];});return v;};
-const HP_TIERS=[0,8,9,10,32];
+const HP_TIERS=[0,8,9,10,32,33];
 const mhp=p=>100+perkFx(p,'tank');
 const UPCOST=(w,lv)=>UP_COST[lv];
 const newWo=()=>WPN.map((_,i)=>i===0?0:-1);
@@ -342,7 +342,8 @@ const AT=[
   {name:'DISCO MOONWALKER',hp:800,sp:5.6,r:1.5,cy:1.7,dmg:22,money:500,fly:false,moon:true},
   {name:'BACKUP DANCER',hp:70,sp:7.0,r:1.2,cy:1.3,dmg:12,money:60,fly:false}
 ];
-const KILL_PAY=1.55;AT.forEach(a=>{if(a)a.money=Math.round(a.money*KILL_PAY);});   // every alien pays 55% more than its base bounty: enough for a maxed gun and three maxed perks by round 49
+const godzPay=r=>Math.max(100000,100000+(r-20)*10000);   // Godzilla's bounty grows with the round: $100,000 at round 20, $300,000 each at round 40, $500,000 at round 60...
+const KILL_PAY=1.55;AT.forEach(a=>{if(a)a.money=Math.round(a.money*KILL_PAY);});AT[12].money=100000;   // (Dex shows Godzilla's round-20 bounty)   // every alien pays 55% more than its base bounty: enough for a maxed gun and three maxed perks by round 49
 
 /* ---------------- world ---------------- */
 /* city districts: they change the colours and the feel of each part of town */
@@ -1195,11 +1196,18 @@ class Game{
   killAlien(a,p,crit){
     const def=AT[a.t];
     this.push('kc',p.id,p.car>=0?-1:(p.w|0),crit?1:0,def.boss?1:0,a.t,a.veh>=0?a.veh:-1);   // credit for the killer's own lifetime stats / achievements
+    const bossy=def.boss||def.pirate||def.carni||def.ball||def.perch,all=[...this.players.values()];
+    if(bossy){   // bosses (and the Pirate, Carnival Boss, Slugger and Cleopatra) pay their FULL bounty to every player in the game, not just the one who landed the last hit
+      const base=a.t===12?godzPay(this.round):def.money;
+      for(const q of this.players.values())q.money+=Math.round(base*(1+perkFx(q,'cash'))*(this.hard?1.25:1)*(this.weather===6?1.5:1));
+      p.kills++;
+    }else{
     const mk=(def.money+(a.far?Math.round(def.money*0.5):0))*(a.mut?3:1)*(1+perkFx(p,'cash'))*(this.hard?1.25:1)*(this.weather===6?1.5:1)/(1+0.22*(this.players.size-1));   // bigger crews fight more aliens, so each kill pays less
     p.money+=Math.round(mk);p.kills++;
-    for(const q of this.players.values()){   // teammates close to the kill get 25% of the cash
+    for(const q of this.players.values()){   // teammates close to the kill get 10% of the cash
       if(q===p||q.st!=='alive')continue;
       if(Math.hypot(q.x-a.x,q.z-a.z)<60)q.money+=Math.round(mk*0.1);
+    }
     }
     if(a.veh>=0){this.push('boom',r2(a.x),2,r2(a.z),99,0);p.money+=Math.round(CARS[a.veh].cost*0.04);}   // the wrecked ride pays a little
     if(a.mut===1){   // volatile mutant: blows up when it dies
@@ -1208,10 +1216,10 @@ class Game{
     }
     if(def.boss){p.bk=(p.bk|0)+1;this.bossDrop(a,p);}
     if(def.pizza){for(const q of this.players.values()){if(q.st==='alive'&&Math.hypot(q.x-a.x,q.z-a.z)<45)q.hp=Math.min(mhp(q),q.hp+(q===p?mhp(q)*0.4:25));}this.push('pizza',r2(a.x),r2(a.y+1),r2(a.z));}
-    if(def.pirate){p.money+=2400;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('piratedead',p.id);}
-    if(def.ball){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('balldead',p.id);}
-    if(def.carni){p.money+=2000;for(const q of this.players.values())if(q.st==='alive')q.hp=mhp(q);this.push('carnidead',p.id);}
-    if(def.perch&&!def.pirate&&!def.carni){p.money+=2000;this.push('cleodead',p.id);}
+    if(def.pirate){all.forEach(q=>q.money+=2400);for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('piratedead',p.id);}
+    if(def.ball){all.forEach(q=>q.money+=2000);for(const q of this.players.values())if(q.st==='alive')this.push('ammoall',q.id);this.push('balldead',p.id);}
+    if(def.carni){all.forEach(q=>q.money+=2000);for(const q of this.players.values())if(q.st==='alive')q.hp=mhp(q);this.push('carnidead',p.id);}
+    if(def.perch&&!def.pirate&&!def.carni){all.forEach(q=>q.money+=2000);this.push('cleodead',p.id);}
     if(def.movie){p.money+=800;this.push('ammoall',p.id);this.push('ticket',p.id);}
     this.push('boom',r2(a.x),r2(a.y+a.cy),r2(a.z),a.t,a.id,p.id);
   }
