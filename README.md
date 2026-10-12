@@ -560,3 +560,9 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 - Dev mode: Play Solo gives 30 seconds before the first wave.
 - **Helicopter rooftop landing (fixed for real):** the helicopter's ground check used a point 1 m below the skids, so on a roof it counted as "inside" the building, got pushed off the edge and fell through. It now lands on whatever was under it the frame before and only taller walls push it sideways.
 - **Overmind laser:** every volley now hits everyone who is not inside a building (a roof over your head). Standing on a rooftop, in a vehicle or in the open street all count as outside.
+- NEON FM: new track **Retro Rewind** (file `18.mp3`) plays 5th. Upload `18.mp3` next to the other songs.
+
+## Relay (TURN) for players on strict networks
+Some players' networks (certain ISPs, mobile hotspots, school/work Wi-Fi) block direct peer-to-peer connections, so joining fails with "Could not connect to the host". The game now asks the matchmaking server for relay servers (`/turn` on Render) and uses them automatically when a direct link fails.
+Setup (once): in the Cloudflare dashboard open Realtime > TURN Server and create a TURN key. Copy its **Key ID** and **API token**, then in Render > your service > Environment add `TURN_KEY_ID` and `TURN_KEY_TOKEN` and save (Render redeploys). Cloudflare's first 1,000 GB of relay traffic per month are free. Without these variables the game works exactly as before (direct connections only).
+Also: matchmaking messages are now handled strictly in order, which fixes a rare failed join when network candidates arrived before the connection offer.

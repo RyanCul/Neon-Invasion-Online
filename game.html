@@ -2956,9 +2956,9 @@ function proxAudio(dt){
   if(close>=2){heartT-=dt;if(heartT<=0){heartT=Math.max(0.45,0.9-close*0.08);const v=Math.min(0.2,0.07+close*0.02);pvoice(75,40,0.18,'sine',v,0);setTimeout(()=>pvoice(65,38,0.16,'sine',v*0.8,0),160);}}
 }
 /* ---- NEON FM: the title screen loops track 1 (the original song); once a game starts the radio plays through the whole playlist ---- */
-const TRACKS=[['07','Palm Tree Pursuit'],['02','Chrome Horizon'],['03','Midnight Boulevard'],['04','Neon Drive'],['05','Arcade Nights'],['06','Pink Static'],['08','Laser Summit'],['09','Turbo Sunset'],['10','Vice Avenue'],['11','Grid Runner'],['12','Arp City'],['13','Night Cruiser'],['14','Tranquil Tides'],['15','Mall Hours'],['16','Infinity Drift'],['17','Fluid Motion'],['n1','Rooftop Rain'],['n2','Moonlit Static'],['n3','Funky Midnight Club'],['n4','Glow Lamp'],['n5','Last Train Home'],['n6','Window Seat'],['b1','Bossa Summer','Rediskasound'],['b2','Cafe Bossa','Tatamusic'],['b3','Cocktail Lounge','Alex Morgan'],['b4','Midnight Club Bossa','Alex Morgan'],['b5','Seaside Restaurant','Alex Morgan'],['b6','Bossa Nova','Aurec']];
-/* three channels: NEON FM (tracks 0-16), NIGHT CHANNEL (17-22, unlocked when you reach the first night, round 6) and BEACH CHANNEL (23-28, unlocked the first time you step onto the beach). An unlocked channel stays unlocked for the rest of the game. */
-const chanOf=i=>TRACKS[i][0][0]==='b'?2:TRACKS[i][0][0]==='n'?1:0;   // file names: 02..17 = NEON FM, n1..n6 = NIGHT, b1..b6 = BEACH
+const TRACKS=[['07','Palm Tree Pursuit'],['02','Chrome Horizon'],['03','Midnight Boulevard'],['04','Neon Drive'],['18','Retro Rewind'],['05','Arcade Nights'],['06','Pink Static'],['08','Laser Summit'],['09','Turbo Sunset'],['10','Vice Avenue'],['11','Grid Runner'],['12','Arp City'],['13','Night Cruiser'],['14','Tranquil Tides'],['15','Mall Hours'],['16','Infinity Drift'],['17','Fluid Motion'],['n1','Rooftop Rain'],['n2','Moonlit Static'],['n3','Funky Midnight Club'],['n4','Glow Lamp'],['n5','Last Train Home'],['n6','Window Seat'],['b1','Bossa Summer','Rediskasound'],['b2','Cafe Bossa','Tatamusic'],['b3','Cocktail Lounge','Alex Morgan'],['b4','Midnight Club Bossa','Alex Morgan'],['b5','Seaside Restaurant','Alex Morgan'],['b6','Bossa Nova','Aurec']];
+/* three channels: NEON FM (tracks 0-17), NIGHT CHANNEL (18-23, unlocked when you reach the first night, round 6) and BEACH CHANNEL (24-29, unlocked the first time you step onto the beach). An unlocked channel stays unlocked for the rest of the game. */
+const chanOf=i=>TRACKS[i][0][0]==='b'?2:TRACKS[i][0][0]==='n'?1:0;   // file names: 02..18 = NEON FM, n1..n6 = NIGHT, b1..b6 = BEACH
 const CHANS=[{name:'NEON FM 98.6',short:'NEON FM',col:'#fff3b0',glow:'#25f4ff'},{name:'NIGHT CHANNEL',short:'NIGHT',col:'#b79bff',glow:'#7a4cff'},{name:'BEACH CHANNEL',short:'BEACH',col:'#ffb07a',glow:'#ff5a8a'}];
 CHANS.forEach((c,k)=>{c.a=TRACKS.findIndex((t,i)=>chanOf(i)===k);c.b=c.a+TRACKS.filter((t,i)=>chanOf(i)===k).length;});
 let chanOpen=[true,false,false];
@@ -3142,7 +3142,17 @@ function startSolo(name){
 
 /* ---------- host-run multiplayer: the host's computer runs the game, friends connect straight to it (WebRTC) ----------
    A tiny matchmaking service (/sig on the game server) only introduces guests to the host by room code; no game traffic goes through it. */
-const ICE_CFG={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const ICE_CFG={iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};
+let iceP=null;
+function iceCfg(url){   // add relay (TURN) servers from our matchmaking server, so players on strict networks can still connect; falls back to direct-only
+  if(iceP)return iceP;
+  const base=String(url||'').trim().replace(/\/+$/,'').replace(/^ws:/,'http:').replace(/^wss:/,'https:');
+  iceP=new Promise(res=>{
+    const done=v=>res(v);const t=setTimeout(()=>done(ICE_CFG),5000);
+    fetch(base+'/turn',{cache:'no-store'}).then(r=>r.json()).then(j=>{clearTimeout(t);const extra=Array.isArray(j.iceServers)?j.iceServers:[];done(extra.length?{iceServers:ICE_CFG.iceServers.concat(extra)}:ICE_CFG);}).catch(()=>{clearTimeout(t);done(ICE_CFG);});
+  });
+  return iceP;
+}
 const P2P_BAD=['FUCK','SHIT','BITCH','CUNT','NIGGER','NIGGA','FAGGOT','RAPE','NAZI','HITLER','WHORE','SLUT'];
 function p2pName(n,pid){
   n=String(n||'').replace(/[^\w \-]/g,'').trim().slice(0,12).toUpperCase();
@@ -3183,17 +3193,19 @@ class HostRoom{   // the same room logic the dedicated server used to run, now l
 let hostRoom=null;
 function p2pHost(url,onHosting,onErr){   // open a room: register with matchmaking, then answer every guest that shows up
   let sig;try{sig=new WebSocket(sigUrl(url));}catch(e){onErr('Bad server address.');return null;}
-  const peers=new Map();let opened=false,hosted=false;
+  const peers=new Map();let opened=false,hosted=false;iceCfg(url);
   sig.onopen=()=>{opened=true;sig.send(JSON.stringify({t:'host'}));};
   sig.onerror=()=>{if(!opened)onErr('Could not reach the matchmaking server. Check your internet connection and try again.');};
   sig.onclose=()=>{if(!hosted&&opened)onErr('Matchmaking connection closed.');};
-  sig.onmessage=async ev=>{
+  let sigChain=Promise.resolve();
+  sig.onmessage=ev=>{sigChain=sigChain.then(()=>sigHandle(ev)).catch(()=>{});};   // handle matchmaking messages strictly in order (the offer must be applied before its network candidates)
+  const sigHandle=async ev=>{
     let m;try{m=JSON.parse(ev.data);}catch(e){return;}
     if(m.t==='err'){onErr(m.msg);return;}
     if(m.t==='hosting'){hosted=true;hostRoom=new HostRoom(m.code);onHosting(m.code,hostRoom);return;}
     if(!hostRoom)return;
     if(m.t==='guest'){
-      const gid=m.gid,pc=new RTCPeerConnection(ICE_CFG),dc=pc.createDataChannel('g');let h=null;
+      const gid=m.gid,pc=new RTCPeerConnection(await iceCfg(url)),dc=pc.createDataChannel('g');let h=null;
       peers.set(gid,pc);setTimeout(()=>{if(!h&&peers.get(gid)===pc){try{pc.close();}catch(e){}peers.delete(gid);}},30000);   // a guest that never finishes connecting is dropped
       const conn={readyState:1,send:s=>{if(dc.readyState==='open'&&dc.bufferedAmount<1.5e6)dc.send(s);},close:()=>{try{dc.close();}catch(e){}try{pc.close();}catch(e){}}};
       dc.onopen=()=>{h=hostRoom.attach(conn);};
@@ -3215,15 +3227,18 @@ function p2pGuestSocket(url,code){   // a WebSocket-shaped object that talks to 
     close(){closed=true;try{if(dc)dc.close();}catch(e){}try{pc.close();}catch(e){}try{sig.close();}catch(e){}w.readyState=3;}};
   let dc=null,pc=null,sig=null,closed=false,up=false,errMsg='',lastRx=0;
   const fail=msg=>{if(up||closed)return;errMsg=msg;w.err=msg;try{if(pc)pc.close();}catch(e){}try{sig&&sig.close();}catch(e){}w.readyState=3;if(w.onerror)w.onerror();if(w.onclose)w.onclose();};
+  iceCfg(url);
   try{sig=new WebSocket(sigUrl(url));}catch(e){setTimeout(()=>fail('Bad server address.'),0);return w;}
-  setTimeout(()=>fail('Could not connect to the host. They may be behind a strict network. Ask them to try a different connection.'),20000);
+  setTimeout(()=>fail('Could not connect to the host. One of your networks is blocking direct connections. Try again, or switch one player to a different network (like a phone hotspot).'),20000);
   sig.onopen=()=>sig.send(JSON.stringify({t:'guest',code}));
   sig.onerror=()=>fail('Could not reach the matchmaking server. Check your internet connection and try again.');
-  sig.onmessage=async ev=>{
+  let sigChain=Promise.resolve();
+  sig.onmessage=ev=>{sigChain=sigChain.then(()=>sigHandle(ev)).catch(()=>{});};   // handle matchmaking messages strictly in order (the offer must be applied before its network candidates)
+  const sigHandle=async ev=>{
     let m;try{m=JSON.parse(ev.data);}catch(e){return;}
     if(m.t==='err'){fail(m.msg);return;}
     if(m.t==='guestok'){
-      pc=new RTCPeerConnection(ICE_CFG);
+      pc=new RTCPeerConnection(await iceCfg(url));
       pc.onicecandidate=e=>{if(e.candidate&&sig.readyState===1)sig.send(JSON.stringify({t:'sig',d:{ice:e.candidate}}));};
       pc.ondatachannel=e=>{
         dc=e.channel;

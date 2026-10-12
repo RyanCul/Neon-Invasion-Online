@@ -6,6 +6,17 @@ const {WebSocketServer}=require('ws');
 const NI=require('./shared.js');
 
 const PORT=process.env.PORT||8080;
+let turnCache={at:0,ice:[]};
+async function getTurn(){   // short-lived TURN credentials from Cloudflare, cached for 12 hours (they are valid for 24)
+  const id=process.env.TURN_KEY_ID,tok=process.env.TURN_KEY_TOKEN;
+  if(!id||!tok)return [];
+  if(Date.now()-turnCache.at<12*3600e3&&turnCache.ice.length)return turnCache.ice;
+  const r=await fetch('https://rtc.live.cloudflare.com/v1/turn/keys/'+id+'/credentials/generate-ice-servers',{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({ttl:86400})});
+  if(!r.ok){console.error('turn credentials failed',r.status);return turnCache.ice;}
+  const j=await r.json();const ice=Array.isArray(j.iceServers)?j.iceServers:(j.iceServers?[j.iceServers]:[]);
+  turnCache={at:Date.now(),ice};return ice;
+}
+const GAME_SITE=(process.env.GAME_SITE||'https://neon-invasion-online.ryancultra.workers.dev').replace(/\/+$/,'');   // where players download the game (set GAME_SITE='' on Render to turn the redirect off)
 const MAX_PER_ROOM=8,MAX_ROOMS=60;
 const FILES={'/':'index.html','/index.html':'index.html','/game.html':'game.html','/shared.js':'shared.js','/song.mp3':'song.mp3','/three.min.js':'three.min.js'};
 const TYPES={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.mp3':'audio/mpeg'};
@@ -15,6 +26,14 @@ const server=http.createServer((req,res)=>{
   const url=req.url.split('?')[0];
   if(url.startsWith('/api/')){handleApi(req,res,url);return;}
   if(url==='/health'){res.writeHead(200);res.end('ok');return;}
+  if(url==='/turn'){   // relay servers for players whose networks block direct connections (Cloudflare TURN; set TURN_KEY_ID + TURN_KEY_TOKEN on Render)
+    res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Content-Type','application/json');res.setHeader('Cache-Control','no-store');
+    getTurn().then(ice=>{res.writeHead(200);res.end(JSON.stringify({iceServers:ice}));}).catch(()=>{res.writeHead(200);res.end('{"iceServers":[]}');});
+    return;
+  }
+  if(GAME_SITE&&/onrender\.com$/i.test((req.headers.host||'').split(':')[0])&&!url.startsWith('/api/')){   // the game itself now lives on Cloudflare: send visitors there so Render's bandwidth is only used for room codes
+    res.writeHead(301,{Location:GAME_SITE+req.url,'Cache-Control':'public, max-age=86400'});res.end();return;
+  }
   if(url==='/score'){
     const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'POST,OPTIONS'};
     if(req.method==='OPTIONS'){res.writeHead(204,cors);res.end();return;}
@@ -49,14 +68,17 @@ const server=http.createServer((req,res)=>{
   fs.stat(fp,(err,st)=>{
     if(err){res.writeHead(404);res.end('missing '+f);return;}
     const type=TYPES[path.extname(f)]||'application/octet-stream';
+    const etag='"'+st.size.toString(36)+'-'+Math.floor(st.mtimeMs).toString(36)+'"';
+    const cache=/\.(mp3|png)$/.test(f)?'public, max-age=604800':'no-cache';   // songs/images: keep for a week; pages: re-check, but only re-send when changed
+    if(req.headers['if-none-match']===etag){res.writeHead(304,{ETag:etag,'Cache-Control':cache});res.end();return;}   // saves bandwidth: the browser already has this exact file
     const range=req.headers.range;
     if(range){ // audio needs range support (Safari)
       const m=/bytes=(\d*)-(\d*)/.exec(range)||[];
       const start=m[1]?parseInt(m[1],10):0,end=m[2]?parseInt(m[2],10):st.size-1;
-      res.writeHead(206,{'Content-Type':type,'Accept-Ranges':'bytes','Content-Range':`bytes ${start}-${end}/${st.size}`,'Content-Length':end-start+1});
+      res.writeHead(206,{'Content-Type':type,'Accept-Ranges':'bytes',ETag:etag,'Cache-Control':cache,'Content-Range':`bytes ${start}-${end}/${st.size}`,'Content-Length':end-start+1});
       fs.createReadStream(fp,{start,end}).pipe(res);
     }else{
-      res.writeHead(200,{'Content-Type':type,'Content-Length':st.size,'Accept-Ranges':'bytes','Cache-Control':'no-cache'});
+      res.writeHead(200,{'Content-Type':type,'Content-Length':st.size,'Accept-Ranges':'bytes','Cache-Control':cache,ETag:etag});
       fs.createReadStream(fp).pipe(res);
     }
   });
