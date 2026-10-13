@@ -566,3 +566,36 @@ Menu launch sound: clicking PLAY SOLO, CREATE / JOIN ROOM or PLAY SPLITSCREEN pl
 Some players' networks (certain ISPs, mobile hotspots, school/work Wi-Fi) block direct peer-to-peer connections, so joining fails with "Could not connect to the host". The game now asks the matchmaking server for relay servers (`/turn` on Render) and uses them automatically when a direct link fails.
 Setup (once): in the Cloudflare dashboard open Realtime > TURN Server and create a TURN key. Copy its **Key ID** and **API token**, then in Render > your service > Environment add `TURN_KEY_ID` and `TURN_KEY_TOKEN` and save (Render redeploys). Cloudflare's first 1,000 GB of relay traffic per month are free. Without these variables the game works exactly as before (direct connections only).
 Also: matchmaking messages are now handled strictly in order, which fixes a rare failed join when network candidates arrived before the connection offer.
+
+## Map cars, repairs, Dex, quicksave
+- **Vehicles on the maps:** every vehicle shows on the minimap and the full map (L) as a little car in its own colour, pointing the way it faces. The full map also labels each one with its name.
+- **Repairs:** every vehicle is repaired to full health at the start of each round.
+- **Alien Dex:** undiscovered aliens no longer show a "last rumour" hint.
+- **Quicksave:** the pause menu has a QUICKSAVE button in solo games and for the host of an online room. One save slot. The main menu then shows CONTINUE SAVED GAME (round, solo or hosted, and name). Continuing uses the save up (it is deleted as soon as you continue). You resume at the start of the round you were on (or the next round if you saved between rounds) with your money, guns and upgrade levels, perks, jetpack, gunship upgrades and owned vehicles. Online: the host continues and gets a new room code; friends who rejoin with the same names get their gear back, and new players get the usual catch-up cash. Versus and splitscreen games can't be saved.
+
+## Splitscreen quicksave
+- Pause menu **QUICKSAVE** now works in splitscreen too (either player can press it; the splitscreen host page saves the whole game).
+- The save is continued from the splitscreen setup screen (see "Where you continue a save" below).
+
+## Map vehicle labels
+- Every vehicle on the minimap and full map now has a small **CAR** label (gunships show **HELI**).
+
+## Where you continue a save
+There's one save slot. Where you continue from depends on where you saved:
+- **Solo:** PLAY SOLO turns into **CONTINUE** (with the round under it), and a small **NEW SOLO GAME** link sits below it. Starting a new game keeps the save until you continue it or save over it.
+- **Online (host):** host a room as usual. The waiting room shows **CONTINUE** next to **NEW GAME** (START on a controller picks Continue). Friends get their gear back by joining with the same names as last time.
+- **Splitscreen:** the controller setup screen has a **CONTINUE SAVED GAME** toggle (it's co-op only and uses the saved hard mode). Turn it on, then both players press READY.
+- On the main menu, HOST A NEW ROOM or PLAY SPLITSCREEN shows "SAVED GAME · ROUND X" so you know where the save is.
+- A save is deleted as soon as you continue it.
+- **CLIPS** is no longer in the in-game pause menu. It's only on the main menu now (the controller clip shortcut still works in game).
+- The pause menu button is now **SAVE & QUIT**: it saves and takes you straight back to the title screen, so you can't keep playing past the save. A green "GAME SAVED" note at the top of the title screen says where to continue. (Online, this ends the room for everyone.)
+- The solo **CONTINUE** button is the same size as PLAY SOLO, with the round shown in a small tag next to the word.
+
+## Quit menu, safer saving, rejoining
+- Pause menu: RESUME, CONTROLS, SETTINGS, **QUIT**, with run stats (round, kills, cash, time) under the title.
+- QUIT opens **QUIT GAME?**: SAVE & QUIT / QUIT WITHOUT SAVING / CANCEL (B or Esc cancels). Online guests just get LEAVE GAME.
+- **Saving only works between rounds.** During a wave the button is greyed out with "Saving opens between rounds" (the game also refuses mid-wave saves).
+- It warns when a save would replace one from another mode ("Saving replaces your SPLITSCREEN save (round 8)").
+- Save summaries: CONTINUE shows the round plus your cash and best gun ("$78K · VIOLET RAIL MK V"); the waiting room and splitscreen screens show the same kind of info.
+- When the host does Save & Quit, guests see **HOST SAVED THE GAME** with the round, telling them to rejoin with the same name later.
+- **Rejoining after a disconnect:** the host remembers a dropped player's money, guns, perks, jetpack and gunship upgrades. Guests who drop get a **REJOIN ROOM** button (controller A) that reconnects them with all their gear. If the host still has the old connection open, joining again with the same name replaces it.

@@ -185,6 +185,7 @@ body.playing #radio{display:block}
 #lbHard.on{border-color:#ff2fa0}
 #lbFoot{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:6px}
 #lbStart{width:min(520px,100%);font:inherit;font-size:clamp(20px,2.4vw,28px);font-weight:bold;letter-spacing:6px;font-style:italic;padding:16px 0;cursor:pointer;color:#fff;background:linear-gradient(#ff2fa0,#a5207a);border:2px solid #fff;border-radius:12px;box-shadow:0 0 24px #ff2fa0}
+#lbBtns{display:flex;gap:12px;width:min(700px,100%);justify-content:center}#lbBtns.two #lbStart{flex:1;width:auto;font-size:clamp(16px,1.9vw,22px);letter-spacing:4px}#lbCont{flex:1.25;font:inherit;font-size:clamp(16px,1.9vw,22px);font-weight:bold;letter-spacing:4px;font-style:italic;padding:8px 0;cursor:pointer;color:#25f4ff;background:rgba(37,244,255,.08);border:2px solid #25f4ff;border-radius:12px;line-height:1.15}#lbCont small{display:block;font-size:11px;font-style:normal;letter-spacing:2px;color:#cfefff;opacity:.85;margin-top:3px;font-weight:600}#lbCont:hover,#lbCont.padfocus{background:#25f4ff;color:#06202a}#lbCont:hover small,#lbCont.padfocus small{color:#06202a}
 #lbStart:disabled{opacity:.4;cursor:default;box-shadow:none}
 @media (max-width:900px){#lbBody{align-content:flex-start}#lbRight{flex:0 0 auto;min-height:auto}#lbPlayers{overflow:visible}}
 @media (max-width:760px){#lbPlayers{grid-template-columns:minmax(0,1fr)}.lbRow{padding:8px 10px}#lbCode{font-size:clamp(44px,16vw,80px)}}
@@ -209,6 +210,7 @@ body.playing #radio{display:block}
 .vwbtns button{font:inherit;font-size:22px;font-weight:bold;letter-spacing:5px;padding:12px 38px;color:#fff;border:2px solid #fff;border-radius:10px;cursor:pointer}
 #vsYes{background:linear-gradient(#2fd86a,#14803a)}#vsNo{background:linear-gradient(#ff2fa0,#a5207a)}
 #lbHint{font-size:13px;letter-spacing:2px;color:#fff3b0}
+#overQ button{font:inherit;font-size:16px;font-weight:bold;letter-spacing:3px;font-style:italic;padding:12px 22px;margin:8px;cursor:pointer;border-radius:10px;border:2px solid #fff;color:#fff;background:rgba(0,0,0,.45)}#overQ #ovRejoin{background:linear-gradient(#25f4ff,#0aa6b8);color:#06202a;border-color:#c8fbff;box-shadow:0 0 18px rgba(37,244,255,.5)}#overQ button:hover{filter:brightness(1.15)}
 #over{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(25,0,20,.78);text-align:center;z-index:6}
 #over h1{margin:0;font-size:clamp(40px,9vw,110px);font-style:italic;letter-spacing:5px;color:#ff4060;text-shadow:0 0 14px #ff2040,0 0 36px #ff2040}
 #over p{margin:12px 0 0;font-size:clamp(14px,2vw,24px);letter-spacing:3px;color:#ffe6f6;text-shadow:0 0 8px #ff2fa0}
@@ -217,6 +219,7 @@ body.playing #pauseB{display:block}
 #pauseO{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:11;background:rgba(10,0,25,.8)}
 #pauseO h1{margin:0 0 8px;font-size:56px;letter-spacing:8px;color:#ff2fa0;text-shadow:0 0 18px #ff2fa0;font-style:italic}
 #pauseO button{font:inherit;font-size:18px;letter-spacing:3px;width:260px;padding:10px;background:#ff2fa0;color:#fff;border:2px solid #fff;cursor:pointer}
+#pauseO .pv{display:flex;flex-direction:column;align-items:center;gap:12px}#pauseO button:disabled{opacity:.35;cursor:not-allowed}#pStats{display:flex;gap:22px;margin:-6px 0 6px;font-size:12px;letter-spacing:2px;color:#cfc3ee}#pStats b{display:block;font-size:20px;color:#fff;letter-spacing:1px;font-style:italic}#pStats span{text-align:center}#pQInfo{max-width:320px;text-align:center;font-size:13px;line-height:1.45;letter-spacing:1px;color:#e6dcff}#pQInfo .warn{color:#ffcf5a}#pSaveWhy{color:#ffcf5a;letter-spacing:1px;margin-top:-6px}#pQ button{width:310px}
 #pauseO button.alt{background:rgba(0,0,0,.4);border-color:#25f4ff;color:#25f4ff}
 #lock{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:4;background:rgba(10,0,25,.45);font-size:28px;letter-spacing:5px;font-style:italic;color:#fff3b0;text-shadow:0 0 10px #ff9a3c;cursor:pointer}
 #menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;background:radial-gradient(ellipse at center,rgba(20,0,40,.35),rgba(10,0,25,.85));text-align:center;z-index:8;overflow:auto;padding:16px}
@@ -467,6 +470,12 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 #menu h1{animation:titleGlow 3.4s ease-in-out infinite}
 #mPanel{margin-top:10px;padding:clamp(10px,2vh,18px) clamp(14px,2vw,28px);border-radius:22px;background:radial-gradient(ellipse at center,rgba(18,0,46,.78) 0%,rgba(18,0,46,.5) 62%,rgba(18,0,46,0) 100%);width:min(640px,94vw)}
 #mPanel #nameLab{font-size:13px;letter-spacing:6px;color:#ff7fc8}
+#savedPill{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 20px;border-radius:12px;background:rgba(6,20,14,.92);border:1.5px solid #4cff8a;box-shadow:0 0 18px rgba(76,255,138,.35);color:#d9ffe6;font-size:12px;letter-spacing:1px;text-align:center;max-width:min(460px,90vw);animation:pillIn .35s ease-out;transition:opacity .7s}#savedPill b{color:#4cff8a;letter-spacing:3px;font-size:13px}#savedPill.out{opacity:0}@keyframes pillIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+#menu #mPanel button#bSolo.cont small i{display:block;font-style:normal;font-size:10px;letter-spacing:1px;opacity:.85;font-weight:600}
+#menu #mPanel button#bSolo.cont small{display:inline-block;text-align:left;vertical-align:middle;font-size:12px;font-style:normal;letter-spacing:2px;font-weight:700;margin-left:12px;padding:3px 8px;border-radius:5px;background:rgba(0,0,0,.28);line-height:1.3}
+#menu #mPanel button#bSolo.cont{margin-bottom:6px}
+#menu #mPanel button#bNew{all:unset;box-sizing:border-box;cursor:pointer;display:block;margin:0 auto 12px;padding:4px 12px;font-family:inherit;font-size:12px;font-weight:700;letter-spacing:3px;color:#ffc4e6;opacity:.85;border-bottom:1px solid rgba(255,196,230,.4)}
+#menu #mPanel button#bNew:hover,#menu #mPanel button#bNew:focus-visible{opacity:1;color:#fff;border-color:#fff}
 #menu #mPanel button#bSolo{width:min(520px,90%);font-size:clamp(22px,3vw,32px);padding:clamp(12px,2.2vh,18px) 10px;margin:8px auto 14px;display:block;animation:soloPulse 2.6s ease-in-out infinite}
 @keyframes soloPulse{0%,100%{box-shadow:0 0 14px #ff2fa0}50%{box-shadow:0 0 28px #ff2fa0,0 0 8px #fff3}}
 #mCards{display:flex;gap:12px;align-items:stretch;justify-content:center;flex-wrap:wrap}
@@ -526,7 +535,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
     <div id="lbRight"><div id="lbPh">PLAYERS</div><div id="lbPlayers"></div></div>
   </div>
   <button id="lbBack" title="Back to main menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 21V4a1 1 0 0 1 1-1h9l4 2v16"/><path d="M3 21h18"/><circle cx="12.5" cy="12.5" r=".9" fill="currentColor"/><path d="M9 6h6v15"/></svg><span>MAIN MENU</span></button>
-  <div id="lbFoot"><button id="lbStart">START GAME</button><div id="lbHint"></div></div>
+  <div id="lbFoot"><div id="lbBtns"><button id="lbCont" style="display:none"></button><button id="lbStart">START GAME</button></div><div id="lbHint"></div></div>
 </div></div></div>
 <div id="vsWin"><div class="vwb"><h1>YOU WIN!</h1><p>You are the last one standing.</p><h2>WHAT NEXT?</h2><small>Switch to co-op: everyone gets back up when this round ends and you keep going together. Back to lobby: end the match.</small><div class="vwbtns"><button id="vsYes">SWITCH TO CO-OP</button><button id="vsNo">BACK TO LOBBY</button></div><small id="vsHint">Y / A = co-op &nbsp;&middot;&nbsp; N / B = lobby</small></div></div>
 <div id="over"><h1>GAME OVER</h1><p id="overP"></p><div id="overST"></div><div id="overXP"></div><div id="overLB"></div><p style="color:#fff3b0" id="overQ"></p></div>
@@ -536,7 +545,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 <div id="scope"></div><div id="chg"><i></i></div><div id="wbar"></div>
 <div id="lock">CLICK TO PLAY</div>
 <button id="pauseB">II MENU (TAB)</button>
-<div id="pauseO"><h1 id="pTitle">PAUSED</h1><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pClips" class="alt">CLIPS</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT TO MENU</button><small style="opacity:.7">TAB / START to resume</small></div>
+<div id="pauseO"><h1 id="pTitle">PAUSED</h1><div id="pStats"></div><small id="pNote" style="display:none;color:#fff3b0;letter-spacing:2px">THE GAME KEEPS GOING WHILE THIS IS OPEN</small><div id="pMain" class="pv"><button id="pResume">RESUME</button><button id="pCtl" class="alt">CONTROLS</button><button id="pInv" class="alt" style="display:none">COPY INVITE LINK</button><button id="pSet" class="alt">SETTINGS</button><button id="pQuit" class="alt">QUIT</button></div><div id="pQ" class="pv" style="display:none"><div id="pQInfo"></div><button id="pSave">SAVE &amp; QUIT</button><small id="pSaveWhy"></small><button id="pLeave" class="alt">QUIT WITHOUT SAVING</button><button id="pCancel" class="alt">CANCEL</button><small id="pSaveMsg" style="display:none"></small></div><small id="pHint" style="opacity:.7">TAB / START to resume</small></div>
 
 <div id="menu">
   <div id="lvbox"><span id="lvtxt">LEVEL 1</span><div class="xb"><i></i></div><span id="lvxp" style="font-size:12px"></span><br><div id="lvbtns"><button class="c sm" id="bCust">CUSTOMIZE</button><button class="c sm" id="bAch" title="Achievements" aria-label="Achievements"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #fff3b0)"><path d="M7 3h10v2h3a1 1 0 0 1 1 1v1.5c0 2.5-1.9 4.6-4.4 4.9A5.5 5.5 0 0 1 13 15.9V18h3v3H8v-3h3v-2.1a5.5 5.5 0 0 1-3.6-3.5C4.9 12.1 3 10 3 7.5V6a1 1 0 0 1 1-1h3V3zm-2 4v.5c0 1.3.9 2.4 2.1 2.8A12 12 0 0 1 7 7H5zm14 0h-2c0 1.1-.1 2.2-.1 3.3A3 3 0 0 0 19 7.5V7z"/></svg></button><button class="c sm" id="bDex" title="Alien Dex" aria-label="Alien Dex"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:block;filter:drop-shadow(0 0 3px #25f4ff)"><path d="M5 3h12a2 2 0 0 1 2 2v13H7.5A1.5 1.5 0 0 0 6 19.5 1.5 1.5 0 0 0 7.5 21H19v1H7.5A2.5 2.5 0 0 1 5 19.5V3zm2 2v10.2c.5-.2 1-.2 1.5-.2H17V5H7zm2 2h6v2H9V7z"/></svg></button></div><div id="lvnote"></div></div>
@@ -658,6 +667,9 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
   var game=new NIg.Game({all:function(m){post(1,{ni:'h2c',m:m});post(2,{ni:'h2c',m:m});
     if(m&&m.t==='snap'&&m.rd&&m.rd.s==='wait'&&startedOnce&&!setupOn)showSetup();}},{online:true});
   window.__sg=game;
+  var QSK=(function(){try{return localStorage.getItem('ni_dev')==='1'||/[?&]dev=1/.test(location.search)?'ni_qs_dev_v1':'ni_qs_v1';}catch(e){return 'ni_qs_v1';}})();
+  var splitSv=null,useSave=false;   // a splitscreen quicksave can be continued from the setup screen
+  try{var so=JSON.parse(localStorage.getItem(QSK)||'null');if(so&&so.mode==='split'&&so.sv&&so.sv.v===1)splitSv=so.sv;}catch(e){}
   addEventListener('message',function(e){
     var d=e.data;if(!d||!d.ni)return;var n=d.pane|0;
     if(d.ni==='c2h'){
@@ -673,16 +685,25 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
       if(joined[n])game.onMsg(n,m);
     }else if(d.ni==='pause'){paused[n]=!!d.v;}
     else if(d.ni==='exit'){location.href=location.pathname;}
+    else if(d.ni==='qsave'){   // a player pressed QUICKSAVE in their pause menu
+      var sv=game.exportSave(),ok=false;
+      if(sv){try{localStorage.setItem(QSK,JSON.stringify({mode:'split',name:names[1],sv:sv}));ok=true;}catch(x){}}
+      if(ok){try{sessionStorage.setItem('ni_saved',JSON.stringify({round:sv.round,where:'the splitscreen setup screen',extra:''}));}catch(x){}
+        post(1,{ni:'h2c',qs:{ok:true,round:sv.round,quiet:1}});post(2,{ni:'h2c',qs:{ok:true,round:sv.round,quiet:1}});
+        setTimeout(function(){location.href=location.pathname+(/[?&]dev=1/.test(location.search)?'?dev=1':'');},500);}
+      else post(n,{ni:'h2c',qs:{ok:false,round:0}});
+    }
   });
 
   // ---- setup screen: mode, hard mode, controllers, both players press READY ----
   var sst=document.createElement('style');
-  sst.textContent='#sup{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#3a0a5c 0%,#12002e 60%,#05000f 100%);color:#fff;font-family:Orbitron,Montserrat,sans-serif;overflow:auto}#sup.off{display:none}#sup .cd{width:min(960px,94vw);padding:clamp(14px,2.4vw,30px);background:rgba(14,3,40,.85);border:2px solid #ff9a2a;border-radius:18px;box-shadow:0 0 30px rgba(255,138,26,.45);text-align:center;box-sizing:border-box}#sup h1{margin:0 0 4px;font-size:clamp(20px,3.4vw,38px);letter-spacing:6px;color:#ffd9a8;text-shadow:0 0 14px #ff8a1a}#sup .sb{font-size:12px;letter-spacing:3px;color:#9ffcff;margin-bottom:16px}#sup .row{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}#sup .opt{flex:1 1 300px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:rgba(255,255,255,.06);border:1.5px solid #3a2d63;border-radius:14px;cursor:pointer;text-align:left;user-select:none}#sup .opt:hover{background:rgba(255,255,255,.13);border-color:#ff9fd8}#sup .opt b{letter-spacing:4px;font-size:15px;display:block}#sup .opt small{font-size:11px;color:#c9b6ee;letter-spacing:1px;display:block;margin-top:4px}#sup .seg{display:flex;border:1.5px solid #3a2d63;border-radius:10px;overflow:hidden}#sup .seg span{padding:8px 14px;font-size:12px;letter-spacing:2px;background:#1a0b33;color:#9a88c8}#sup .seg span.on{background:#25f4ff;color:#05000f;font-weight:bold;box-shadow:0 0 12px #25f4ff}#sup .tg{width:56px;height:30px;border-radius:15px;background:#2a1b4a;border:2px solid #5b4a8a;position:relative;flex:none}#sup .tg:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#9a88c8;transition:.15s}#sup .tg.on{background:#a5207a;border-color:#ff2fa0;box-shadow:0 0 14px #ff2fa0}#sup .tg.on:after{left:29px;background:#fff}#sup .pl{display:flex;gap:14px;flex-wrap:wrap}#sup .pc{flex:1 1 300px;padding:16px;border:2px solid #25f4ff;border-radius:14px;background:rgba(37,244,255,.07);box-sizing:border-box}#sup .pc.b{border-color:#ff9a2a;background:rgba(255,154,42,.08)}#sup .pc h2{margin:0;font-size:clamp(16px,2.2vw,22px);letter-spacing:4px}#sup .pc .nm{font-size:12px;letter-spacing:2px;color:#ffe9a0;margin:2px 0 10px}#sup .dv{min-height:38px;font-size:12px;letter-spacing:2px;color:#cfe;display:flex;align-items:center;justify-content:center;gap:8px}#sup .dv i{width:10px;height:10px;border-radius:50%;background:#555;display:inline-block}#sup .dv.ok i{background:#4cff8a;box-shadow:0 0 8px #4cff8a}#sup .rb{margin-top:10px;width:100%;padding:14px;font-size:clamp(14px,1.8vw,20px);letter-spacing:4px;font-weight:bold;border-radius:12px;border:2px solid #fff;background:#3a2d63;color:#fff;cursor:pointer;font-family:inherit}#sup .rb.dis{opacity:.45;cursor:not-allowed}#sup .rb.on{background:linear-gradient(#27d86a,#0c8a3c);border-color:#b8ffd0;box-shadow:0 0 18px #27d86a}#sup .ft{margin-top:14px;font-size:12px;letter-spacing:3px;color:#ffd9a8;min-height:18px}#sup .cd{position:relative;padding-bottom:clamp(70px,10vh,84px)}#sup .ex{position:absolute;left:clamp(14px,3vw,36px);bottom:clamp(12px,3vh,24px);display:flex;align-items:center;gap:7px;font:inherit;font-size:11px;font-weight:bold;letter-spacing:2px;padding:8px 12px;color:#d6b8ff;background:rgba(20,6,45,.8);border:1.5px solid #4b3a7a;border-radius:8px;cursor:pointer}#sup .ex:hover{color:#fff;border-color:#ff2fa0}#sup .f1{outline:3px solid #25f4ff;outline-offset:2px;box-shadow:0 0 16px #25f4ff}#sup .f2{outline:3px solid #ff9a2a;outline-offset:2px;box-shadow:0 0 16px #ff9a2a}#sup .f1.f2{outline-offset:2px;box-shadow:0 0 0 5px #05000f,0 0 0 8px #ff9a2a}#sup .hn{font-size:11px;color:#a99ad0;letter-spacing:1px;margin-top:8px}';
+  sst.textContent='#sup{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#3a0a5c 0%,#12002e 60%,#05000f 100%);color:#fff;font-family:Orbitron,Montserrat,sans-serif;overflow:auto}#sup.off{display:none}#sup .cd{width:min(960px,94vw);padding:clamp(14px,2.4vw,30px);background:rgba(14,3,40,.85);border:2px solid #ff9a2a;border-radius:18px;box-shadow:0 0 30px rgba(255,138,26,.45);text-align:center;box-sizing:border-box}#sup h1{margin:0 0 4px;font-size:clamp(20px,3.4vw,38px);letter-spacing:6px;color:#ffd9a8;text-shadow:0 0 14px #ff8a1a}#sup .sb{font-size:12px;letter-spacing:3px;color:#9ffcff;margin-bottom:16px}#sup .row{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}#sup .opt{flex:1 1 300px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:rgba(255,255,255,.06);border:1.5px solid #3a2d63;border-radius:14px;cursor:pointer;text-align:left;user-select:none}#sup .opt:hover{background:rgba(255,255,255,.13);border-color:#ff9fd8}#sup .opt b{letter-spacing:4px;font-size:15px;display:block}#sup .opt small{font-size:11px;color:#c9b6ee;letter-spacing:1px;display:block;margin-top:4px}#sup .seg{display:flex;border:1.5px solid #3a2d63;border-radius:10px;overflow:hidden}#sup .seg span{padding:8px 14px;font-size:12px;letter-spacing:2px;background:#1a0b33;color:#9a88c8}#sup .seg span.on{background:#25f4ff;color:#05000f;font-weight:bold;box-shadow:0 0 12px #25f4ff}#sup .tg{width:56px;height:30px;border-radius:15px;background:#2a1b4a;border:2px solid #5b4a8a;position:relative;flex:none}#sup .tg:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#9a88c8;transition:.15s}#sup .tg.on{background:#a5207a;border-color:#ff2fa0;box-shadow:0 0 14px #ff2fa0}#sup .tg.on:after{left:29px;background:#fff}#sup .pl{display:flex;gap:14px;flex-wrap:wrap}#sup .pc{flex:1 1 300px;padding:16px;border:2px solid #25f4ff;border-radius:14px;background:rgba(37,244,255,.07);box-sizing:border-box}#sup .pc.b{border-color:#ff9a2a;background:rgba(255,154,42,.08)}#sup .pc h2{margin:0;font-size:clamp(16px,2.2vw,22px);letter-spacing:4px}#sup .pc .nm{font-size:12px;letter-spacing:2px;color:#ffe9a0;margin:2px 0 10px}#sup .dv{min-height:38px;font-size:12px;letter-spacing:2px;color:#cfe;display:flex;align-items:center;justify-content:center;gap:8px}#sup .dv i{width:10px;height:10px;border-radius:50%;background:#555;display:inline-block}#sup .dv.ok i{background:#4cff8a;box-shadow:0 0 8px #4cff8a}#sup .rb{margin-top:10px;width:100%;padding:14px;font-size:clamp(14px,1.8vw,20px);letter-spacing:4px;font-weight:bold;border-radius:12px;border:2px solid #fff;background:#3a2d63;color:#fff;cursor:pointer;font-family:inherit}#sup .rb.dis{opacity:.45;cursor:not-allowed}#sup .rb.on{background:linear-gradient(#27d86a,#0c8a3c);border-color:#b8ffd0;box-shadow:0 0 18px #27d86a}#sup .ft{margin-top:14px;font-size:12px;letter-spacing:3px;color:#ffd9a8;min-height:18px}#sup .cd{position:relative;padding-bottom:clamp(70px,10vh,84px)}#sup .ex{position:absolute;left:clamp(14px,3vw,36px);bottom:clamp(12px,3vh,24px);display:flex;align-items:center;gap:7px;font:inherit;font-size:11px;font-weight:bold;letter-spacing:2px;padding:8px 12px;color:#d6b8ff;background:rgba(20,6,45,.8);border:1.5px solid #4b3a7a;border-radius:8px;cursor:pointer}#sup .ex:hover{color:#fff;border-color:#ff2fa0}#sup .f1{outline:3px solid #25f4ff;outline-offset:2px;box-shadow:0 0 16px #25f4ff}#sup .f2{outline:3px solid #ff9a2a;outline-offset:2px;box-shadow:0 0 16px #ff9a2a}#sup .f1.f2{outline-offset:2px;box-shadow:0 0 0 5px #05000f,0 0 0 8px #ff9a2a}#sup .opt.cn{margin-bottom:14px;border-color:#25f4ff;background:rgba(37,244,255,.07)}#sup .opt.cn b{color:#25f4ff}#sup .opt.cn.on{background:rgba(37,244,255,.18);box-shadow:0 0 18px rgba(37,244,255,.45)}#sup .opt.cn .tg.on{background:#0aa6b8;border-color:#25f4ff;box-shadow:0 0 14px #25f4ff}#sup .hn{font-size:11px;color:#a99ad0;letter-spacing:1px;margin-top:8px}';
   document.head.appendChild(sst);
   var sup=document.createElement('div');sup.id='sup';
   sup.innerHTML='<div class="cd"><h1>LOCAL SPLITSCREEN</h1><div class="sb">PICK YOUR GAME, PLUG IN YOUR CONTROLLERS, THEN BOTH PLAYERS PRESS READY</div>'
    +'<div class="row"><div class="opt" id="sMode"><span><b>GAME MODE</b><small id="sModeSub">work together and survive</small></span><div class="seg"><span data-m="0">CO-OP</span><span data-m="1">VERSUS</span></div></div>'
    +'<div class="opt" id="sHard"><span><b>HARD MODE</b><small>tougher aliens, bigger waves, +25% cash</small></span><i class="tg"></i></div></div>'
+   +'<div class="opt cn" id="sCont" style="display:none"><span><b>CONTINUE SAVED GAME</b><small id="sContSub"></small></span><i class="tg"></i></div>'
    +'<div class="pl"><div class="pc" id="sP1"><h2>PLAYER 1</h2><div class="nm" id="sN1"></div><div class="dv" id="sD1"><i></i><span></span></div><button class="rb" id="sR1">READY</button><div class="hn">Enter, or A button</div></div>'
    +'<div class="pc b" id="sP2"><h2>PLAYER 2</h2><div class="nm" id="sN2"></div><div class="dv" id="sD2"><i></i><span></span></div><button class="rb" id="sR2">READY</button><div class="hn">A button on the controller</div></div></div>'
    +'<div class="ft" id="sFt"></div><div class="hn">Controller: D-pad or stick moves, A selects, B = un-ready, hold Back / Select = main menu (X = hard mode, Y = co-op / versus also work). With one controller, it goes to Player 2 and Player 1 uses keyboard + mouse.</div><button class="ex" id="sEx" title="Back to main menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 21V4a1 1 0 0 1 1-1h9l4 2v16"/><path d="M3 21h18"/><circle cx="12.5" cy="12.5" r=".9" fill="currentColor"/><path d="M9 6h6v15"/></svg><span>MAIN MENU</span></button></div>';
@@ -694,13 +715,15 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
     q('sMode').querySelectorAll('.seg span').forEach(function(x){x.classList.toggle('on',(+x.dataset.m===1)===vsOn);});
     q('sModeSub').textContent=vsOn?'last player standing wins':'work together and survive';
     q('sHard').querySelector('.tg').classList.toggle('on',hardOn);
+    var sc=q('sCont');sc.style.display=splitSv?'flex':'none';
+    if(splitSv){sc.classList.toggle('on',useSave);sc.querySelector('.tg').classList.toggle('on',useSave);q('sContSub').textContent='ROUND '+splitSv.round+(splitSv.hard?' \u00b7 HARD':'')+' \u00b7 '+(splitSv.players||[]).map(function(x){var v=x.money|0;return x.name+' $'+(v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1).replace(/\.0$/,'')+'K':v);}).join(' / ')+' \u00b7 '+(useSave?'ON - you keep your money, guns and perks':'off - starts a new game at round 1');}
     q('sN1').textContent=names[1];q('sN2').textContent=names[2];
     var d1=q('sD1'),d2=q('sD2');
     d1.className='dv ok';d1.querySelector('span').textContent=padCnt>=2?'CONTROLLER 1 CONNECTED (keyboard + mouse also works)':'KEYBOARD + MOUSE';
     d2.className='dv'+(p2ok()?' ok':'');d2.querySelector('span').textContent=p2ok()?'CONTROLLER CONNECTED':'PRESS ANY BUTTON ON A CONTROLLER';
     [1,2].forEach(function(n){var b=q('sR'+n);b.classList.toggle('on',rdy[n]);b.classList.toggle('dis',n===2&&!p2ok()&&!rdy[n]);b.textContent=rdy[n]?'READY \u2713':(n===2&&!p2ok()?'CONNECT A CONTROLLER':'READY');});
-    var all=[q('sMode'),q('sHard'),q('sR1'),q('sR2'),q('sEx')];all.forEach(function(e){e.classList.remove('f1','f2');});
-    [1,2].forEach(function(n){var c=cur[n],e=c==='m'?q('sMode'):c==='h'?q('sHard'):c==='x'?q('sEx'):q('sR'+n);if(padOf[n])e.classList.add('f'+n);});
+    var all=[q('sMode'),q('sHard'),q('sCont'),q('sR1'),q('sR2'),q('sEx')];all.forEach(function(e){e.classList.remove('f1','f2');});
+    [1,2].forEach(function(n){var c=cur[n],e=c==='m'?q('sMode'):c==='h'?q('sHard'):c==='c'?q('sCont'):c==='x'?q('sEx'):q('sR'+n);if(padOf[n])e.classList.add('f'+n);});
     q('sFt').textContent=(joined[1]&&joined[2])?(rdy[1]&&rdy[2]?'STARTING...':(rdy[1]||rdy[2]?'WAITING FOR THE OTHER PLAYER...':'')):('LOADING '+(!joined[1]&&!joined[2]?'BOTH SCREENS':!joined[1]?'PLAYER 1\'S SCREEN':'PLAYER 2\'S SCREEN')+'...');
   }
   function setRdy(n,v){if(!setupOn||goT)return;if(v&&n===2&&!p2ok())return;rdy[n]=v;paintSetup();checkGo();}
@@ -709,19 +732,22 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
     if(!(joined[1]&&joined[2])){if(!checkGo.t0)checkGo.t0=Date.now();else if(Date.now()-checkGo.t0>6000){checkGo.t0=Date.now();[1,2].forEach(function(n){if(!joined[n])try{frames[n].src='game.html?pane='+n+'&r='+Date.now();}catch(e){}});}setTimeout(checkGo,300);return;}   // a screen that never loaded gets reloaded
     checkGo.t0=0;
     goT=setTimeout(function(){goT=0;
-      game.onMsg(1,{t:'vs',on:vsOn});game.onMsg(1,{t:'hard',on:hardOn});game.onMsg(1,{t:'start'});
+      game.onMsg(1,{t:'vs',on:vsOn});game.onMsg(1,{t:'hard',on:hardOn});
+      if(useSave&&splitSv){try{localStorage.removeItem(QSK);}catch(e){}game.importSave(splitSv);splitSv=null;useSave=false;}   // the save is used up as soon as you continue
+      game.onMsg(1,{t:'start'});
       setupOn=false;startedOnce=true;paintSetup();focus1();},900);
   }
   function showSetup(){cur={1:'r',2:'r'};rdy[1]=rdy[2]=false;if(goT){clearTimeout(goT);goT=0;}setupOn=true;try{document.activeElement&&document.activeElement.blur();window.focus();}catch(e){}paintSetup();}
-  function togVs(){if(!setupOn||goT)return;vsOn=!vsOn;rdy[1]=rdy[2]=false;paintSetup();}
-  function togHard(){if(!setupOn||goT)return;hardOn=!hardOn;rdy[1]=rdy[2]=false;paintSetup();}
-  q('sMode').onclick=togVs;q('sHard').onclick=togHard;
+  function togVs(){if(!setupOn||goT)return;vsOn=!vsOn;if(vsOn)useSave=false;rdy[1]=rdy[2]=false;paintSetup();}
+  function togHard(){if(!setupOn||goT)return;hardOn=!hardOn;useSave=false;rdy[1]=rdy[2]=false;paintSetup();}
+  function togCont(){if(!setupOn||goT||!splitSv)return;useSave=!useSave;if(useSave){vsOn=false;hardOn=!!splitSv.hard;}rdy[1]=rdy[2]=false;paintSetup();}
+  q('sMode').onclick=togVs;q('sHard').onclick=togHard;q('sCont').onclick=togCont;
   q('sR1').onclick=function(){setRdy(1,!rdy[1]);};q('sR2').onclick=function(){setRdy(2,!rdy[2]);};
   q('sEx').onclick=function(){location.href=location.pathname;};
   addEventListener('keydown',function(e){if(!setupOn)return;if(e.code==='Enter'||e.code==='Space'){e.preventDefault();setRdy(1,!rdy[1]);}else if(e.code==='KeyV')togVs();else if(e.code==='KeyH')togHard();else if(e.code==='Escape'){location.href=location.pathname;}});
   var sprev={},cur={1:'r',2:'r'},padOf={1:false,2:false},selT=0;
-  function nav(n,d){var c=cur[n],t={m:{r:'h',d:'r'},h:{l:'m',d:'r'},r:{u:'m',d:'x'},x:{u:'r'}}[c];if(t&&t[d])cur[n]=t[d];}
-  function act(n){var c=cur[n];if(c==='m')togVs();else if(c==='h')togHard();else if(c==='x')location.href=location.pathname;else setRdy(n,!rdy[n]);}
+  function nav(n,d){var C=splitSv?'c':'r',c=cur[n],t={m:{r:'h',d:C},h:{l:'m',d:C},c:{u:'m',d:'r'},r:{u:splitSv?'c':'m',d:'x'},x:{u:'r'}}[c];if(t&&t[d])cur[n]=t[d];}
+  function act(n){var c=cur[n];if(c==='m')togVs();else if(c==='h')togHard();else if(c==='c')togCont();else if(c==='x')location.href=location.pathname;else setRdy(n,!rdy[n]);}
   function setupPads(p1,p2){
     if(!setupOn){sprev={};selT=0;return;}
     padOf[1]=!!p1;padOf[2]=!!p2;
@@ -3134,7 +3160,10 @@ window.addEventListener('beforeunload',()=>{commitPending();});
 function startSolo(name){
   mode='solo';myId=1;
   solo=new NI.Game({all:m=>onServer(m)},{hard:!!SET.hard});
+  if(window.__resumeSave)solo.importSave(window.__resumeSave);
   solo.addPlayer(1,name);
+  if(solo.resume)solo.round=solo.resume.round-1;   // continuing a quicksave: the next round to start is the saved one
+  window.__resumeSave=null;
   solo.setProfile(1,myLevel(),prof.skin,prof.car,prof.ch,prof.ex,prof.ach);
   if(devOn){const me=solo.players.get(1);me.money=99999999;if(devStart>1)solo.round=devStart-1;solo.timer=30;}   // dev mode: 30 s to get set up before the first wave   // dev mode: max money, start on the chosen round
   begin();
@@ -3163,7 +3192,7 @@ function p2pName(n,pid){
 function sigUrl(base){return String(base||'').trim().replace(/\/+$/,'').replace(/^http:/,'ws:').replace(/^https:/,'wss:')+'/sig';}
 class HostRoom{   // the same room logic the dedicated server used to run, now living inside the host's game
   constructor(code){
-    this.code=code;this.clients=new Map();this.nid=1;this.dead=false;
+    this.code=code;this.clients=new Map();this.hnds=new Map();this.nid=1;this.dead=false;
     this.game=new NI.Game({all:m=>{const s=JSON.stringify(m);for(const c of this.clients.values())c.send(s);}},{online:true});
     this.last=performance.now();
     this.timer=setInterval(()=>{const n=performance.now(),dt=Math.min(0.1,(n-this.last)/1000);this.last=n;try{this.game.tick(dt);}catch(e){console.error('tick error',e);}},33);
@@ -3177,7 +3206,9 @@ class HostRoom{   // the same room logic the dedicated server used to run, now l
       if(!pid){
         if(m.t!=='join')return;
         if(this.clients.size>=8){conn.send(JSON.stringify({t:'err',msg:'That room is full (8 players max).'}));return;}
-        pid=this.nid++;this.clients.set(pid,conn);
+        {const nm=p2pName(m.name,0);for(const [op,q] of this.game.players)if(q.name===nm&&this.hnds.has(op)){   // same name already in: that's a dropped connection coming back, so clear the old one first
+          try{this.clients.get(op).close();}catch(e){}const oh=this.hnds.get(op);if(oh)oh.leave();break;}}
+        pid=this.nid++;this.clients.set(pid,conn);this.hnds.set(pid,hnd);
         this.game.addPlayer(pid,p2pName(m.name,pid));
         this.game.setProfile(pid,m.lv,m.sk,m.ck,m.ch,m.ex,m.ach);
         conn.send(JSON.stringify({t:'joined',id:pid,room:this.code}));
@@ -3185,12 +3216,12 @@ class HostRoom{   // the same room logic the dedicated server used to run, now l
       }
       this.game.onMsg(pid,m);
     };
-    hnd.leave=()=>{if(pid&&this.clients.has(pid)){this.clients.delete(pid);try{this.game.removePlayer(pid);}catch(e){}}pid=0;};
+    hnd.leave=()=>{if(pid&&this.clients.has(pid)){this.clients.delete(pid);this.hnds.delete(pid);try{this.game.removePlayer(pid);}catch(e){}}pid=0;};
     return hnd;
   }
   close(){this.dead=true;clearInterval(this.timer);for(const c of this.clients.values())try{c.close();}catch(e){}this.clients.clear();}
 }
-let hostRoom=null;
+let hostRoom=null,hostSavedR=0;
 function p2pHost(url,onHosting,onErr){   // open a room: register with matchmaking, then answer every guest that shows up
   let sig;try{sig=new WebSocket(sigUrl(url));}catch(e){onErr('Bad server address.');return null;}
   const peers=new Map();let opened=false,hosted=false;iceCfg(url);
@@ -3202,7 +3233,7 @@ function p2pHost(url,onHosting,onErr){   // open a room: register with matchmaki
   const sigHandle=async ev=>{
     let m;try{m=JSON.parse(ev.data);}catch(e){return;}
     if(m.t==='err'){onErr(m.msg);return;}
-    if(m.t==='hosting'){hosted=true;hostRoom=new HostRoom(m.code);onHosting(m.code,hostRoom);return;}
+    if(m.t==='hosting'){hosted=true;hostRoom=new HostRoom(m.code);window.__hr=hostRoom;onHosting(m.code,hostRoom);return;}
     if(!hostRoom)return;
     if(m.t==='guest'){
       const gid=m.gid,pc=new RTCPeerConnection(await iceCfg(url)),dc=pc.createDataChannel('g');let h=null;
@@ -3273,12 +3304,22 @@ function startOnline(url,room,name,mk){
   ws.onopen=()=>{opened=true;ws.send(JSON.stringify(Object.assign({t:'join',room:room,name:name,lv:myLevel(),sk:prof.skin,ck:prof.car,ch:prof.ch,ex:prof.ex,ach:prof.ach},acctJoin())));};
   ws.onmessage=e=>{
     let m;try{m=JSON.parse(e.data);}catch(x){return;}
+    if(m.t==='hostsaved'){hostSavedR=m.round|0;return;}
     if(m.t==='joined'){myId=m.id;roomCode=m.room;begin();}
     else if(m.t==='err'){$('msg').textContent=m.msg;ws.close();}
     else onServer(m);
   };
   ws.onerror=()=>{if(!opened)$('msg').textContent=p2p?(ws.err||'Could not connect to the host.'):'Could not reach the server at '+url;};
-  ws.onclose=()=>{if(started){$('over').style.display='flex';$('over').querySelector('h1').textContent='DISCONNECTED';$('overP').textContent=p2p?'The host left the game, or the connection dropped.':'Lost connection to the server.';$('overQ').textContent=p2p?'Click anywhere to go back to the menu and host or join again.':'Refresh the page to rejoin.';if(p2p)setTimeout(()=>{$('over').onclick=returnToMenu;},600);}else if(opened)$('msg').textContent='Connection closed.';};
+  ws.onclose=()=>{if(started&&hostSavedR&&p2p&&!hostRoom){$('over').style.display='flex';$('over').querySelector('h1').textContent='HOST SAVED THE GAME';$('overP').textContent='The host saved at round '+hostSavedR+' and went back to the menu. When they continue the save, rejoin as '+myName+' (same name) to get your money, guns and perks back.';$('overQ').textContent='Click anywhere to go back to the menu.';try{document.exitPointerLock();}catch(e){}setTimeout(()=>{$('over').onclick=returnToMenu;},600);return;}
+    if(started&&p2p&&!hostRoom&&roomCode){$('over').style.display='flex';$('over').querySelector('h1').textContent='DISCONNECTED';$('overP').textContent='You lost connection to the room. Rejoin to jump back in with all your money, guns and perks (as long as the host is still playing).';
+      $('overQ').innerHTML='<button id="ovRejoin">REJOIN ROOM '+roomCode+'</button><button id="ovMenu">MAIN MENU</button>';
+      try{document.exitPointerLock();}catch(e){}
+      $('ovRejoin').onclick=ev=>{ev.stopPropagation();try{sessionStorage.setItem('ni_rejoin',JSON.stringify({code:roomCode,name:myName}));}catch(e){}returnToMenu();};
+      $('ovMenu').onclick=ev=>{ev.stopPropagation();returnToMenu();};
+      $('overQ').insertAdjacentHTML('beforeend','<div style="font-size:12px;opacity:.7;margin-top:6px">controller: A = rejoin, B = main menu</div>');
+      let pv=[true,true];setInterval(()=>{const g=[...(navigator.getGamepads?navigator.getGamepads():[])].find(x=>x);if(!g)return;const a=!!(g.buttons[0]&&g.buttons[0].pressed),b=!!(g.buttons[1]&&g.buttons[1].pressed);if(a&&!pv[0])$('ovRejoin').click();else if(b&&!pv[1])$('ovMenu').click();pv=[a,b];},80);
+      return;}
+    if(started){$('over').style.display='flex';$('over').querySelector('h1').textContent='DISCONNECTED';$('overP').textContent=p2p?'The host left the game, or the connection dropped.':'Lost connection to the server.';$('overQ').textContent=p2p?'Click anywhere to go back to the menu and host or join again.':'Refresh the page to rejoin.';if(p2p)setTimeout(()=>{$('over').onclick=returnToMenu;},600);}else if(opened)$('msg').textContent='Connection closed.';};
   if(p2p&&ws.readyState===1)ws.onopen();   // the host's own loopback connection is already open
 }
 function send(m){
@@ -3286,7 +3327,7 @@ function send(m){
   else if(ws&&ws.readyState===1)ws.send(JSON.stringify(m));
 }
 function begin(){
-  started=true;stAdd('gm',1);checkAch();sessAch=[];if(acct)setTimeout(cloudSync,400);firstSnap=true;gameXP=0;lastK=0;$('menu').style.display='none';document.body.classList.add('playing');document.body.classList.toggle('solo',mode==='solo');
+  started=true;runT0=performance.now();stAdd('gm',1);checkAch();sessAch=[];if(acct)setTimeout(cloudSync,400);firstSnap=true;gameXP=0;lastK=0;$('menu').style.display='none';document.body.classList.add('playing');document.body.classList.toggle('solo',mode==='solo');
   $('room').textContent=mode==='online'?'ROOM '+roomCode+' - tell friends this code':'SOLO';
   chanOpen=[true,false,false];if(chanOf(tIdx)!==0){tIdx=CHANS[0].a;song.src=trackURL(tIdx);song._alt=false;}   // every new game starts on NEON FM with the other channels locked
   song.loop=false;startSong();actx();radioLabel('');radioPop();
@@ -3381,6 +3422,10 @@ function lbTable(rows,me){
 let overStart=0;
 function startRoom(){if(mode==='online'&&S&&S.rd.s==='wait'&&S.rd.h===myId)send({t:'start'});}
 $('lbStart').onclick=startRoom;
+let lbSave;   // the host's online quicksave, offered in the waiting room
+$('lbCont').onclick=()=>{const qs=lbSave;if(!qs||!hostRoom||!S||S.rd.s!=='wait'||S.rd.h!==myId)return;
+  try{localStorage.removeItem(QSKEY);}catch(e){}lbSave=null;$('lbCont').style.display='none';   // the save is used up as soon as you continue
+  hostRoom.game.importSave(qs.sv);sfx.go();startRoom();};
 function toggleHard(){if(inLobby()&&S.rd.h===myId)send({t:'hard',on:!S.rd.hd});}
 $('lbHard').onclick=e=>{e.preventDefault();toggleHard();};
 function setVs(on){if(inLobby()&&S.rd.h===myId)send({t:'vs',on:!!on});}
@@ -3699,7 +3744,7 @@ function dexSel(t){
   $('dexName').textContent=f?a.name:'???';$('dexName').style.color=f?'#fff':'#7a5aa8';
   $('dexRole').textContent=f?(a.wheels?'RIDES THE '+CARS[t-30].name:d[0]):'UNKNOWN SPECIES';
   $('dexLore').textContent=f?d[1]:'No data. Spot this alien out in the field and its file unlocks.';
-  $('dexHint').textContent=f?'':('LAST RUMOUR: '+d[2]);
+  $('dexHint').textContent='';
   const ch=[];
   if(f){ch.push('HP '+(a.hp>=1000?(a.hp/1000)+'K':a.hp));ch.push('SPEED '+a.sp);ch.push(a.dmg>0?'DMG '+a.dmg:'NO ATTACK');ch.push('BOUNTY $'+a.money.toLocaleString());
     {const kk=((prof.st&&prof.st.ak&&prof.st.ak[t])|0);if(kk)ch.push('YOU KILLED '+kk.toLocaleString());}if(a.wheels)ch.push('ON WHEELS');if(a.fly)ch.push('FLYING');if(a.ranged)ch.push('RANGED');if(a.boss)ch.push('BOSS');if(a.loner)ch.push('LONE HUNTER');if(a.support)ch.push('HEALER');if(a.bomb)ch.push('EXPLODES');}
@@ -3959,6 +4004,7 @@ function handleEvent(e){
     else if(t==='ammo')lootMsg('ammo','AMMO REFILLED','ALL WEAPONS');
     else lootMsg('med','HEALTH PACK','FULLY HEALED');}}
   else if(k==='ammoall'){if(e[1]===myId){for(let w=0;w<NW;w++)if(myP.wo[w]>=0)fillAmmo(w);}}
+  else if(k==='rejoin'){if(e[1]===myId){sfx.buy();toast('WELCOME BACK','Your money, guns and perks were restored');}else{const q=(S.p||[]).find(x=>x.id===e[1]);if(q)toast(q.n+' IS BACK','Reconnected with all their gear');}}
   else if(k==='heliup'){if(e[1]===myId){sfx.buy();toast('GUNSHIP GUNS MK '+ROM[e[2]|0],Math.round(CARS[7].dmg*NI.heliMul(e[2]))+' DAMAGE PER BULLET');}}
   else if(k==='gotjet'){if(e[1]===myId){sfx.buy();toast('JETPACK','HOLD SPACE TO FLY');setTimeout(()=>{if(myP)jetFuel=NI.jetMax(myP.jl);},400);}}
   else if(k==='reset'){
@@ -4079,14 +4125,63 @@ const SET_ROWS=[['music','MUSIC VOLUME','range',0,100],['sfx','SOUND EFFECTS VOL
 let userPause=false;
 function setPause(v){
   if((mode!=='solo'&&mode!=='online')||!started||!S||S.rd.s==='over')v=false;
-  userPause=v;$('pauseO').style.display=v?'flex':'none';
+  userPause=v;$('pauseO').style.display=v?'flex':'none';$('pSaveMsg').style.display='none';setQuitView(false);if(v)pauseStats();
   $('pInv').style.display=mode==='online'&&roomCode?'block':'none';$('pTitle').textContent=mode==='solo'?'PAUSED':'MENU';$('pNote').style.display=(v&&mode==='online')?'block':'none';
   if(v){for(const k in keys)keys[k]=false;mouseDown=false;aiming=false;}
   if(v){try{document.exitPointerLock();}catch(e){}$('lock').style.display='none';}else if(started)requestLock();
   if(PANE){try{parent.postMessage({ni:'pause',pane:PANE,v:userPause},'*');}catch(e){}}   // splitscreen: the shared game freezes while either player has the menu open
 }
+const QSKEY=DEV_ON?'ni_qs_dev_v1':'ni_qs_v1';
+function fmtCash(v){v=v|0;return '$'+(v>=1e6?(v/1e6).toFixed(1).replace(/\.0$/,'')+'M':v>=1e4?Math.round(v/1e3)+'K':v>=1e3?(v/1e3).toFixed(1).replace(/\.0$/,'')+'K':v);}
+function saveSum(sv,name){   // "$77K · VIOLET RAIL MK IV" for whoever's save this is
+  const ps=(sv&&sv.players)||[];const p=ps.find(x=>x.name===String(name||'').toUpperCase())||ps[0];if(!p)return '';
+  let bi=-1,bl=-2;(p.wo||[]).forEach((l,i)=>{if(l>=0&&WPN[i]&&(l>bl||(l===bl&&i>bi))){bl=l;bi=i;}});
+  return fmtCash(p.money)+(bi>=0?' \u00b7 '+WPN[bi].name+(bl>0?' MK '+ROM[bl]:''):'');}
+const MODE_NM={solo:'SOLO',split:'SPLITSCREEN',host:'ONLINE'};
+let runT0=0,pauseQuitView=false,pqT=0;
+function pauseStats(){const me=S&&(S.p||[]).find(p=>p.id===myId);if(!me){$('pStats').innerHTML='';return;}
+  const t=Math.max(0,(performance.now()-runT0)/1000|0),tm=(t/3600|0)?(t/3600|0)+':'+String((t/60|0)%60).padStart(2,'0'):(t/60|0);
+  $('pStats').innerHTML='<span><b>'+(S.rd.n||0)+'</b>ROUND</span><span><b>'+(me.k|0)+'</b>KILLS</span><span><b>'+fmtCash(me.m)+'</b>CASH</span><span><b>'+tm+':'+String(t%60).padStart(2,'0')+'</b>TIME</span>';}
+function canSaveRole(){return !!(PANE||mode==='solo'||hostRoom);}
+function refreshQuit(){
+  const role=canSaveRole(),vs=S&&S.rd.vs,between=S&&S.rd.s==='rest'&&(S.rd.n|0)>=1;
+  $('pSave').style.display=role&&!vs?'block':'none';$('pSave').disabled=!between;
+  $('pSaveWhy').textContent=role&&!vs&&!between?(S&&(S.rd.n|0)<1?'Nothing to save yet - finish round 1 first':'Saving opens between rounds'):'';
+  $('pSaveWhy').style.display=$('pSaveWhy').textContent?'block':'none';
+  $('pLeave').textContent=role&&!vs?'QUIT WITHOUT SAVING':'LEAVE GAME';
+  let info='';
+  if(role&&!vs){const old=qsGet(),cur=PANE?'split':mode==='solo'?'solo':'host';
+    if(old)info=old.mode!==cur?'<span class="warn">Saving replaces your '+MODE_NM[old.mode]+' save (round '+old.sv.round+')</span>':'Saving replaces your last save (round '+old.sv.round+')';
+    else info='Save now and pick up from round '+((S&&S.rd.n|0)+1)+' later';
+    if(hostRoom&&mode==='online')info+='<br>Everyone in the room goes back to the menu';}
+  else if(mode==='online')info='You can rejoin while the room is still open';
+  $('pQInfo').innerHTML=info;}
+function setQuitView(v){
+  pauseQuitView=v;$('pMain').style.display=v?'none':'flex';$('pQ').style.display=v?'flex':'none';
+  $('pTitle').textContent=v?'QUIT GAME?':(mode==='solo'?'PAUSED':'MENU');$('pHint').textContent=v?'B / ESC = cancel':'TAB / START to resume';
+  clearInterval(pqT);if(v){refreshQuit();pqT=setInterval(()=>{if(pauseQuitView)refreshQuit();},400);}
+  if(usingPad){const L=$('pauseO'),f=uiFocusables(L)[0];if(f)uiSetFocus(L,f);}
+}   // one quicksave slot; it is used up (deleted) when you continue from it
+function qsGet(){try{const o=JSON.parse(localStorage.getItem(QSKEY)||'null');return o&&o.sv&&o.sv.v===1?o:null;}catch(e){return null;}}
+function quickSave(){
+  if(PANE){try{parent.postMessage({ni:'qsave',pane:PANE},'*');}catch(e){}return;}   // splitscreen: the shared game lives in the host page, which saves it
+  const g=mode==='solo'?solo:(hostRoom&&hostRoom.game);
+  if(!g){toast('CAN\'T SAVE','Only the host can save an online game');sfx.no();return;}
+  const sv=g.exportSave();
+  if(!sv){toast('CAN\'T SAVE RIGHT NOW','Start the game first (versus matches can\'t be saved)');sfx.no();return;}
+  try{localStorage.setItem(QSKEY,JSON.stringify({mode:mode==='solo'?'solo':'host',name:myName,sv}));}catch(e){toast('SAVE FAILED','Your browser blocked saving');return;}
+  saveDone(sv.round,mode==='solo'?'':'Friends rejoin with the same names to get their gear back');
+}
+function saveDone(round,extra,where){   // save & quit: back to the title screen so the run can't keep going past the save
+  where=where||(PANE?'the splitscreen setup screen':mode==='solo'?'the main menu':'the waiting room after you host');
+  sfx.buy();$('pSave').textContent='SAVED \u2713';
+  try{sessionStorage.setItem('ni_saved',JSON.stringify({round,where,extra:extra||''}));}catch(e){}
+  if(hostRoom){const msg=JSON.stringify({t:'hostsaved',round});for(const c of hostRoom.clients.values())try{c.send(msg);}catch(e){}}   // guests see why the game ended
+  setTimeout(()=>{setPause(false);returnToMenu();},450);
+}
+$('pSave').onclick=quickSave;
 $('pauseB').onclick=()=>setPause(true);$('pResume').onclick=()=>setPause(false);
-$('lbInv').onclick=e=>{e.stopPropagation();copyInvite($('lbInv'));};$('pInv').onclick=()=>copyInvite($('pInv'));$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>{setPause(false);returnToMenu();};
+$('lbInv').onclick=e=>{e.stopPropagation();copyInvite($('lbInv'));};$('pInv').onclick=()=>copyInvite($('pInv'));$('pSet').onclick=()=>toggleSettings(true);$('pCtl').onclick=()=>{$('howto').style.display='flex';};$('pQuit').onclick=()=>setQuitView(true);$('pCancel').onclick=()=>setQuitView(false);$('pLeave').onclick=()=>{setPause(false);returnToMenu();};
 function toggleSettings(force){
   const s=$('settings'),open=s.style.display==='flex',want=force===undefined?!open:force;
   s.style.display=want?'flex':'none';
@@ -4096,6 +4191,7 @@ $('setClose').onclick=()=>toggleSettings(false);
 addEventListener('keydown',e=>{
   const t=document.activeElement&&document.activeElement.tagName;
   if(e.code==='KeyO'&&t!=='INPUT')toggleSettings();
+  if(e.code==='Escape'&&userPause&&pauseQuitView){e.preventDefault();setQuitView(false);return;}
   if((e.code==='Tab'||e.code==='Pause')&&t!=='INPUT'){e.preventDefault();if(started)setPause(!userPause);return;}
   else if(e.code==='Escape'&&$('settings').style.display==='flex')toggleSettings(false);
 });
@@ -4456,7 +4552,7 @@ const padK={};function setK(c,v){if(padK[c]!==v){padK[c]=v;keys[c]=v;}}
 /* ===== controller navigation for every menu (D-pad / left stick move, A select, B back, LB/RB switch tabs) ===== */
 const UI_ORDER=['osk','dexP','clipsP','slots','roul','vsWin','frp','settings','howto','locker','lbp','pauseO','lobby','menu'];
 const UI_CLOSE={dexP:'dexClose',slots:'slClose',roul:'rlClose',frp:'frClose',clipsP:'clipsClose',settings:'setClose',howto:'howClose',locker:'lkClose',lbp:'lbClose',pauseO:'pResume',lobby:'lbBack',vsWin:'vsNo'};
-const UI_DEF={dexP:'#dexGrid button',slots:'#slSpin',roul:'#rlSpin',menu:'#bSolo',pauseO:'#pResume',lobby:'#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',clipsP:'#clipsBody button,#clipsClose',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
+const UI_DEF={dexP:'#dexGrid button',slots:'#slSpin',roul:'#rlSpin',menu:'#bSolo',pauseO:'#pResume',lobby:'#lbCont:not([style*="none"]),#lbStart',vsWin:'#vsYes',locker:'#lktabs div.on,#actabs div.on',frp:'#frbody input,#frbody button',clipsP:'#clipsBody button,#clipsClose',lbp:'#lbClose',howto:'#howClose',settings:'#setBody input',osk:'#osk button[data-k="A"]'};
 function uiLayer(){for(const id of UI_ORDER){const el=$(id);if(!el)continue;if(id==='menu'&&started)continue;if(getComputedStyle(el).display!=='none')return el;}return null;}
 function uiFocusables(layer){
   return [...layer.querySelectorAll('button,input,label#lbHard,#lbMode,a#discord,.sk,.navtabs div,.subtabs div,#chtabs div')].filter(el=>{
@@ -4560,7 +4656,7 @@ function padNav(layer,gp,edge,lx,ly,dt){
   if(id==='vsWin'){if(edge(0)||edge(9))$('vsYes').click();else if(edge(1))$('vsNo').click();return;}
   if(id==='lobby'){
     if(edge(2)){toggleHard();return;}if(edge(3)){setVs(!S.rd.vs);return;}
-    if(edge(9)){const b=$('lbStart');if(!b.disabled)b.click();return;}
+    if(edge(9)){const c=$('lbCont'),b=c.style.display!=='none'?c:$('lbStart');if(!b.disabled)b.click();return;}
     if(edge(0)){const cur=layer.querySelector('.padfocus');if(!cur)uiSetFocus(layer,uiDefault(layer));else uiActivate(layer);}
     return;
   }
@@ -4568,8 +4664,8 @@ function padNav(layer,gp,edge,lx,ly,dt){
     if(id==='menu'&&!layer.querySelector('.padfocus')){const b=$('bSolo');if(b)b.click();return;}   // A on the title screen starts a solo game
     uiActivate(layer);
   }
-  if(edge(9)){if(id==='menu'){const b=$('bSolo');if(b)b.click();}else if(id==='pauseO')setPause(false);}
-  if(edge(1)&&UI_CLOSE[id]){const b=$(UI_CLOSE[id]);if(b)b.click();}
+  if(edge(9)){if(id==='menu'){const b=$('bSolo');if(b)b.click();}else if(id==='pauseO'){if(pauseQuitView)setQuitView(false);else setPause(false);}}
+  if(edge(1)&&UI_CLOSE[id]){const b=$(id==='pauseO'&&pauseQuitView?'pCancel':UI_CLOSE[id]);if(b)b.click();}
   if(edge(4)||edge(5)){const dir=edge(5)?1:-1;if(id==='dexP')uiTabs(layer,dir,'.dxt');else if(!uiTabs(layer,dir,'.navtabs div'))uiTabs(layer,dir,'.subtabs div');}
   if(edge(6)||edge(7)){uiTabs(layer,edge(7)?1:-1,'.lkp.on .subtabs div')||uiTabs(layer,edge(7)?1:-1,'#chtabs div');}
 }
@@ -5098,7 +5194,8 @@ function drawBig(){
     const cs0=NI.WORLD.casino;if(cs0){L('CASINO',cs0.x,cs0.z-14,'#ff6ac8',19);bg.fillStyle='#ff2fa0';bg.fillRect(X(cs0.x)-7,Z(cs0.z)-5,14,10);}
     const bb0=NI.WORLD.bbar;if(bb0)L('TIKI',bb0.x,bb0.z-8,'#ff9a3c',15);
   }
-  for(const [id,c] of carsM){bg.fillStyle='#ff2fa0';bg.fillRect(X(c.x)-4,Z(c.z)-3,8,6);}
+  for(const [id,c] of carsM){carMark(bg,X(c.x),Z(c.z),c.h,carCol(c),1.7);
+    carLabel(bg,X(c.x),Z(c.z)-12,carTag(c),11);}
   for(const o of aliensM.values()){
     if(SPECIAL(o.t)){bg.fillStyle='#3cff3c';bg.strokeStyle='#fff';bg.lineWidth=3;bg.beginPath();bg.arc(X(o.x),Z(o.z),11,0,6.3);bg.fill();bg.stroke();bg.fillStyle='#000';bg.font='bold 13px sans-serif';bg.fillText((SPL[o.t]||'!'),X(o.x)-4,Z(o.z)+5);continue;}
     if(o.t===14||o.t===24){bg.fillStyle=SET.cb?'#ffd400':'#3cff3c';bg.beginPath();bg.arc(X(o.x),Z(o.z),7,0,6.3);bg.fill();continue;}   // every enemy is a green dot on the full map
@@ -5110,6 +5207,16 @@ function drawBig(){
   bg.save();bg.translate(X(me.x),Z(me.z));bg.rotate(-me.yaw);bg.fillStyle='#fff';bg.strokeStyle='#ff2fa0';bg.lineWidth=2;bg.beginPath();bg.moveTo(0,-11);bg.lineTo(8,9);bg.lineTo(-8,9);bg.closePath();bg.fill();bg.stroke();bg.restore();
   bg.fillStyle='rgba(0,0,0,.6)';bg.fillRect(0,0,MMW,24);bg.fillStyle='#25f4ff';bg.font='bold 14px sans-serif';bg.fillText(PT('FULL MAP  -  press L (or click the right stick) to close'),10,17);
 }
+function carMark(ctx,x,y,h,col,k){   // a little top-down car in the vehicle's own colour, pointing where it faces
+  ctx.save();ctx.translate(x,y);ctx.rotate(-(h||0));ctx.scale(k,k);
+  ctx.fillStyle=col;ctx.strokeStyle='#fff';ctx.lineWidth=1.6/k*1.2;
+  ctx.beginPath();if(ctx.roundRect)ctx.roundRect(-3.2,-5.2,6.4,10.4,2);else ctx.rect(-3.2,-5.2,6.4,10.4);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(-2.2,1,4.4,2.6);   // windshield shows the front
+  ctx.restore();
+}
+const carTag=c=>(CARS[c.t]&&CARS[c.t].kind==='heli')?'HELI':'CAR';
+function carLabel(ctx,x,y,txt,px){ctx.font='bold '+px+'px sans-serif';ctx.textAlign='center';ctx.lineJoin='round';ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(txt,x,y);ctx.fillStyle='#fff';ctx.fillText(txt,x,y);ctx.textAlign='left';}
+const carCol=c=>'#'+(CARS[c.t]?CARS[c.t].color:0xff2fa0).toString(16).padStart(6,'0');
 function drawMini(){
   const R=130*(wxNow===4?(1-0.5*wxK):1),sc=180/(R*2);
   mg.fillStyle='#1a0b33';mg.fillRect(0,0,180,180);
@@ -5121,7 +5228,7 @@ function drawMini(){
     mg.fillStyle=mboxOpened?'#8a7a30':'#ffd23c';mg.globalAlpha=mboxOpened?0.7:0.6+0.4*pr;const r=mboxOpened?5:5+2*pr;mg.fillRect(bx-r,bz-r,r*2,r*2);mg.globalAlpha=1;mg.fillStyle='#000';mg.font='bold 10px sans-serif';mg.textAlign='center';mg.fillText('?',bx,bz+3.5);mg.textAlign='left';}}
 
   for(const o of lootObjs){if(!o.on||o.l.t===2)continue;mg.fillStyle=o.l.t===3?'#3cff9e':o.l.t?'#c58cff':'#fff3b0';mg.fillRect(tx(o.l.x)-1.5,tz(o.l.z)-1.5,3,3);}
-  for(const [id,c] of carsM){mg.fillStyle='#ff2fa0';mg.fillRect(tx(c.x)-3,tz(c.z)-2,6,4);}
+  for(const [id,c] of carsM){const X=tx(c.x),Z=tz(c.z);if(Math.hypot(X-90,Z-90)>86)continue;carMark(mg,X,Z,c.h,carCol(c),1.25);carLabel(mg,X,Z-9,carTag(c),9);}
   for(const o of aliensM.values()){
     if(SPECIAL(o.t)){   // special aliens: big green marker, or a big green edge arrow when off the minimap
       const ddx=tx(o.x)-90,ddz=tz(o.z)-90,dd=Math.hypot(ddx,ddz),pr=0.5+0.5*Math.sin(elapsed*6);
@@ -5227,9 +5334,12 @@ function updateHUD(dt){
       {const vm=$('lbMode');vm.classList.toggle('locked',!host);[...vm.querySelectorAll('.seg span')].forEach(b=>{const on=(+b.dataset.m)===(S.rd.vs?1:0);b.classList.toggle('on',on);b.classList.toggle('vs',on&&b.dataset.m==='1');});
         $('lbModeSub').textContent=S.rd.vs?'last one standing wins - no revives':'work together and survive';
         const need=S.rd.vs&&all.length<2;$('lbStart').disabled=!host||need;}
+      if(lbSave===undefined){const q=host&&hostRoom?qsGet():null;lbSave=q&&q.mode==='host'?q:null;
+        const c=$('lbCont');if(lbSave){c.innerHTML='CONTINUE<small>ROUND '+lbSave.sv.round+(lbSave.sv.hard?' \u00b7 HARD':'')+' \u00b7 '+saveSum(lbSave.sv,myName)+'</small>';c.style.display='block';}else c.style.display='none';
+        $('lbBtns').classList.toggle('two',!!lbSave);$('lbStart').textContent=lbSave?'NEW GAME':'START GAME';}
       const hd=$('lbHard');$('lbHardCb').checked=!!S.rd.hd;hd.classList.toggle('on',!!S.rd.hd);hd.classList.toggle('locked',!host);hd.title=host?'':'Only the host can change this';
-      $('lbHint').textContent=PT(S.rd.vs&&all.length<2?'VERSUS NEEDS AT LEAST 2 PLAYERS':host?'SPACE / A START  -  H / X HARD MODE  -  V / Y VERSUS':'WAITING FOR THE HOST TO START...');
-    }else{lb.style.display='none';if(lobbyMute){lobbyMute=false;if(_bus)_bus.gain.value=2.6*SET.sfx/100;}}
+      $('lbHint').textContent=PT(S.rd.vs&&all.length<2?'VERSUS NEEDS AT LEAST 2 PLAYERS':host&&lbSave?'CONTINUE: FRIENDS GET THEIR GEAR BACK BY JOINING WITH THE SAME NAMES AS LAST TIME':host?'SPACE / A START  -  H / X HARD MODE  -  V / Y VERSUS':'WAITING FOR THE HOST TO START...');
+    }else{lb.style.display='none';lbSave=undefined;if(lobbyMute){lobbyMute=false;if(_bus)_bus.gain.value=2.6*SET.sfx/100;}}
   }
   { const vw=$('vsWin'),show=!!(S.rd.vp&&S.rd.vw===myId&&mode==='online');
     if(show&&vw.style.display!=='flex'){vw.style.display='flex';try{document.exitPointerLock();}catch(e){}for(const k in keys)keys[k]=false;mouseDown=false;sfx.round();}
@@ -5494,7 +5604,7 @@ async function clipsRender(){
 }
 async function openClips(){$('clipsP').style.display='block';try{document.exitPointerLock();}catch(e){}await clipsRender();}
 function closeClips(){$('clipsP').style.display='none';for(const v of $('clipsBody').querySelectorAll('video')){try{v.pause();URL.revokeObjectURL(v.src);}catch(e){}}if(started&&!userPause)requestLock();}
-$('bClips').onclick=openClips;$('pClips').onclick=openClips;$('clipsClose').onclick=closeClips;
+$('bClips').onclick=openClips;$('clipsClose').onclick=closeClips;
 $('clipsBody').addEventListener('click',async e=>{
   const b=e.target.closest('[data-op]');if(!b)return;const card=b.closest('.cc'),id=+card.dataset.id,op=b.dataset.op;
   let o=null;try{o=(await clipAll()).find(x=>x.id===id);}catch(x){}
@@ -5767,6 +5877,25 @@ function frame(now){
   $('bSolo').onclick=()=>{sfx.go();myName=getName().toUpperCase();startSolo(getName());};
   (function(){const N={name:{D:'bSolo'},bSolo:{U:'name',D:'room_in'},room_in:{U:'bSolo',D:'bOnline',R:'bSplit'},bOnline:{U:'room_in',R:'bSplit',D:'bQuit'},bSplit:{U:'bSolo',L:'bOnline',D:'bQuit'},bLB:{U:'bOnline',R:'bQuit',D:'discord'},bQuit:{U:'bSplit',L:'bOnline',D:'discord'},discord:{U:'bQuit'}};
     for(const id in N){const e=$(id);if(e)for(const k in N[id])e.dataset['nav'+k]=N[id][k];}})();
+  {let sd=null;try{sd=JSON.parse(sessionStorage.getItem('ni_saved')||'null');sessionStorage.removeItem('ni_saved');}catch(e){}   // just did SAVE & QUIT
+    if(sd&&!PANE){const n=document.createElement('div');n.id='savedPill';
+      n.innerHTML='<b>\u2713 GAME SAVED</b><span>'+(sd.where==='the main menu'?'Press CONTINUE to start at round '+sd.round:'Continue from '+sd.where+' to start at round '+sd.round)+(sd.extra?'<br>'+sd.extra:'')+'</span>';
+      $('menu').appendChild(n);setTimeout(()=>n.classList.add('out'),7000);setTimeout(()=>n.remove(),7800);}}
+  {const qs=qsGet();   // a solo quicksave turns PLAY SOLO into CONTINUE (online saves continue from the waiting room, splitscreen ones from the controller screen)
+    if(qs&&qs.mode==='solo'&&!PANE){
+      const bs=$('bSolo');bs.classList.add('cont');
+      bs.innerHTML='CONTINUE<small>ROUND '+qs.sv.round+(qs.sv.hard?' \u00b7 HARD':'')+'<i>'+saveSum(qs.sv,qs.name)+'</i></small>';
+      const nb=document.createElement('button');nb.id='bNew';nb.textContent='NEW SOLO GAME';bs.insertAdjacentElement('afterend',nb);
+      bs.dataset.navD='bNew';nb.dataset.navU='bSolo';nb.dataset.navD='room_in';$('room_in').dataset.navU='bNew';$('bSplit').dataset.navU='bNew';
+      bs.onclick=()=>{try{localStorage.removeItem(QSKEY);}catch(e){}   // the save is used up as soon as you continue
+        sfx.go();if(qs.name)$('name').value=qs.name;myName=getName().toUpperCase();window.__resumeSave=qs.sv;startSolo(getName());};
+      nb.onclick=()=>{sfx.go();myName=getName().toUpperCase();startSolo(getName());};   // the save stays until you continue it or save over it
+    }
+    else if(qs&&!PANE){const b=$(qs.mode==='split'?'bSplit':'bOnline');   // point at where an online / splitscreen save is continued
+      const tag='<small style="display:block;font-size:10px;font-style:normal;letter-spacing:2px;opacity:.85;margin-top:3px">SAVED GAME \u00b7 ROUND '+qs.sv.round+'</small>';
+      if(qs.mode!=='split')window.__hostSaveTag=tag;
+      if(b&&!b.querySelector('small')&&!(qs.mode!=='split'&&$('room_in').value.trim()))b.insertAdjacentHTML('beforeend',tag);}
+  }
   $('bSplit').onclick=()=>{getName();sfx.go();setTimeout(()=>{location.href=location.pathname+'?split=host';},420);};   // short wait so the launch sound is heard before the page changes
   const lbBase=()=>{let u=$('url').value.trim();return u.replace(/^wss:/,'https:').replace(/^ws:/,'http:').replace(/\/+$/,'');};
   /* ---------- friends panel ---------- */
@@ -5824,6 +5953,8 @@ function frame(now){
     clearInterval(frTimer);frTimer=setInterval(()=>{if($('frp').style.display==='flex'&&acct&&document.activeElement.tagName!=='INPUT')cloudSync().then(()=>{if(acct&&document.activeElement.tagName!=='INPUT')drawFr();});},8000);}
   function closeFr(){$('frp').style.display='none';clearInterval(frTimer);}
   window.__openFr=openFr;
+  try{const rj=JSON.parse(sessionStorage.getItem('ni_rejoin')||'null');sessionStorage.removeItem('ni_rejoin');   // REJOIN after a dropped connection
+    if(rj&&rj.code&&!PANE){$('room_in').value=rj.code;if(rj.name)$('name').value=rj.name;$('room_in').dispatchEvent(new Event('input'));$('msg').textContent='REJOINING ROOM '+rj.code+'...';setTimeout(()=>$('bOnline').click(),500);}}catch(e){}
   try{const rc=(new URLSearchParams(location.search).get('room')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
     if(rc){$('room_in').value=rc;$('msg').textContent='YOU WERE INVITED TO ROOM '+rc+' - '+($('name').value.trim()?'PRESS CREATE / JOIN ROOM':'TYPE YOUR NAME, THEN PRESS CREATE / JOIN ROOM');}}catch(e){}
   $('bFr').onclick=openFr;$('frClose').onclick=closeFr;
@@ -5844,7 +5975,7 @@ function frame(now){
     }catch(e){$('lbbody').textContent='Could not reach the server at '+lbBase()+'. Check the address (or wait a minute if it is waking up) and try again.';}
   };
   $('lbClose').onclick=()=>{$('lbp').style.display='none';};
-  const syncOnlineBtn=()=>{const c=$('room_in').value.trim();$('bOnline').textContent=c?'JOIN ROOM '+c.toUpperCase():'HOST A NEW ROOM';};
+  const syncOnlineBtn=()=>{const c=$('room_in').value.trim();$('bOnline').innerHTML=c?'JOIN ROOM '+c.toUpperCase():'HOST A NEW ROOM'+(window.__hostSaveTag||'');};
   $('room_in').addEventListener('input',syncOnlineBtn);syncOnlineBtn();
   $('bOnline').onclick=()=>{
     const nm=$('name').value.trim();
@@ -5951,6 +6082,7 @@ if(PANE){   // LOCAL SPLITSCREEN pane: play as player PANE through a fake connec
   ws={readyState:1,send:s=>{try{parent.postMessage({ni:'c2h',pane:PANE,d:s},'*');}catch(e){}},close(){}};
   addEventListener('message',e=>{
     const d=e.data;if(!d||d.ni!=='h2c')return;
+    if(d.qs){if(d.qs.ok){sfx.buy();$('pSave').textContent='SAVED \u2713';}else{sfx.no();toast('CAN\'T SAVE RIGHT NOW','Start the game first (versus matches can\'t be saved)');}return;}
     if(d.pad!==undefined){
       window.__padSet(d.pad);
       if(d.pad&&PANE===1&&d.pad.buttons.some(b=>b[0]))$('lock').style.display='none';   // a controller press counts as "click to play"

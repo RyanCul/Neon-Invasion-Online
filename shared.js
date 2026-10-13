@@ -839,8 +839,39 @@ class Game{
       joinRound:(this.state==='fight'?this.round:this.round+1),wo:newWo(),perks:PERKS.map(()=>false),w:0,lv:1,sk:0,ch:[0,0,0,0,0,0,0,0,0],jet:false,jl:0,hl:0,oc:0,jfl:0,ck:0,car:-1,lastHit:-99,bleed:0,rvProg:0,rvT:-9,rvTarget:0,fireT:0,sp:0,dd:0,rvd:0,dn:0,dt:0,bk:0};
     this.spawnPos(p);
     this.players.set(id,p);
+    const gb=this.gone&&this.gone[p.name];
+    if(gb&&this.state!=='lobby'&&this.state!=='wait'){   // rejoining after a disconnect: you get your money, guns, perks and garage back
+      delete this.gone[p.name];p._rs=1;
+      p.money=gb.money;p.kills=gb.kills;p.jet=gb.jet;p.jl=gb.jl;p.hl=gb.hl;p.oc=gb.oc;p.wo=gb.wo.slice();p.perks=gb.perks.slice();p.lv=gb.lv||p.lv;
+      p.hp=mhp(p);setTimeout(()=>{this.push('ammoall',p.id);this.push('rejoin',p.id);},0);
+    }
+    if(this.resume)this.applyResume(p);
     if(this.state==='lobby'){if(this.online){this.state='wait';this.timer=0;}else{this.state='rest';this.timer=6;}this.round=0;}
     return p;
+  }
+  exportSave(){   // quicksave: resume at the start of the current round (or the next one, between rounds) with everyone's loadout
+    if(this.state!=='rest'||this.vs)return null;   // saving only happens between rounds
+    const round=this.round+1;
+    const players=[...this.players.values()].map(p=>({name:p.name,money:p.money|0,kills:p.kills|0,wo:p.wo.slice(),pk:p.perks.map((v,i)=>v?i:-1).filter(i=>i>=0),jet:!!p.jet,jl:p.jl|0,hl:p.hl|0,oc:p.oc|0}));
+    return {v:1,round:Math.max(1,round),hard:!!this.hard,players,at:Date.now()};
+  }
+  applyResume(p){   // quicksave: a saved player gets their money, guns, perks and garage back; anyone new gets the usual catch-up cash
+    const r=this.resume;if(!r||p._rs)return;p._rs=1;
+    const sp=r.byName[p.name];
+    if(sp){delete r.byName[p.name];
+      p.money=sp.money|0;p.kills=sp.kills|0;p.jet=!!sp.jet;p.jl=sp.jl|0;p.hl=sp.hl|0;p.oc=sp.oc|0;
+      if(Array.isArray(sp.wo))p.wo=p.wo.map((v,i)=>Number.isInteger(sp.wo[i])?Math.max(-1,Math.min(MAXUP,sp.wo[i])):v);
+      if(Array.isArray(sp.pk))for(const i of sp.pk)if(PERKS[i])p.perks[i]=true;
+      p.hp=mhp(p);setTimeout(()=>this.push('ammoall',p.id),0);
+    } else p.money=Math.max(p.money,500+(r.round-1)*250);
+    p.joinRound=r.round;
+  }
+  importSave(sv){
+    if(!sv||sv.v!==1)return;
+    this.vs=false;   // saves are always co-op
+    this.resume={round:Math.max(1,sv.round|0),byName:{}};
+    for(const p of sv.players||[])if(p&&p.name)this.resume.byName[String(p.name).toUpperCase()]=p;
+    this.hard=!!sv.hard;
   }
   setProfile(id,lv,sk,ck,ch,ex,ach){
     const p=this.players.get(id);if(!p)return;
@@ -864,6 +895,8 @@ class Game{
     const p=this.players.get(id);if(!p)return;
     if(this.round>=1&&this.state!=='over')this.report([p]);
     if(p.car>=0)this.leaveCar(p);
+    if(this.online&&(this.state==='rest'||this.state==='fight')){   // remember their gear in case they reconnect
+      this.gone=this.gone||{};this.gone[p.name]={money:p.money|0,kills:p.kills|0,jet:!!p.jet,jl:p.jl|0,hl:p.hl|0,oc:p.oc|0,wo:p.wo.slice(),perks:p.perks.slice()};}
     this.players.delete(id);this.flows.delete(id);
     if(!this.players.size){this.state='lobby';}
   }
@@ -966,7 +999,8 @@ class Game{
         if(p.id!==host)break;
         if(this.vs&&this.players.size<2){this.push('vsmin');break;}   // versus needs at least two players
         this.vsN=this.vs?this.players.size:0;
-        this.state='rest';this.timer=5;this.round=0;this.push('go');break;
+        if(this.resume)for(const q of this.players.values())this.applyResume(q);   // continuing a save from the waiting room / splitscreen setup
+        this.state='rest';this.timer=5;this.round=this.resume?Math.max(0,this.resume.round-1):0;this.push('go');break;
       }
       case 'rv':p.rvTarget=m.target|0;p.rvT=this.time;break;
       case 'prof':this.setProfile(id,m.lv,m.sk,m.ck,m.ch,m.ex,m.ach);break;
@@ -1306,6 +1340,7 @@ class Game{
         this.push('revived',p.id);
       }
     }
+    for(const c of this.cars){const cd=CARS[c.t];if(cd)c.hp=cd.hp;}   // every vehicle is repaired to full health at the start of each round
     this.vehSwarm=-1;this.vehSwarmN=0;
     if(!ultimate&&this.round>=17&&(this.round-17)%10===0){   // special rounds 17, 27, 37 ...: 20 aliens all riding the same vehicle, a better one each time
       const vt=Math.min(CARS.length-1,(this.round-17)/10);
