@@ -47,6 +47,7 @@ body.playing .hud{display:block}
 #wslots{right:22px;bottom:190px;font-size:12px;text-align:right;letter-spacing:1px}
 #mm{position:fixed;right:20px;bottom:20px;width:240px;height:240px;border:2px solid #25f4ff;box-shadow:0 0 14px #25f4ff,inset 0 0 14px rgba(37,244,255,.35);background:#1a0b33;pointer-events:none;display:none}
 body.playing #mm{display:block}
+#heliAim{position:fixed;left:0;top:0;width:46px;height:46px;margin:-23px 0 0 -23px;pointer-events:none;display:none;z-index:4;--hc:#fff35a;filter:drop-shadow(0 0 1.5px #000) drop-shadow(0 0 1.5px #000);transition:transform .05s linear}#heliAim i{position:absolute;inset:0;border:2px solid var(--hc);border-radius:50%;box-shadow:0 0 8px var(--hc),inset 0 0 6px var(--hc)}#heliAim b{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--hc);box-shadow:0 0 6px var(--hc)}#heliAim:before,#heliAim:after{content:'';position:absolute;background:var(--hc);box-shadow:0 0 6px var(--hc)}#heliAim:before{left:50%;top:-9px;bottom:-9px;width:2px;margin-left:-1px;clip-path:polygon(0 0,100% 0,100% 22%,0 22%,0 78%,100% 78%,100% 100%,0 100%)}#heliAim:after{top:50%;left:-9px;right:-9px;height:2px;margin-top:-1px;clip-path:polygon(0 0,22% 0,22% 100%,0 100%,78% 0,100% 0,100% 100%,78% 100%)}#heliAim.lock{--hc:#ff2f5a}#heliAim.lock i{animation:haLock .5s ease-in-out infinite alternate}@keyframes haLock{from{transform:scale(1)}to{transform:scale(.8)}}
 #xhair{position:fixed;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;display:none}
 body.playing.foot #xhair{display:block}
 #xhair:before,#xhair:after{content:'';position:absolute;background:#fff;box-shadow:0 0 6px #25f4ff}
@@ -502,7 +503,7 @@ body.splitpane #pInv,body.splitpane #pNote,body.splitpane #discord,body.splitpan
 <body>
 <canvas id="game" class="retro"></canvas>
 <div id="scan"></div><div id="vig"></div><div id="hurt"></div>
-<div id="xhair"></div>
+<div id="xhair"></div><div id="heliAim"><i></i><b></b></div>
 
 <div class="hud" id="money">$0</div>
 <div class="hud" id="lvl"></div>
@@ -5146,6 +5147,18 @@ function tryFire(dt){
   send({t:'fire',w:curW,o:[ox,oy,oz],d:[d.x,d.y,d.z],s:seed});
   if(!w.melee&&a.mag<=0&&a.res>0)setTimeout(startReload,120);
 }
+const _haV=new THREE.Vector3();
+function updHeliAim(){   // gunship reticle: shows where the door guns will actually hit (turns red when an alien is in the line of fire)
+  const el=$('heliAim'),c=driving>=0?carsM.get(driving):null,cd=c&&CARS[c.t];
+  if(!cd||cd.kind!=='heli'||!S||!myP||myP.st!=='alive'||userPause){if(el.style.display!=='none')el.style.display='none';return;}
+  const cp=Math.cos(cs.pitch),dx=-Math.sin(me.yaw)*cp,dy=Math.sin(cs.pitch),dz=-Math.cos(me.yaw)*cp;
+  const hx=cs.x+Math.sin(cs.h)*2.4,hz=cs.z+Math.cos(cs.h)*2.4,hy=cs.y+1.6;
+  const tw=NI.rayWorld(hx,hy,hz,dx,dy,dz,320),t=alienHitT(hx,hy,hz,[dx,dy,dz],tw);
+  camera.updateMatrixWorld();_haV.set(hx+dx*t,hy+dy*t,hz+dz*t).project(camera);
+  if(_haV.z>1||Math.abs(_haV.x)>1.2||Math.abs(_haV.y)>1.2){el.style.display='none';return;}
+  el.style.display='block';el.style.transform='translate('+((_haV.x+1)/2*innerWidth).toFixed(1)+'px,'+((1-_haV.y)/2*innerHeight).toFixed(1)+'px)';
+  el.classList.toggle('lock',t<tw-0.01);
+}
 function fireCar(){
   const c=carsM.get(driving);if(!c)return;
   const cd=CARS[c.t];if(!cd.gun)return;carCd=1/cd.rate;
@@ -5847,6 +5860,7 @@ function frame(now){
     // overlay fx
     hurtA=Math.max(0,hurtA-dt*1.4);$('hurt').style.opacity=Math.max(hurtA,myP.hp<30&&myP.st==='alive'?0.35+Math.sin(elapsed*6)*0.1:0)*(SET.flash?1:0.4);
     if(hitT>0){hitT-=dt;if(hitT<=0)$('xhair').className='';}
+    updHeliAim();
     if(toastT>0){toastT-=dt;if(toastT<=0)$('toast').classList.remove('show');}
     hudT-=dt;if(hudT<=0){hudT=0.05;updateHUD(dt);}
     if(!PANE||(frameN&1))drawMini();if(bigOn)drawBig();updateWave(dt);updSigns(elapsed);dvT-=dt;if(dvT<=0){dvT=0.2;updDrivein(elapsed);}if(mbG){mbG.rotation.y=elapsed*0.8;if(S&&S.rd&&S.rd.mx!==undefined&&(MB.x!==S.rd.mx||MB.z!==S.rd.mz)){MB.x=S.rd.mx;MB.z=S.rd.mz;MB.name=S.rd.mn;mbG.position.set(MB.x,0.46,MB.z);}}

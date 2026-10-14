@@ -599,3 +599,6 @@ There's one save slot. Where you continue from depends on where you saved:
 - Save summaries: CONTINUE shows the round plus your cash and best gun ("$78K · VIOLET RAIL MK V"); the waiting room and splitscreen screens show the same kind of info.
 - When the host does Save & Quit, guests see **HOST SAVED THE GAME** with the round, telling them to rejoin with the same name later.
 - **Rejoining after a disconnect:** the host remembers a dropped player's money, guns, perks, jetpack and gunship upgrades. Guests who drop get a **REJOIN ROOM** button (controller A) that reconnects them with all their gear. If the host still has the old connection open, joining again with the same name replaces it.
+
+## Gunship aim reticle
+- Flying the gunship (pilot or door gunner) now shows a yellow aim reticle where the miniguns will actually hit. It follows your aim, sits on whatever the bullets would hit first, and turns red and pulses when an alien is in the line of fire.
