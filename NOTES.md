@@ -68,7 +68,8 @@ Applied in the last edit but NOT yet tested in the game:
 
 Verified 2026-11-12 (browser pane, solo game, level 1):
 - Palm collision: sprinting head-on into a trunk stopped the player cleanly (x -52 to -55.31, no pass-through). 1395 solids registered. Diagonal sliding not tested.
-- Frame rate: 30 fps, but the pane's detected refresh is 33.3 ms, so 30 is the cap. GPU time 8-9 ms, about 600x450 (dyn scale 0.65), ~270k tris, ~630 draw calls. Not measured on a real 60 Hz display at 1080p.
+- Frame rate, re-measured later on 2026-11-12 with the pane visible (144 Hz screen, level 1, solo): ~129 fps at 662x654; at an emulated 1920x1080 (dpr 1.25) ~70 fps, CPU 6.4 ms median per frame, GPU 11.5 ms, dyn scale 0.91, ~700 draw calls, ~350k tris. 60 fps holds at 1080p on this machine. The dynamic-resolution scaler used to infer a "30 Hz screen" from slow frames and then stop trying for 60; `dynTick` in nx-core.js now never infers below 60 Hz. The figures below are the older hidden or throttled pane reading.
+- Older reading: 30 fps, but the pane's detected refresh is 33.3 ms, so 30 is the cap. GPU time 8-9 ms, about 600x450 (dyn scale 0.65), ~270k tris, ~630 draw calls. Not measured on a real 60 Hz display at 1080p.
 - First-person weapon: renders correctly while walking and firing. No console errors except a harmless 404 for /07.mp3 (falls back to /radio/07.mp3).
 - Alien Dex opens and lists 37 slots. Not inspected further; the alien designs are not being redone.
 
@@ -87,11 +88,35 @@ Old unverified list (superseded by the above):
 - Frame rate. Earlier measurements were 33–50 ms p90 at 1024×768 with the old pipeline. Batching and dynamic resolution were added after that, and the latest figure was 76 fps at scale 0.5. Not measured at 1080p. Check on the target machine.
 - First-person weapon models in motion. The `vmAnim` rig and the new viewmodel scene have only been checked for correct placement.
 
+Sound pass, 2026-11-13 (`game.html`, the `audio` section, marked `REMAKE:`):
+- Mix bus (`sfxBus`): soft saturation, a high shelf, and a generated 1.3 s room reverb (convolver, wet 0.2) ahead of the compressor. Falls back to the plain bus if any node fails.
+- `noise` and `pnoise` now share one cached noise buffer through `nzSrc` (was a new buffer per sound) and take an optional high-pass. `tone` has a 3 ms fade-in to stop clicks. `rv()` gives random pitch variation.
+- `sfxShot` and most `sfx` entries are layered (crack, body, low end, tail). Alien voices, the roar, footsteps and engines are unchanged apart from going through the new bus.
+- Checked by numbers only: no script errors, the reverb and shaper nodes are created, sounds fire on shooting and reloading. Nobody has listened to it yet. Levels and reverb amount need an ear check.
+
+Frame rate and beach collision, 2026-11-13 (scripts now `?v=6`):
+- The game loop is plain `requestAnimationFrame`, so by default it runs at the screen's refresh rate. New setting `FRAME RATE LIMIT (FPS)` in the graphics section of the settings menu: AUTO, 30, 60, 90, 120, 144, 240 (`NIX.fpsCap`, saved in localStorage `ni_fps`; limiter is at the top of `frame()`). AUTO keeps the old behaviour (resolution scaler aims for 60+). A chosen cap makes the scaler aim for that rate (`dynTick` in nx-core.js). A cap cannot exceed the screen's refresh rate.
+- Effects that assumed 1/60 s per frame (sailboats, beach spray and skis, ship flashes, embers, a timer near line 1143) now use `FXDT`, the real frame time, so they run at the same speed at any frame rate.
+- Beach collision added with `NIX.addSolid`: umbrella poles (r 0.35), coolers, beach balls, sandcastles (centre, four towers, four wall pieces; walls are 1 m high so you can jump on them), volleyball net posts, lifeguard tower legs, tiki torches. About 90 new solids (1486 total). Not yet confirmed in play: the browser pane was hidden, so no frames ran. Re-run: stand 7 m from a sandcastle (beaches are around z 400, e.g. castle near x -269, z 414.6) and sprint at it.
+- Not yet measured: the limiter at 30/60/120 (count `__NI.renderer.info.render.frame` over 3 s) and 120 fps on a real 120 Hz+ screen.
+
+Polish pass, 2026-11-13 (all in `game.html`, marked `REMAKE:`). Written without browser testing at the user's request; the user is checking it by hand. Nothing here has been run yet.
+- Combat feel: hit and kill crosshair markers pop (CSS animation restarted on every hit, kill spins to an X), a small FOV punch on kills.
+- Settings: `FIELD OF VIEW` slider (`SET.fov`, default 78, range 60-110) and `SHOW FPS COUNTER` (top-right readout of fps, resolution, GPU ms) for testing on other PCs.
+- First-game hint toast with the basic controls (once, localStorage `ni_tut1`; clear it to see it again).
+- Game-over screen: adds Alien Dex and achievement progress and the next skin unlock level.
+- Main menu: `DIFFICULTY: NORMAL/HARD` button under PLAY SOLO, same flag as HARD MODE in settings.
+- Buttons: soft hover and click sounds, visible keyboard focus ring.
+- Multiplayer: connection wait shows a "still connecting" message after 8 s, and a failed connection gets a clear "could not connect" message.
+- Mouse lock: `lockUI()` plus a 500 ms check show "CLICK TO RESUME" whenever the pointer lock is lost (skipped for controller, touch, splitscreen and while a panel is open).
+- Hardware checklist for the user: turn on SHOW FPS COUNTER, play a few rounds at 1080p on a weaker PC, try FRAME RATE LIMIT at 30/60/120, try quality levels 0-3, and note fps, GPU ms and resolution at the busiest moments (boss rounds, many aliens).
+
 Not started:
 - Handcrafted presentation pass (menu, HUD, titles, UI typography, intentional visual choices).
 - Gameplay feel changes beyond what the original has.
 - Quality settings in the options menu.
-- Removing the debug handle (`window.__NI.dbg` near `const keys={}`) and the `__NI` window export.
+- (Done 2026-11-13: both debug handles, `window.__NI` and `window.__ni`, are removed. Browser-pane test scripts that used `__NI.dbg` no longer work; use a temporary local patch if you need one again.)
+- Keybind remapping. Keys are read directly as `keys.KeyX` all through the input code, so it is a larger job than the other options. The controls are listed in the settings menu text.
 - Packaging a single zip (`NeonInvasion-Remake.zip`).
 
 ## Decisions

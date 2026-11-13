@@ -658,13 +658,13 @@ function dynTick(dtReal){
   DYN.acc+=ms;DYN.n++;DYN.t+=dtReal;
   if(DYN.t<0.75)return;
   const avg=DYN.acc/DYN.n;DYN.acc=0;DYN.n=0;DYN.t=0;
-  const s=DYN.samples.slice().sort((a,b)=>a-b);if(s.length>30){const lo=s[Math.floor(s.length*0.1)];DYN.refresh=lo<9.5?6.94:lo<13?8.33:lo<20?16.67:33.3;}
+  const s=DYN.samples.slice().sort((a,b)=>a-b);if(s.length>30){const lo=s[Math.floor(s.length*0.1)];DYN.refresh=lo<9.5?6.94:lo<13?8.33:16.67;}   // never conclude "30 Hz screen" from our own frame times: a slow game looks identical, and that made the scaler settle for 30 fps
   NIX.fps=1000/avg;
   const gpu=DYN.gpuN?DYN.gpuAcc/DYN.gpuN:0;DYN.gpuAcc=0;DYN.gpuN=0;DYN.gpuMs=gpu;NIX.gpuMs=gpu;
   if(!G.dyn||G.retro){if(G.dynScale!==1){G.dynScale=1;allocRT();}return;}
   /* the signal that matters is missed frames: how many of the last frames took clearly longer than one screen refresh */
   DYN.lock-=0.75;DYN.calm+=0.75;
-  const target=Math.max(DYN.refresh,16.67),recent=DYN.samples.slice(-Math.max(12,Math.round(750/target)));   // never chase more than 60 fps: on a 144 Hz screen a steady 72 is fine
+  const target=Math.max(DYN.refresh,NIX.fpsCap>0?1000/NIX.fpsCap:16.67),recent=DYN.samples.slice(-Math.max(12,Math.round(750/target)));   // never chase more than 60 fps: on a 144 Hz screen a steady 72 is fine
   let late=0;for(const v of recent)if(v>target*1.45)late++;
   const lateF=late/recent.length;NIX.late=lateF;
   if(DYN.warm>0){DYN.warm-=0.75;return;}
