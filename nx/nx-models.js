@@ -98,9 +98,9 @@ NIX.streetLamps=function(scene,list){
   const post=NIX.geo('lamp_post'),glow=NIX.geo('lamp_glow'),lp=(post.userData&&post.userData.light)||[1.75,9,0];
   const mats=[],m4=new THREE.Matrix4(),q=new THREE.Quaternion(),up=new THREE.Vector3(0,1,0),one=new THREE.Vector3(1,1,1),pos=new THREE.Vector3();
   for(const l of list){q.setFromAxisAngle(up,l[2]);pos.set(l[0],0.4,l[1]);mats.push(new THREE.Matrix4().compose(pos,q,one));}
-  scene.add(NIX.scatter(post,null,new THREE.MeshLambertMaterial({vertexColors:true}),mats,{cell:176,max:330,cast:false,recv:false,radius:3,height:10}));
-  lampGlow=new THREE.MeshBasicMaterial({color:0xffe2b0});
-  scene.add(NIX.scatter(glow,null,lampGlow,mats,{cell:176,max:520,cast:false,recv:false,radius:3,height:10}));
+  scene.add(NIX.scatter(post,null,new THREE.MeshLambertMaterial({vertexColors:true}),mats,{cell:176,max:380,cast:false,recv:false,radius:3,height:10}));   // posts dissolve out between 320 and 380 m instead of vanishing at 330
+  const sg=NIX.scatter(glow,null,new THREE.MeshBasicMaterial({color:0xffe2b0}),mats,{cell:176,max:520,cast:false,recv:false,radius:3,height:10});
+  lampGlow=sg.userData.mat;scene.add(sg);   // the scatter draws with its own copy of the material: that copy is the one whose colour follows the night
   /* light pools: one merged additive mesh, faded in with the night */
   const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),rg=g.createRadialGradient(32,32,0,32,32,32);
   rg.addColorStop(0,'rgba(255,255,255,0.95)');rg.addColorStop(0.35,'rgba(255,255,255,0.4)');rg.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=rg;g.fillRect(0,0,64,64);
@@ -173,7 +173,56 @@ NIX.makeAlien=function(t){
   if(A.sniper)o.sniperPose=true;if(A.dance)o.dance=true;if(A.hum)o.hum=hum;
   if(A.bm)o.bm={set emissiveIntensity(v){mat.userData.uGK.value=1.3+v*2.4;mat.userData.uSelf.value=0.14+v*0.3;}};
   if(A.snakes)cleoSnakes(o,g);
+  /* state for NIX.alienAnim (made once here, so the frame loop allocates nothing). calm = giants and bosses whose hit zones are
+     tied to the pose in shared.js: they only breathe. */
+  o._nx={h:hum,s:A.s,by:0,age:0,hp:undefined,fl:0,flz:0,bank:0,lean:0,yaw:NaN,seed:Math.random()*100,hopT:1.5+Math.random()*6,hop:0,tw:0,sg:1,
+    ly:o.legs.map(L=>L.position.y),calm:A.s*(A.gs||1)>2.5||!!A.snakes,heavy:A.s*(A.gs||1)>=1.4,amp:clamp(1.15/Math.sqrt(A.s),0.6,1.3)};
   return o;
+};
+/* ------------------------------------------------------------------ livelier invaders
+   Body motion layered over the leg and arm swing the game already does: a springy pop on arrival, a bounce and roll in the walk,
+   squash and stretch, leaning into the run, banking into turns, breathing and looking around when idle, a flinch when shot,
+   and now and then a hop with both arms in the air (sometimes with a twirl). Visual only and kept small, so hit zones still match.
+   Called once per alien per frame from game.html, after the game's own animation. */
+NIX.alienAnim=function(o,dt,moved,t){
+  const a=o._nx;if(!a||!(dt>0))return;
+  const h=a.h,sp=moved/dt,mv=Math.min(1,sp*0.15),idle=1-mv,k8=1-Math.exp(-8*dt),sd=a.seed,disco=o.t===28;
+  a.age+=dt;
+  let pop=1;if(a.age<0.5){const u=a.age/0.5-1;pop=Math.max(0.02,1+2.9*u*u*u+1.9*u*u);}   // arrival: grows from nothing and overshoots
+  if(o.hp<a.hp){a.fl=1;a.flz=(Math.random()-0.5)*0.5;}a.hp=o.hp;   // it just lost health
+  a.fl=Math.max(0,a.fl-dt*5);const fl=a.fl*a.fl;
+  let dy=isNaN(a.yaw)?0:o.yaw-a.yaw;a.yaw=o.yaw;while(dy>Math.PI)dy-=6.2832;while(dy<-Math.PI)dy+=6.2832;
+  a.bank+=(clamp(-dy/dt*0.07,-0.3,0.3)*mv-a.bank)*k8;
+  a.lean+=(Math.min(o.fly?0.3:0.2,sp*(o.fly?0.03:0.022))-a.lean)*k8;
+  const st=Math.sin(o.ph*2.2);   // the game's stride: +-1 with the legs apart, 0 as they pass
+  let sy=1,sx=1,py=0,rx=0,ry=0,rz=0;
+  if(a.calm||o.vm){sy=1+0.012*Math.sin(t*1.3+sd);rz=0.012*Math.sin(t*0.8+sd);}
+  else if(o.fly){
+    rx=a.lean+Math.sin(t*1.7+sd)*0.05;rz=a.bank*1.6+Math.sin(t*2.3+sd)*0.09+Math.sin(t*5.1+sd*2)*0.03;sy=1+0.04*Math.sin(t*4+sd);
+  }else{
+    const amp=a.amp,L=o.legs,R=o.arms,limbs=!disco&&!o.sniperPose&&L.length>1&&R.length>1;
+    py=(1-st*st)*0.1*amp*mv;rx=a.lean;rz=a.bank+st*0.07*mv*amp;ry=st*0.12*mv;sy=1+(0.5-st*st)*0.07*mv*amp;
+    sy+=0.022*Math.sin(t*2.1+sd)*idle;rz+=Math.sin(t*0.9+sd)*0.035*idle;if(!o.sniperPose)ry+=Math.sin(t*0.6+sd*1.7)*0.22*idle;
+    if(a.heavy&&mv>0.5){const sg=st<0?-1:1;if(sg!==a.sg&&NIX.burst)NIX.burst(o.x,o.y+0.15,o.z,0xd8c8ff,3,3,0.8);a.sg=sg;}   // heavy ones kick up dust on every footfall
+    /* the hop */
+    if(a.hop<=0&&!o.dorm&&a.age>1){a.hopT-=dt;if(a.hopT<=0){a.hopT=3.5+Math.random()*6;a.hop=1;a.tw=Math.random()<0.34?1:0;}}
+    let e=0;
+    if(a.hop>0){a.hop=Math.max(0,a.hop-dt/0.55);const u=1-a.hop;e=Math.sin(Math.PI*u);py+=e*0.2*amp;sy+=0.09*Math.sin(u*6.2832);if(a.tw&&!o.sniperPose)ry+=u*u*(3-2*u)*6.2832;}
+    if(limbs){
+      L[0].position.y=a.ly[0]+Math.max(0,st)*0.14*mv;L[1].position.y=a.ly[1]+Math.max(0,-st)*0.14*mv;   // feet lift as they swing
+      if(!o.dance){
+        const f=Math.sin(t*1.6+sd)*0.1*idle;
+        for(let i=0;i<2;i++){const A0=R[i],sgn=A0.position.x<0?-1:1;
+          A0.rotation.x+=(i?-f:f);A0.rotation.x+=(-2.5-A0.rotation.x)*e;   // both arms go up in the hop
+          A0.rotation.z=sgn*((0.06+0.1*Math.abs(st))*mv+0.45*e+0.2*fl);}
+      }
+    }
+  }
+  rx-=0.3*fl;rz+=a.flz*fl;sy*=1-0.1*fl;sx=1+0.07*fl+(1-sy)*0.5;   // flinch; and whatever is squashed in height bulges sideways
+  const S=a.s*pop;h.scale.set(S*sx,S*sy*(pop<1?0.6+0.4*pop:1),S*sx);
+  if(disco)return;   // the moonwalker steers its own lean and height
+  h.rotation.set(rx,ry,rz);
+  if(!o.dance){const ny=py*a.s;h.position.y+=ny-a.by;a.by=ny;}   // the game may have moved the body itself (vehicle riders), so only our own offset is changed
 };
 /* mutated aliens get a coloured inner glow */
 NIX.mutTint=function(o,c){

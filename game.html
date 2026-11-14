@@ -747,10 +747,10 @@ button,input,select{font-family:inherit}
 
 <script src="three.min.js"></script>
 <script src="shared.js"></script>
-<script src="nx/nx-assets.js?v=6"></script>
-<script src="nx/nx-core.js?v=6"></script>
-<script src="nx/nx-models.js?v=6"></script>
-<script src="nx/nx-props.js?v=6"></script>
+<script src="nx/nx-assets.js?v=7"></script>
+<script src="nx/nx-core.js?v=7"></script>
+<script src="nx/nx-models.js?v=7"></script>
+<script src="nx/nx-props.js?v=7"></script>
 <script>
 /* ---- LOCAL SPLITSCREEN (demo) ----
    ?split=host  -> this page becomes the "console": it runs the one shared game simulation and shows two panes.
@@ -1809,6 +1809,7 @@ for(const b of B){
   }
   if(kind==='deco'){
     if(b.hid)continue;
+    if(NIX.landmarkDeco&&NIX.landmarkDeco(scene,b))continue;   // REMAKE: the pyramid, lighthouse, Ferris wheel pylons, containers, crates, kiosks and clock tower are Blender models built round these collision boxes (blender/landmarks.py); the box below is the fallback
     const dm=new THREE.Mesh(NIX.cbox?NIX.cbox(w,b.h,d,0.16):new THREE.BoxGeometry(w,b.h,d),new THREE.MeshLambertMaterial({color:b.c,emissive:b.em?b.c:0x000000,emissiveIntensity:b.em?0.45:0}));dm.position.set(b.x,b.h/2+0.2,b.z);scene.add(dm);
     if(b.scr){
       const cv=document.createElement('canvas');cv.width=512;cv.height=256;const g2=cv.getContext('2d');
@@ -1910,17 +1911,23 @@ const ferris=[];let wBase=0,wBaseT=0;
   const NAMEOF={pyramid:'THE NEON PYRAMID',ferris:'CRYSTAL WHEEL',maze:'HEDGE MAZE',drivein:'NEON DRIVE-IN',plaza:'CLOCK PLAZA',yard:'CONTAINER YARD',ballpark:'NEON BALLPARK',lighthouse:'THE LIGHTHOUSE',greens:'CITY PARK',fountain:'FOUNTAIN SQUARE',pond:'MIRROR LAKE',stage:'AMPHITHEATER',ufo:'CRASH SITE'};
   const COLOF={pyramid:'#ff2fa0',ferris:'#25f4ff',maze:'#3cff9e',drivein:'#ff9a3c',plaza:'#ffe63c',yard:'#a56bff',ballpark:'#ffe63c',lighthouse:'#ff4a5c',greens:'#3cff9e',fountain:'#25f4ff',pond:'#25f4ff',stage:'#ff2fa0',ufo:'#3cff9e'};
   const HY={pyramid:21,ferris:56,maze:12,drivein:24,plaza:42,yard:12,ballpark:14,lighthouse:26,greens:10,fountain:12,pond:10,stage:14,ufo:14};
+  if(NIX.lighthouseLens&&NIX.lighthouseLens())HY.lighthouse=30;   // REMAKE: the Blender lighthouse is taller, so its name floats higher
   for(const t of NI.WORLD.themes){
-    if(t.k==='pyramid'){const o=new THREE.Mesh(new THREE.OctahedronGeometry(2.4),new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true}));o.position.set(t.cx,17,t.cz);scene.add(o);t.o=o;}
+    if(t.k==='pyramid'){const o=new THREE.Mesh(new THREE.OctahedronGeometry(2.4),new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true}));o.position.set(t.cx,17,t.cz);scene.add(o);t.o=o;if(NIX.crystal)NIX.crystal(o);}   // REMAKE: a faceted Blender crystal glows inside the wire frame (it is a child, so it spins and bobs with it)
     if(t.k==='ferris'){
       const outer=new THREE.Group();outer.position.set(t.cx,27,t.cz);outer.rotation.y=Math.PI/2;scene.add(outer);
       const spin=new THREE.Group();outer.add(spin);
       const rm=new THREE.MeshBasicMaterial({color:0x25f4ff}),sm=new THREE.MeshBasicMaterial({color:0xff2fa0});
-      for(const zz of[-4,4]){const ring=new THREE.Mesh(new THREE.TorusGeometry(22,0.35,6,40),rm);ring.position.z=zz;spin.add(ring);
+      const nxW=NIX.ferrisWheel&&NIX.ferrisWheel(spin);   // REMAKE: Blender-made wheel (rims, spokes, lacing, hub, bulbs) in two draw calls; the torus-and-box wheel below is the fallback
+      if(!nxW)for(const zz of[-4,4]){const ring=new THREE.Mesh(new THREE.TorusGeometry(22,0.35,6,40),rm);ring.position.z=zz;spin.add(ring);
         for(let k=0;k<8;k++){const sp=new THREE.Mesh(new THREE.BoxGeometry(44,0.2,0.2),sm);sp.rotation.z=k*Math.PI/8;sp.position.z=zz;spin.add(sp);}}
       const gond=[];
       for(let k=0;k<12;k++){const a=k/12*6.283,gg=new THREE.Group();gg.position.set(Math.cos(a)*22,Math.sin(a)*22,0);
-        const cab=new THREE.Mesh(new THREE.BoxGeometry(3,2.6,7),new THREE.MeshBasicMaterial({color:[0xffe63c,0xff9a3c,0x3cff9e,0xa56bff][k%4]}));cab.position.y=-1.8;gg.add(cab);spin.add(gg);gond.push(gg);}
+        const cabC=[0xffe63c,0xff9a3c,0x3cff9e,0xa56bff][k%4];
+        if(!(nxW&&NIX.gondola&&NIX.gondola(gg,cabC))){   // REMAKE: Blender-made gondola (curved roof, glazed cabin, hanger) painted in the cabin colour
+        const cab=new THREE.Mesh(new THREE.BoxGeometry(3,2.6,7),new THREE.MeshBasicMaterial({color:cabC}));cab.position.y=-1.8;gg.add(cab);
+        }
+        spin.add(gg);gond.push(gg);}
       ferris.push({spin,gond,cx:t.cx,cz:t.cz});
     }
     if(t.k==='pond'){
@@ -1979,11 +1986,13 @@ const ferris=[];let wBase=0,wBaseT=0;
       const gl=new THREE.PointLight(0xfff0c0,1.0,70);gl.position.set(cx,15,cz);scene.add(gl);
     }
     if(t.k==='lighthouse'){   // lantern room, gallery, cap and a sweeping beam on top of the striped stepped tower (top step is 11.2 high)
-      const cx=t.cx,cz=t.cz,y0=11.2;
+      const cx=t.cx,cz=t.cz,nxLy=NIX.lighthouseLens?NIX.lighthouseLens():0,y0=nxLy?nxLy-2.1:11.2;   // REMAKE: with the Blender lighthouse the lamp sits in its lantern room, high above the lookout, so the beams and the light move up to it
+      if(!nxLy){   // REMAKE: the Blender model has its own gallery, lantern room, lens and cap; these are the fallback
       const gal=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.2,0.4,12),new THREE.MeshLambertMaterial({color:0x2b2145}));gal.position.set(cx,y0+0.2,cz);scene.add(gal);
       const lan=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.9,3.4,10,1,true),new THREE.MeshBasicMaterial({color:0xfff2a0,transparent:true,opacity:0.65,side:THREE.DoubleSide,depthWrite:false}));lan.position.set(cx,y0+2.1,cz);scene.add(lan);
       const cap=new THREE.Mesh(new THREE.ConeGeometry(2.4,2.2,10),new THREE.MeshLambertMaterial({color:0xff2a3c}));cap.position.set(cx,y0+4.9,cz);scene.add(cap);
       const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.9,8,6),new THREE.MeshBasicMaterial({color:0xffffff}));bulb.position.set(cx,y0+2.1,cz);scene.add(bulb);
+      }
       const pv=new THREE.Group();pv.position.set(cx,y0+2.1,cz);scene.add(pv);
       for(const sg of[0,Math.PI]){const bm=new THREE.Mesh(new THREE.ConeGeometry(4,90,10,1,true),new THREE.MeshBasicMaterial({color:0xfff2a0,transparent:true,opacity:0.2,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bm.rotation.z=Math.PI/2;bm.position.x=Math.cos(sg)*45;bm.position.z=Math.sin(sg)*0;if(sg)bm.rotation.z=-Math.PI/2;pv.add(bm);}
       t.pv=pv;
@@ -1991,9 +2000,10 @@ const ferris=[];let wBase=0,wBaseT=0;
     }
     if(t.k==='ufo'){   // crashed saucer lying tilted on its side (the walkable slope in shared.js uses the same angles)
       const g=new THREE.Group();g.position.set(t.cx,3.2,t.cz);g.rotation.z=0.4;g.rotation.x=0.15;
-      const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.4,18),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));g.add(dsk);
-      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:0.6}));dome.position.y=1.2;g.add(dome);
-      const ring=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.4,6,24),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;g.add(ring);
+      const nxU=NIX.ufo&&NIX.ufo(g);   // REMAKE: Blender-made saucer hull (lathed plating, rim lights, console, antenna); its flat deck is where the walkable slope in shared.js is
+      if(!nxU){const dsk=new THREE.Mesh(new THREE.CylinderGeometry(9,12,2.4,18),new THREE.MeshLambertMaterial({color:0x9aa3b8,emissive:0x223344}));g.add(dsk);}
+      const dome=new THREE.Mesh(new THREE.SphereGeometry(5,14,8,0,6.3,0,1.6),new THREE.MeshBasicMaterial({color:0x3cff9e,transparent:true,opacity:nxU?0.38:0.6}));dome.position.y=1.2;g.add(dome);
+      if(!nxU){const ring=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.4,6,24),new THREE.MeshBasicMaterial({color:0xff2fa0}));ring.rotation.x=Math.PI/2;g.add(ring);}
       scene.add(g);
     }
     if(t.k==='marina'){
@@ -2055,10 +2065,11 @@ const lootObjs=[];
     const pa=g.attributes.position.array,na=g.attributes.normal.array;for(let i=0;i<pa.length;i++){pos.push(pa[i]);nor.push(na[i]);}
     const c=new THREE.Color(p.color);for(let i=0;i<pa.length/3;i++)cl.push(c.r,c.g,c.b);}
   const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));pg.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));pg.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));
-  /* REMAKE: Blender-modelled palms (curved trunk, drooping fronds) that sway in the wind; split into city cells so they frustum-cull, with a light model for distant ones */
+  /* REMAKE: Blender-modelled palms (curved trunk, drooping fronds) that sway in the wind; split into city cells so they frustum-cull, with a light model for distant ones.
+     No pop-in: each palm dissolves from the near model to the far one across a band round `lod`, and dissolves out before `max` (see fadeMat in nx-core.js). */
   const pmats=[];
   palmData.forEach((p,i)=>{const s=0.8+rand()*0.5;d.position.set(p[0],0.4,p[1]);d.rotation.set((rand()-0.5)*0.15,rand()*6.28,(rand()-0.5)*0.15);d.scale.set(s,s,s);d.updateMatrix();pmats.push(d.matrix.clone());NIX.addSolid(p[0],p[1],0.46*s,0.4+8.6*s);});   // REMAKE: every trunk is a solid obstacle
-  scene.add(NIX.scatter(NIX.geo('palm_hi')||pg,NIX.geo('palm_lo'),NIX.patchFoliage(new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide}),4.5,10.5),pmats,{lod:95,max:560,radius:7,height:13}));
+  scene.add(NIX.scatter(NIX.geo('palm_hi')||pg,NIX.geo('palm_lo'),NIX.patchFoliage(new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide}),4.5,10.5),pmats,{lod:82,max:600,cell:44,cellLo:88,radius:7,height:13}));
   /* REMAKE: street lamps on two corners of every block - glowing lenses and soft pools of light on the road at night */
   {const lamps=[];for(const s of sl){if(s.park)continue;for(const k of[-1,1]){const lx=s.cx+k*28.6,lz=s.cz+k*28.6;if(!nearStation(lx,lz)&&!NI.inBuilding(lx,lz)){lamps.push([lx,lz,k>0?0:Math.PI]);NIX.addSolid(lx,lz,0.3,8.5);}}}if(NIX.streetLamps)NIX.streetLamps(scene,lamps);}
 })();
@@ -5950,6 +5961,7 @@ function frame(now){
     if(o.t===28)discoAnim(o,dt,moved);
     else if(o.dance){const sw=Math.sin(o.ph*2.2)*Math.min(0.9,moved/dt*0.12);o.legs[0].rotation.x=sw;o.legs[1].rotation.x=-sw;o.arms[0].rotation.x=-2.5+Math.sin(elapsed*9+o.x)*0.5;o.arms[1].rotation.x=-2.5-Math.sin(elapsed*9+o.x)*0.5;o.hum.position.y=Math.abs(Math.sin(elapsed*9+o.x))*0.18;}
     else if(o.legs.length&&!o.sniperPose){const sw=Math.sin(o.ph*2.2)*Math.min(0.9,moved/dt*0.12);o.legs[0].rotation.x=sw;o.legs[1].rotation.x=-sw;o.arms[0].rotation.x=-sw*0.8;o.arms[1].rotation.x=sw*0.8;}
+    if(NIX.alienAnim)NIX.alienAnim(o,dt,moved,elapsed);   // REMAKE: livelier aliens - bounce, lean, bank, breathing, flinch when hit, a springy pop on arrival and the odd arms-up hop, layered over the swing above (nx-models.js)
     if(o.ring)o.ring.rotation.z+=dt*6;
     if(o.burn&&Math.random()<dt*16)burst(o.x+(Math.random()-0.5),o.y+AT[o.t].cy*1.2,o.z+(Math.random()-0.5),Math.random()<0.5?0xff7a1a:0xffd23c,2,6,0.9);
     if(o.pulse)o.pulse.scale.setScalar(1+0.3*Math.sin(elapsed*12));

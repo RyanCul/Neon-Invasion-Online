@@ -78,6 +78,55 @@ NIX.lootMesh=function(t,col){   // 0 cash crate, 1 rare gem, 2 mix tape, 3 ammo 
   return new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:col,emissive:col,emissiveIntensity:0.5,vertexColors:true}));
 };
 
+/* ------------------------------------------------------------------ landmarks (blender/landmarks.py)
+   Collision stays the plain boxes from shared.js; each model is built round those boxes. NIX.landmarkDeco is asked about
+   every landmark box: true means a Blender model draws it (the first box of a landmark places the whole model). */
+const tintC=new Map(),cabC=new Map();
+const tintM=h=>{let m=tintC.get(h);if(!m){m=new THREE.MeshLambertMaterial({color:h,vertexColors:true});tintC.set(h,m);}return m;};
+const themeAt=(x,z)=>{const T=window.NI&&window.NI.WORLD&&window.NI.WORLD.themes;if(T)for(const t of T)if(t.k!=='marina'&&Math.abs(t.cx-x)<=30&&Math.abs(t.cz-z)<=30)return t;return null;};
+function place(scene,name,mat,x,y,z,ry){
+  const g=NIX.geo(name);if(!g)return null;const m=new THREE.Mesh(g,mat);
+  if(mat.isMeshBasicMaterial)m._nxNoCast=1;   // neon does not cast shadows
+  m.position.set(x,y,z);if(ry)m.rotation.y=ry;scene.add(m);return m;
+}
+const YARDC=[0xff4a3c,0x25a8ff,0xffc83c,0x3cff9e,0xa56bff,0xff2fa0];
+NIX.landmarkDeco=function(scene,b){
+  const t=themeAt(b.x,b.z);if(!t)return false;
+  const whole=(n,fn)=>{if(!NIX.has('lm_'+n+'_body'))return false;if(!t.nxLm){t.nxLm=1;place(scene,'lm_'+n+'_body',LM(),t.cx,0.2,t.cz);place(scene,'lm_'+n+'_glow',GM(),t.cx,0.2,t.cz);if(fn)fn();}return true;};
+  if(t.k==='pyramid'&&b.w===b.d)return whole('pyramid',()=>{for(const sx of[-1,1])for(const sz of[-1,1])NIX.addSolid(t.cx+sx*3.8,t.cz+sz*3.8,0.5,15.2);});   // the summit obelisks are solid
+  if(t.k==='lighthouse'&&b.w===b.d)return whole('lighthouse',()=>{for(const sx of[-1,1])for(const sz of[-1,1])NIX.addSolid(t.cx+sx*1.3,t.cz+sz*1.3,0.22,14.4);});   // so are the lookout's columns
+  if(t.k==='ferris'&&b.w===3.5&&b.h===27)return whole('wheel_support',()=>{for(const sx of[-1,1])for(const sz of[-1,1])NIX.addSolid(t.cx+sx*10,t.cz+sz*8.7,0.8,3);});   // feet of the bracing legs
+  if((t.k==='ferris'||t.k==='drivein')&&b.w===9&&b.d===6&&b.h===4&&NIX.has('lm_kiosk_body')){place(scene,'lm_kiosk_body',LM(),b.x,0.2,b.z);place(scene,'lm_kiosk_trim',neonM(b.c),b.x,0.2,b.z);return true;}
+  if(t.k==='plaza'&&b.h===34&&NIX.has('lm_clocktower_body')){place(scene,'lm_clocktower_body',LM(),b.x,0.2,b.z);place(scene,'lm_clocktower_glow',GM(),b.x,0.2,b.z);return true;}
+  if(t.k==='yard'){
+    if(b.w===12.2&&NIX.has('lm_container_body')){   // one model per container; the upper one of a stack is turned round and painted another colour
+      const n=Math.max(1,Math.round(b.h/2.6));
+      for(let i=0;i<n;i++){const c=i?YARDC[(YARDC.indexOf(b.c)+2+(Math.abs(Math.round(b.z))%3))%6]:b.c,ry=i?Math.PI:0;place(scene,'lm_container_body',tintM(c),b.x,0.2+i*2.6,b.z,ry);place(scene,'lm_container_detail',LM(),b.x,0.2+i*2.6,b.z,ry);}
+      return true;
+    }
+    if(b.w===2&&b.d===2&&NIX.has('lm_crate')){place(scene,'lm_crate',LM(),b.x,0.2,b.z,(Math.abs(Math.round(b.z))%2)*Math.PI/2);return true;}
+  }
+  return false;
+};
+/* the turning part of the Ferris wheel and its gondolas: they move every frame, so they are kept out of the static batcher */
+NIX.ferrisWheel=function(spin){
+  if(!NIX.has('lm_wheel_body'))return false;
+  const a=put(spin,'lm_wheel_body',LM()),g=NIX.geo('lm_wheel_glow');a._nxNo=1;
+  if(g){const m=new THREE.Mesh(g,GM());m._nxNo=1;m._nxNoCast=1;spin.add(m);}
+  return true;
+};
+NIX.gondola=function(par,col){
+  const g=NIX.geo('lm_gondola');if(!g)return false;
+  let m=cabC.get(col);if(!m){m=new THREE.MeshLambertMaterial({color:col,emissive:col,emissiveIntensity:0.16,vertexColors:true});cabC.set(col,m);}
+  const me=new THREE.Mesh(g,m);me._nxNo=1;par.add(me);return true;
+};
+NIX.lighthouseLens=()=>{const g=NIX.geo('lm_lighthouse_body');return g&&g.userData.lens?g.userData.lens[1]+0.2:0;};   // world height of the lamp (0 = no model)
+NIX.ufo=function(g){if(!NIX.has('lm_ufo_body'))return false;put(g,'lm_ufo_body',LM());const m=put(g,'lm_ufo_glow',GM());if(m)m.castShadow=false;return true;};
+NIX.crystal=function(par){   // faceted gem inside the wire frame that floats over the pyramid
+  const g=NIX.geo('lm_crystal');if(!g)return false;
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0xff8fd6,emissive:0xff2fa0,emissiveIntensity:0.75}));m._nxNo=1;m._nxNoCast=1;par.add(m);return true;
+};
+
 /* ------------------------------------------------------------------ building trim */
 const KIT={ac:[],tank:[],ant:[],vent:[]};
 function rng(seed){let s=(Math.floor(seed)>>>0)||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};}

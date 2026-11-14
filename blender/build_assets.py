@@ -428,7 +428,7 @@ def build_palm(hi=True):
         cols.append((0.46 * k, 0.29 * k, 0.17 * k))
     tube(bm, pts, rad, m, (0.46, 0.29, 0.17), caps=False, colors=cols[:-1])
     top = Vector(pts[-1])
-    nf = 9 if hi else 4; ns = 5 if hi else 2
+    nf = 9 if hi else 6; ns = 5 if hi else 2      # the far model keeps six fronds so its outline stays close to the near one while the two cross-fade
     lay = bm.loops.layers.float_color['Col']
     for f in range(nf):
         az = 2 * math.pi * f / nf + (0.31 if f % 2 else 0.0)
@@ -552,6 +552,9 @@ exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'alie
 # ----------------------------------------------------------------------------- vehicles, shop stations, crates, rooftop kit (props.py)
 exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'props.py'), encoding='utf-8').read(), 'props.py', 'exec'))
 
+# ----------------------------------------------------------------------------- landmarks: pyramid, Ferris wheel, lighthouse, containers, kiosk, clock tower, UFO (landmarks.py)
+exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'landmarks.py'), encoding='utf-8').read(), 'landmarks.py', 'exec'))
+
 js = 'window.NX_ASSETS=' + json.dumps({'geo': ASSETS, 'aliens': ALIENS, 'made': 'Blender %s - build_assets.py' % bpy.app.version_string}, separators=(',', ':')) + ';\n'
 os.makedirs(os.path.dirname(os.path.abspath(OUT_JS)), exist_ok=True)
 with open(OUT_JS, 'w', encoding='utf-8') as f: f.write(js)
@@ -572,12 +575,13 @@ alien_obs = set(o for grp in ALIEN_SHEET for o in grp['obs'])
 groups = {}
 for ob in PREVIEW:
     if ob in alien_obs: continue
-    key = ob.name.rsplit('_', 1)[0] if ob.name.startswith(('gun', 'car', 'st_', 'mbox')) else ob.name
+    key = ob.name.rsplit('_', 1)[0] if ob.name.startswith(('gun', 'car', 'st_', 'mbox')) or (ob.name.startswith('lm_') and ob.name.count('_') > 1) else ob.name
     groups.setdefault(key, []).append(ob)
 col_n = 6; i = 0
 for key, obs in groups.items():
     big = key.startswith(('palm', 'lamp', 'car', 'st_', 'mbox', 'roof'))
     sc = 1.0 if key.startswith('gun') else (0.09 if big else 0.42)
+    if key.startswith('lm_'): sc = 0.017 if key in ('lm_pyramid', 'lm_wheel', 'lm_wheel_support') else (0.028 if key in ('lm_lighthouse', 'lm_clocktower', 'lm_ufo') else 0.07)
     x = (i % col_n) * 1.1; z = -(i // col_n) * 1.05
     for ob in obs:
         ob.scale = (sc, sc, sc); ob.location = (x, 0, z - (0.35 if big else 0.0)); ob.rotation_euler = (0, 0, math.radians(-62 if key.startswith('gun') else 28))

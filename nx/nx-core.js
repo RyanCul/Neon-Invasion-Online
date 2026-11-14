@@ -260,31 +260,72 @@ NIX.has=name=>!!(window.NX_ASSETS&&window.NX_ASSETS.geo&&window.NX_ASSETS.geo[na
 
 /* ------------------------------------------------------------------ scattered instances (palms, lane paint): split into city cells so they frustum-cull, with a cheap far model */
 const SCAT=[];
-NIX.scatter=function(geoHi,geoLo,mat,mats,o){
-  o=Object.assign({cell:88,lod:140,max:1e9,cast:true,recv:true,radius:8,height:12},o||{});
-  const cells=new Map(),grp=new THREE.Group();grp._nxNo=1;
-  for(const m of mats){const e=m.elements,kx=Math.floor(e[12]/o.cell),kz=Math.floor(e[14]/o.cell),k=kx+','+kz;let c=cells.get(k);if(!c){c={cx:(kx+0.5)*o.cell,cz:(kz+0.5)*o.cell,list:[]};cells.set(k,c);}c.list.push(m);}
-  const t=new THREE.Matrix4(),off=new THREE.Matrix4();
-  const mk=(geo,c,cast)=>{
-    const g=new THREE.BufferGeometry();for(const k in geo.attributes)g.setAttribute(k,geo.attributes[k]);if(geo.index)g.setIndex(geo.index);
-    g.boundingSphere=new THREE.Sphere(new THREE.Vector3(0,o.height/2,0),o.cell*0.71+o.radius+o.height/2);
-    const im=new THREE.InstancedMesh(g,mat,c.list.length);im._nxNo=1;im._nxF=1;
-    off.makeTranslation(-c.cx,0,-c.cz);c.list.forEach((m,i)=>{t.multiplyMatrices(off,m);im.setMatrixAt(i,t);});
-    im.position.set(c.cx,0,c.cz);im.updateMatrix();im.matrixAutoUpdate=false;im.castShadow=cast;im.receiveShadow=o.recv;grp.add(im);return im;
+/* No pop-in: every instance fades by a screen-door dither on its own distance from the camera. The near model dissolves into
+   the far model across a band round the swap distance (the two use opposite halves of one dither pattern, so together they
+   always cover every pixel exactly once), and everything dissolves out before the draw limit instead of vanishing.
+   mode 0 = near model (or the only model), mode 1 = far model. nxFade = (swap start, swap end, limit start, limit end). */
+function fadeMat(src,mode){
+  const m=src.clone(),f0=src.onBeforeCompile,k0=src.customProgramCacheKey(),u={value:new THREE.Vector4(1e8,1e8+1,1e8,1e8+1)};
+  if(src.defines)m.defines=Object.assign({},src.defines);if(src.extensions)m.extensions=src.extensions;
+  m.onBeforeCompile=function(sh,r){
+    if(f0!==defOBC)f0.call(this,sh,r);
+    const reM=/void\s+main\s*\(\s*\)\s*\{/,pv='#include <project_vertex>';
+    if(sh.vertexShader.indexOf(pv)<0||!reM.test(sh.fragmentShader))return;   // anchors missing: leave the stock shader (no fade, but nothing breaks)
+    sh.uniforms.nxFade=u;
+    sh.vertexShader='uniform vec4 nxFade;varying float nxFv;\n'+sh.vertexShader.replace(pv,pv+`
+      {
+      #ifdef USE_INSTANCING
+      float nxD=length((modelViewMatrix*instanceMatrix[3]).xyz);
+      #else
+      float nxD=length(modelViewMatrix[3].xyz);
+      #endif
+      float nxS=smoothstep(nxFade.x,nxFade.y,nxD);
+      nxFv=${mode?'nxS':'(1.0-nxS)'}*(1.0-smoothstep(nxFade.z,nxFade.w,nxD));
+      if(nxFv<=0.0)gl_Position=vec4(2.0,2.0,2.0,1.0);}`);   // fully faded instances are thrown off screen so they cost no pixels
+    sh.fragmentShader='varying float nxFv;\n'+sh.fragmentShader.replace(reM,`void main() {
+      if(nxFv<1.0){float nxN=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(0.06711056,0.00583715))));if(${mode?'nxFv<1.0-nxN':'nxFv<=nxN'})discard;}`);
   };
-  const set={o,cells:[]};
-  for(const c of cells.values()){const hi=mk(geoHi,c,o.cast),lo=geoLo?mk(geoLo,c,false):null;if(lo)lo.visible=false;set.cells.push({cx:c.cx,cz:c.cz,hi,lo});}
+  m.customProgramCacheKey=()=>k0+'|nxFade'+mode;m.userData.nx=1;m.userData.nxFade=u;
+  return m;
+}
+NIX.scatter=function(geoHi,geoLo,mat,mats,o){
+  o=Object.assign({cell:88,cellLo:0,lod:140,max:1e9,cast:true,recv:true,radius:8,height:12},o||{});
+  const grp=new THREE.Group();grp._nxNo=1;
+  const matHi=fadeMat(mat,0),matLo=geoLo?fadeMat(mat,1):null;grp.userData.mat=matHi;grp.userData.matLo=matLo;   // callers that animate the material (lamp glow colour) use these copies
+  const t=new THREE.Matrix4(),off=new THREE.Matrix4();
+  /* one InstancedMesh per city cell. The near model can use smaller cells than the far one (cellLo): near cells are switched by
+     distance, and the finer they are, the fewer detailed models are sent to the GPU only to be faded out. */
+  const build=(geo,cell,mat)=>{
+    const cells=new Map(),out=[];
+    for(const m of mats){const e=m.elements,kx=Math.floor(e[12]/cell),kz=Math.floor(e[14]/cell),k=kx+','+kz;let c=cells.get(k);if(!c){c={cx:(kx+0.5)*cell,cz:(kz+0.5)*cell,list:[]};cells.set(k,c);}c.list.push(m);}
+    for(const c of cells.values()){
+      const g=new THREE.BufferGeometry();for(const k in geo.attributes)g.setAttribute(k,geo.attributes[k]);if(geo.index)g.setIndex(geo.index);
+      g.boundingSphere=new THREE.Sphere(new THREE.Vector3(0,o.height/2,0),cell*0.71+o.radius+o.height/2);
+      const im=new THREE.InstancedMesh(g,mat,c.list.length);im._nxNo=1;im._nxF=1;
+      im.frustumCulled=true;   // r128 switches culling OFF for every InstancedMesh; each cell has a bounding sphere (above), so cells behind or beside the camera are skipped
+      off.makeTranslation(-c.cx,0,-c.cz);c.list.forEach((m,i)=>{t.multiplyMatrices(off,m);im.setMatrixAt(i,t);});
+      im.position.set(c.cx,0,c.cz);im.updateMatrix();im.matrixAutoUpdate=false;im.castShadow=o.cast;im.receiveShadow=o.recv;grp.add(im);out.push({cx:c.cx,cz:c.cz,m:im});
+    }
+    return out;
+  };
+  const cLo=o.cellLo||o.cell,MOVE=8;   // MOVE: how far the camera can travel between two visibility checks
+  const set={o,hi:build(geoHi,o.cell,matHi),lo:geoLo?build(geoLo,cLo,matLo):null,uHi:matHi.userData.nxFade,uLo:matLo?matLo.userData.nxFade:null,sHi:o.cell*0.71+MOVE,sLo:cLo*0.71+MOVE};   // sHi / sLo: half a cell's diagonal plus MOVE
+  if(set.lo)for(const c of set.lo)c.m.visible=false;   // the far model casts shadows too, so a palm's shadow does not vanish at the swap
   SCAT.push(set);return grp;
 };
 NIX.scatterFrom=function(inst,o){const L=[];for(let i=0;i<inst.count;i++){const m=new THREE.Matrix4();inst.getMatrixAt(i,m);L.push(m);}return NIX.scatter(inst.geometry,null,inst.material,L,o);};
 let scatN=0;
 function updScatter(){
-  if((scatN++%12)!==0)return;const cx=camera.position.x,cz=camera.position.z;
-  for(const s of SCAT){const lod=s.o.lod*(Q.shadow?1:0.8),mx=s.o.max;
-    for(const c of s.cells){const d=Math.hypot(cx-c.cx,cz-c.cz);
-      if(c.lo){c.hi.visible=d<lod;c.lo.visible=d>=lod&&d<mx;}else c.hi.visible=d<mx;}}
+  if((scatN++%3)!==0)return;const cx=camera.position.x,cz=camera.position.z;
+  for(const s of SCAT){const lod=s.o.lod*(Q.shadow?1:0.8),mx=s.o.max,l0=lod*0.86,l1=lod*1.14,m0=mx*0.84;
+    const sh=s.o.cast?Q.shadowR*1.6+2.1*s.o.height:-1;   // only cells close enough for their shadows to land inside the shadowed area are drawn into the shadow map
+    /* the fade itself happens per instance in the shader (fadeMat); a whole cell is only switched off once every instance in it has fully faded */
+    if(s.lo){s.uHi.value.set(l0,l1,m0,mx);s.uLo.value.set(l0,l1,m0,mx);
+      for(const c of s.hi){const d=Math.hypot(cx-c.cx,cz-c.cz)-s.sHi;c.m.visible=d<l1;c.m.castShadow=d<sh;}
+      for(const c of s.lo){const d=Math.hypot(cx-c.cx,cz-c.cz);c.m.visible=d+s.sLo>l0&&d-s.sLo<mx;c.m.castShadow=d-s.sLo<sh;}
+    }else{s.uHi.value.set(1e8,1e8+1,m0,mx);for(const c of s.hi){const d=Math.hypot(cx-c.cx,cz-c.cz)-s.sHi;c.m.visible=d<mx;c.m.castShadow=d<sh;}}
+  }
 }
-
 /* ------------------------------------------------------------------ buildings: one merged mesh per city cell, windows drawn in the shader */
 const FAC=[];let facMat=null,facMeshes=[];
 NIX.building=function(b,kind,colHex,neonHex){
