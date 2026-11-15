@@ -17,14 +17,23 @@ def gP(bm, prof, width, x=0, col=WHITE, bev=0.05):       # side silhouette as (z
 def gL(bm, prof, n, col=WHITE):                          # revolve (radius, y) round the vertical axis
     lathe(bm, prof, n=n, color=col)
 
+WH_CAP = None       # while a vehicle is built, wheel() only records its wheels here; veh() then exports one spinning mesh per axle (the game turns and steers it)
 def wheel(d, r, w, x, y, z, hub=CHROME):
+    if WH_CAP is not None: WH_CAP.append((r, w, x, y, z, hub)); return
     gC(d, r, w, x, y, z, RUBBER, 'x', n=16, bev=min(0.08, r * 0.18))
     gC(d, r * 0.6, w + 0.04, x, y, z, hub, 'x', n=10)
     gC(d, r * 0.22, w + 0.08, x, y, z, DARK, 'x', n=8)
 
 def veh(i, fn, extra=None):
-    b, d, t, l = new_bm(), new_bm(), new_bm(), new_bm(); fn(b, d, t, l)
+    global WH_CAP
+    b, d, t, l = new_bm(), new_bm(), new_bm(), new_bm(); WH_CAP = []; fn(b, d, t, l); caps = WH_CAP; WH_CAP = None
     export('car%d_body' % i, b, shade=0.15); export('car%d_detail' % i, d, shade=0.1); export('car%d_trim' % i, t); export('car%d_lights' % i, l)
+    if caps:            # every axle of a vehicle is the same pair of wheels, so one model (centred on the axle, the axle along x) serves all of them
+        ax = {}
+        for (r, w, x, y, z, hub) in caps: ax.setdefault((round(y, 3), round(z, 3)), []).append((r, w, x, hub))
+        keys = sorted(ax); wb = new_bm()
+        for (r, w, x, hub) in ax[keys[0]]: wheel(wb, r, w, x, 0, 0, hub)
+        export('car%d_wheels' % i, wb, shade=0.1, meta={'ax': [[k[0], k[1]] for k in keys], 'r': ax[keys[0]][0][0]})
 
 # ----------------------------------------------------------------------------- vehicles
 def v_segway(b, d, t, l):
@@ -170,14 +179,14 @@ def st_armory(b, g):
         gB(b, 0.35, 3.9, 0.5, sx * 2.35, 2.9, -0.85, INDIGO, 0.08); gB(g, 0.08, 3.3, 0.08, sx * 2.35, 2.9, -0.57, C, 0.03)
     for i in range(3):
         y = 1.75 + i * 0.95
-        gB(b, 3.9, 0.07, 0.4, 0, y - 0.3, -0.6, STEEL, 0.02)
+        gB(b, 3.9, 0.07, 0.4, 0, y - 0.3, -0.6, (0.2, 0.62, 0.72), 0.02)   # teal gun racks (were grey)
         gB(b, 2.6 - i * 0.4, 0.2, 0.16, -0.2 - i * 0.2, y, -0.6, (0.85, 0.9, 0.95), 0.04); gB(b, 0.8, 0.34, 0.16, -1.55, y - 0.08, -0.6, DARK, 0.05)
         gB(b, 0.2, 0.4, 0.14, -0.8, y - 0.25, -0.6, DARK, 0.04, rz=0.2); gB(b, 0.18, 0.34, 0.14, -0.1, y - 0.24, -0.6, STEEL, 0.03)
         gB(g, 0.14, 0.14, 0.2, 1.2 - i * 0.4, y, -0.6, C, 0.03); gB(b, 0.5, 0.1, 0.12, -0.4, y + 0.14, -0.6, DARK, 0.03)
     gB(b, 0.8, 0.5, 0.6, 0.9, 1.25, 0.2, (0.2, 0.3, 0.25), 0.05); gB(b, 0.6, 0.4, 0.5, -0.8, 1.2, 0.35, (0.3, 0.22, 0.12), 0.05); gB(g, 0.5, 0.05, 0.04, 0.9, 1.3, 0.51, C, 0.01)
 
 def st_forge(b, g):
-    O = ORANGE; st_base(b, g, O); IRON = (0.22, 0.2, 0.26)
+    O = ORANGE; st_base(b, g, O); IRON = (0.34, 0.16, 0.3)   # dark plum iron (was grey)
     gB(b, 1.5, 0.8, 1.2, 0, 1.4, 0, (0.2, 0.13, 0.09), 0.08)
     for k in range(2): gB(b, 1.54, 0.08, 1.24, 0, 1.2 + k * 0.4, 0, IRON, 0.02)
     gP(b, [(-1.0, 1.8), (-0.6, 2.05), (-0.45, 2.6), (-1.5, 2.75), (-1.5, 3.1), (1.3, 3.1), (2.1, 2.95), (1.3, 2.8), (0.45, 2.6), (0.6, 2.05), (1.0, 1.8)], 0.9, 0, IRON, 0.05)
@@ -258,7 +267,7 @@ LOW = False
 # ----------------------------------------------------------------------------- rooftop kit (origin on the roof surface; drawn many times, so kept light)
 LOW = True
 def roofkit():
-    AC = (0.55, 0.56, 0.62)
+    AC = (0.4, 0.76, 0.86); STEEL = (0.62, 0.4, 0.82); DARK = (0.16, 0.1, 0.3)   # teal units, violet pipes and dark plum bases (was all grey)
     m = new_bm(); gB(m, 2.2, 1.2, 1.5, 0, 0.75, 0, AC, 0.0); gC(m, 0.5, 0.08, 0, 1.37, 0, DARK, 'y', n=10); gT(m, 0.5, 0.05, 0, 1.4, 0, STEEL, 'y', nu=10, nv=4)
     for k in range(4): gB(m, 1.6, 0.06, 0.04, 0, 0.4 + k * 0.2, 0.76, DARK, 0.0)
     gB(m, 0.3, 0.3, 1.0, 1.4, 0.2, 0, STEEL, 0.0); export('roof_ac', m, shade=0.15)

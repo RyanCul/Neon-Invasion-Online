@@ -554,6 +554,9 @@ exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'prop
 
 # ----------------------------------------------------------------------------- landmarks: pyramid, Ferris wheel, lighthouse, containers, kiosk, clock tower, UFO (landmarks.py)
 exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'landmarks.py'), encoding='utf-8').read(), 'landmarks.py', 'exec'))
+# ----------------------------------------------------------------------------- fountain, hedge maze, casino games (landmarks2.py) and beach props (beach.py)
+exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'landmarks2.py'), encoding='utf-8').read(), 'landmarks2.py', 'exec'))
+exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'beach.py'), encoding='utf-8').read(), 'beach.py', 'exec'))
 
 js = 'window.NX_ASSETS=' + json.dumps({'geo': ASSETS, 'aliens': ALIENS, 'made': 'Blender %s - build_assets.py' % bpy.app.version_string}, separators=(',', ':')) + ';\n'
 os.makedirs(os.path.dirname(os.path.abspath(OUT_JS)), exist_ok=True)

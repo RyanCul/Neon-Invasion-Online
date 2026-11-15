@@ -146,6 +146,11 @@ void main(){
   float t=nxTime;float shore=1000.0-vL.y;
   float k=exp(-max(0.0,shore)/260.0);
   vec3 base=color*vec3(0.42+0.62*k,0.62+0.42*k,0.95+0.1*k);
+  /* depth bands: pale sandy aqua in the first metres, clear turquoise over the shallows, then the deep colour */
+  float nxSh1=exp(-max(0.0,shore)/9.0),nxSh2=exp(-max(0.0,shore)/55.0);
+  vec3 nxLum=vec3(dot(color,vec3(0.3,0.5,0.2)));   // built from the brightness of the time-of-day water colour, so the bands follow dusk and night
+  base=mix(base,nxLum*vec3(0.32,1.62,1.5),nxSh2*0.5);
+  base=mix(base,nxLum*vec3(1.1,1.7,1.5),nxSh1*0.65);
   vec2 uv=vW.xz;
   vec3 n1=texture2D(nxNoise,uv*0.018+vec2(t*0.012,t*0.02)).rgb,n2=texture2D(nxNoise,uv*0.055-vec2(t*0.03,t*0.017)).rgb,n3=texture2D(nxNoise,uv*0.17+vec2(t*0.05,-t*0.04)).rgb;
   vec2 rip=(n1.rg-0.5)*0.5+(n2.gb-0.5)*0.34+(n3.rb-0.5)*0.2;
@@ -162,11 +167,23 @@ void main(){
   float spk=smoothstep(0.86,1.0,n3.g)*smoothstep(0.55,1.0,n2.r)*pow(sp,6.0);
   spec+=nxSunCol*spk*3.0;
   float lam=0.62+0.38*max(dot(N,nxSunDir),0.0);
+  /* caustics: two noise layers sliding against each other make bright moving lines on the sea bed, seen only where the water is shallow and you look down into it */
+  float nxC1=texture2D(nxNoise,uv*0.11+vec2(t*0.021,t*0.016)).g,nxC2=texture2D(nxNoise,uv*0.13-vec2(t*0.018,-t*0.02)).r;
+  float nxCau=smoothstep(0.86,1.0,1.0-abs(nxC1-nxC2)*2.6)*nxSh2*(1.0-F)*(1.0-0.7*nxNight);
+  base+=vec3(0.55,0.75,0.6)*nxCau*0.5;
+  /* a soft glow where the low sun shines through the back of a swell */
+  float nxSss=pow(max(dot(V,-nxSunDir),0.0),4.0)*smoothstep(-0.2,0.9,vW.y+0.3)*(1.0-nxNight);
+  base+=color*vec3(0.5,1.5,1.2)*nxSss*0.35;
   vec3 c=mix(base*lam*(1.0-0.3*nxNight),sky,F)+spec;
+  /* at night the lit city behind you puts a faint pink and cyan sheen on the swells */
+  c+=mix(vec3(1.0,0.18,0.62),vec3(0.14,0.95,1.0),n1.g)*nxNight*0.05*(0.3+F)*smoothstep(700.0,40.0,shore);
   float wob=sin(vL.x*0.05+t*0.8)*3.0+(n1.b-0.5)*8.0;
   float foam=smoothstep(12.0,0.0,shore+wob)*(0.55+0.45*n2.g);
   float band=smoothstep(0.86,1.0,sin(shore*0.3-t*1.4+n1.r*5.0))*smoothstep(70.0,6.0,shore)*smoothstep(0.35,0.7,n2.b);
-  c=mix(c,vec3(0.95,0.98,1.0)*(1.0-0.5*nxNight),clamp(foam+band*0.6,0.0,1.0));
+  /* lacy foam: thin broken streaks trailing behind each band, and a scatter of bubbles in the wash */
+  float nxLace=smoothstep(0.55,0.75,n3.g)*smoothstep(0.35,0.9,sin(shore*0.3-t*1.4+n1.r*5.0+1.1))*smoothstep(48.0,4.0,shore)*0.45;
+  float nxBub=smoothstep(0.8,0.95,n3.b)*smoothstep(20.0,2.0,shore+wob)*0.5;
+  c=mix(c,vec3(0.95,0.98,1.0)*(1.0-0.5*nxNight),clamp(foam+band*0.6+nxLace+nxBub,0.0,1.0));
   gl_FragColor=vec4(c,1.0);
   #include <fog_fragment>
 }`;
@@ -329,8 +346,7 @@ function updScatter(){
 /* ------------------------------------------------------------------ buildings: one merged mesh per city cell, windows drawn in the shader */
 const FAC=[];let facMat=null,facMeshes=[];
 NIX.building=function(b,kind,colHex,neonHex){
-  if(kind!==''&&kind!=='wall'&&kind!=='lintel')return false;
-  FAC.push({b,kind,col:colHex,neon:neonHex});return true;
+  return false;
 };
 function facadeMaterial(){
   const m=new THREE.MeshLambertMaterial({vertexColors:true});
@@ -357,28 +373,44 @@ function facadeMaterial(){
           float frame=fr.x*fr.y-win;
           float rnd=nxH(cell+seed*17.13),rnd2=nxH(cell*1.7+seed*3.1+5.0);
           float lit=step(rnd,mix(0.14,0.62,nxNight)+0.25*ground);
-          float flick=1.0-0.5*step(0.985,rnd2)*step(0.5,fract(nxTime*3.0+rnd*9.0));
+          float flick=1.0;
           vec3 wall=diffuseColor.rgb*(0.9+0.2*nz.r)*(0.82+0.18*smoothstep(0.0,9.0,vWp.y));
           wall*=1.0-0.16*smoothstep(0.42,0.5,abs(f.y-0.5))*(1.0-win);
+          /* facade relief, painted: a dark joint between bays with a lit pier beside it, a pale sill under every window, a shadow line under each
+             storey band, and one of three wall finishes per face (boards, ribs or plain). No extra geometry. */
+          float nxUp=1.0-ground,nxJx=min(f.x,1.0-f.x),nxSty=fract(seed*3.71);
+          wall*=1.0-0.24*(1.0-smoothstep(0.0,0.03,nxJx))*nxUp;
+          wall*=1.0+0.1*smoothstep(0.03,0.045,nxJx)*(1.0-smoothstep(0.1,0.12,nxJx))*nxUp;
+          float nxSill=smoothstep(mrg.y-0.085,mrg.y-0.07,f.y)*(1.0-smoothstep(mrg.y-0.03,mrg.y-0.015,f.y))*step(mrg.x-0.045,f.x)*step(f.x,1.0-mrg.x+0.045)*nxUp;
+          wall=mix(wall,wall*1.3+0.03,nxSill);
+          wall*=1.0-0.2*smoothstep(mrg.y-0.125,mrg.y-0.085,f.y)*(1.0-smoothstep(mrg.y-0.085,mrg.y-0.08,f.y))*step(mrg.x-0.045,f.x)*step(f.x,1.0-mrg.x+0.045)*nxUp;
+          wall*=1.0-0.07*step(0.9,fract(f.y*6.0))*step(nxSty,0.33)*nxUp-0.06*step(0.86,fract(f.x*7.0))*step(0.33,nxSty)*step(nxSty,0.62)*nxUp;
+          /* a striped awning band in the building's neon colour along the top of the shop floor */
+          float nxAw=smoothstep(0.865,0.875,f.y)*ground;
+          wall=mix(wall,mix(vNeon*0.62+0.05,vec3(0.86,0.84,0.9),step(0.5,fract(vFuv.x*5.0)))*(0.55+0.45*smoothstep(0.875,1.0,f.y)),nxAw);
           vec3 glass=mix(vec3(0.05,0.06,0.13),vec3(0.1,0.13,0.24),f.y);
           vec3 vd=normalize(vVts);
           float fres=pow(1.0-clamp(vd.z,0.0,1.0),3.0);
           vec3 refl=mix(nxSkyA,nxSkyB,clamp(0.3+f.y*0.5-vd.y*0.6,0.0,1.0));
           glass=mix(glass,refl,0.22+0.6*fres);
           vec3 room=vec3(0.0);
+          /* warm, natural, cohesive architectural interior lighting tones (no crazy neon colors) */
+          vec3 tint=mix(vec3(1.0,0.84,0.54),vec3(1.0,0.93,0.76),rnd2);
+          tint=mix(tint,vec3(1.0,0.76,0.44),step(0.68,nxH(cell+seed+9.0)));
           #ifdef NX_INTERIOR
           if(lit>0.5&&flag<0.5){
-            vec3 ro=vec3(f,0.0);vec3 rd=vec3(vVts.x/vInfo.x,vVts.y/vInfo.y,max(vVts.z,1e-3)/3.4);
-            vec3 tt=(step(vec3(0.0),rd)-ro)/rd;float tm=min(tt.x,min(tt.y,tt.z));vec3 hp=ro+rd*tm;
-            float sh=tt.z<=tm+1e-4?1.0:(tt.y<=tm+1e-4?(rd.y>0.0?1.25:0.5):0.72);
-            float furn=step(0.55,nxH(floor(hp.xy*vec2(3.0,2.0))+cell+seed))*step(tt.z,tm+1e-4)*step(hp.y,0.5);
-            vec3 tint=mix(vec3(1.0,0.82,0.52),mix(vec3(0.5,0.95,1.0),vec3(1.0,0.45,0.85),step(0.5,rnd2)),step(0.72,nxH(cell+seed+9.0)));
-            room=tint*sh*(1.0-0.45*furn)*(1.0-0.5*hp.z)*(0.75+0.5*rnd2);
+            vec3 ro=vec3(f,0.0);
+            vec3 rd=vec3(vVts.x/vInfo.x,vVts.y/vInfo.y,max(vVts.z,1e-3)/3.4);
+            vec3 safeRd=sign(rd)*max(abs(rd),vec3(1e-4));
+            vec3 tt=(step(vec3(0.0),safeRd)-ro)/safeRd;
+            float tm=min(tt.x,min(tt.y,tt.z));
+            vec3 hp=clamp(ro+safeRd*tm,0.0,1.0);
+            // Smooth, steady interior room illumination with parallax depth (zero blinking or stepped jumps)
+            room=tint*(1.0-0.35*hp.z)*(0.8+0.2*f.y)*(0.85+0.3*rnd2);
           }else
           #endif
           if(lit>0.5){
-            vec3 tint=mix(vec3(1.0,0.82,0.52),mix(vec3(0.5,0.95,1.0),vec3(1.0,0.45,0.85),step(0.5,rnd2)),step(0.72,nxH(cell+seed+9.0)));
-            room=tint*(0.7+0.3*f.y)*(0.75+0.5*rnd2);
+            room=tint*(0.8+0.2*f.y)*(0.85+0.3*rnd2);
           }
           vec2 mul=abs(f-0.5);float bar=(1.0-smoothstep(0.012,0.02,mul.x))*(1.0-ground)+(1.0-smoothstep(0.01,0.018,abs(f.y-0.62)))*(1.0-ground);
           room*=flick*(1.0-0.6*bar);
@@ -386,6 +418,8 @@ function facadeMaterial(){
           nxEm=room*win*litK;
           vec3 store=vNeon*(0.35+0.65*nxNight);
           nxEm+=store*ground*frame*1.6;
+          /* on roughly four faces in ten a thin neon line runs up every joint between bays; faint by day, bright at night */
+          nxEm+=vNeon*(1.0-smoothstep(0.005,0.022,nxJx))*step(0.6,nxSty)*nxUp*(0.12+0.95*nxNight);
           diffuseColor.rgb=mix(wall,glass*(1.0-0.75*lit),win);
           diffuseColor.rgb=mix(diffuseColor.rgb,wall*0.55,frame*(1.0-ground));
           nxGlass=win*(1.0-lit);
@@ -396,8 +430,8 @@ function facadeMaterial(){
        .replace(RE_SHADOW,'BRDF_Diffuse_Lambert( diffuseColor.rgb ) * (nxShv=getShadowMask())')
        .replace('void main() {','float nxShv=1.0;\nvoid main() {')
        .replace('#include <envmap_fragment>',`
-        {vec3 Vw=normalize(cameraPosition-vWp);vec3 Rr=reflect(-Vw,normalize(cross(dFdx(vWp),dFdy(vWp))));
-         float sp=max(dot(Rr,nxSunDir),0.0);outgoingLight+=nxSunCol*pow(sp,90.0)*2.2*nxGlass*nxShv*(1.0-0.6*nxNight);}
+        {vec3 Vw=normalize(cameraPosition-vWp);vec3 Rr=reflect(-Vw,normal);
+         float sp=max(dot(Rr,nxSunDir),0.0);outgoingLight+=nxSunCol*pow(sp,28.0)*0.65*nxGlass*(1.0-0.6*nxNight);}
         #include <envmap_fragment>`);
   },'nxFacade'+(Q.interior?1:0));
 }
@@ -782,6 +816,7 @@ function updEnv(dt){
 /* ------------------------------------------------------------------ init / frame */
 NIX.init=function(renderer,scn,cam,cv,pane){
   R=renderer;scene=scn;camera=cam;canvas=cv;PANE=pane|0;gl=R.getContext();
+  NIX.scene=scn;
   R.info.autoReset=false;R.sortObjects=true;
   U.nxNoise.value=makeNoise();
   pickHDR();initPost();dynInit();initParticles();initEnv();
@@ -857,5 +892,5 @@ NIX.render=function(dt,drawView){
   pass(M.final,null);
   dynEnd();dynTick(real);
 };
-NIX.info=function(){return {calls:R.info.render.calls,tris:R.info.render.triangles,fps:NIX.fps,gpuMs:NIX.gpuMs,scale:G.dynScale,res:curW+'x'+curH,level:G.level,hdr:NIX.hdr,batch:NIX.batchStats(),programs:R.info.programs.length,geos:R.info.memory.geometries,refresh:DYN.refresh};};
+NIX.info=function(){if(!R)return null;return {calls:R.info.render.calls,tris:R.info.render.triangles,fps:NIX.fps,gpuMs:NIX.gpuMs,scale:G.dynScale,res:curW+'x'+curH,level:G.level,hdr:NIX.hdr,batch:NIX.batchStats(),programs:R.info.programs.length,geos:R.info.memory.geometries,refresh:DYN.refresh};};
 })();

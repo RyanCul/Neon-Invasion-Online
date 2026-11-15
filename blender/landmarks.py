@@ -81,37 +81,50 @@ lm_pyramid()
 # so it stays an open lookout: four columns carry the round tower, gallery, lantern room and cap above the player's head.
 def lm_lighthouse():
     b, g = new_bm(), new_bm()
-    WH = (0.93, 0.93, 0.98); RD = (0.92, 0.16, 0.22); ROOF = (0.72, 0.1, 0.16); TRIM = (0.16, 0.14, 0.26); WIN = (0.05, 0.07, 0.13); BEAM = (1.0, 0.29, 0.36)
+    # Classic bold nautical RED and pure WHITE striping
+    RD = (0.96, 0.12, 0.20); WH = (0.98, 0.98, 1.0)
+    ROOF = (0.94, 0.10, 0.18); TRIM = (0.88, 0.08, 0.16); WIN = (0.05, 0.07, 0.13); BEAM = (1.0, 0.35, 0.45)
+    STEP = [RD, WH, RD, WH, RD, WH, RD, WH]                                               # alternating red and white tiers
+    NEON_C = [WHITE, (1.0, 0.15, 0.25), WHITE, (1.0, 0.15, 0.25), WHITE, (1.0, 0.15, 0.25), WHITE, (1.0, 0.15, 0.25)]
     for t in range(8):
         w = 16 - 1.8 * t; y0 = 1.4 * t; y1 = y0 + 1.4
-        gB(b, w, 1.5, w, 0, y1 - 0.75, 0, RD if t % 2 else WH, 0.12)
-        gFrame(b, w + 0.14, w + 0.14, 0.2, 0.14, y1 - 0.05, TRIM)                       # dark coping round the edge of each step
+        gB(b, w, 1.5, w, 0, y1 - 0.75, 0, STEP[t], 0.04)
+        gFrame(b, w + 0.14, w + 0.14, 0.2, 0.14, y1 - 0.05, WH if t % 2 == 0 else RD)    # contrasting coping round each step
+        gFrame(g, w + 0.08, w + 0.08, 0.08, 0.08, y0 + 0.14, NEON_C[t])                  # neon sill line round every step
+        gFrame(g, w + 0.12, w + 0.12, 0.05, 0.05, y1 - 0.02, NEON_C[(t + 1) % 8])
         if t in (1, 3, 5):
-            def face(put):
-                put(b, 0.8, 0.86, 0.1, 0, y0 + 0.66, WIN); put(g, 0.94, 0.07, 0.1, 0, y0 + 0.2, WARM, 0.02)
+            def face(put, _c=((1.0, 0.2, 0.25), WHITE, (1.0, 0.2, 0.25))[(t - 1) // 2]):
+                put(b, 0.8, 0.86, 0.1, 0, y0 + 0.66, WIN); put(g, 0.94, 0.07, 0.1, 0, y0 + 0.2, _c, 0.02); put(g, 0.7, 0.62, 0.04, 0, y0 + 0.66, tuple(0.35 * c for c in _c), 0.055)
             on_faces(w / 2, face)
-    gB(b, 1.7, 1.2, 0.12, 0, 0.8, 8.0, (0.3, 0.18, 0.1), 0); gB(g, 1.9, 0.08, 0.08, 0, 1.45, 8.05, WARM, 0)   # door on the street side
+    gB(b, 1.7, 1.2, 0.12, 0, 0.8, 8.0, (0.35, 0.18, 0.12), 0); gB(g, 1.9, 0.08, 0.08, 0, 1.45, 8.05, WARM, 0)   # door on the street side
+    gB(b, 2.1, 0.16, 0.7, 0, 1.55, 8.3, RD, 0.05); gB(g, 2.1, 0.05, 0.05, 0, 1.43, 8.64, WHITE, 0)        # door canopy and its neon edge
     for sx in (-1, 1):
-        for sz in (-1, 1): gC(b, 0.22, 3.1, sx * 1.3, 12.7, sz * 1.3, WH, 'y', n=8); gC(b, 0.32, 0.25, sx * 1.3, 11.32, sz * 1.3, TRIM, 'y', n=8)
-    prof = [(0, 14.2), (2.0, 14.2), (2.0, 14.55), (1.62, 14.72), (1.52, 15.8), (1.44, 16.9), (1.36, 18.0), (1.9, 18.26), (2.4, 18.3), (2.4, 18.5), (0, 18.5)]
-    gLp(b, prof, 14, colors=[TRIM, TRIM, WH, WH, RD, WH, TRIM, TRIM, TRIM, (0.3, 0.29, 0.4)])
-    gT(g, 1.72, 0.05, 0, 14.16, 0, WARM, 'y', nu=20, nv=4); gT(g, 2.44, 0.07, 0, 18.26, 0, BEAM, 'y', nu=24, nv=4)
+        for sz in (-1, 1):
+            gC(b, 0.22, 3.1, sx * 1.3, 12.7, sz * 1.3, RD if sx * sz > 0 else WH, 'y', n=8); gC(b, 0.32, 0.25, sx * 1.3, 11.32, sz * 1.3, RD, 'y', n=8)
+            gT(g, 0.24, 0.035, sx * 1.3, 12.2, sz * 1.3, WHITE, 'y', nu=10, nv=4); gT(g, 0.24, 0.035, sx * 1.3, 13.4, sz * 1.3, (1.0, 0.2, 0.25), 'y', nu=10, nv=4)   # glowing rings round the columns
+    prof = [(0, 14.2), (2.0, 14.2), (2.0, 14.55), (1.62, 14.72), (1.55, 15.45), (1.49, 16.15), (1.43, 16.85), (1.36, 17.45), (1.36, 18.0), (1.9, 18.26), (2.4, 18.3), (2.4, 18.5), (0, 18.5)]
+    gLp(b, prof, 14, colors=[RD, WH, RD, WH, RD, WH, RD, WH, RD, WH, RD, WH])
+    gT(g, 1.72, 0.05, 0, 14.16, 0, WHITE, 'y', nu=20, nv=4); gT(g, 2.44, 0.07, 0, 18.26, 0, (1.0, 0.2, 0.25), 'y', nu=24, nv=4)
+    gT(g, 1.5, 0.045, 0, 16.5, 0, WHITE, 'y', nu=20, nv=4); gT(g, 1.4, 0.045, 0, 17.45, 0, (1.0, 0.2, 0.25), 'y', nu=20, nv=4)   # neon bands round the tower
     for k in range(10):
-        a = k * math.pi / 5; gC(b, 0.045, 0.9, math.cos(a) * 2.28, 18.95, math.sin(a) * 2.28, TRIM, 'y', n=5)
-    gT(b, 2.28, 0.05, 0, 19.4, 0, TRIM, 'y', nu=20, nv=4)
+        a = k * math.pi / 5; gC(b, 0.045, 0.9, math.cos(a) * 2.28, 18.95, math.sin(a) * 2.28, RD if k % 2 else WH, 'y', n=5)
+    gT(b, 2.28, 0.05, 0, 19.4, 0, RD, 'y', nu=20, nv=4)
     gC(b, 1.3, 0.4, 0, 18.7, 0, WH, 'y', n=12)
     for k in range(8):
-        a = k * math.pi / 4 + 0.39; gB(b, 0.1, 2.2, 0.1, math.cos(a) * 1.18, 20.0, math.sin(a) * 1.18, TRIM, 0)
-    gLp(b, [(0, 21.1), (1.6, 21.1), (1.55, 21.4), (1.05, 22.3), (0.36, 22.9), (0.12, 23.15), (0, 23.15)], 12, col=ROOF)
-    gS(b, 0.22, 0, 23.3, 0, GOLD); gC(b, 0.04, 1.0, 0, 23.9, 0, TRIM, 'y', n=5)
+        a = k * math.pi / 4 + 0.39; gB(b, 0.1, 2.2, 0.1, math.cos(a) * 1.18, 20.0, math.sin(a) * 1.18, RD if k % 2 else WH, 0)
+    gLp(b, [(0, 21.1), (1.6, 21.1), (1.55, 21.4), (1.05, 22.3), (0.36, 22.9), (0.12, 23.15), (0, 23.15)], 12, colors=[RD, WH, RD, WH, RD, WH])
+    gT(g, 1.3, 0.05, 0, 21.8, 0, WHITE, 'y', nu=18, nv=4)
+    gT(g, 0.9, 0.04, 0, 22.5, 0, (1.0, 0.2, 0.25), 'y', nu=16, nv=4)
+    gS(b, 0.22, 0, 23.3, 0, RD); gC(b, 0.04, 1.0, 0, 23.9, 0, WH, 'y', n=5)
+    gB(b, 0.6, 0.34, 0.03, 0.34, 24.15, 0, RD, 0.01); gS(g, 0.08, 0, 24.45, 0, WHITE)                  # pennant and a beacon bulb on the mast
     gLp(g, [(0, 19.0), (0.5, 19.1), (0.78, 19.9), (0.5, 20.8), (0, 20.9)], 10, col=WARM)   # the lens
-    export('lm_lighthouse_body', b, shade=0.1, meta={'lens': [0, 19.95, 0]}); export('lm_lighthouse_glow', g)
+    export('lm_lighthouse_body', b, shade=0.03, meta={'lens': [0, 19.95, 0]}); export('lm_lighthouse_glow', g)
 lm_lighthouse()
 
 # ----------------------------------------------------------------------------- CRYSTAL WHEEL (Ferris wheel)
 # The turning part is modelled round its hub: wheel in the x-y plane, axle along z, gondolas hang at radius 22.
 def lm_wheel():
-    b, g = new_bm(), new_bm(); FR = (0.84, 0.86, 0.94); HUB = (0.26, 0.17, 0.45)
+    b, g = new_bm(), new_bm(); FR = (0.98, 0.66, 0.86); HUB = (0.3, 0.16, 0.55)        # candy-pink frame (was grey-white), violet hub
     for sz in (-1, 1):
         z = sz * 4
         gT(b, 22, 0.32, 0, 0, z, FR, 'z', nu=48, nv=6); gT(b, 14.5, 0.2, 0, 0, z, FR, 'z', nu=36, nv=5)
@@ -170,8 +183,8 @@ lm_wheel()
 # ----------------------------------------------------------------------------- CONTAINER YARD (shared.js: 12.2 x 2.6 x 2.6 per container, stacked one or two high; 2 x 2 x 1.3 crates)
 LOW = True
 def lm_container():
-    b, d = new_bm(), new_bm(); L = 12.2; W = 2.6; Hh = 2.6; FR = sh(0.6); CAST = (0.12, 0.12, 0.16)
-    gB(b, L - 0.3, Hh - 0.3, W - 0.16, 0, Hh / 2, 0, sh(0.9), 0)                           # shell
+    b, d = new_bm(), new_bm(); L = 12.2; W = 2.6; Hh = 2.6; FR = (0.22, 0.18, 0.32); CAST = (0.14, 0.12, 0.2)
+    gB(b, L - 0.3, Hh - 0.3, W - 0.16, 0, Hh / 2, 0, WHITE, 0)                             # full white shell so tinting remains 100% vibrant
     for sx in (-1, 1):
         for sz in (-1, 1):
             gB(b, 0.22, Hh, 0.22, sx * (L / 2 - 0.11), Hh / 2, sz * (W / 2 - 0.11), FR, 0.03)   # corner posts
@@ -179,24 +192,47 @@ def lm_container():
         for y in (0.11, Hh - 0.11): gB(b, 0.2, 0.22, W, sx * (L / 2 - 0.1), y, 0, FR, 0.03)
     for sz in (-1, 1):
         for y in (0.11, Hh - 0.11): gB(b, L, 0.22, 0.2, 0, y, sz * (W / 2 - 0.1), FR, 0.03)   # rails
-        for k in range(22): gB(b, 0.26, Hh - 0.5, 0.09, -L / 2 + 0.5 + k * (L - 1.0) / 21, Hh / 2, sz * (W / 2 - 0.06), WHITE, 0)   # corrugation
-        gB(d, 2.6, 0.9, 0.05, sz * 2.4, 1.55, sz * (W / 2 - 0.01), (0.94, 0.94, 0.98), 0)     # shipping-line plate
+        for k in range(22): gB(b, 0.26, Hh - 0.5, 0.09, -L / 2 + 0.5 + k * (L - 1.0) / 21, Hh / 2, sz * (W / 2 - 0.06), (0.98, 0.98, 1.0), 0)   # corrugation
+        gB(d, 2.6, 0.9, 0.05, sz * 2.4, 1.55, sz * (W / 2 - 0.01), (0.96, 0.96, 1.0), 0)     # shipping-line plate
         gB(d, 2.2, 0.14, 0.06, sz * 2.4, 1.72, sz * (W / 2 - 0.005), PINK, 0); gB(d, 1.5, 0.14, 0.06, sz * 2.4 - 0.35, 1.42, sz * (W / 2 - 0.005), CYAN, 0)
-        gB(b, 0.08, Hh - 0.5, 1.1, L / 2 - 0.1, Hh / 2, sz * 0.57, sh(0.82), 0.02)             # door leaf
+        gB(b, 0.08, Hh - 0.5, 1.1, L / 2 - 0.1, Hh / 2, sz * 0.57, WHITE, 0.02)               # door leaf takes full tint
         for dz in (0.25, 0.82): gC(d, 0.035, Hh - 0.4, L / 2 - 0.03, Hh / 2, sz * dz, CHROME, 'y', n=5)   # lock rods
         gB(d, 0.06, 0.1, 0.5, L / 2 - 0.02, 1.05, sz * 0.54, CHROME, 0)
     for k in range(10): gB(b, 0.3, 0.07, W - 0.5, -L / 2 + 0.9 + k * (L - 1.8) / 9, Hh - 0.13, 0, WHITE, 0)   # roof ribs
     for k in range(4): gB(b, 0.09, Hh - 0.5, 0.26, -L / 2 + 0.1, Hh / 2, -0.78 + k * 0.52, WHITE, 0)          # ribs on the closed end
-    export('lm_container_body', b, shade=0.1); export('lm_container_detail', d)
-    m = new_bm(); WD = (0.5, 0.36, 0.2); WL = (0.64, 0.48, 0.28); WK = (0.36, 0.25, 0.14)
-    gB(m, 1.86, 1.2, 1.86, 0, 0.65, 0, WD, 0)
-    for sx in (-1, 1):
-        for sz in (-1, 1): gB(m, 0.2, 1.3, 0.2, sx * 0.9, 0.65, sz * 0.9, WL, 0.03)
-        for y in (0.1, 1.2):
-            gB(m, 0.16, 0.2, 1.7, sx * 0.92, y, 0, WL, 0); gB(m, 1.7, 0.2, 0.16, 0, y, sx * 0.92, WL, 0)
-        gB(m, 0.06, 0.18, 2.0, sx * 0.95, 0.65, 0, WK, 0, rx=0.5); gB(m, 2.0, 0.18, 0.06, 0, 0.65, sx * 0.95, WK, 0, rz=0.5)   # diagonal braces
-    for k in range(4): gB(m, 0.4, 0.05, 1.8, -0.66 + k * 0.44, 1.28, 0, WL if k % 2 else WD, 0)
-    export('lm_crate', m, shade=0.12)
+    export('lm_container_body', b, shade=0.04); export('lm_container_detail', d)
+    # three colourways on top of the shell: stripes and a big logo block on each long side, hazard-striped doors, and a neon edge
+    COLW = [((1.0, 0.85, 0.15), (0.1, 0.95, 0.98), (1.0, 0.25, 0.7)), ((1.0, 0.45, 0.1), (0.08, 0.9, 1.0), (0.7, 0.4, 1.0)), ((0.2, 1.0, 0.6), (1.0, 0.2, 0.7), (1.0, 0.92, 0.25))]
+    for v, (c1, c2, c3) in enumerate(COLW):
+        a, gg = new_bm(), new_bm()
+        for sz in (-1, 1):
+            zf = sz * (W / 2 + 0.005)
+            gB(a, L - 1.4, 0.22, 0.05, -0.2, 2.18, zf, c1, 0); gB(a, L - 1.4, 0.12, 0.05, -0.2, 0.55, zf, c2, 0)      # long stripes high and low
+            gB(a, 3.1, 0.9, 0.06, -sz * 2.6 - 0.5, 1.4, zf + sz * 0.005, c2, 0.02); gB(a, 2.5, 0.12, 0.07, -sz * 2.6 - 0.5, 1.4, zf + sz * 0.012, WHITE, 0)   # big logo block + bar
+            for k in range(5): gB(a, 0.34, 0.5, 0.07, -sz * 2.6 - 1.45 + k * 0.48, 1.15, zf + sz * 0.012, c3 if k % 2 else WHITE, 0)
+            for k in range(6):   # hazard stripes on the doors
+                gB(a, 0.04, 0.14, 1.0, L / 2 - 0.02, 0.35 + k * 0.28, sz * 0.57, (0.08, 0.07, 0.1) if k % 2 else c1, 0)
+            gB(gg, L - 0.5, 0.06, 0.05, 0, Hh - 0.32, zf, c2, 0); gB(gg, L - 0.5, 0.06, 0.05, 0, 0.3, zf, c1, 0)    # neon lines along the shell
+            gB(gg, 0.5, 0.1, 0.05, -sz * 2.6 - 0.5, 1.82, zf + sz * 0.02, c3, 0)
+        for sx in (-1, 1):
+            gB(gg, 0.05, 0.06, W - 0.2, sx * (L / 2 + 0.005), Hh - 0.3, 0, c2, 0)                                    # neon bar across each end
+        export('lm_container_deco%d' % v, a, shade=0.1); export('lm_container_glow%d' % v, gg)
+    WD = (0.5, 0.36, 0.2); WL = (0.64, 0.48, 0.28); WK = (0.36, 0.25, 0.14)
+    def crate(cv, wd, wl, wk, accent, stencil):      # three crate looks: bare wood with a hot-pink stencil, painted teal, painted violet
+        m = new_bm(); gg = new_bm()
+        gB(m, 1.86, 1.2, 1.86, 0, 0.65, 0, wd, 0)
+        for sx in (-1, 1):
+            for sz in (-1, 1): gB(m, 0.2, 1.3, 0.2, sx * 0.9, 0.65, sz * 0.9, wl, 0.03)
+            for y in (0.1, 1.2):
+                gB(m, 0.16, 0.2, 1.7, sx * 0.92, y, 0, wl, 0); gB(m, 1.7, 0.2, 0.16, 0, y, sx * 0.92, wl, 0)
+            gB(m, 0.06, 0.18, 2.0, sx * 0.95, 0.65, 0, wk, 0, rx=0.5); gB(m, 2.0, 0.18, 0.06, 0, 0.65, sx * 0.95, wk, 0, rz=0.5)   # diagonal braces
+            gB(m, 0.05, 0.5, 0.9, sx * 0.945, 0.7, 0, stencil, 0.01); gB(m, 0.9, 0.5, 0.05, 0, 0.7, sx * 0.945, stencil, 0.01)  # stencilled label plates
+            gB(gg, 0.04, 0.08, 0.7, sx * 0.97, 0.7, 0, accent, 0); gB(gg, 0.7, 0.08, 0.04, 0, 0.7, sx * 0.97, accent, 0)       # a glowing bar on each label
+        for k in range(4): gB(m, 0.4, 0.05, 1.8, -0.66 + k * 0.44, 1.28, 0, wl if k % 2 else wd, 0)
+        export('lm_crate' if cv == 0 else 'lm_crate%d' % cv, m, shade=0.12); export('lm_crate_glow%d' % cv, gg)
+    crate(0, WD, WL, WK, PINK, (0.95, 0.9, 0.78))
+    crate(1, (0.1, 0.5, 0.56), (0.16, 0.7, 0.74), (0.07, 0.36, 0.42), YELLOW, (1.0, 0.85, 0.2))
+    crate(2, (0.4, 0.22, 0.62), (0.56, 0.34, 0.82), (0.28, 0.15, 0.46), CYAN, (0.96, 0.9, 1.0))
 lm_container()
 LOW = False
 
@@ -246,7 +282,7 @@ lm_clocktower()
 
 # ----------------------------------------------------------------------------- CRASH SITE (the saucer: axis along y, flat top deck at y = +1.2 out to radius 9.5, as the walkable slope in shared.js expects)
 def lm_ufo():
-    b, g = new_bm(), new_bm(); H1 = (0.66, 0.7, 0.8); H2 = (0.42, 0.45, 0.58); DK = (0.13, 0.12, 0.2)
+    b, g = new_bm(), new_bm(); H1 = (0.45, 0.9, 0.84); H2 = (0.58, 0.4, 0.95); DK = (0.17, 0.09, 0.33)   # mint and violet hull plates (was plain grey)
     prof = [(0, -2.7), (3.5, -2.6), (7.5, -2.0), (11.0, -1.2), (12.3, -0.75), (12.5, -0.45), (11.9, -0.1), (11.0, 0.37), (10.2, 0.8), (9.5, 1.2), (5.4, 1.2), (0, 1.2)]
     gLp(b, prof, 28, colors=[DK, H2, H2, H1, DK, DK, H1, H2, H1, H2, DK])
     gT(b, 5.15, 0.22, 0, 1.24, 0, DK, 'y', nu=24, nv=5); gT(g, 5.5, 0.07, 0, 1.24, 0, GREEN, 'y', nu=24, nv=4)   # collar under the glass dome

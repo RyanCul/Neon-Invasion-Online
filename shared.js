@@ -21,7 +21,7 @@ function cleoSnakePos(a,i){   // snakes in Cleopatra's hair: a ring around her h
 /* ---------------- constants ---------------- */
 const EYE=2.9;                 // player eye height
 const N=8,P=88,HALF=(N/2)*P;
-const BOUNDS={x0:-HALF-10,x1:HALF+10,z0:-HALF-10,z1:HALF+64};
+const BOUNDS={x0:-HALF-10,x1:HALF+10,z0:-HALF-10,z1:HALF+95};
 const PLAYER_COLORS=[0xff2fa0,0x25f4ff,0xfff3b0,0xa56bff,0x3cff9e,0xff9a3c,0xffffff,0x8fd3ff];
 
 /* weapons: colored laser guns */
@@ -490,8 +490,8 @@ function genWorld(seed){
           st.push([q[0],q[1]]);
         }
         H[2][M]=false;H[2][0]=true;   // the entrance faces +z (south)
-        for(let a=0;a<=M;a++)for(let b=0;b<M;b++)if(V[a][b])dbox(ox+a*C,oz+b*C+C/2,1.6,C+1.6,5,0x1fa84f,{});
-        for(let a=0;a<M;a++)for(let b=0;b<=M;b++)if(H[a][b])dbox(ox+a*C+C/2,oz+b*C,C+1.6,1.6,5,0x1fa84f,{});
+        for(let a=0;a<=M;a++)for(let b=0;b<M;b++)if(V[a][b])dbox(ox+a*C,oz+b*C+C/2,1.6,C+1.6,5,0x22d050,{});
+        for(let a=0;a<M;a++)for(let b=0;b<=M;b++)if(H[a][b])dbox(ox+a*C+C/2,oz+b*C,C+1.6,1.6,5,0x22d050,{});
         loot.push({x:cx,y:1.3,z:cz,t:1});loot.push({x:ox+C/2,y:1.3,z:oz+C/2,t:0});loot.push({x:ox+M*C-C/2,y:1.3,z:oz+C/2,t:0});
         mazeRec.push({sl,cx,cz,b0:mb0,b1:B.length,l0:ml0,l1:loot.length,th:themes[themes.length-1]});
       }else if(kind==='drivein'){

@@ -622,6 +622,24 @@ button,input,select{font-family:inherit}
 #vprev .vn{font-family:var(--num);font-size:11px;letter-spacing:.2em}#vprev .vt{font-family:var(--num)}
 #achPop b{font-family:var(--num);font-size:10px}#savedPill{font-family:var(--ui)}
 #lobby{font-family:var(--ui)}#lbCode{font-weight:700}#lbPh,#lbCodeBox small{font-family:var(--num);font-size:11px}
+/* REMAKE: casino feel. Spinning reels blur and roll, each reel bumps as it stops, a win flashes the cabinet gold, a loss dims it.
+   The roulette ball whirls while the wheel turns and lands with a bounce. Classes are set by slSpin / slFinish / rlSpin; reduced motion turns it off. */
+#slReels div{transition:box-shadow .2s,border-color .2s}
+#slReels div.spin{animation:nxReel .16s linear infinite;filter:blur(1.2px) brightness(1.2)}
+#slReels div.stop{animation:nxStop .32s cubic-bezier(.3,1.6,.5,1)}
+#slots .box2.win{animation:nxWin .5s ease-in-out 4}#slots .box2.win #slReels div{border-color:var(--gd);box-shadow:inset 0 0 18px rgba(255,210,60,.9),0 0 22px rgba(255,210,60,.7)}
+#slots .box2.lose #slReels div{filter:saturate(.5) brightness(.75)}
+#slMsg,#rlMsg{font-family:var(--num);letter-spacing:.2em;text-transform:uppercase}
+#slots .box2.win #slMsg,#roul .box2.win #rlMsg{color:var(--gd);text-shadow:0 0 12px var(--gd);animation:nxPop .4s cubic-bezier(.3,1.6,.5,1)}
+#rlBall.spin{animation:nxWhirl .45s linear infinite;filter:blur(.6px)}
+#rlBall.stop{animation:nxStop .4s cubic-bezier(.3,1.6,.5,1)}
+#roul .box2.win{animation:nxWin .5s ease-in-out 4}
+@keyframes nxReel{0%{transform:translateY(-18%)}100%{transform:translateY(18%)}}
+@keyframes nxStop{0%{transform:translateY(-14%) scale(1.06)}60%{transform:translateY(5%)}100%{transform:none}}
+@keyframes nxWin{0%,100%{box-shadow:var(--glow)}50%{box-shadow:0 0 0 2px var(--gd),0 0 46px rgba(255,210,60,.75)}}
+@keyframes nxPop{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+@keyframes nxWhirl{0%{transform:rotate(0) translateX(0)}25%{transform:rotate(90deg) translateX(6px)}50%{transform:rotate(180deg)}75%{transform:rotate(270deg) translateX(-6px)}100%{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#slReels div.spin,#slReels div.stop,#slots .box2.win,#roul .box2.win,#rlBall.spin,#rlBall.stop{animation:none;filter:none}}
 </style>
 </head>
 <body>
@@ -747,10 +765,11 @@ button,input,select{font-family:inherit}
 
 <script src="three.min.js"></script>
 <script src="shared.js"></script>
-<script src="nx/nx-assets.js?v=7"></script>
-<script src="nx/nx-core.js?v=7"></script>
-<script src="nx/nx-models.js?v=7"></script>
-<script src="nx/nx-props.js?v=7"></script>
+<script src="nx/nx-assets.js?v=9"></script>
+<script src="nx/nx-core.js?v=9"></script>
+<script src="nx/nx-models.js?v=9"></script>
+<script src="nx/nx-props.js?v=9"></script>
+<script src="steam-adapter.js"></script>
 <script>
 /* ---- LOCAL SPLITSCREEN (demo) ----
    ?split=host  -> this page becomes the "console": it runs the one shared game simulation and shows two panes.
@@ -909,7 +928,7 @@ button,input,select{font-family:inherit}
   function ser(g){return {id:g.id,mapping:g.mapping,axes:Array.prototype.slice.call(g.axes),buttons:Array.prototype.map.call(g.buttons,function(b){return [b.pressed?1:0,b.value];})};}
   function pump(){
     requestAnimationFrame(pump);step();
-    var all=navigator.getGamepads?Array.prototype.slice.call(navigator.getGamepads()):[],pads=all.filter(function(g){return g&&g.connected;});
+    var all=[];try{if(navigator.getGamepads)all=Array.prototype.slice.call(navigator.getGamepads());}catch(e){}var pads=all.filter(function(g){return g&&g.connected;});
     var p1=pads.length>=2?pads[0]:null,p2=pads.length>=2?pads[1]:(pads[0]||null);
     padCnt=pads.length;setupPads(p1,p2);
     if(setupOn){post(1,{ni:'h2c',pad:null});post(2,{ni:'h2c',pad:null});}else{post(1,{ni:'h2c',pad:p1?ser(p1):null});post(2,{ni:'h2c',pad:p2?ser(p2):null});}
@@ -948,7 +967,7 @@ const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'
 let retro=false;
 function applyRes(){NIX.setRetro(retro);}   // REMAKE: the render core owns the resolution (quality preset x dynamic scaling); RETRO is now an optional chunky-pixel filter
 const scene=new THREE.Scene();
-scene.fog=new THREE.Fog(0xff8f7a,60,650);
+scene.fog=new THREE.Fog(0xff8f7a,35,420);
 const camera=new THREE.PerspectiveCamera(78,innerWidth/innerHeight,0.1,3000);
 camera.rotation.order='YXZ';scene.add(camera);
 NIX.init(renderer,scene,camera,canvas,window.__PANE|0);retro=NIX.G.retro;
@@ -1025,8 +1044,9 @@ function cym(par,rt,rb,h,color,x,y,z,basic,seg){const m=new THREE.Mesh(new THREE
   const R=NI.mulberry32(4242),SZ0=HALF+14,SZ1=HALF+90,rr=(a,b)=>a+(b-a)*R();
   const g=new THREE.Group();scene.add(g);
   const BBX=NI.WORLD.bbar.x,ok=x=>(x<130||x>250)&&Math.abs(x-BBX)>18;   // keep clear of the marina and the beach bar
+  const BM=NIX.beach||null;   // REMAKE: Blender-made beach props (blender/beach.py, placed through nx/nx-props.js). Each call returns false when its model is missing, and the old boxes below are then used
   // wet sand + foam at the waterline
-  const wet=new THREE.Mesh(new THREE.PlaneGeometry(6000,14),new THREE.MeshLambertMaterial({color:0xb48c5a,transparent:true,opacity:0.55,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}));wet.rotation.x=-Math.PI/2;wet.position.set(0,0.06,SZ1-7);g.add(wet);
+  const wet=new THREE.Mesh(new THREE.PlaneGeometry(6000,18),new THREE.MeshLambertMaterial({color:0x966838,transparent:true,opacity:0.65,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}));wet.rotation.x=-Math.PI/2;wet.position.set(0,0.06,SZ1-5);g.add(wet);
   const foamTex=(()=>{const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');const RR=NI.mulberry32(5);
     const gr=x.createLinearGradient(0,64,0,0);gr.addColorStop(0,'rgba(255,255,255,0.0)');gr.addColorStop(0.55,'rgba(255,255,255,0.55)');gr.addColorStop(1,'rgba(255,255,255,0.0)');x.fillStyle=gr;x.fillRect(0,0,256,64);
     for(let i=0;i<70;i++){const px=RR()*256,py=8+RR()*40,r=2+RR()*7;x.fillStyle='rgba(255,255,255,'+(0.25+RR()*0.5)+')';for(const ox of[-256,0,256]){x.beginPath();x.arc(px+ox,py,r,0,6.3);x.fill();}}
@@ -1040,27 +1060,45 @@ function cym(par,rt,rb,h,color,x,y,z,basic,seg){const m=new THREE.Mesh(new THREE
   // umbrellas + towels
   const UC=[0xff2fa0,0x25f4ff,0xffe63c,0xffffff,0xff7a1a,0x9d5bff];
   for(let i=0;i<22;i++){const x=rr(-330,330);if(!ok(x))continue;const z=rr(SZ0+8,SZ1-14);const u=new THREE.Group();u.position.set(x,0.05,z);u.rotation.y=rr(0,6);g.add(u);NIX.addSolid(x,z,0.35,4.0);   // REMAKE: the umbrella pole blocks you (the canopy is high enough to walk under)
-    cym(u,0.07,0.07,3.8,0xe8e8e8,0,1.9,0);
     const col=UC[i%UC.length];
+    if(!(BM&&BM.umbrella(u,col))){   // REMAKE: Blender-made umbrella (eight striped panels with a scalloped edge, pole, collar); the cones below are the fallback
+    cym(u,0.07,0.07,3.8,0xe8e8e8,0,1.9,0);
     for(let s=0;s<6;s++){const seg=new THREE.Mesh(new THREE.ConeGeometry(2.4,1.1,6,1,false,s*Math.PI/3,Math.PI/3),new THREE.MeshLambertMaterial({color:s%2?col:0xffffff,side:THREE.DoubleSide}));seg.position.y=4.05;u.add(seg);}
+    }
     u.rotation.z=rr(-0.12,0.12);
-    const tw=bxm(g,2.0,0.05,4.2,UC[(i+2)%UC.length],x+rr(-2.6,2.6),0.1,z+rr(2,3.4));tw.rotation.y=rr(-0.5,0.5);
-    if(i%3===0){const cb=cym(g,0.5,0.5,0.9,0xd9c3a0,x+rr(2,4),0.5,z+rr(-2,2));NIX.addSolid(cb.position.x,cb.position.z,0.55,1.0);}   // cooler (solid)
+    {const tx=x+rr(-2.6,2.6),tz=z+rr(2,3.4),try_=rr(-0.5,0.5),tc=UC[(i+2)%UC.length];
+     if(!(BM&&BM.towel(g,tc,tx,tz,try_))){const tw=bxm(g,2.0,0.05,4.2,tc,tx,0.1,tz);tw.rotation.y=try_;}   // REMAKE: striped, fringed towel model; the flat box is the fallback
+     if(BM&&i%2===0)BM.lounger(g,UC[(i+4)%UC.length],tx+(tx>x?2.4:-2.4),tz+0.4,try_+Math.PI);}   // REMAKE: a sun lounger beside every second towel (new dressing, no collision)
+    if(i%3===0){const kx=x+rr(2,4),kz=z+rr(-2,2);if(!(BM&&BM.cooler(g,UC[(i+1)%UC.length],kx,kz,i*1.3))){cym(g,0.5,0.5,0.9,0xd9c3a0,kx,0.5,kz);}NIX.addSolid(kx,kz,0.55,1.0);}   // cooler (solid). REMAKE: Blender-made cool box in a beach colour; the cylinder is the fallback
   }
   // beach balls, starfish, sandcastles
-  for(let i=0;i<7;i++){const x=rr(-300,300);if(!ok(x))continue;const b=new THREE.Mesh(new THREE.SphereGeometry(0.8,12,8),new THREE.MeshLambertMaterial({color:UC[i%UC.length],emissive:0x222222}));b.position.set(x,0.8,rr(SZ0+10,SZ1-10));g.add(b);NIX.addSolid(b.position.x,b.position.z,0.85,1.6);}   // beach ball (solid)
-  for(let i=0;i<18;i++){const x=rr(-340,340);if(!ok(x))continue;const s=new THREE.Mesh(new THREE.ConeGeometry(0.5,0.12,5),new THREE.MeshLambertMaterial({color:i%2?0xff7a4a:0xff4f8a}));s.position.set(x,0.12,rr(SZ0+20,SZ1-4));s.rotation.y=rr(0,6);g.add(s);}
+  for(let i=0;i<7;i++){const x=rr(-300,300);if(!ok(x))continue;const bz=rr(SZ0+10,SZ1-10);
+    if(!(BM&&BM.ball(g,x,bz,i*2.1))){const b=new THREE.Mesh(new THREE.SphereGeometry(0.8,12,8),new THREE.MeshLambertMaterial({color:UC[i%UC.length],emissive:0x222222}));b.position.set(x,0.8,bz);g.add(b);}   // REMAKE: striped beach ball model; the plain sphere is the fallback
+    NIX.addSolid(x,bz,0.85,1.6);}   // beach ball (solid)
+  for(let i=0;i<18;i++){const x=rr(-340,340);if(!ok(x))continue;const sz=rr(SZ0+20,SZ1-4),sry=rr(0,6);
+    if(!(BM&&BM.star(g,i%2?0xff7a4a:0xff4f8a,x,sz,sry))){const s=new THREE.Mesh(new THREE.ConeGeometry(0.5,0.12,5),new THREE.MeshLambertMaterial({color:i%2?0xff7a4a:0xff4f8a}));s.position.set(x,0.12,sz);s.rotation.y=sry;g.add(s);}}   // REMAKE: five-armed starfish model; the flat cone is the fallback
+  /* REMAKE: more life on the sand, all visual with no collision: surfboards stuck upright in the sand in clusters, and shells along the waterline.
+     Its own random stream (R2), so the positions of everything else on the beach stay exactly where they were. */
+  if(BM){const R2=NI.mulberry32(9191),r2=(a,b)=>a+(b-a)*R2(),SC=[0xff2fa0,0x25f4ff,0xffe63c,0xff7a1a,0x9d5bff,0x3cff9e];
+    for(let i=0;i<9;i++){const x=r2(-320,320);if(!ok(x))continue;const z=r2(SZ0+12,SZ1-26),n=1+Math.floor(r2(0,3));for(let k=0;k<n;k++)BM.surf(g,SC[(i+k)%6],x+k*0.9,z+r2(-0.3,0.3),r2(-0.5,0.5),r2(-0.22,-0.08));}
+    for(let i=0;i<46;i++){const x=r2(-360,360);if(!ok(x))continue;BM.shell(g,[0xffe9d6,0xffc8dc,0xfff3c0,0xd8f4ff][i%4],x,r2(SZ1-16,SZ1-5),r2(0,6));}}
   for(let i=0;i<4;i++){const x=rr(-300,300);if(!ok(x))continue;const z=rr(SZ0+20,SZ1-18),c=new THREE.Group();c.position.set(x,0.05,z);g.add(c);
     /* REMAKE: sandcastle collision: a ring of circles that follows the base, the four corner towers and the keep (the low walls are 1 m high, so you can jump onto them) */
     NIX.addSolid(x,z,1.0,3.2);for(const [dx,dz] of[[-1.3,-1.3],[1.3,-1.3],[-1.3,1.3],[1.3,1.3]])NIX.addSolid(x+dx,z+dz,0.7,2.0);for(const [dx,dz] of[[-1.3,0],[1.3,0],[0,-1.3],[0,1.3]])NIX.addSolid(x+dx,z+dz,0.65,1.05);
-    bxm(c,3.2,1.0,3.2,0xe3c48a,0,0.5,0);for(const [dx,dz] of[[-1.3,-1.3],[1.3,-1.3],[-1.3,1.3],[1.3,1.3]])bxm(c,0.9,1.9,0.9,0xe3c48a,dx,0.95,dz);bxm(c,1.4,1.4,1.4,0xe3c48a,0,1.6,0);cym(c,0.03,0.03,1.4,0xffffff,0,3.0,0,true);bxm(c,0.7,0.4,0.03,0xff2fa0,0.35,3.5,0,true);}
+    if(!(BM&&BM.castle(c))){   // REMAKE: Blender-made sandcastle on the same footprint (walls, four round towers with pointed roofs, keep, gate, flag); the boxes below are the fallback
+    bxm(c,3.2,1.0,3.2,0xe3c48a,0,0.5,0);for(const [dx,dz] of[[-1.3,-1.3],[1.3,-1.3],[-1.3,1.3],[1.3,1.3]])bxm(c,0.9,1.9,0.9,0xe3c48a,dx,0.95,dz);bxm(c,1.4,1.4,1.4,0xe3c48a,0,1.6,0);cym(c,0.03,0.03,1.4,0xffffff,0,3.0,0,true);bxm(c,0.7,0.4,0.03,0xff2fa0,0.35,3.5,0,true);}}
   // volleyball nets
-  for(let i=0;i<2;i++){const x=i?-210:-90;const n=new THREE.Group();n.position.set(x,0.05,SZ0+40);g.add(n);for(const sx of[-5,5])NIX.addSolid(x+sx,SZ0+40,0.3,3.5);for(const sx of[-5,5])cym(n,0.12,0.12,3.4,0xdddddd,sx,1.7,0);const net=bxm(n,10,1.2,0.04,0xffffff,0,2.7,0,true);net.material.transparent=true;net.material.opacity=0.45;bxm(n,10.2,0.1,0.06,0xffffff,0,3.3,0,true);bxm(n,16,0.04,12,0xe8cf99,0,0.02,0);}
+  for(let i=0;i<2;i++){const x=i?-210:-90;const n=new THREE.Group();n.position.set(x,0.05,SZ0+40);g.add(n);for(const sx of[-5,5])NIX.addSolid(x+sx,SZ0+40,0.3,3.5);
+    if(!(BM&&BM.net(n))){   // REMAKE: Blender-made net (padded posts, a real mesh of strands, tapes, antennas); the flat panel below is the fallback
+    for(const sx of[-5,5])cym(n,0.12,0.12,3.4,0xdddddd,sx,1.7,0);const net=bxm(n,10,1.2,0.04,0xffffff,0,2.7,0,true);net.material.transparent=true;net.material.opacity=0.45;bxm(n,10.2,0.1,0.06,0xffffff,0,3.3,0,true);}
+    bxm(n,16,0.04,12,0xe8cf99,0,0.02,0);}
   // lifeguard towers
-  for(const x of[-120,60,300]){if(!ok(x))continue;const t=new THREE.Group();t.position.set(x,0.05,SZ0+50);g.add(t);for(const [dx,dz] of[[-1.4,-1.2],[1.4,-1.2],[-1.4,1.2],[1.4,1.2]])NIX.addSolid(x+dx,SZ0+50+dz,0.3,3.5);for(const [dx,dz] of[[-1.4,-1.2],[1.4,-1.2],[-1.4,1.2],[1.4,1.2]])cym(t,0.12,0.12,3.4,0xffffff,dx,1.7,dz);bxm(t,3.6,0.2,3.2,0xffffff,0,3.4,0);bxm(t,3.2,2.0,2.8,0xff3d5a,0,4.5,0);bxm(t,3.4,0.2,3.0,0xffffff,0,5.6,0);bxm(t,1.4,0.9,0.05,0x9ffcff,0,4.7,1.42,true);cym(t,0.04,0.04,2.2,0xffffff,1.5,6.5,0);bxm(t,0.9,0.5,0.03,0xffe63c,1.95,7.3,0,true);
+  for(const x of[-120,60,300]){if(!ok(x))continue;const t=new THREE.Group();t.position.set(x,0.05,SZ0+50);g.add(t);for(const [dx,dz] of[[-1.4,-1.2],[1.4,-1.2],[-1.4,1.2],[1.4,1.2]])NIX.addSolid(x+dx,SZ0+50+dz,0.3,3.5);
+    if(BM&&BM.tower(t))continue;   // REMAKE: Blender-made lifeguard tower on the same legs (banded legs, braces, boarded cabin, rails, rescue ring, flag); the boxes below are the fallback
+    for(const [dx,dz] of[[-1.4,-1.2],[1.4,-1.2],[-1.4,1.2],[1.4,1.2]])cym(t,0.12,0.12,3.4,0xffffff,dx,1.7,dz);bxm(t,3.6,0.2,3.2,0xffffff,0,3.4,0);bxm(t,3.2,2.0,2.8,0xff3d5a,0,4.5,0);bxm(t,3.4,0.2,3.0,0xffffff,0,5.6,0);bxm(t,1.4,0.9,0.05,0x9ffcff,0,4.7,1.42,true);cym(t,0.04,0.04,2.2,0xffffff,1.5,6.5,0);bxm(t,0.9,0.5,0.03,0xffe63c,1.95,7.3,0,true);
     for(let s=0;s<3;s++)bxm(t,1.0,0.1,0.5,0xffffff,-2.2,0.3+s*0.9,1.6-s*0.3);}
   // beach tiki torches with flickering flames
-  const flames=[];for(let i=0;i<14;i++){const x=-330+i*47+rr(-8,8);if(!ok(x))continue;const z=SZ0+rr(4,10);TORCHP.push([x,z]);NIX.addSolid(x,z,0.25,3.3);cym(g,0.1,0.14,3.2,0x6b4a2b,x,1.6,z);const fl=new THREE.Mesh(new THREE.ConeGeometry(0.34,0.9,6),new THREE.MeshBasicMaterial({color:0xff9a2a}));fl.position.set(x,3.6,z);g.add(fl);flames.push(fl);}
+  const flames=[];for(let i=0;i<14;i++){const x=-330+i*47+rr(-8,8);if(!ok(x))continue;const z=SZ0+rr(4,10);TORCHP.push([x,z]);NIX.addSolid(x,z,0.25,3.3);if(!(BM&&BM.torch(g,x,z)))cym(g,0.1,0.14,3.2,0x6b4a2b,x,1.6,z);/* REMAKE: Blender-made bamboo torch with a bowl; the plain pole is the fallback */const fl=new THREE.Mesh(new THREE.ConeGeometry(0.34,0.9,6),new THREE.MeshBasicMaterial({color:0xff9a2a}));fl.position.set(x,3.6,z);g.add(fl);flames.push(fl);}
   FX_ANIM.push(t=>{flames.forEach((f,i)=>{const k=0.85+0.3*Math.sin(t*14+i*2.1)*Math.cos(t*9+i);f.scale.set(k,0.9+0.35*Math.sin(t*11+i),k);});});
   // ocean: buoys, sailboats, dolphins
   const buoys=[];for(let i=0;i<10;i++){const b=new THREE.Group();const x=rr(-420,420),z=SZ1+rr(50,260);b.position.set(x,0,z);b.userData.p=rr(0,6);cym(b,0.7,0.9,1.6,i%2?0xff3d3d:0xffffff,0,0.5,0);cym(b,0.2,0.2,1.6,0xdddddd,0,1.8,0);const lt=new THREE.Mesh(new THREE.SphereGeometry(0.28,8,6),new THREE.MeshBasicMaterial({color:0xffe63c}));lt.position.y=2.7;b.add(lt);b.userData.lt=lt;g.add(b);buoys.push(b);}
@@ -1184,13 +1222,18 @@ function crabFrame(dt){
    FX_ANIM.push(tt=>{tx.offset.y=-tt*0.02;pm.material.color.copy(dayC).lerp(nightC,nightK);pm.material.opacity=0.38+0.12*Math.sin(tt*1.7);});}
   /* ---- lighthouse with a sweeping beam ---- */
   {const L=new THREE.Group();L.position.set(-420,0,SZ1+170);scene.add(L);
-   const rk=new THREE.Mesh(new THREE.ConeGeometry(16,7,7),new THREE.MeshLambertMaterial({color:0x4a4658}));rk.position.y=2.5;L.add(rk);
-   for(let i=0;i<6;i++){const c=cym(L,3.4-i*0.28,3.7-i*0.28,6.5,i%2?0xff2040:0xf4f4f8,0,8+i*6.5,0,false,12);}
+   const rk=new THREE.Mesh(new THREE.ConeGeometry(16,7,7),new THREE.MeshLambertMaterial({color:0x2d1848,emissive:0x3d1066,emissiveIntensity:0.35}));rk.position.y=2.5;L.add(rk);
+   for(let i=0;i<6;i++){
+     const col=[0xff1e32,0xfcfcff,0xff1e32,0xfcfcff,0xff1e32,0xfcfcff][i];
+     cym(L,3.4-i*0.28,3.7-i*0.28,6.5,col,0,8+i*6.5,0,false,12);
+     const ring=new THREE.Mesh(new THREE.TorusGeometry(3.6-i*0.28,0.08,6,16),new THREE.MeshBasicMaterial({color:col===0xfcfcff?0xffffff:0xff1e32}));ring.rotation.x=Math.PI/2;ring.position.y=11.2+i*6.5;L.add(ring);
+   }
    const lan=new THREE.Mesh(new THREE.CylinderGeometry(2.4,2.4,3.2,10),new THREE.MeshBasicMaterial({color:0xffe9a0}));lan.position.y=48.5;L.add(lan);
-   cym(L,0,2.8,2.4,0xff2040,0,51.8,0,false,10);
+   cym(L,0,2.8,2.4,0xff1e32,0,51.8,0,false,10);
+   const capRing=new THREE.Mesh(new THREE.TorusGeometry(2.8,0.1,6,16),new THREE.MeshBasicMaterial({color:0xffffff}));capRing.rotation.x=Math.PI/2;capRing.position.y=50.6;L.add(capRing);
    const beam=new THREE.Group();beam.position.y=48.5;L.add(beam);
-   for(const dir of[1,-1]){const cn=new THREE.Mesh(new THREE.ConeGeometry(7,150,12,1,true),addMat(0xfff0b0,0.2));cn.rotation.z=-dir*Math.PI/2;cn.position.x=dir*75;beam.add(cn);}
-   FX_ANIM.push(tt=>{beam.rotation.y=tt*0.7;beam.children.forEach(c=>c.material.opacity=0.1+0.2*nightK);lan.material.color.setHex(Math.floor(tt*3)%2?0xffe9a0:0xfff7d0);});
+   for(const dir of[1,-1]){const cn=new THREE.Mesh(new THREE.ConeGeometry(7,150,12,1,true),addMat(0xfff0b0,0.25));cn.rotation.z=-dir*Math.PI/2;cn.position.x=dir*75;beam.add(cn);}
+   FX_ANIM.push(tt=>{beam.rotation.y=tt*0.7;beam.children.forEach(c=>c.material.opacity=0.15+0.25*nightK);lan.material.color.setHex(Math.floor(tt*3)%2?0xffe9a0:0xfff7d0);});
    }
   /* ---- jet skis zipping along the shore ---- */
   const skis=[];
@@ -1275,7 +1318,7 @@ function crabFrame(dt){
   Bt.prototype.cone=function(r,h,x,y,z,color,glow,seg,rx,rz){this.put(unit('n'+(seg||8),()=>new THREE.ConeGeometry(1,1,seg||8)),x,y,z,r,h,r,rx,0,rz,color,glow);};
   Bt.prototype.at=function(x,y,z,ry,fn){const old=this.F,f=new THREE.Matrix4().makeRotationY(ry||0);f.setPosition(x,y,z);this.F=old.clone().multiply(f);fn(this);this.F=old;};
   Bt.prototype.flush=function(par){
-    for(const [o,mat] of [[this.L,new THREE.MeshLambertMaterial({vertexColors:true})],[this.G,new THREE.MeshBasicMaterial({vertexColors:true})]]){
+    for(const [o,mat] of [[this.L,new THREE.MeshLambertMaterial({vertexColors:true,emissive:0x221834,emissiveIntensity:0.25})],[this.G,new THREE.MeshBasicMaterial({vertexColors:true})]]){
       if(!o.p.length)continue;
       const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(o.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(o.n,3));g.setAttribute('color',new THREE.Float32BufferAttribute(o.c,3));
       par.add(new THREE.Mesh(g,mat));
@@ -1335,6 +1378,11 @@ function crabFrame(dt){
     bt.box(30.8,hh,0.03,0,y,-15.385,col);
     for(const s of[-1,1]){bt.box(0.03,hh,30.8,s*15.385,y,0,col);bt.box(9.9,hh,0.03,s*10.45,y,15.385,col);}
     bt.box(11,hh-6,0.03,0,6.5+(hh-6)/2,15.385,col);
+    const cy=Math.min(H-0.4,6.2);
+    bt.box(30.7,0.1,0.08,0,cy,-15.32,CYAN,true);
+    for(const s of[-1,1])bt.box(0.08,0.1,30.7,s*15.32,cy,0,PINK,true);
+    bt.box(30.7,0.16,0.06,0,0.15,-15.32,0x3a2050);
+    for(const s of[-1,1])bt.box(0.06,0.16,30.7,s*15.32,0.15,0,0x3a2050);
   }
   const WALLC={'PIZZA SHOP':0xe9d7b6,'ARCADE':0x1c0f3e,'DINER':0xf3e1ea,'NEON CLUB':0x0d0820,'VIDEO RENTAL':0x14143a,'RECORD SHOP':0x2a1450,'HOTEL LOBBY':0xf1e0c8,'ROLLER RINK':0x1a1850,'CASINO':0x1a0830};
   const FX_I=[];   // per-frame animations for the interiors
@@ -1505,9 +1553,9 @@ function crabFrame(dt){
   /* ---------- NEON CLUB ---------- */
   function dressClub(g,bt,h,ps){
     const H=h.H,CH=[PINK,CYAN,PUR,GRN,YEL,ORG];
-    // dance floor tiles that cycle through colours
+    // dance floor tiles with smooth, steady neon ambiance (zero blinking/flashing)
     const tiles=[];for(let i=0;i<8;i++)for(let j=0;j<8;j++){const m=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.05,1.6),new THREE.MeshBasicMaterial({color:0xffffff}));m.position.set(-5.6+i*1.6,0.52,-4.8+j*1.6-1.2);g.add(m);tiles.push(m);}
-    FX_I.push(t=>{tiles.forEach((m,i)=>{const x=i%8,z=(i/8)|0;m.material.color.setHSL(((t*0.18+(x+z)*0.07)%1),1,0.28+0.22*Math.max(0,Math.sin(t*3-x*0.9+z*0.7)));});});
+    FX_I.push(t=>{tiles.forEach((m,i)=>{const x=i%8,z=(i/8)|0;m.material.color.setHSL(((t*0.03+(x+z)*0.08)%1),0.9,0.38+0.06*Math.sin(t*0.7+x*0.4));});});
     bt.box(14,0.1,0.2,0,0.55,-6.0,0x111111);
     // DJ booth screen: sunset grid wall
     panel(g,mkTex(512,256,(x,w,h2)=>{const gr=x.createLinearGradient(0,0,0,h2);gr.addColorStop(0,'#1a0a4a');gr.addColorStop(0.6,'#ff2fa0');gr.addColorStop(1,'#ffb347');x.fillStyle=gr;x.fillRect(0,0,w,h2);x.fillStyle='#ffe63c';x.beginPath();x.arc(256,150,70,Math.PI,0);x.fill();x.fillStyle='#0b0620';x.fillRect(0,150,w,106);x.strokeStyle='#25f4ff';x.lineWidth=2;for(let i=-10;i<=10;i++){x.beginPath();x.moveTo(256,150);x.lineTo(256+i*60,256);x.stroke();}for(let j=0;j<6;j++){x.beginPath();x.moveTo(0,160+j*j*3.2);x.lineTo(w,160+j*j*3.2);x.stroke();}}),14,7,0,8.2,-15.28,0);
@@ -1669,6 +1717,7 @@ function crabFrame(dt){
     for(let i=0;i<6;i++){const sx=-12.5+i*5;bt.cyl(0.55,0.55,0.12,sx,0.85,-11.4,0xc01030,false,10);bt.cyl(0.1,0.1,0.8,sx,0.45,-11.4,GOLD,true,6);bt.box(1.9,0.05,0.9,sx,0.15,-12.3,GOLD,true);}
     // blackjack / poker tables (dressing, low and out of the way)
     for(const [tx,tz] of[[-9,5],[9,5],[-9,11],[9,11]]){
+      if(NIX.bjTable&&NIX.bjTable(g,tx,tz))continue;   // REMAKE: Blender-made blackjack table (padded rim, betting circles, card shoe, a dealt hand, chips, five stools); the cylinders below are the fallback
       bt.cyl(2.6,2.6,0.9,tx,0.5,tz,0x0b6b3a,false,18);bt.cyl(2.8,2.8,0.2,tx,0.95,tz,GOLD,true,18);bt.cyl(2.5,2.5,0.1,tx,1.02,tz,0x0f8a4a,false,18);
       bt.cyl(0.5,0.5,0.9,tx,0.45,tz,0x2a0a14,false,8);
       for(let c=0;c<5;c++)bt.box(0.5,0.02,0.7,tx-1+c*0.55,1.09,tz-0.9,0xf4f0e6,false,c*0.2-0.3);
@@ -1692,7 +1741,9 @@ function crabFrame(dt){
     for(let i=0;i<6;i++){const sx=-12.5+i*5;panel(g,neonText('777',YEL,64,64,40,'#000'),1.6,1.4,sx,2.2,-13.48,0);}
     {const rc=mkTex(256,128,(x)=>{x.fillStyle='#0b6b3a';x.fillRect(0,0,256,128);for(let i=0;i<12;i++){x.fillStyle=i%2?'#c4152a':'#111';x.fillRect(10+i*19,30,17,40);}x.fillStyle='#fff';x.font='bold 22px sans-serif';x.textAlign='center';x.fillText('ROULETTE',128,100);});
       panel(g,rc,8.6,4,0,1.27,-3,0,-Math.PI/2);
-      const wh=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,0.2,16),new THREE.MeshBasicMaterial({color:YEL}));wh.position.set(-2.2,1.35,-3);g.add(wh);FX_I.push(t=>{wh.rotation.y=t*2;});}
+      const nxWh=NIX.roulWheel&&NIX.roulWheel(g);   // REMAKE: Blender-made roulette wheel (37 red, black and green pockets, gold frets, turret, ball) seated in the table's bowl; the yellow disc is the fallback
+      if(nxWh){nxWh.position.set(-2.2,1.5,-3);FX_I.push(t=>{nxWh.rotation.y=t*1.1;});}
+      else{const wh=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,0.2,16),new THREE.MeshBasicMaterial({color:YEL}));wh.position.set(-2.2,1.35,-3);g.add(wh);FX_I.push(t=>{wh.rotation.y=t*2;});}}
     const L=new THREE.PointLight(0xff2fa0,1.1,36);L.position.set(0,H-4,0);g.add(L);
     for(const p of ps){
       if(p.vend){dressVend(bt,p);continue;}
@@ -1707,12 +1758,15 @@ function crabFrame(dt){
     const bt=new Bt();
     try{walls(bt,h.H,WALLC[h.name]);fn(g,bt,h,propsOf(h));}catch(e){console.warn('interior',h.name,e);}
     bt.flush(g);
+    const intLt=new THREE.PointLight([PINK,CYAN,PUR,ORG,GRN][(h.neon||0)%5]||0xffe6a0,1.15,34);
+    intLt.position.set(0,Math.min(h.H-1.5,5.8),0);g.add(intLt);
   }
 })();
 (function buildTiki(){
   for(const h of NI.HOUSES){
     if(h.name!=='TIKI BAR')continue;
     const g=new THREE.Group();g.position.set(h.x,0,h.z);g.rotation.y=-h.k*Math.PI/2;scene.add(g);
+    const intLt=new THREE.PointLight(0xff9a3c,1.05,30);intLt.position.set(0,4.5,-4);g.add(intLt);
     const WOOD=0x7a4a22,BAM=0xc9a24a,THATCH=0xb08a3c;
     // woven floor mat
     const mat=bxm(g,24,0.04,12,0x9a6a38,0,0.06,-4);
@@ -1939,8 +1993,10 @@ const ferris=[];let wBase=0,wBaseT=0;
     const flat=(par,w,d,x,y,z,color,ry,op)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({color,transparent:op!=null,opacity:op==null?1:op,depthWrite:op==null}));m.rotation.set(-Math.PI/2,0,ry||0);m.position.set(x,y,z);par.add(m);return m;};
     if(t.k==='fountain'){   // big tiered fountain with animated jets and a glowing pool
       const cx=t.cx,cz=t.cz,pool=new THREE.Mesh(new THREE.CylinderGeometry(8.6,8.6,0.3,28),new THREE.MeshBasicMaterial({color:0x2fb4ff,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false}));pool.position.set(cx,1.45,cz);scene.add(pool);
+      if(!(NIX.has&&NIX.has('lm_fountain_body'))){   // REMAKE: the Blender-made fountain (blender/landmarks2.py, placed by NIX.landmarkDeco) has its own gold and neon rings; these two tubes are the fallback
       const rim=new THREE.Mesh(new THREE.TorusGeometry(8.9,0.35,6,32),new THREE.MeshBasicMaterial({color:0xff2fa0}));rim.rotation.x=Math.PI/2;rim.position.set(cx,1.5,cz);scene.add(rim);
       const rim2=new THREE.Mesh(new THREE.TorusGeometry(4.1,0.3,6,24),new THREE.MeshBasicMaterial({color:0x25f4ff}));rim2.rotation.x=Math.PI/2;rim2.position.set(cx,2.9,cz);scene.add(rim2);
+      }
       t.jets=[];
       for(let k=0;k<8;k++){const a=k/8*6.283,jm=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.4,4,6),new THREE.MeshBasicMaterial({color:0xbdf0ff,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false}));jm.position.set(cx+Math.cos(a)*6.2,3.4,cz+Math.sin(a)*6.2);scene.add(jm);t.jets.push({m:jm,ph:k*0.8,y0:1.4,h:4});}
       const top=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.9,9,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false}));top.position.set(cx,7.3,cz);scene.add(top);t.jets.push({m:top,ph:0,y0:2.8,h:9});
@@ -3501,7 +3557,7 @@ function startOnline(url,room,name,mk){
       $('ovRejoin').onclick=ev=>{ev.stopPropagation();try{sessionStorage.setItem('ni_rejoin',JSON.stringify({code:roomCode,name:myName}));}catch(e){}returnToMenu();};
       $('ovMenu').onclick=ev=>{ev.stopPropagation();returnToMenu();};
       $('overQ').insertAdjacentHTML('beforeend','<div style="font-size:12px;opacity:.7;margin-top:6px">controller: A = rejoin, B = main menu</div>');
-      let pv=[true,true];setInterval(()=>{const g=[...(navigator.getGamepads?navigator.getGamepads():[])].find(x=>x);if(!g)return;const a=!!(g.buttons[0]&&g.buttons[0].pressed),b=!!(g.buttons[1]&&g.buttons[1].pressed);if(a&&!pv[0])$('ovRejoin').click();else if(b&&!pv[1])$('ovMenu').click();pv=[a,b];},80);
+      let pv=[true,true];setInterval(()=>{let raw=[];try{if(navigator.getGamepads)raw=[...navigator.getGamepads()];}catch(e){}const g=raw.find(x=>x);if(!g)return;const a=!!(g.buttons[0]&&g.buttons[0].pressed),b=!!(g.buttons[1]&&g.buttons[1].pressed);if(a&&!pv[0])$('ovRejoin').click();else if(b&&!pv[1])$('ovMenu').click();pv=[a,b];},80);
       return;}
     if(started){$('over').style.display='flex';$('over').querySelector('h1').textContent='DISCONNECTED';$('overP').textContent=p2p?'The host left the game, or the connection dropped.':'Lost connection to the server.';$('overQ').textContent=p2p?'Click anywhere to go back to the menu and host or join again.':'Refresh the page to rejoin.';if(p2p)setTimeout(()=>{$('over').onclick=returnToMenu;},600);}else if(opened)$('msg').textContent='Connection closed.';else if($('msg').textContent.indexOf('onnecting')>=0)$('msg').textContent='Could not connect. Check the room code and your connection, then try again.';};
   if(p2p&&ws.readyState===1)ws.onopen();   // the host's own loopback connection is already open
@@ -4002,16 +4058,21 @@ function slSpin(){
   if(slSpinning||!myP||myP.m<(slBet==='all'?1:slBet))return;
   slSpinning=true;slPending=null;$('slMsg').textContent='';send(slBet==='all'?{t:'buy',k:'slot',all:1}:{t:'buy',k:'slot',bet:slBet});slRender();
   const R=[...$('slReels').children],t0=performance.now();
+  {const bx=document.querySelector('#slots .box2');bx.classList.remove('win','lose');R.forEach(r=>{r.classList.remove('stop');r.classList.add('spin');});}   // REMAKE: reels blur and roll while they spin (CSS in the casino-feel block)
   clearInterval(slAnim);slAnim=setInterval(()=>{
-    R.forEach(r=>r.textContent=SLSYM[Math.floor(Math.random()*6)]);try{sfx.tick&&sfx.tick();}catch(_){}
+    R.forEach(r=>{if(r.classList.contains('spin'))r.textContent=SLSYM[Math.floor(Math.random()*6)];});try{sfx.tick&&sfx.tick();}catch(_){}
     if(slPending&&performance.now()-t0>900){clearInterval(slAnim);slFinish(R);}
-    else if(performance.now()-t0>10000){clearInterval(slAnim);slSpinning=false;R.forEach(r=>r.textContent='?');$('slMsg').textContent='NO RESULT';slRender();}
+    else if(performance.now()-t0>10000){clearInterval(slAnim);slSpinning=false;R.forEach(r=>{r.classList.remove('spin');r.textContent='?';});$('slMsg').textContent='NO RESULT';slRender();}
   },80);
 }
 function slFinish(R){
-  const e=slPending;let i=0;const stop=()=>{
-    if(i<3){R[i].textContent=SLSYM[e[2+i]];try{sfx.buy();}catch(_){}i++;setTimeout(stop,350);return;}
+  const e=slPending;let i=0;
+  const keep=setInterval(()=>{for(const r of R)if(r.classList.contains('spin'))r.textContent=SLSYM[Math.floor(Math.random()*6)];},80);   // REMAKE: reels still turning keep rolling while the others stop one by one
+  const stop=()=>{
+    if(i<3){R[i].classList.remove('spin');R[i].classList.add('stop');R[i].textContent=SLSYM[e[2+i]];try{sfx.buy();}catch(_){}i++;setTimeout(stop,350);return;}
+    clearInterval(keep);
     slSpinning=false;const w=e[5],b=e[6];
+    {const bx=document.querySelector('#slots .box2');bx.classList.add(w>b?'win':w===b?'x':'lose');}   // REMAKE: the cabinet flashes gold on a win and dims on a loss
     if(w>b){$('slMsg').textContent='JACKPOT! +$'+(w-b);for(let k=0;k<4;k++)setTimeout(()=>{try{sfx.buy();}catch(_){}},k*140);}
     else if(w===b)$('slMsg').textContent='BET BACK';
     else $('slMsg').textContent='NO LUCK -$'+b;
@@ -4036,11 +4097,12 @@ function closeRoul(){if(rlSpinning)return;rlOpen=false;$('roul').style.display='
 function rlSpin(){
   if(rlSpinning||!myP||myP.m<(rlBet==='all'?1:rlBet))return;
   rlSpinning=true;rlPending=null;$('rlMsg').textContent='';send(Object.assign({t:'buy',k:'roul',kind:rlKind,num:rlNumV},rlBet==='all'?{all:1}:{bet:rlBet}));rlRender();
-  const B=$('rlBall'),t0=performance.now();clearInterval(rlAnim);
+  const B=$('rlBall'),t0=performance.now(),RB=document.querySelector('#roul .box2');clearInterval(rlAnim);
+  RB.classList.remove('win');B.classList.remove('stop');B.classList.add('spin');   // REMAKE: the ball whirls while the wheel turns, then lands with a bounce
   rlAnim=setInterval(()=>{const n=Math.floor(Math.random()*37);B.textContent=n;B.style.background=rlColor(n);try{sfx.tick&&sfx.tick();}catch(_){}
-    if(rlPending&&performance.now()-t0>1800){clearInterval(rlAnim);const e=rlPending;B.textContent=e[2];B.style.background=rlColor(e[2]);rlSpinning=false;
-      const w=e[3],b=e[4];if(w>0){$('rlMsg').textContent='WINNER! +$'+(w-b);for(let k=0;k<4;k++)setTimeout(()=>{try{sfx.buy();}catch(_){}},k*140);}else $('rlMsg').textContent='NO LUCK -$'+b;rlRender();}
-    else if(performance.now()-t0>10000){clearInterval(rlAnim);rlSpinning=false;$('rlMsg').textContent='NO RESULT';rlRender();}
+    if(rlPending&&performance.now()-t0>1800){clearInterval(rlAnim);const e=rlPending;B.textContent=e[2];B.style.background=rlColor(e[2]);rlSpinning=false;B.classList.remove('spin');B.classList.add('stop');
+      const w=e[3],b=e[4];if(w>0)RB.classList.add('win');if(w>0){$('rlMsg').textContent='WINNER! +$'+(w-b);for(let k=0;k<4;k++)setTimeout(()=>{try{sfx.buy();}catch(_){}},k*140);}else $('rlMsg').textContent='NO LUCK -$'+b;rlRender();}
+    else if(performance.now()-t0>10000){clearInterval(rlAnim);rlSpinning=false;B.classList.remove('spin');$('rlMsg').textContent='NO RESULT';rlRender();}
   },90);
 }
 function roulResult(e){if(e[1]===myId&&rlSpinning)rlPending=e;}
@@ -4436,7 +4498,7 @@ let streakN=0,streakT=0,streakTO=0;
 function addKill(){
   streakT=3.2;streakN++;
   if(streakN>=2){
-    const names=['','','DOUBLE KILL','TRIPLE KILL','QUAD KILL','MEGA KILL','RAMPAGE','UNSTOPPABLE','GODLIKE'];
+    const names=['','','DOUBLE KILL','TRIPLE KILL','QUAD KILL','MEGA KILL','RAMPAGE','UNSTOPPABLE','LEGENDARY'];   /* REMAKE: the top streak word was GODLIKE; now LEGENDARY (same slot, same effects) */
     const el=$('streak');el.textContent=names[Math.min(streakN,8)]+(streakN>8?' x'+streakN:'');el.className='';void el.offsetWidth;el.className='show';sfx.streak(Math.min(streakN,8));
   }
 }
@@ -4480,20 +4542,47 @@ function updatePads(dt){
 }
 let ride=null;const _gp=new THREE.Vector3();
 function nearWheel(){if(!myP||myP.st!=='alive'||driving>=0||me.y>3||ride)return null;return ferris.find(f=>Math.hypot(f.cx-me.x,f.cz-me.z)<13)||null;}
-function gondolaPos(f,k){f.spin.parent.updateMatrixWorld(true);f.gond[k].getWorldPosition(_gp);return{x:_gp.x,y:_gp.y-2.95,z:_gp.z};}
+function updateFerris(dt){
+  if(S&&S.rd&&S.rd.wa!==undefined){if(S.rd.wa!==wBase){wBase=S.rd.wa;wBaseT=elapsed;}}
+  for(const f of ferris){
+    const ang=(S&&S.rd&&S.rd.wa!==undefined)?wBase+(elapsed-wBaseT)*0.12:elapsed*0.12;
+    f.spin.rotation.z=ang;
+    for(let i=0;i<f.gond.length;i++){
+      const g=f.gond[i];
+      // gentle calming pendulum sway makes riding the ferris wheel feel natural and relaxing
+      const sway=Math.sin(elapsed*1.3+i*0.5)*0.024;
+      g.rotation.z=-ang+sway;
+    }
+    f.spin.updateMatrixWorld(true);
+  }
+}
+function gondolaPos(f,k){
+  f.spin.updateMatrixWorld(true);
+  f.gond[k].getWorldPosition(_gp);
+  return{x:_gp.x,y:_gp.y-2.85,z:_gp.z};
+}
 function startRide(f){
+  updateFerris(0);
   let best=0,by=1e9;for(let k=0;k<f.gond.length;k++){const p=gondolaPos(f,k);if(p.y<by){by=p.y;best=k;}}
-  ride={f,k:best,t:0,cab:f.gond[best].children[0]};if(ride.cab)ride.cab.visible=false;me.vx=me.vy=me.vz=0;sfx.buy();toast('CRYSTAL WHEEL','[E] TO GET OFF');
+  ride={f,k:best,t:0};me.vx=me.vy=me.vz=0;sfx.buy();toast('CRYSTAL WHEEL','[E] TO GET OFF');
 }
 function stopRide(toGround){
-  if(!ride)return;const f=ride.f;if(ride.cab)ride.cab.visible=true;ride=null;me.vy=0;
+  if(!ride)return;const f=ride.f;ride=null;me.vy=0;
   if(toGround){me.x=f.cx;me.z=f.cz+12;me.y=0;}
 }
 function updateRide(dt){
-  if(!myP||myP.st!=='alive'||driving>=0){if(ride.cab)ride.cab.visible=true;ride=null;return;}
+  if(!myP||myP.st!=='alive'||driving>=0){stopRide(false);return;}
   ride.t+=dt;const p=gondolaPos(ride.f,ride.k);
-  me.x=p.x;me.y=p.y;me.z=p.z;me.vx=me.vy=me.vz=0;
-  if(ride.t>53&&p.y<9)stopRide(true);   // one full turn (2*PI/0.12 = ~52s), then step off at the bottom
+  // ultra-smooth trajectory interpolation eliminates any sub-frame jitter
+  const sm=1-Math.exp(-28*dt);
+  if(ride.t<0.15){me.x=p.x;me.y=p.y;me.z=p.z;}
+  else{
+    me.x+=(p.x-me.x)*sm;
+    me.y+=(p.y-me.y)*sm;
+    me.z+=(p.z-me.z)*sm;
+  }
+  me.vx=me.vy=me.vz=0;
+  if(ride.t>53&&p.y<9)stopRide(true);   // one full turn (~52s), then step off smoothly at the bottom
 }
 function nearMbox(){const m=NI.WORLD.mbox;if(!m||!myP||me.y>3)return null;return Math.hypot(m.x-me.x,m.z-me.z)<4.2?m:null;}
 function nearSlot(){if(!myP||me.y>3)return false;const c=NI.WORLD.casino;return !!(c&&c.slots.some(q=>Math.hypot(q.x-me.x,q.z-me.z)<3.4));}
@@ -4618,7 +4707,7 @@ function weatherFx(dt){
   const k=wxK,w=wxNow;
   rain.visible=k>0.02&&(w===1||w===3);
   updateMeteors(dt);
-  scene.fog.near=w===4?60-56*k:60;
+  scene.fog.near=w===4?12-8*k:35;
   torch.intensity=(w===2?1.3*k:0);
   flashK=Math.max(0,flashK-dt*3.2);
   if(w===3&&SET.flash&&Math.random()<dt*0.14)flashK=Math.max(flashK,0.8);
@@ -4630,7 +4719,7 @@ function weatherFx(dt){
     for(const u of['top','mid','bot'])skyMat.uniforms[u].value.lerp(_cS,0.7*k);
     scene.fog.color.lerp(_cS,0.6*k);hemi.intensity*=1-0.4*k;dirLight.intensity*=1-0.6*k;rainMat.color.setHex(0x9ccfff);
   }else if(w===4){
-    scene.fog.color.lerp(_cF,0.85*k);scene.fog.far=Math.min(scene.fog.far,650-590*k);
+    scene.fog.color.lerp(_cF,0.85*k);scene.fog.far=Math.min(scene.fog.far,420-340*k);
     for(const u of['top','mid','bot'])skyMat.uniforms[u].value.lerp(_cF,0.7*k);hemi.intensity*=1-0.15*k;
   }else if(w===5){
     for(const u of['top','mid','bot'])skyMat.uniforms[u].value.lerp(new THREE.Color(0x5a1408),0.55*k);
@@ -4640,7 +4729,7 @@ function weatherFx(dt){
     scene.fog.color.lerp(new THREE.Color(0x1a4a5a),0.3*k);
   }else if(w===2){
     for(const u of['top','mid','bot'])skyMat.uniforms[u].value.lerp(_cD,0.9*k);
-    scene.fog.color.lerp(_cD,0.9*k);scene.fog.far=Math.min(scene.fog.far,650-480*k);
+    scene.fog.color.lerp(_cD,0.9*k);scene.fog.far=Math.min(scene.fog.far,420-220*k);
     hemi.intensity*=1-0.88*k;dirLight.intensity*=1-0.93*k;
   }
   if(flashK>0){hemi.intensity+=flashK*1.4;for(const u of['top','mid'])skyMat.uniforms[u].value.lerp(_cW,flashK*0.5);}
@@ -4925,7 +5014,7 @@ function oskKey(k){
   oskT.dispatchEvent(new Event('input',{bubbles:true}));oskDraw();
 }
 function pollPad(dt){
-  const gp=(navigator.getGamepads?[...navigator.getGamepads()]:[]).find(g=>g&&g.connected&&g.mapping==='standard')||(navigator.getGamepads?[...navigator.getGamepads()].find(g=>g&&g.connected):null);
+  let rawGp=[];try{if(navigator.getGamepads)rawGp=[...navigator.getGamepads()];}catch(e){}const gp=rawGp.find(g=>g&&g.connected&&g.mapping==='standard')||rawGp.find(g=>g&&g.connected);
   if(!gp){if(pad.on){pad.on=false;pad.x=pad.z=0;keys.Space=keys.KeyC=keys.KeyE=keys.ShiftLeft=false;if(padRT){padRT=false;mouseDown=false;}}return;}
   const B=i=>!!(gp.buttons[i]&&gp.buttons[i].pressed),V=i=>gp.buttons[i]?gp.buttons[i].value:0;
   const lx=dz(gp.axes[0]||0),ly=dz(gp.axes[1]||0),rx=dz(gp.axes[2]||0),ry=dz(gp.axes[3]||0);
@@ -5222,38 +5311,43 @@ function updateCarDrive(dt){
   const cd=CARS[carsM.get(driving)?carsM.get(driving).t:0];
   const maxS=cd.maxS;
   const lf=keys.KeyA||keys.ArrowLeft,rt=keys.KeyD||keys.ArrowRight,hb=keys.ShiftLeft||keys.ShiftRight;
-  // throttle: eased in, so it never snaps on/off (keyboard W/S or the controller triggers)
+  // throttle: eased in, snappy initial pickup (keyboard W/S or controller triggers)
   let tgt=((keys.KeyW||keys.ArrowUp)?1:0)-((keys.KeyS||keys.ArrowDown)?1:0);
   if(Math.abs(pad.z)>0.05)tgt=clamp(pad.z,-1,1);
-  thr+=(tgt-thr)*(1-Math.exp(-5*dt));
-  const want=thr>=0?thr*maxS:thr*maxS*0.35;
+  thr+=(tgt-thr)*(1-Math.exp(-(Math.abs(tgt)>Math.abs(thr)?12:7)*dt));
+  const want=thr>=0?thr*maxS:thr*maxS*0.45;
   const braking=(thr<-0.05&&cs.sp>0.5)||(thr>0.05&&cs.sp<-0.5);
-  const kk=Math.abs(thr)<0.04?0.55:(braking?2.8:cd.acc*(1-0.45*Math.abs(cs.sp)/maxS));
+  const kk=Math.abs(thr)<0.04?0.75:(braking?4.5:cd.acc*(1-0.25*Math.abs(cs.sp)/maxS));
   cs.sp+=(want-cs.sp)*(1-Math.exp(-kk*dt));
-  if(hb)cs.sp*=Math.exp(-1.8*dt);
-  cs.sp=clamp(cs.sp,-maxS*0.4,maxS);
-  // steering: smoothed input, less turning at speed, none while stopped
+  if(hb)cs.sp*=Math.exp(-2.2*dt);
+  cs.sp=clamp(cs.sp,-maxS*0.45,maxS);
+  // steering: snappy turn-in, fast auto-centering, agile at speed
   const sIn=clamp((lf?1:0)-(rt?1:0)-pad.x,-1,1);
-  steerS+=(sIn-steerS)*(1-Math.exp(-6.5*dt));
+  const sBack=Math.abs(sIn)<Math.abs(steerS)-0.02||sIn*steerS<0;
+  steerS+=(sIn-steerS)*(1-Math.exp(-(sBack?18:13)*dt));
   // drift: when you steer hard at speed (or pull the handbrake) the tyres let go a little, so the nose swings round easily
   const spdNow=Math.hypot(cs.vx,cs.vz);
-  const dTgt=(hb&&spdNow>6)?1:((spdNow>maxS*0.4&&Math.abs(steerS)>0.3&&cs.sp>0)?Math.min(1,Math.abs(steerS)):0);
-  driftV+=(dTgt-driftV)*(1-Math.exp(-7*dt));
-  const turn=cd.turn*1.25*(1+0.5*driftV)/(1+Math.abs(cs.sp)/(maxS*0.9));
-  cs.h+=steerS*turn*clamp(cs.sp/5,-1,1)*dt;
-  if(driftV>0.2)cs.sp*=Math.exp(-0.18*driftV*dt);
-  // grip: velocity eases toward where the car is pointing (less grip while drifting)
+  const dTgt=(hb&&spdNow>5)?1:((spdNow>maxS*0.3&&Math.abs(steerS)>0.25&&cs.sp>0)?Math.min(1,Math.abs(steerS)*1.2):0);
+  driftV+=(dTgt-driftV)*(1-Math.exp(-(dTgt<driftV&&Math.abs(sIn)<0.2?16:9)*dt));
+  const turn=cd.turn*1.35*(1+0.65*driftV)*(braking&&!hb?1.2:1)/(1+0.32*Math.abs(cs.sp)/maxS);
+  cs.h+=steerS*turn*clamp(cs.sp/3.8,-1,1)*dt;
+  if(driftV>0.2)cs.sp*=Math.exp(-0.14*driftV*dt);
+  // grip: velocity eases toward where the car is pointing
   const fx=Math.sin(cs.h),fz=Math.cos(cs.h);
-  const k=1-Math.exp(-(hb?2.0:(8-5.0*driftV))*dt);
+  const k=1-Math.exp(-(hb?2.5:(9.5-6.0*driftV))*dt);
   driftT-=dt;
-  if(driftV>0.45&&spdNow>7&&driftT<=0){driftT=0.07;burst(cs.x-fx*1.6+(Math.random()-0.5),0.6,cs.z-fz*1.6+(Math.random()-0.5),0xd8d0f0,2,2.2,0.7);if(Math.random()<0.4)noise(0.1,0.03,3200);}
+  if(driftV>0.35&&spdNow>6&&driftT<=0){
+    driftT=0.06;burst(cs.x-fx*1.6+(Math.random()-0.5),0.6,cs.z-fz*1.6+(Math.random()-0.5),0xd8d0f0,2,2.2,0.7);if(Math.random()<0.4)noise(0.1,0.03,3200);
+  }
   cs.vx+=(fx*cs.sp-cs.vx)*k;cs.vz+=(fz*cs.sp-cs.vz)*k;
   const px=cs.x,pz=cs.z;
   cs.x+=cs.vx*dt;cs.z+=cs.vz*dt;
   NI.pushOut(cs,cd.rad);
   const moved=Math.hypot(cs.x-px,cs.z-pz)/Math.max(dt,1e-4);
   const spd=Math.hypot(cs.vx,cs.vz);
-  if(spd>6&&moved<spd*0.55){cs.sp*=0.7;cs.vx*=0.7;cs.vz*=0.7;shake=Math.max(shake,0.15);}
+  if(spd>6&&moved<spd*0.55){cs.sp*=0.7;cs.vx*=0.7;cs.vz*=0.7;shake=Math.max(shake,0.15);
+    /* REMAKE: a hit is felt: sparks off the nose and a thud, at most a few times a second */
+    if(driftT<0.2){driftT=0.3;burst(cs.x+fx*cd.rad*0.8,0.8,cs.z+fz*cd.rad*0.8,0xffd27a,5,4.5,0.35);noise(0.12,0.09,900);shake=Math.max(shake,Math.min(0.4,0.12+spd*0.01));}}
   cs.x=clamp(cs.x,BOUNDS.x0,BOUNDS.x1);cs.z=clamp(cs.z,BOUNDS.z0,BOUNDS.z1);
   me.x=cs.x;me.z=cs.z;
 }
@@ -5916,7 +6010,7 @@ function applyTime(dt){
       tierMix(skyMat.uniforms.top.value,'top',tp,s);tierMix(skyMat.uniforms.mid.value,'mid',tp,s);tierMix(skyMat.uniforms.bot.value,'bot',tp,s);
       applyTime._tint=(applyTime._tint||[]);applyTime._tint.push([tp,s]);
     }
-    scene.fog.far=650-Math.min(8,tierPos)*45;
+    scene.fog.far=420-Math.min(8,tierPos)*20;
   }
   scene.fog.color.copy(skyMat.uniforms.bot.value);
   hemi.color.copy(a.hemiS).lerp(b.hemiS,n);hemi.groundColor.copy(a.hemiG).lerp(b.hemiG,n);hemi.intensity=a.hemiI+(b.hemiI-a.hemiI)*n;
@@ -5939,6 +6033,7 @@ function frame(now){
     if(mode==='solo')solo.tick(dt);
     dead=myP&&myP.st==='dead';
     if(myP){
+      updateFerris(dt);
       if(driving>=0){const dc=carsM.get(driving);if(pax&&dc){cs.x=dc.x;cs.z=dc.z;cs.h=dc.h;cs.sp=dc.sp||0;cs.vx=Math.sin(cs.h)*cs.sp;cs.vz=Math.cos(cs.h)*cs.sp;cs.y=dc.y||0;me.x=cs.x;me.z=cs.z;me.y=cs.y;}else if(dc&&CARS[dc.t].kind==='heli')updateHeli(dt,CARS[dc.t]);else updateCarDrive(dt);}else if(ride)updateRide(dt);else if(myP.st!=='dead')updateFoot(dt);
       proxAudio(dt);
       distT-=dt;if(distT<=0){distT=0.5;const dn=NI.distAt(me.x,me.z);if(dn!==curDist){curDist=dn;if(me.z<BOUNDS.z1-70)toast(DNAME[dn],DBLURB[dn],true);}}
@@ -5995,7 +6090,16 @@ function frame(now){
         cosTick(ud.av,elapsed);
       }
     }
-    ud.root.rotation.z+=(((id===driving&&!pax&&ud.rider)?-steerS*Math.min(1,Math.abs(cs.sp)/8)*0.28:0)-ud.root.rotation.z)*Math.min(1,dt*8);
+    /* REMAKE: vehicle animation (NIX.carAnim in nx/nx-props.js): wheels turn with the speed, front wheels steer, and cars, the truck and the hovercar
+       squat, dive and roll on a damped spring. Other players' cars and alien cars use their networked speed, and their turn rate stands in for the steering. */
+    const mine=id===driving&&!pax,ck=CARS[c.t].kind,lean=ck==='car'||ck==='truck'||ck==='hover';
+    if(NIX.carAnim&&ck!=='heli'){
+      let st=0;const v=mine?cs.sp:(c.sp||0);
+      if(mine)st=steerS;else{let dh=c.h-(c.nxH===undefined?c.h:c.nxH);while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;c.nxH=c.h;c.nxS=(c.nxS||0)+(clamp(dh/Math.max(dt,1e-3)*0.7,-1,1)-(c.nxS||0))*(1-Math.exp(-6*dt));st=c.nxS;}
+      if(ck==='hover')ud.root.userData.nxHov=1;
+      NIX.carAnim(ud.root,v,st,dt,lean);
+    }
+    if(!(NIX.carAnim&&lean))ud.root.rotation.z+=(((id===driving&&!pax&&ud.rider)?-steerS*Math.min(1,Math.abs(cs.sp)/8)*0.28:0)-ud.root.rotation.z)*Math.min(1,dt*8);
     if(ud.rotor){const on=c.drv>=0;ud.rotor.rotation.y+=dt*(on?38:3);if(ud.tail)ud.tail.rotation.x+=dt*(on?40:3);
       const tl=id===driving?clamp(cs.sp/CARS[c.t].maxS,-1,1)*0.18:clamp((c.sp||0)/CARS[c.t].maxS,-1,1)*0.18;ud.root.rotation.x+=(tl-ud.root.rotation.x)*Math.min(1,dt*5);}
     if(id===driving&&!pax){c.mesh.position.set(cs.x,CARS[c.t].kind==='heli'?cs.y:0,cs.z);c.mesh.rotation.y=cs.h;continue;}
@@ -6004,9 +6108,7 @@ function frame(now){
     c.mesh.position.set(c.x,c.y||0,c.z);c.mesh.rotation.y=c.h;
   }
   for(const o of lootObjs){if(!o.on)continue;o.m.rotation.y+=dt*1.6;o.edges.rotation.y-=dt*1.0;o.g.position.y=o.l.y+Math.sin(elapsed*2+o.l.id)*0.25;}
-  if(S&&S.rd&&S.rd.wa!==undefined){if(S.rd.wa!==wBase){wBase=S.rd.wa;wBaseT=elapsed;}}
   updSnipe(dt);
-  for(const f of ferris){f.spin.rotation.z=(S&&S.rd&&S.rd.wa!==undefined)?wBase+(elapsed-wBaseT)*0.12:elapsed*0.12;for(const g of f.gond)g.rotation.z=-f.spin.rotation.z;}
   for(const t of NI.WORLD.themes){if(t.pv)t.pv.rotation.y=elapsed*0.9;if(t.jets)for(const j of t.jets){j.m.scale.y=0.7+0.3*Math.sin(elapsed*5+j.ph);j.m.position.y=j.y0+j.m.scale.y*j.h/2;}}
   for(const t of NI.WORLD.themes)if(t.o){t.o.rotation.y+=dt;t.o.position.y=17+Math.sin(elapsed*2)*0.4;}
   for(const s of stationObjs){s.ico.rotation.y+=dt*1.5;s.ico.position.y=(s.tw?15:5.2)+Math.sin(elapsed*2)*0.3;}
@@ -6023,7 +6125,7 @@ function frame(now){
   if(started&&myP){
     if(driving>=0){
       const fx=Math.sin(cs.h),fz=Math.cos(cs.h),cdv=CARS[carsM.get(driving)?carsM.get(driving).t:0];
-      let dh=cs.h-camH;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;camH+=dh*(1-Math.exp(-4.5*dt));
+      let dh=cs.h-camH;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;camH+=dh*(1-Math.exp(-6.0*dt));
       if(cdv.kind!=='heli'){
         camIdle+=dt;if(camIdle>1.4)camOrb*=Math.exp(-2.4*dt);
         while(camOrb>Math.PI)camOrb-=6.283;while(camOrb<-Math.PI)camOrb+=6.283;
@@ -6036,7 +6138,9 @@ function frame(now){
         else{camera.position.set(cs.x-Math.sin(me.yaw+Math.PI)*cdv.cdist,cs.y+cdv.chgt-cs.pitch*4,cs.z-Math.cos(me.yaw+Math.PI)*cdv.cdist);camera.lookAt(cs.x+ax*40,cs.y+1.5+ay*40,cs.z+az*40);}
       }
       else if(hoodCam){camera.position.set(cs.x+fx*0.8,cdv.eye,cs.z+fz*0.8);camera.rotation.set(cs.pitch*0.5,cs.h+Math.PI+camOrb,0);}
-      else{camera.position.set(cs.x-cfx*cdv.cdist,cdv.chgt+cs.pitch*6,cs.z-cfz*cdv.cdist);camera.lookAt(cs.x+cfx*8,2.2,cs.z+cfz*8);}
+      else{   // REMAKE: the chase camera drops back a little as the car speeds up and looks slightly into the corner you are steering toward
+        const spn=Math.min(1,Math.hypot(cs.vx,cs.vz)/cdv.maxS),cdd=cdv.cdist*(1+0.16*spn),lk=steerS*2.2*spn;
+        camera.position.set(cs.x-cfx*cdd,cdv.chgt+cs.pitch*5,cs.z-cfz*cdd);camera.lookAt(cs.x+cfx*9+cfz*lk,1.9+cs.pitch*3,cs.z+cfz*9-cfx*lk);}
     }else if(myP.st==='dead'){
       const sl=specList();
       if(sl.length){
@@ -6067,11 +6171,15 @@ function frame(now){
       const eye=me.y+(myP.st==='down'?1.0:EYE)+Math.sin(elapsed*9)*Math.min(0.05,Math.hypot(me.vx,me.vz)*0.004);
       const tp=tpv&&myP.st!=='dead'&&!(aiming&&WPN[curW].scope);
       if(tp){   // third person: camera floats behind and a little to the right of your own character
-        const cp=Math.cos(me.pitch),fx=-Math.sin(me.yaw)*cp,fy=Math.sin(me.pitch),fz=-Math.cos(me.yaw)*cp,rx=Math.cos(me.yaw),rz=-Math.sin(me.yaw),D=6.2;
-        {const ex=me.x,ey=eye+0.2,ez=me.z,tx=me.x-fx*D+rx*0.9,ty=Math.max(0.7,eye+0.9-fy*D),tz=me.z-fz*D+rz*0.9;
+        const cp=Math.cos(me.pitch),fx=-Math.sin(me.yaw)*cp,fy=Math.sin(me.pitch),fz=-Math.cos(me.yaw)*cp,rx=Math.cos(me.yaw),rz=-Math.sin(me.yaw),D=ride?5.4:6.2;
+        if(ride){
+          camera.position.set(me.x-fx*D+rx*0.8,Math.max(0.7,eye+1.1-fy*D),me.z-fz*D+rz*0.8);
+        }else{
+          const ex=me.x,ey=eye+0.2,ez=me.z,tx=me.x-fx*D+rx*0.9,ty=Math.max(0.7,eye+0.9-fy*D),tz=me.z-fz*D+rz*0.9;
           const dx=tx-ex,dy=ty-ey,dz=tz-ez,len=Math.hypot(dx,dy,dz)||1;let t=len;
           try{const h=NI.rayWorld(ex,ey,ez,dx/len,dy/len,dz/len,len+0.4);if(h<len+0.4)t=Math.max(2.6,Math.min(len,h-0.4));}catch(e){}
-          camera.position.set(ex+dx/len*t,Math.max(0.5,ey+dy/len*t),ez+dz/len*t);}
+          camera.position.set(ex+dx/len*t,Math.max(0.5,ey+dy/len*t),ez+dz/len*t);
+        }
       }else camera.position.set(me.x,eye,me.z);
       camera.rotation.set(me.pitch+recoil*0.01,me.yaw,0);
       {const col=(myP&&myP.c)||0xff2fa0,key=col+'|'+prof.ch.join(',');
@@ -6122,8 +6230,8 @@ function frame(now){
   let nm='',url='',rm='';
   try{nm=localStorage.getItem('ni_name')||'';url=localStorage.getItem('ni_url')||'';}catch(e){}
   $('name').value=nm;
-  const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&/onrender\.com$|^localhost$|^127\.|^192\.168\.|^10\./.test(location.hostname);   // the page is served by our own server; anywhere else (Cloudflare Pages, GitHub Pages...) uses the Render matchmaking server
-  const def=window.NI_SIGNAL?window.NI_SIGNAL:onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:(location.protocol==='file:'?'ws://localhost:8080':'wss://neon-invasion-online.onrender.com');
+  const onGameHost=(location.protocol==='http:'||location.protocol==='https:')&&/onrender\.com$|^localhost$|^127\.|^192\.168\.|^10\./.test(location.hostname);   // the page is served by our own server; anywhere else (Cloudflare Pages, GitHub Pages, Desktop app...) uses the Render matchmaking server
+  const def=window.NI_SIGNAL?window.NI_SIGNAL:onGameHost?(location.protocol==='https:'?'wss://':'ws://')+location.host:'wss://neon-invasion-online.onrender.com';
   $('url').value=def;   // the address box is hidden now: always use the right server automatically
   const getName=()=>{if(acct)$('name').value=acct.name;const v=$('name').value.trim()||'PLAYER';try{localStorage.setItem('ni_name',v);}catch(e){}return v;};
   refreshLv();$('lvnote').textContent=loadNote;
@@ -6242,6 +6350,23 @@ function frame(now){
     const u=$('url').value.trim();try{localStorage.setItem('ni_url',u);}catch(e){}
     const code=$('room_in').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
     if(code){startOnline(u,code,getName(),()=>p2pGuestSocket(u,code));return;}   // join a friend's room
+    if(window.SteamAPI&&window.SteamNet){
+      $('msg').textContent='Creating Steam Lobby...';
+      const room=new HostRoom('STEAM');
+      window.__hr=room;
+      SteamNet.attachSteamToHostRoom(room);
+      SteamAPI.createLobby(8).then(res=>{
+        if(res.ok){
+          const btn=document.getElementById('bSteamInvite');
+          if(btn)btn.style.display='inline-block';
+          $('msg').textContent='Steam Lobby active! Shift+Tab or click INVITE.';
+        }else{
+          $('msg').textContent='Steam Lobby failed: '+(res.error||'unknown');
+        }
+      });
+      startOnline('steam://lobby','STEAM',getName(),()=>p2pLoopback(room));
+      return;
+    }
     $('msg').textContent='Opening your room...';
     window.__hostCtl=p2pHost(u,(c,room)=>{startOnline(u,c,getName(),()=>p2pLoopback(room));},msg=>{$('msg').textContent=msg;});
   };
@@ -6251,7 +6376,8 @@ function frame(now){
 /* ================= DEV MODE (for testing): Ctrl+Shift+D on the main menu turns it on/off, or add ?dev=1 to the address.
    In a solo game (or a room you host) press F8 for the dev panel: max money, every gun and perk maxed, god mode, jump to any round, spawn any alien or boss. ================= */
 let devOn=DEV_ON,devGod=false,devStart=1;
-if(devOn){   // everything unlocked: max level, every achievement, the whole Dex
+if(devOn){   // everything unlocked: max level, every achievement, the whole Dex, all radio channels
+  chanOpen=[true,true,true];
   let xp=0;for(let L=1;L<NI.MAXLV;L++)xp+=NI.xpNeed(L);
   prof.xp=Math.max(prof.xp,xp);prof.ach=NI.ACH.map(a=>a.id);prof.dex=DEXO.slice();saveProf();
   try{refreshLv();}catch(e){}

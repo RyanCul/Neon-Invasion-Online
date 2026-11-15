@@ -1,0 +1,285 @@
+# NEON INVASION - REMAKE : vehicles, shop stations, crates and rooftop kit. Run by build_assets.py (uses its helpers).
+# Everything here is written in GAME space (x right, y up, +z = the front of a vehicle); the g* wrappers convert to Blender.
+# Vehicles export four meshes: _body (white shades, tinted by the paint colour), _detail (true colours), _trim (neon, one colour), _lights.
+INDIGO = (0.085, 0.05, 0.17); PLUM = (0.16, 0.12, 0.26); CHROME = (0.62, 0.64, 0.72)
+HEAD = (1.0, 0.97, 0.8); TAIL = (1.0, 0.12, 0.2); CYAN = (0.145, 0.957, 1.0); ORANGE = (1.0, 0.6, 0.235); PINK = (1.0, 0.184, 0.627); VIOLET = (0.7, 0.42, 1.0)
+GA = {'x': 'X', 'y': 'Z', 'z': 'Y'}
+def gB(bm, w, h, d, x, y, z, col=WHITE, bev=0.04, rx=0, ry=0, rz=0, taper=None):
+    box(bm, (w, d, h), (x, -z, y), col, min(bev, 0.45 * min(w, h, d)), rot=(rx, -rz, ry), taper=taper)
+def gC(bm, r, l, x, y, z, col=WHITE, axis='y', n=14, r2=None, bev=0.0):
+    cyl(bm, r, l, (x, -z, y), col, axis=GA[axis], n=n, r2=r2, bevel=bev)
+def gS(bm, r, x, y, z, col=WHITE, scale=(1, 1, 1)):
+    sphere(bm, r, (x, -z, y), col, scale=(scale[0], scale[2], scale[1]))
+def gT(bm, R, r, x, y, z, col=WHITE, axis='y', nu=18, nv=6):
+    torus(bm, R, r, (x, -z, y), col, axis=GA[axis], nu=nu, nv=nv)
+def gP(bm, prof, width, x=0, col=WHITE, bev=0.05):       # side silhouette as (z, y) points, extruded across the width
+    prism(bm, [(-p[0], p[1]) for p in prof], width, (x, 0, 0), col, bev)
+def gL(bm, prof, n, col=WHITE):                          # revolve (radius, y) round the vertical axis
+    lathe(bm, prof, n=n, color=col)
+
+WH_CAP = None       # while a vehicle is built, wheel() only records its wheels here; veh() then exports one spinning mesh per axle (the game turns and steers it)
+def wheel(d, r, w, x, y, z, hub=CHROME):
+    if WH_CAP is not None: WH_CAP.append((r, w, x, y, z, hub)); return
+    gC(d, r, w, x, y, z, RUBBER, 'x', n=16, bev=min(0.08, r * 0.18))
+    gC(d, r * 0.6, w + 0.04, x, y, z, hub, 'x', n=10)
+    gC(d, r * 0.22, w + 0.08, x, y, z, DARK, 'x', n=8)
+
+def veh(i, fn, extra=None):
+    global WH_CAP
+    b, d, t, l = new_bm(), new_bm(), new_bm(), new_bm(); WH_CAP = []; fn(b, d, t, l); caps = WH_CAP; WH_CAP = None
+    export('car%d_body' % i, b, shade=0.15); export('car%d_detail' % i, d, shade=0.1); export('car%d_trim' % i, t); export('car%d_lights' % i, l)
+    if caps:            # every axle of a vehicle is the same pair of wheels, so one model (centred on the axle, the axle along x) serves all of them
+        ax = {}
+        for (r, w, x, y, z, hub) in caps: ax.setdefault((round(y, 3), round(z, 3)), []).append((r, w, x, hub))
+        keys = sorted(ax); wb = new_bm()
+        for (r, w, x, hub) in ax[keys[0]]: wheel(wb, r, w, x, 0, 0, hub)
+        export('car%d_wheels' % i, wb, shade=0.1, meta={'ax': [[k[0], k[1]] for k in keys], 'r': ax[keys[0]][0][0]})
+
+# ----------------------------------------------------------------------------- vehicles
+def v_segway(b, d, t, l):
+    for sx in (-1, 1):
+        wheel(d, 0.5, 0.28, sx * 0.62, 0.5, 0)
+        gB(b, 0.36, 0.08, 0.95, sx * 0.62, 1.07, 0, sh(0.85), 0.04)
+        gB(d, 0.14, 0.12, 0.12, sx * 0.52, 2.4, 0.38, RUBBER, 0.04)
+    gB(b, 1.5, 0.16, 1.0, 0, 0.78, 0, sh(1.0), 0.06); gB(d, 1.1, 0.03, 0.7, 0, 0.87, 0, RUBBER, 0.01)
+    gB(t, 1.56, 0.05, 1.04, 0, 0.68, 0, WHITE, 0.02)
+    gC(b, 0.07, 1.6, 0, 1.6, 0.38, sh(0.9), 'y', n=10); gB(d, 1.0, 0.09, 0.1, 0, 2.4, 0.38, DARK, 0.03)
+    gB(d, 0.3, 0.2, 0.16, 0, 1.3, 0.4, DARK, 0.05); gB(l, 0.26, 0.15, 0.06, 0, 1.3, 0.49, HEAD, 0.02)
+    gB(l, 0.2, 0.1, 0.04, 0, 2.43, 0.33, CYAN, 0.01)
+
+def v_moto(b, d, t, l):
+    wheel(d, 0.58, 0.3, 0, 0.58, 1.35); wheel(d, 0.58, 0.3, 0, 0.58, -1.3)
+    gP(b, [(-0.6, 0.95), (-0.5, 1.42), (0.5, 1.5), (1.0, 1.25), (0.9, 0.85), (0.2, 0.7)], 0.6, 0, sh(1.0), 0.08)
+    gB(d, 0.46, 0.16, 1.0, 0, 1.3, -0.75, DARK, 0.07); gB(b, 0.44, 0.3, 0.7, 0, 1.25, -1.45, sh(0.9), 0.1, taper=(0.6, 0.6))
+    gB(d, 0.5, 0.45, 0.7, 0, 0.75, 0.15, STEEL, 0.08); gC(d, 0.09, 1.3, 0.3, 0.6, -0.9, CHROME, 'z', n=8)
+    for sx in (-1, 1):
+        gB(d, 0.08, 1.05, 0.08, sx * 0.2, 1.1, 1.25, CHROME, 0.02, rx=-0.35); gB(d, 0.2, 0.1, 0.1, sx * 0.5, 1.75, 1.0, RUBBER, 0.03)
+    gB(d, 1.0, 0.07, 0.07, 0, 1.75, 1.0, DARK, 0.02); gB(b, 0.5, 0.42, 0.3, 0, 1.45, 1.45, sh(1.0), 0.1)
+    gB(d, 0.4, 0.26, 0.05, 0, 1.72, 1.4, GLASS, 0.02, rx=-0.5)
+    gB(l, 0.34, 0.22, 0.08, 0, 1.45, 1.62, HEAD, 0.03); gB(l, 0.3, 0.12, 0.08, 0, 1.28, -1.82, TAIL, 0.03)
+    gB(t, 0.64, 0.05, 1.3, 0, 0.95, 0.25, WHITE, 0.02); gB(b, 0.36, 0.06, 0.8, 0, 1.2, 1.35, sh(0.85), 0.03)
+
+def car_std(s, style):
+    def f(b, d, t, l):
+        L = 2.4 * s; W = 2.2 * s
+        if style == 0:      # coupe: rounded, short tail
+            body = [(-L, 0.55), (-L, 1.08), (-L + 0.35, 1.2), (0.9 * s, 1.2), (L - 0.5, 1.02), (L, 0.82), (L, 0.5), (L - 0.25, 0.4), (-L + 0.25, 0.4)]
+            cab = [(-1.7 * s, 1.15), (-1.0 * s, 1.74), (0.15 * s, 1.74), (0.95 * s, 1.15)]
+        elif style == 1:    # muscle: long flat hood, upright tail
+            body = [(-L, 0.6), (-L, 1.18), (1.0 * s, 1.25), (L - 0.15, 1.15), (L, 0.95), (L, 0.5), (L - 0.2, 0.4), (-L + 0.2, 0.4)]
+            cab = [(-2.0 * s, 1.2), (-0.9 * s, 1.78), (0.0, 1.78), (0.6 * s, 1.2)]
+        else:               # hyper: low wedge, cab forward
+            body = [(-L, 0.6), (-L, 1.22), (-L + 0.4, 1.3), (-0.2 * s, 1.22), (L - 0.9, 0.9), (L, 0.62), (L, 0.45), (L - 0.3, 0.36), (-L + 0.3, 0.36)]
+            cab = [(-1.3 * s, 1.22), (-0.6 * s, 1.66), (0.2 * s, 1.66), (1.25 * s, 1.02)]
+        gP(b, body, W, 0, sh(1.0), 0.09); gP(d, cab, W - 0.42, 0, GLASS, 0.05)
+        rz0, rz1 = cab[1][0], cab[2][0]; gB(b, W - 0.5, 0.07, rz1 - rz0 + 0.1, 0, cab[1][1] + 0.02, (rz0 + rz1) / 2, sh(0.92), 0.03)
+        wx = W / 2 - 0.16
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                wheel(d, 0.5, 0.42, sx * wx, 0.5, sz * 1.5 * s)
+                gB(b, 0.5, 0.22, 1.35, sx * (W / 2 - 0.14), 1.05, sz * 1.5 * s, sh(0.85), 0.1)
+            gB(d, 0.08, 0.16, 2.0 * s, sx * (W / 2 + 0.02), 0.5, 0, DARK, 0.03)
+            gB(t, 0.05, 0.07, 3.9 * s, sx * (W / 2 + 0.045), 0.74, 0, WHITE, 0.02)
+            hy = 0.66 if style == 2 else 0.92
+            gB(l, 0.5, 0.18, 0.1, sx * 0.7 * s, hy, L - (0.06 if style == 2 else 0.0), HEAD, 0.04)
+            gB(l, 0.55, 0.14, 0.1, sx * 0.68 * s, 0.98, -L - 0.01, TAIL, 0.04)
+            gB(d, 0.12, 0.1, 0.22, sx * (W / 2 + 0.06), 1.28, 0.75 * s, DARK, 0.03)
+            gC(d, 0.09, 0.3, sx * 0.6 * s, 0.45, -L - 0.05, CHROME, 'z', n=8)
+        gB(t, W + 0.06, 0.07, 0.06, 0, 0.5, L + 0.03, WHITE, 0.02); gB(t, W + 0.06, 0.07, 0.06, 0, 0.5, -L - 0.03, WHITE, 0.02)
+        gB(d, W * 0.55, 0.2, 0.08, 0, 0.6, L + 0.02, DARK, 0.03)
+        gB(d, W + 0.1, 0.16, 0.2, 0, 0.42, L - 0.02, CHROME, 0.05); gB(d, W + 0.1, 0.16, 0.2, 0, 0.45, -L + 0.02, CHROME, 0.05)
+        if style == 1:
+            gB(d, 0.75, 0.16, 1.0, 0, 1.3, 1.35 * s, DARK, 0.05); gB(d, W * 0.8, 0.1, 0.45, 0, 1.24, -L + 0.3, DARK, 0.04)
+        if style == 2:
+            gB(l, W * 0.8, 0.07, 0.08, 0, 1.12, -L - 0.01, TAIL, 0.02)
+            for sx in (-1, 1): gB(d, 0.1, 0.3, 0.9, sx * (W / 2 + 0.01), 0.85, -0.9 * s, DARK, 0.04)
+            for k in range(4): gB(d, 0.06, 0.2, 0.5, (k - 1.5) * 0.4, 0.42, -L + 0.1, DARK, 0.02)
+    return f
+
+def v_truck(b, d, t, l):
+    gB(d, 2.0, 0.3, 5.2, 0, 1.25, 0, DARK, 0.06)
+    gP(b, [(-2.7, 1.45), (-2.7, 2.35), (-1.75, 2.4), (0.4, 2.4), (2.3, 2.25), (2.7, 2.0), (2.7, 1.5), (2.5, 1.4), (-2.5, 1.4)], 2.6, 0, sh(1.0), 0.1)
+    gP(d, [(-1.75, 2.38), (-1.55, 3.38), (0.0, 3.38), (0.45, 2.38)], 2.25, 0, GLASS, 0.06); gB(b, 2.3, 0.1, 1.65, 0, 3.42, -0.78, sh(0.92), 0.04)
+    for sz in (-1, 1):
+        gC(d, 0.12, 3.3, 0, 1.0, sz * 1.85, STEEL, 'x', n=8)
+        for sx in (-1, 1):
+            wheel(d, 1.0, 0.9, sx * 1.65, 1.0, sz * 1.85); gB(b, 1.0, 0.16, 2.3, sx * 1.6, 2.15, sz * 1.85, sh(0.85), 0.07)
+            gC(d, 0.1, 0.9, sx * 1.15, 1.55, sz * 1.5, CHROME, 'y', n=8)
+    gB(d, 2.7, 0.45, 0.25, 0, 1.3, 2.85, STEEL, 0.08); gB(d, 2.2, 0.08, 0.08, 0, 1.75, 2.9, CHROME, 0.02); gB(d, 2.2, 0.5, 0.06, 0, 1.95, 2.72, DARK, 0.02)
+    for sx in (-1, 1):
+        gB(d, 0.08, 0.7, 0.08, sx * 0.8, 1.6, 2.9, CHROME, 0.02)
+        gB(l, 0.5, 0.3, 0.1, sx * 0.9, 1.92, 2.74, HEAD, 0.05); gB(l, 0.5, 0.25, 0.1, sx * 0.9, 1.9, -2.72, TAIL, 0.05)
+        gB(t, 0.05, 0.1, 5.2, sx * 1.33, 1.5, 0, WHITE, 0.02)
+        gC(d, 0.1, 1.5, sx * 1.2, 3.0, -1.95, CHROME, 'y', n=8); gB(d, 0.1, 1.0, 0.1, sx * 1.05, 2.9, -2.3, STEEL, 0.03)
+    gB(d, 2.2, 0.1, 0.1, 0, 3.4, -2.3, STEEL, 0.03)
+    for sx in (-1, 0, 1):
+        gB(d, 0.46, 0.26, 0.2, sx * 0.8, 3.58, 0.18, DARK, 0.05); gB(l, 0.4, 0.2, 0.06, sx * 0.8, 3.58, 0.3, HEAD, 0.03)
+
+def v_tank(b, d, t, l):
+    TRK = (0.1, 0.13, 0.09); GRD = (0.18, 0.24, 0.16); GUN = (0.13, 0.16, 0.13)
+    for sx in (-1, 1):
+        gP(d, [(-3.05, 0.7), (-2.7, 1.32), (2.7, 1.32), (3.05, 0.7), (2.6, 0.28), (-2.6, 0.28)], 1.1, sx * 2.0, TRK, 0.08)
+        for k in range(6): gC(d, 0.42, 1.16, sx * 2.0, 0.72, -2.5 + k, STEEL, 'x', n=10); gC(d, 0.16, 1.2, sx * 2.0, 0.72, -2.5 + k, DARK, 'x', n=6)
+        gB(d, 1.25, 0.12, 6.2, sx * 2.0, 1.38, 0, GRD, 0.04)
+        gB(t, 0.06, 0.1, 5.0, sx * 1.68, 1.95, 0, WHITE, 0.02); gB(l, 0.4, 0.2, 0.1, sx * 1.2, 1.45, 2.56, HEAD, 0.04); gB(l, 0.4, 0.16, 0.1, sx * 1.2, 1.7, -2.72, TAIL, 0.04)
+    gP(b, [(-2.7, 1.05), (-2.7, 2.0), (-2.2, 2.12), (1.6, 2.12), (2.7, 1.6), (2.7, 1.05)], 3.3, 0, sh(1.0), 0.1)
+    gB(b, 2.5, 0.9, 2.8, 0, 2.6, -0.3, sh(0.94), 0.22, taper=(0.8, 0.85)); gB(t, 2.3, 0.06, 0.06, 0, 2.3, 1.12, WHITE, 0.02)
+    gB(d, 1.0, 0.7, 0.5, 0, 2.7, 1.2, STEEL, 0.1); gC(d, 0.2, 4.4, 0, 2.72, 3.4, GUN, 'z', n=12); gC(d, 0.3, 0.6, 0, 2.72, 5.3, GUN, 'z', n=12, bev=0.05)
+    gC(d, 0.24, 0.5, 0, 2.72, 2.2, STEEL, 'z', n=12)
+    gC(d, 0.5, 0.2, 0.7, 3.12, -0.7, STEEL, 'y', n=12, bev=0.04); gB(l, 0.5, 0.2, 0.5, 0.7, 3.28, -0.7, (0.62, 0.99, 1.0), 0.06)
+    gC(d, 0.03, 2.2, -0.9, 4.1, -1.3, DARK, 'y', n=5)
+    for k in range(3): gB(d, 0.5, 0.3, 0.4, -1.3 + k * 0.6, 2.25, -2.3, GRD, 0.06)
+
+def v_heli(b, d, t, l):
+    gP(b, [(-1.7, 1.0), (-1.9, 1.8), (-1.3, 2.5), (0.45, 2.5), (0.55, 1.45), (2.0, 1.3), (2.0, 0.95)], 2.0, 0, sh(1.0), 0.12)
+    gB(b, 0.6, 0.6, 4.4, 0, 1.95, -3.6, sh(0.9), 0.15, taper=(0.55, 0.55)); gB(b, 1.6, 0.08, 0.5, 0, 2.0, -5.2, sh(0.85), 0.03)
+    gB(t, 0.16, 1.5, 0.9, 0, 2.5, -5.45, WHITE, 0.05, rx=-0.3)
+    gC(d, 0.14, 0.6, 0, 2.8, 0, DARK, 'y', n=8); gB(d, 0.9, 0.3, 1.2, 0, 2.6, -0.3, STEEL, 0.1)
+    for sx in (-1, 1):
+        gB(t, 0.06, 0.08, 3.4, sx * 1.02, 1.25, 0.1, WHITE, 0.02)
+        gC(d, 0.07, 3.2, sx * 1.0, 0.45, 0.2, DARK, 'z', n=8)
+        for z in (1.1, -0.8): gB(d, 0.08, 0.6, 0.08, sx * 1.0, 0.75, z, DARK, 0.02)
+        gC(d, 0.2, 1.7, sx * 1.5, 1.35, 1.2, DARK, 'z', n=10, bev=0.04); gB(d, 0.6, 0.08, 0.6, sx * 1.25, 1.45, 0.6, STEEL, 0.03)
+        gC(l, 0.1, 0.2, sx * 1.5, 1.35, 2.12, (1.0, 0.24, 0.3), 'z', n=8)
+    gB(l, 0.5, 0.2, 0.1, 0, 1.2, 2.02, HEAD, 0.04)
+
+def v_heli_extra():
+    g = new_bm(); gP(g, [(0.5, 1.5), (0.5, 2.48), (1.1, 2.3), (2.05, 1.35)], 1.8, 0, WHITE, 0.08); export('car7_glass', g)
+    r = new_bm(); BL = (0.1, 0.1, 0.13)
+    gC(r, 0.26, 0.3, 0, 0, 0, STEEL, 'y', n=10, bev=0.04)
+    gB(r, 9.2, 0.07, 0.36, 0, 0.05, 0, BL, 0.025); gB(r, 0.36, 0.07, 9.2, 0, 0.05, 0, BL, 0.025)
+    for sx in (-1, 1): gB(r, 0.5, 0.075, 0.37, sx * 4.3, 0.05, 0, (1.0, 0.8, 0.2), 0.02); gB(r, 0.37, 0.075, 0.5, 0, 0.05, sx * 4.3, (1.0, 0.8, 0.2), 0.02)
+    export('car7_rotor', r)
+
+def v_hover(b, d, t, l):
+    gP(b, [(-2.9, 0.8), (-2.9, 1.2), (-2.3, 1.32), (0.6, 1.28), (2.6, 0.95), (2.9, 0.8), (2.3, 0.72), (-2.3, 0.72)], 2.4, 0, sh(1.0), 0.1)
+    gP(d, [(-1.9, 1.28), (-1.2, 1.66), (0.1, 1.66), (1.3, 1.2)], 1.6, 0, GLASS, 0.07)
+    for sx in (-1, 1):
+        gB(b, 0.7, 0.38, 4.0, sx * 1.62, 0.85, -0.36, sh(0.9), 0.15, taper=(0.8, 0.8)); gB(t, 0.74, 0.05, 3.9, sx * 1.62, 0.63, -0.36, WHITE, 0.02)
+        gC(d, 0.3, 0.5, sx * 1.62, 0.85, -2.5, STEEL, 'z', n=12, bev=0.04); gC(l, 0.22, 0.08, sx * 1.62, 0.85, -2.78, CYAN, 'z', n=10)
+        gB(d, 0.5, 0.06, 0.7, sx * 1.25, 0.9, 0.6, DARK, 0.02)
+    gB(d, 0.14, 0.5, 0.9, 0, 1.55, -2.76, DARK, 0.04); gB(l, 1.4, 0.08, 0.08, 0, 0.9, 2.78, HEAD, 0.03); gB(l, 1.8, 0.08, 0.08, 0, 1.1, -2.92, TAIL, 0.03)
+    gB(t, 2.44, 0.05, 0.05, 0, 0.76, 2.4, WHITE, 0.02)
+
+veh(0, v_segway); veh(1, v_moto); veh(2, car_std(1.0, 0)); veh(3, car_std(1.12, 1)); veh(4, car_std(1.2, 2))
+veh(5, v_truck); veh(6, v_hover); veh(7, v_heli); v_heli_extra(); veh(8, v_tank)
+
+# ----------------------------------------------------------------------------- shop stations (_body: lit, true colours; _glow: unlit neon)
+def st_base(b, g, col):
+    gL(b, [(0, 0.4), (2.0, 0.4), (2.0, 0.56), (1.78, 0.7), (1.78, 0.94), (1.6, 1.0), (0, 1.0)], 20, INDIGO)
+    gT(g, 1.86, 0.05, 0, 0.63, 0, col, 'y', nu=24, nv=5)
+    for k in range(8):
+        a = k * math.pi / 4; gB(b, 0.16, 0.1, 0.16, math.cos(a) * 1.9, 0.6, math.sin(a) * 1.9, CHROME, 0.03)
+
+def st_armory(b, g):
+    C = CYAN; st_base(b, g, C)
+    gB(b, 4.7, 3.5, 0.3, 0, 2.75, -0.9, PLUM, 0.06); gB(b, 5.2, 0.5, 0.7, 0, 4.75, -0.8, INDIGO, 0.1)
+    gB(g, 4.3, 0.1, 0.1, 0, 4.45, -0.55, C, 0.03); gB(g, 4.3, 0.1, 0.1, 0, 1.05, -0.55, C, 0.03)
+    for sx in (-1, 1):
+        gB(b, 0.35, 3.9, 0.5, sx * 2.35, 2.9, -0.85, INDIGO, 0.08); gB(g, 0.08, 3.3, 0.08, sx * 2.35, 2.9, -0.57, C, 0.03)
+    for i in range(3):
+        y = 1.75 + i * 0.95
+        gB(b, 3.9, 0.07, 0.4, 0, y - 0.3, -0.6, (0.2, 0.62, 0.72), 0.02)   # teal gun racks (were grey)
+        gB(b, 2.6 - i * 0.4, 0.2, 0.16, -0.2 - i * 0.2, y, -0.6, (0.85, 0.9, 0.95), 0.04); gB(b, 0.8, 0.34, 0.16, -1.55, y - 0.08, -0.6, DARK, 0.05)
+        gB(b, 0.2, 0.4, 0.14, -0.8, y - 0.25, -0.6, DARK, 0.04, rz=0.2); gB(b, 0.18, 0.34, 0.14, -0.1, y - 0.24, -0.6, STEEL, 0.03)
+        gB(g, 0.14, 0.14, 0.2, 1.2 - i * 0.4, y, -0.6, C, 0.03); gB(b, 0.5, 0.1, 0.12, -0.4, y + 0.14, -0.6, DARK, 0.03)
+    gB(b, 0.8, 0.5, 0.6, 0.9, 1.25, 0.2, (0.2, 0.3, 0.25), 0.05); gB(b, 0.6, 0.4, 0.5, -0.8, 1.2, 0.35, (0.3, 0.22, 0.12), 0.05); gB(g, 0.5, 0.05, 0.04, 0.9, 1.3, 0.51, C, 0.01)
+
+def st_forge(b, g):
+    O = ORANGE; st_base(b, g, O); IRON = (0.34, 0.16, 0.3)   # dark plum iron (was grey)
+    gB(b, 1.5, 0.8, 1.2, 0, 1.4, 0, (0.2, 0.13, 0.09), 0.08)
+    for k in range(2): gB(b, 1.54, 0.08, 1.24, 0, 1.2 + k * 0.4, 0, IRON, 0.02)
+    gP(b, [(-1.0, 1.8), (-0.6, 2.05), (-0.45, 2.6), (-1.5, 2.75), (-1.5, 3.1), (1.3, 3.1), (2.1, 2.95), (1.3, 2.8), (0.45, 2.6), (0.6, 2.05), (1.0, 1.8)], 0.9, 0, IRON, 0.05)
+    gB(g, 0.7, 0.05, 2.4, 0, 3.13, -0.1, O, 0.01); gB(g, 0.25, 0.14, 0.8, 0, 3.22, 0.2, (1.0, 0.85, 0.4), 0.03)
+    gC(b, 0.06, 1.5, 0.75, 1.9, 0.3, (0.45, 0.3, 0.16), 'y', n=8); gB(b, 0.34, 0.34, 0.7, 0.75, 2.7, 0.3, STEEL, 0.05)
+    gC(b, 0.45, 0.5, -0.95, 1.25, 0.6, IRON, 'y', n=10, r2=0.55); gC(g, 0.42, 0.06, -0.95, 1.5, 0.6, (1.0, 0.45, 0.1), 'y', n=10)
+    for sz in (-1, 1): gB(g, 0.9, 0.08, 0.04, 0, 1.4, sz * 0.62, O, 0.01)
+
+def st_garage(b, g):
+    P = PINK; st_base(b, g, P)
+    gB(b, 5.6, 0.7, 0.8, 0, 4.85, 0, INDIGO, 0.12)
+    for sx in (-1, 1):
+        gB(b, 0.6, 4.3, 0.7, sx * 2.4, 2.5, 0, INDIGO, 0.1)
+        for sz in (-1, 1): gB(g, 0.1, 3.9, 0.1, sx * 2.4, 2.5, sz * 0.38, P, 0.03)
+    for sz in (-1, 1):
+        gB(g, 4.6, 0.1, 0.1, 0, 4.85, sz * 0.43, P, 0.03); gB(g, 4.2, 0.06, 0.05, 0, 1.04, sz * 0.14, (1.0, 0.9, 0.24), 0.01)
+        gB(b, 0.8, 0.08, 0.1, 0, 1.25, sz * 0.16, CHROME, 0.03)
+    for i in range(6): gB(b, 4.2, 0.5, 0.22, 0, 1.3 + i * 0.56, 0, (0.48, 0.1, 0.34) if i % 2 else (0.23, 0.05, 0.17), 0.06)
+    for k in range(2): gT(b, 0.4, 0.19, -1.1, 1.2 + k * 0.38, 0.95, RUBBER, 'y', nu=14, nv=6)
+    gB(b, 0.7, 0.45, 0.4, 1.1, 1.22, 0.95, (0.7, 0.1, 0.12), 0.05); gB(b, 0.74, 0.06, 0.44, 1.1, 1.47, 0.95, CHROME, 0.02)
+
+def st_perks(b, g):
+    V = VIOLET; st_base(b, g, V)
+    gL(b, [(0, 1.0), (1.5, 1.0), (0.75, 13.2), (0, 13.2)], 4, PLUM)
+    for i in range(14):
+        y = 1.6 + i * 0.85; w = 3.4 - i * 0.14
+        if i % 2: gL(g, [(0, y - 0.26), (w * 0.62, y - 0.26), (w * 0.7, y), (w * 0.62, y + 0.26), (0, y + 0.26)], 4, (0.89, 0.78, 1.0))
+        else:
+            gL(b, [(0, y - 0.28), (w * 0.64, y - 0.28), (w * 0.72, y), (w * 0.64, y + 0.28), (0, y + 0.28)], 4, INDIGO)
+            gL(g, [(0, y - 0.05), (w * 0.74, y - 0.05), (w * 0.74, y + 0.05), (0, y + 0.05)], 4, V)
+    gL(b, [(0, 13.2), (0.9, 13.2), (0.5, 13.75), (0, 13.75)], 4, INDIGO); gL(g, [(0, 13.75), (0.42, 13.75), (0.42, 13.85), (0, 13.85)], 4, WHITE)
+
+for nm, fn in (('armory', st_armory), ('forge', st_forge), ('garage', st_garage), ('perks', st_perks)):
+    b, g = new_bm(), new_bm(); fn(b, g); export('st_%s_body' % nm, b, shade=0.12); export('st_%s_glow' % nm, g)
+
+def icons():
+    m = new_bm(); gT(m, 0.9, 0.07, 0, 0, 0, WHITE, 'z', nu=24, nv=6); gS(m, 0.13, 0, 0, 0, WHITE)
+    for s in (-1, 1): gB(m, 0.7, 0.09, 0.09, s * 0.85, 0, 0, WHITE, 0.02); gB(m, 0.09, 0.7, 0.09, 0, s * 0.85, 0, WHITE, 0.02)
+    export('ico_cross', m)
+    m = new_bm(); gP(m, [(-0.35, -1.5), (0.35, -1.5), (0.35, -0.2), (0.95, -0.2), (0, 1.0), (-0.95, -0.2), (-0.35, -0.2)], 0.35, 0, ORANGE, 0.05); export('ico_arrow', m)
+    m = new_bm(); gT(m, 0.85, 0.28, 0, 0, 0, WHITE, 'x', nu=18, nv=8); gC(m, 0.3, 0.3, 0, 0, 0, PINK, 'x', n=10)
+    for k in range(5): gB(m, 0.12, 0.6, 0.12, 0, 0, 0, WHITE, 0.02, rx=k * math.pi / 5 * 2)
+    export('ico_wheel', m)
+    m = new_bm(); gL(m, [(0, -1.1), (0.78, 0.15), (0.45, 0.62), (0, 0.62)], 6, WHITE); export('ico_gem', m, smooth_deg=5)
+icons()
+
+# ----------------------------------------------------------------------------- mystery box and loot crates
+def mbox():
+    b, g = new_bm(), new_bm(); GOLD = (1.0, 0.78, 0.24); DEEP = (0.35, 0.2, 0.05)
+    gB(b, 3.3, 2.0, 2.1, 0, 1.1, 0, GOLD, 0.12); gB(b, 2.6, 1.4, 2.16, 0, 1.1, 0, DEEP, 0.04); gB(b, 3.36, 1.4, 1.4, 0, 1.1, 0, DEEP, 0.04)
+    for sx in (-1, 1):
+        for sz in (-1, 1): gB(b, 0.3, 2.2, 0.3, sx * 1.6, 1.1, sz * 1.0, (1.0, 0.85, 0.4), 0.06)
+    gB(b, 3.6, 0.45, 2.4, 0, 2.42, 0, (1.0, 0.82, 0.3), 0.14); gB(g, 3.5, 0.08, 2.3, 0, 2.16, 0, (1.0, 0.95, 0.69), 0.02)
+    for sz in (-1, 1):
+        for (x, y) in [(-.28, .42), (-.14, .56), (0, .56), (.14, .56), (.28, .42), (.28, .28), (.14, .14), (0, 0), (0, -.14), (0, -.45)]:
+            gB(g, 0.15, 0.15, 0.08, x * sz, 1.15 + y, sz * 1.1, WHITE, 0.0)
+    export('mbox_body', b, shade=0.12); export('mbox_glow', g)
+mbox()
+
+def loot():
+    m = new_bm(); gB(m, 1.5, 1.5, 1.5, 0, 0, 0, sh(0.72), 0.08)
+    for a in (-1, 1):
+        for c in (-1, 1):
+            gB(m, 0.2, 1.62, 0.2, a * 0.72, 0, c * 0.72, WHITE, 0.05); gB(m, 1.62, 0.2, 0.2, 0, a * 0.72, c * 0.72, WHITE, 0.05); gB(m, 0.2, 0.2, 1.62, a * 0.72, c * 0.72, 0, WHITE, 0.05)
+    export('loot_crate', m)
+    m = new_bm(); gL(m, [(0, -1.2), (0.85, 0.2), (0.55, 0.75), (0, 0.75)], 8, WHITE); export('loot_gem', m, smooth_deg=5)
+    m = new_bm(); gB(m, 1.7, 0.42, 1.1, 0, 0, 0, sh(0.85), 0.06); gB(m, 1.3, 0.05, 0.6, 0, 0.21, -0.1, WHITE, 0.01); gB(m, 0.8, 0.06, 0.3, 0, 0.22, 0.05, (0.1, 0.1, 0.15), 0.01)
+    for sx in (-1, 1): gC(m, 0.13, 0.08, sx * 0.25, 0.24, 0.05, WHITE, 'y', n=8)
+    export('loot_tape', m)
+    m = new_bm(); gB(m, 1.6, 1.1, 1.0, 0, -0.1, 0, sh(0.7), 0.08); gB(m, 1.66, 0.2, 1.06, 0, 0.5, 0, sh(0.95), 0.06); gB(m, 0.6, 0.08, 0.1, 0, 0.68, 0, sh(0.45), 0.03)
+    for k in range(4):
+        gC(m, 0.1, 0.5, -0.45 + k * 0.3, -0.15, 0.52, WHITE, 'y', n=8); gC(m, 0.1, 0.2, -0.45 + k * 0.3, 0.2, 0.52, WHITE, 'y', n=8, r2=0.02)
+    export('loot_ammo', m)
+LOW = True      # 67 crates on the map: single-segment bevels
+loot()
+LOW = False
+
+# ----------------------------------------------------------------------------- rooftop kit (origin on the roof surface; drawn many times, so kept light)
+LOW = True
+def roofkit():
+    AC = (0.4, 0.76, 0.86); STEEL = (0.62, 0.4, 0.82); DARK = (0.16, 0.1, 0.3)   # teal units, violet pipes and dark plum bases (was all grey)
+    m = new_bm(); gB(m, 2.2, 1.2, 1.5, 0, 0.75, 0, AC, 0.0); gC(m, 0.5, 0.08, 0, 1.37, 0, DARK, 'y', n=10); gT(m, 0.5, 0.05, 0, 1.4, 0, STEEL, 'y', nu=10, nv=4)
+    for k in range(4): gB(m, 1.6, 0.06, 0.04, 0, 0.4 + k * 0.2, 0.76, DARK, 0.0)
+    gB(m, 0.3, 0.3, 1.0, 1.4, 0.2, 0, STEEL, 0.0); export('roof_ac', m, shade=0.15)
+    m = new_bm()
+    for sx in (-1, 1):
+        for sz in (-1, 1): gB(m, 0.14, 1.6, 0.14, sx * 0.8, 0.8, sz * 0.8, DARK, 0.0)
+    gL(m, [(0, 1.6), (1.3, 1.6), (1.3, 3.8), (0, 4.5)], 10, (0.5, 0.33, 0.24))
+    for y in (2.1, 3.3): gT(m, 1.31, 0.05, 0, y, 0, DARK, 'y', nu=10, nv=4)
+    export('roof_tank', m, shade=0.15)
+    m = new_bm(); gB(m, 0.8, 0.3, 0.8, 0, 0.15, 0, DARK, 0.0); gC(m, 0.07, 7, 0, 3.5, 0, STEEL, 'y', n=6, r2=0.03)
+    gB(m, 1.4, 0.05, 0.05, 0, 5, 0, STEEL, 0.0); gB(m, 1.0, 0.05, 0.05, 0, 6, 0, STEEL, 0.0); gS(m, 0.6, 0.4, 3, 0, (0.8, 0.8, 0.85), scale=(1, 1, 0.35))
+    export('roof_ant', m)
+    m = new_bm(); gC(m, 0.35, 0.9, 0, 0.45, 0, STEEL, 'y', n=8); gL(m, [(0, 0.9), (0.6, 0.9), (0.35, 1.25), (0, 1.25)], 8, AC); export('roof_vent', m, shade=0.1)
+roofkit()
+LOW = False

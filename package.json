@@ -1,9 +1,23 @@
 {
-  "name": "neon-shores-invasion",
+  "name": "neon-invasion-remake",
   "version": "1.0.0",
-  "description": "Neon Invasion - co-op alien waves FPS in a neon 80s city",
-  "main": "server.js",
-  "scripts": { "start": "node server.js" },
-  "dependencies": { "ws": "^8.18.0" },
-  "engines": { "node": ">=18" }
+  "description": "Neon Invasion Remake - Steam Edition",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "game",
+    "steam",
+    "neon-invasion"
+  ],
+  "author": "Ryan",
+  "license": "Proprietary",
+  "dependencies": {
+    "steamworks.js": "^0.4.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-packager": "^17.1.2"
+  }
 }
